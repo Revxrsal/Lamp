@@ -2,8 +2,45 @@ package revxrsal.commands.process;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.CommandParameter;
 
+/**
+ * Creates a {@link ContextResolver} for specific types of parameters. These are
+ * most useful in the following cases:
+ * <ul>
+ *     <li>Creating a context resolver for only a specific type of parameters,
+ *     for example those with a specific annotation</li>
+ *     <li>Creating context resolvers for a common interface or class</li>
+ * </ul>
+ * <p>
+ * Example: We want to register a special context resolver for org.bukkit.Locations that
+ * are annotated with a specific annotation, in which the argument will be fed with the player's
+ * target location
+ * <pre>{@code
+ *
+ *  @Target(ElementType.PARAMETER)
+ *  @Retention(RetentionPolicy.RUNTIME)
+ *  public @interface LookingLocation {
+ *
+ *  }
+ *
+ *  public class LookingLocationFactory implements ContextResolverFactory {
+ *
+ *       @Override public ParameterResolver.ContextResolver<?> create(CommandParameter parameter, HandledCommand command, CommandHandler handler) {
+ *           if (parameter.getType() != Location.class) return null;
+ *           if (!parameter.hasAnnotation(LookingLocation.class)) return null;
+ *           return (args, subject, parameter1) -> {
+ *               Player player = ((BukkitCommandSubject) subject).requirePlayer();
+ *               return player.getTargetBlock(null, 200).getLocation();
+ *           };
+ *       }
+ *    }
+ * }</pre>
+ * <p>
+ * Note that {@link ContextResolverFactory}ies must be registered
+ * with {@link CommandHandler#registerContextResolverFactory(ContextResolverFactory)}.
+ */
 public interface ContextResolverFactory {
 
     /**
