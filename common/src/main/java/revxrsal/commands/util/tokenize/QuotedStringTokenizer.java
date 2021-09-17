@@ -52,6 +52,13 @@ public final class QuotedStringTokenizer {
     private static final int CHAR_SINGLE_QUOTE = '\'';
     private static final int CHAR_DOUBLE_QUOTE = '"';
 
+    /**
+     * Returns a list of tokens from parsing the given input,
+     * respecting quotes and breaks.
+     *
+     * @param arguments Argument string to parse
+     * @return A list of tokens.
+     */
     public static List<String> tokenize(String arguments) {
         if (arguments.length() == 0) {
             return Collections.emptyList();
