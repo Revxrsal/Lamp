@@ -1,0 +1,20 @@
+repositories {
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://hub.spigotmc.org/nexus/content/groups/public/' }
+}
+
+configurations {
+    shade
+    implementation.extendsFrom(shade)
+}
+
+dependencies {
+    shade project(':common')
+    compileOnly 'org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT'
+}
+
+jar {
+    from configurations.shade.asFileTree.files.collect {
+        zipTree(it)
+    }
+}

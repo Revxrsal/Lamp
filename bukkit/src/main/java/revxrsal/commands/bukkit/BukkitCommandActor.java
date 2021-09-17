@@ -1,0 +1,64 @@
+package revxrsal.commands.bukkit;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
+import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
+import revxrsal.commands.command.CommandActor;
+
+/**
+ * Represents a Bukkit {@link CommandActor} that wraps {@link CommandSender}
+ */
+public interface BukkitCommandActor extends CommandActor {
+
+    /**
+     * Returns the underlying {@link CommandSender} of this actor
+     *
+     * @return The sender
+     */
+    CommandSender getSender();
+
+    /**
+     * Tests whether is this actor a player or not
+     *
+     * @return Is this a player or not
+     */
+    boolean isPlayer();
+
+    /**
+     * Tests whether is this actor the console or not
+     *
+     * @return Is this the console or not
+     */
+    boolean isConsole();
+
+    /**
+     * Returns this actor as a {@link Player} if it is a player,
+     * otherwise returns {@code null}.
+     *
+     * @return The sender as a player, or null.
+     */
+    @Nullable Player getAsPlayer();
+
+    /**
+     * Returns this actor as a {@link Player} if it is a player,
+     * otherwise throws a {@link SenderNotPlayerException}.
+     *
+     * @return The actor as a player
+     * @throws SenderNotPlayerException if not a player
+     */
+    @NotNull Player requirePlayer() throws SenderNotPlayerException;
+
+    /**
+     * Returns this actor as a {@link ConsoleCommandSender} if it is a player,
+     * otherwise throws a {@link SenderNotConsoleException}.
+     *
+     * @return The actor as console
+     * @throws SenderNotConsoleException if not a player
+     */
+    @NotNull ConsoleCommandSender requireConsole() throws SenderNotConsoleException;
+
+}

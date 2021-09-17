@@ -1,0 +1,3 @@
+Cub is an annotation-based, powerful, highly customizable commands framework, made to greatly reduce the boilerplate of writing commands, parsing and validating input, creating tab completions and flags, and many other burdensome things we have to go through all the time when we write a command.
+
+Cub also aims to allow developers to focus more on writing code than all the other tasks that we aren't supposed to spend a lot of time doing. It reduces the hassle to reinvent the wheels, doing the search and all the calculations, and makes complicated functionality simple through annotations.
