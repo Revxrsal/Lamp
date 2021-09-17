@@ -10,7 +10,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Represents the handler for
+ * Represents the handler for registering and providing auto-completion
+ * suggestions.
  */
 public interface AutoCompleter {
 
