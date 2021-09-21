@@ -37,4 +37,5 @@ Glad you asked!
    - **[Simple and powerful auto completions API](common/src/main/java/revxrsal/commands/autocomplete/AutoCompleter.java)**
 
 ## Documentation
-TBA
+- **Examples and overview**: [Lamp/wiki](https://github.com/Revxrsal/Lamp/wiki)
+- **Javadocs**: https://revxrsal.github.io/Lamp/
