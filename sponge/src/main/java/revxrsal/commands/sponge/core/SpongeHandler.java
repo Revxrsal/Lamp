@@ -43,14 +43,14 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
             if (name.equalsIgnoreCase("me") || name.equalsIgnoreCase("self"))
                 return actor.as(SpongeCommandActor.class).requirePlayer();
             return Sponge.getServer().getPlayer(name)
-                    .orElseThrow(() -> new InvalidPlayerException(parameter, name, actor));
+                    .orElseThrow(() -> new InvalidPlayerException(parameter, name));
         });
         registerValueResolver(World.class, (arguments, actor, parameter, command) -> {
             String name = arguments.pop();
             if (name.equalsIgnoreCase("me") || name.equalsIgnoreCase("self"))
                 return actor.as(SpongeCommandActor.class).requirePlayer().getWorld();
             return Sponge.getServer().getWorld(name)
-                    .orElseThrow(() -> new InvalidPlayerException(parameter, name, actor));
+                    .orElseThrow(() -> new InvalidPlayerException(parameter, name));
         });
         getAutoCompleter()
                 .registerSuggestion("players", SuggestionProvider.map(Sponge.getServer()::getOnlinePlayers, Player::getName))

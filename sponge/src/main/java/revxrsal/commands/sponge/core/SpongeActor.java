@@ -12,7 +12,9 @@ import revxrsal.commands.sponge.exception.SenderNotPlayerException;
 
 import java.util.UUID;
 
-final class SpongeActor implements SpongeCommandActor {
+import static revxrsal.commands.util.Strings.colorize;
+
+public final class SpongeActor implements SpongeCommandActor {
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
 
@@ -31,7 +33,7 @@ final class SpongeActor implements SpongeCommandActor {
     }
 
     @Override public void reply(@NotNull String message) {
-        source.sendMessage(Text.of(message.replace('&', '\u00A7')));
+        source.sendMessage(Text.of(colorize(message)));
     }
 
     @Override public void error(@NotNull String message) {

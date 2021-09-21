@@ -7,6 +7,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.velocity.core.VelocityActor;
 import revxrsal.commands.velocity.exception.SenderNotConsoleException;
 import revxrsal.commands.velocity.exception.SenderNotPlayerException;
 
@@ -69,5 +70,16 @@ public interface VelocityCommandActor extends CommandActor {
      * @throws SenderNotConsoleException if not a player
      */
     @NotNull ConsoleCommandSource requireConsole() throws SenderNotConsoleException;
+
+    /**
+     * Creates a new {@link VelocityCommandActor} that wraps the given {@link CommandSource}.
+     *
+     * @param source      Command source to wrap
+     * @param proxyServer The injected proxy server
+     * @return The wrapping {@link VelocityCommandActor}.
+     */
+    static @NotNull VelocityCommandActor wrap(@NotNull CommandSource source, @NotNull ProxyServer proxyServer) {
+        return new VelocityActor(source, proxyServer);
+    }
 
 }

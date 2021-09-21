@@ -21,11 +21,6 @@ public class MissingArgumentException extends RuntimeException {
     private final @NotNull CommandParameter parameter;
 
     /**
-     * The command actor
-     */
-    private final @NotNull CommandActor actor;
-
-    /**
      * Returns the command being executed
      *
      * @return The command

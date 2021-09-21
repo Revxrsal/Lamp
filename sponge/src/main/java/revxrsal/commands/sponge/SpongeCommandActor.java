@@ -7,6 +7,7 @@ import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.sponge.core.SpongeActor;
 import revxrsal.commands.sponge.exception.SenderNotConsoleException;
 import revxrsal.commands.sponge.exception.SenderNotPlayerException;
 
@@ -72,5 +73,15 @@ public interface SpongeCommandActor extends CommandActor {
      * @throws SenderNotConsoleException if not a player
      */
     @NotNull ConsoleSource requireConsole() throws SenderNotConsoleException;
+
+    /**
+     * Creates a new {@link SpongeCommandActor} that wraps the given {@link CommandSource}.
+     *
+     * @param source Command source to wrap
+     * @return The wrapping {@link SpongeCommandActor}.
+     */
+    static @NotNull SpongeCommandActor wrap(@NotNull CommandSource source) {
+        return new SpongeActor(source);
+    }
 
 }

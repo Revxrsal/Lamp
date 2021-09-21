@@ -12,9 +12,4 @@ import revxrsal.commands.bungee.BungeeCommandActor;
 @AllArgsConstructor
 public class SenderNotPlayerException extends RuntimeException {
 
-    /**
-     * The command actor that failed to be a player.
-     */
-    private final @NotNull BungeeCommandActor actor;
-
 }

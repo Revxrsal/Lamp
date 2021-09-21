@@ -1,8 +1,6 @@
 package revxrsal.commands.bungee.exception;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bungee.BungeeCommandActor;
-import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.exception.InvalidValueException;
 
@@ -12,11 +10,7 @@ import revxrsal.commands.exception.InvalidValueException;
  */
 public class InvalidPlayerException extends InvalidValueException {
 
-    public InvalidPlayerException(@NotNull CommandParameter parameter, @NotNull String input, @NotNull CommandActor actor) {
-        super(parameter, input, actor);
-    }
-
-    @Override public @NotNull BungeeCommandActor getActor() {
-        return super.getActor().as(BungeeCommandActor.class);
+    public InvalidPlayerException(@NotNull CommandParameter parameter, @NotNull String input) {
+        super(parameter, input);
     }
 }

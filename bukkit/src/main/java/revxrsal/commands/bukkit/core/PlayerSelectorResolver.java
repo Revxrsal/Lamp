@@ -41,7 +41,7 @@ enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
             default: {
                 Player player = Bukkit.getPlayer(value);
                 if (player == null)
-                    throw new InvalidPlayerException(parameter, value, actor);
+                    throw new InvalidPlayerException(parameter, value);
                 coll.add(player);
                 return coll::iterator;
             }

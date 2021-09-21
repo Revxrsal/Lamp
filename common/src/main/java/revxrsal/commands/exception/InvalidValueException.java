@@ -26,9 +26,4 @@ public abstract class InvalidValueException extends RuntimeException {
      */
     private final @NotNull String input;
 
-    /**
-     * The command actor
-     */
-    private final @NotNull CommandActor actor;
-
 }

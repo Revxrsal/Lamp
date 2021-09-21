@@ -9,7 +9,7 @@ import java.io.PrintStream;
 import java.util.Scanner;
 import java.util.UUID;
 
-final class CommandLineActor implements ConsoleActor {
+public final class CommandLineActor implements ConsoleActor {
 
     private static final UUID CLI_UUID = new UUID(0, 0);
     private final CLIHandler handler;

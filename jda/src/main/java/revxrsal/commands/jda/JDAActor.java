@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.jda.core.BaseActorJDA;
 import revxrsal.commands.jda.exception.GuildOnlyCommandException;
 import revxrsal.commands.jda.exception.PrivateMessageOnlyCommandException;
 
@@ -97,5 +98,15 @@ public interface JDAActor extends CommandActor {
      * @return This actor
      */
     JDAActor checkNotInGuild(ExecutableCommand command) throws PrivateMessageOnlyCommandException;
+
+    /**
+     * Creates a new {@link JDAActor} that wraps the given {@link MessageReceivedEvent}.
+     *
+     * @param event Event to wrap
+     * @return The wrapping {@link JDAActor}.
+     */
+    static @NotNull JDAActor wrap(@NotNull MessageReceivedEvent event) {
+        return new BaseActorJDA(event);
+    }
 
 }

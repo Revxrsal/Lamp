@@ -22,8 +22,8 @@ enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
     INSTANCE;
 
     @Override public PlayerSelector resolve(@NotNull ArgumentStack arguments, @NotNull CommandActor actor, @NotNull CommandParameter parameter, @NotNull ExecutableCommand command) {
-        VelocityCommandActor subject = (VelocityCommandActor) actor;
-        ProxyServer server = subject.getServer();
+        VelocityCommandActor vActor = (VelocityCommandActor) actor;
+        ProxyServer server = vActor.getServer();
         String value = arguments.pop().toLowerCase();
         List<Player> coll = new ArrayList<>();
         Player[] players = server.getAllPlayers().toArray(new Player[0]);
@@ -37,11 +37,11 @@ enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
             }
             case "@s":
             case "@p": {
-                coll.add(subject.requirePlayer());
+                coll.add(vActor.requirePlayer());
                 return coll::iterator;
             }
             default: {
-                Player player = server.getPlayer(value).orElseThrow(() -> new InvalidPlayerException(parameter, value, actor));
+                Player player = server.getPlayer(value).orElseThrow(() -> new InvalidPlayerException(parameter, value));
                 coll.add(player);
                 return coll::iterator;
             }

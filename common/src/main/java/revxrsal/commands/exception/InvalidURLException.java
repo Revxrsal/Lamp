@@ -10,7 +10,7 @@ import revxrsal.commands.command.CommandParameter;
  */
 public class InvalidURLException extends InvalidValueException {
 
-    public InvalidURLException(@NotNull CommandParameter parameter, @NotNull String input, @NotNull CommandActor actor) {
-        super(parameter, input, actor);
+    public InvalidURLException(@NotNull CommandParameter parameter, @NotNull String input) {
+        super(parameter, input);
     }
 }

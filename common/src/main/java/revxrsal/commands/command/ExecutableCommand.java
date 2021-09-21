@@ -122,20 +122,6 @@ public interface ExecutableCommand {
     @NotNull <T> ResponseHandler<T> getResponseHandler();
 
     /**
-     * Returns the {@link Executor} responsible for running this command.
-     *
-     * @return The command executor
-     */
-    @NotNull Executor getExecutor();
-
-    /**
-     * Returns whether is this command executed asynchronously or not
-     *
-     * @return is async or not
-     */
-    boolean isAsync();
-
-    /**
      * Returns whether is this command marked as secret or not
      * <p>
      * Specified by {@link SecretCommand}.

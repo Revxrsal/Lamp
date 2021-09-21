@@ -40,7 +40,7 @@ enum SnowflakeResolvers implements ValueResolver<ISnowflake> {
 
     interface SnowflakeExceptionSupplier {
 
-        InvalidValueException get(CommandParameter parameter, String value, CommandActor actor);
+        InvalidValueException get(CommandParameter parameter, String value);
 
     }
 
@@ -62,13 +62,13 @@ enum SnowflakeResolvers implements ValueResolver<ISnowflake> {
         if (snowflake != null) {
             Object found = getById.get(guild, snowflake);
             if (found == null)
-                throw exception.get(parameter, value, actor);
+                throw exception.get(parameter, value);
             return (ISnowflake) found;
         } else {
             try {
                 return (ISnowflake) getByName.get(guild, value, true).get(0);
             } catch (IndexOutOfBoundsException e) {
-                throw exception.get(parameter, value, actor);
+                throw exception.get(parameter, value);
             }
         }
     }

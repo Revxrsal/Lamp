@@ -92,4 +92,15 @@ public final class Strings {
         System.arraycopy(array, 0, array, n, size - n);
         return new String(array);
     }
+
+    public static String colorize(@NotNull String text) {
+        char[] b = text.toCharArray();
+        for (int i = 0; i < b.length - 1; i++) {
+            if (b[i] == '&' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRrXx".indexOf(b[i + 1]) > -1) {
+                b[i] = '\u00A7';
+                b[i + 1] = Character.toLowerCase(b[i + 1]);
+            }
+        }
+        return new String(b);
+    }
 }

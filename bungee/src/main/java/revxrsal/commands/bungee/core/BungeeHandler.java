@@ -38,7 +38,7 @@ public final class BungeeHandler extends BaseCommandHandler implements BungeeCom
             if (name.equalsIgnoreCase("me") || name.equalsIgnoreCase("self"))
                 return ((BungeeCommandActor) actor).requirePlayer();
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer(name);
-            if (player == null) throw new InvalidPlayerException(parameter, name, actor);
+            if (player == null) throw new InvalidPlayerException(parameter, name);
             return player;
         });
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);

@@ -8,11 +8,7 @@ import revxrsal.commands.jda.JDAActor;
 
 public class InvalidCategoryException extends InvalidValueException {
 
-    public InvalidCategoryException(@NotNull CommandParameter parameter, @NotNull String input, @NotNull CommandActor actor) {
-        super(parameter, input, actor);
-    }
-
-    @Override public @NotNull JDAActor getActor() {
-        return super.getActor().as(JDAActor.class);
+    public InvalidCategoryException(@NotNull CommandParameter parameter, @NotNull String input) {
+        super(parameter, input);
     }
 }

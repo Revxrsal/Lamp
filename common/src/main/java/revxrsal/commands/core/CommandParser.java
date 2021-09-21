@@ -20,13 +20,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Collections.addAll;
 import static java.util.stream.Collectors.toMap;
-import static revxrsal.commands.core.BaseCommandHandler.ASYNC;
-import static revxrsal.commands.core.BaseCommandHandler.DIRECT;
 import static revxrsal.commands.util.Collections.listOf;
 import static revxrsal.commands.util.Strings.getName;
 import static revxrsal.commands.util.Strings.splitBySpace;
@@ -39,7 +36,7 @@ final class CommandParser {
 
     public static void parse(@NotNull BaseCommandHandler handler, CommandCompound registration, @NotNull Object boundTarget) {
         Class<?> type = boundTarget instanceof Class ? (Class<?>) boundTarget : boundTarget.getClass();
-       parse(handler, registration, type, boundTarget);
+        parse(handler, registration, type, boundTarget);
     }
 
     @SneakyThrows
@@ -74,7 +71,6 @@ final class CommandParser {
                 executable.resolveableParameters = executable.parameters.stream()
                         .filter(c -> c.getCommandIndex() != -1)
                         .collect(toMap(CommandParameter::getCommandIndex, c -> c));
-                executable.executor = handleExecutorExceptions(handler, isAsync(reader, method) ? ASYNC : DIRECT);
                 executable.usage = reader.get(Usage.class, Usage::value, () -> generateUsage(executable));
                 if (reader.contains(Default.class))
                     subactions.put(path, executable);
@@ -89,10 +85,6 @@ final class CommandParser {
                 cat.defaultAction = subaction;
             }
         });
-    }
-
-    private static boolean isAsync(AnnotationReader reader, Method method) {
-        return reader.contains(RunAsync.class) || CompletionStage.class.isAssignableFrom(method.getReturnType());
     }
 
     private static String generateUsage(@NotNull ExecutableCommand command) {
@@ -250,20 +242,6 @@ final class CommandParser {
         }
         Collections.reverse(classes);
         return classes;
-    }
-
-    private static @NotNull Executor handleExecutorExceptions(CommandHandler handler, Executor executor) {
-        return task -> executor.execute(handleRunnableExceptions(handler, task));
-    }
-
-    private static @NotNull Runnable handleRunnableExceptions(CommandHandler handler, Runnable runnable) {
-        return () -> {
-            try {
-                runnable.run();
-            } catch (Throwable t) {
-                handler.getExceptionHandler().handleException(t);
-            }
-        };
     }
 
     private static <K, V> void putOrError(Map<K, V> map, K key, V value, String err) {

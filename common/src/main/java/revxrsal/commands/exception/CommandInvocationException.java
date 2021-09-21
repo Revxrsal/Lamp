@@ -22,11 +22,6 @@ import revxrsal.commands.command.ExecutableCommand;
 public class CommandInvocationException extends RuntimeException {
 
     /**
-     * The command actor
-     */
-    private final @NotNull CommandActor actor;
-
-    /**
      * The command being executed
      */
     private final @NotNull ExecutableCommand command;

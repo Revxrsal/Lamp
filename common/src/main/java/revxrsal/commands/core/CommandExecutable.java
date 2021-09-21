@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.Unmodifiable;
-import revxrsal.commands.*;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.CommandPermission;
@@ -16,7 +16,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
@@ -33,7 +32,6 @@ class CommandExecutable implements ExecutableCommand {
     boolean secret;
     BoundMethodCaller methodCaller;
     BaseCommandCategory parent;
-    Executor executor;
     @SuppressWarnings("rawtypes") ResponseHandler responseHandler = ResponseHandler.VOID;
     private CommandPermission permission = CommandPermission.ALWAYS_TRUE;
     @Unmodifiable List<CommandParameter> parameters;
@@ -81,14 +79,6 @@ class CommandExecutable implements ExecutableCommand {
 
     @Override public @NotNull <T> ResponseHandler<T> getResponseHandler() {
         return responseHandler;
-    }
-
-    @Override public @NotNull Executor getExecutor() {
-        return executor;
-    }
-
-    @Override public boolean isAsync() {
-        return executor == BaseCommandHandler.ASYNC;
     }
 
     @Override public boolean isSecret() {

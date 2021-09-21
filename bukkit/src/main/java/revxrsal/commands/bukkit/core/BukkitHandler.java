@@ -47,7 +47,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 return ((BukkitCommandActor) actor).requirePlayer();
             Player player = Bukkit.getPlayer(value);
             if (player == null)
-                throw new InvalidPlayerException(parameter, value, actor);
+                throw new InvalidPlayerException(parameter, value);
             return player;
         });
         registerValueResolver(OfflinePlayer.class, (arguments, actor, parameter, command) -> {
@@ -57,7 +57,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
             //noinspection deprecation
             OfflinePlayer player = Bukkit.getOfflinePlayer(value);
             if (!player.hasPlayedBefore())
-                throw new InvalidPlayerException(parameter, value, actor);
+                throw new InvalidPlayerException(parameter, value);
             return player;
         });
         registerValueResolver(World.class, (arguments, actor, parameter, command) -> {
@@ -66,7 +66,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 return ((BukkitCommandActor) actor).requirePlayer().getWorld();
             World world = Bukkit.getWorld(value);
             if (world == null)
-                throw new InvalidWorldException(parameter, value, actor);
+                throw new InvalidWorldException(parameter, value);
             return world;
         });
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);

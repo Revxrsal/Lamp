@@ -4,6 +4,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.bungee.core.BungeeActor;
 import revxrsal.commands.bungee.exception.SenderNotPlayerException;
 import revxrsal.commands.command.CommandActor;
 
@@ -40,5 +41,15 @@ public interface BungeeCommandActor extends CommandActor {
      * @throws SenderNotPlayerException if the sender is not a player (i.e console)
      */
     @NotNull ProxiedPlayer requirePlayer() throws SenderNotPlayerException;
+
+    /**
+     * Creates a new {@link BungeeCommandActor} that wraps the given {@link CommandSender}.
+     *
+     * @param sender Command sender to wrap
+     * @return The wrapping {@link BungeeCommandActor}.
+     */
+    static @NotNull BungeeCommandActor wrap(@NotNull CommandSender sender) {
+        return new BungeeActor(sender);
+    }
 
 }

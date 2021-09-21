@@ -1,6 +1,7 @@
 package revxrsal.commands.exception;
 
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 
 import java.time.Duration;
@@ -16,59 +17,58 @@ public /*final*/ class DefaultExceptionHandler extends CommandExceptionAdapter {
 
     public static final DefaultExceptionHandler INSTANCE = new DefaultExceptionHandler();
 
-    @Override protected void missingArgument(@NotNull MissingArgumentException exception) {
-        exception.getActor().error("You must specify a value for the " + exception.getParameter().getName() + "!");
+    @Override protected void missingArgument(@NotNull CommandActor actor, @NotNull MissingArgumentException exception) {
+        actor.error("You must specify a value for the " + exception.getParameter().getName() + "!");
     }
 
-    @Override protected void invalidEnumValue(@NotNull EnumNotFoundException exception) {
-        exception.getActor().error("Invalid " + exception.getParameter().getName() + ": " + exception.getInput() + ".");
+    @Override protected void invalidEnumValue(@NotNull CommandActor actor, @NotNull EnumNotFoundException exception) {
+        actor.error("Invalid " + exception.getParameter().getName() + ": " + exception.getInput() + ".");
     }
 
-    @Override protected void invalidNumber(@NotNull InvalidNumberException exception) {
-        exception.getActor().error("Expected a number, but found '" + exception.getInput() + "'.");
+    @Override protected void invalidNumber(@NotNull CommandActor actor, @NotNull InvalidNumberException exception) {
+        actor.error("Expected a number, but found '" + exception.getInput() + "'.");
     }
 
-    @Override protected void invalidUUID(@NotNull InvalidUUIDException exception) {
-        exception.getActor().error("Invalid UUID: " + exception.getInput());
+    @Override protected void invalidUUID(@NotNull CommandActor actor, @NotNull InvalidUUIDException exception) {
+        actor.error("Invalid UUID: " + exception.getInput());
     }
 
-    @Override protected void invalidURL(@NotNull InvalidURLException exception) {
-        exception.getActor().error("Invalid URL: " + exception.getInput());
+    @Override protected void invalidURL(@NotNull CommandActor actor, @NotNull InvalidURLException exception) {
+        actor.error("Invalid URL: " + exception.getInput());
     }
 
-    @Override protected void invalidBoolean(@NotNull InvalidBooleanException exception) {
-        exception.getActor().error("Expected true or false, but found '" + exception.getInput() + "'.");
+    @Override protected void invalidBoolean(@NotNull CommandActor actor, @NotNull InvalidBooleanException exception) {
+        actor.error("Expected true or false, but found '" + exception.getInput() + "'.");
     }
 
-    @Override protected void noPermission(@NotNull NoPermissionException exception) {
-        exception.getActor().error("You do not have permission to execute this command!");
+    @Override protected void noPermission(@NotNull CommandActor actor, @NotNull NoPermissionException exception) {
+        actor.error("You do not have permission to execute this command!");
     }
 
-    @Override protected void commandInvocation(@NotNull CommandInvocationException exception) {
-        exception.getActor().error("An error occurred while executing the command.");
+    @Override protected void commandInvocation(@NotNull CommandActor actor, @NotNull CommandInvocationException exception) {
+        actor.error("An error occurred while executing the command.");
         exception.getCause().printStackTrace();
     }
 
-    @Override protected void tooManyArguments(@NotNull TooManyArgumentsException exception) {
+    @Override protected void tooManyArguments(@NotNull CommandActor actor, @NotNull TooManyArgumentsException exception) {
         ExecutableCommand command = exception.getCommand();
-        exception.getActor().error("Too many arguments! Correct usage: /" + command.getPath().toRealString() + " " + command.getUsage());
+        actor.error("Too many arguments! Correct usage: /" + command.getPath().toRealString() + " " + command.getUsage());
     }
 
-    @Override protected void invalidCommand(@NotNull InvalidCommandException exception) {
-        exception.getActor().error("Invalid command: " + exception.getInput());
+    @Override protected void invalidCommand(@NotNull CommandActor actor, @NotNull InvalidCommandException exception) {
+        actor.error("Invalid command: " + exception.getInput());
     }
 
-    @Override protected void invalidSubcommand(@NotNull InvalidSubcommandException exception) {
-        exception.getActor().error("Invalid subcommand: " + exception.getInput());
+    @Override protected void invalidSubcommand(@NotNull CommandActor actor, @NotNull InvalidSubcommandException exception) {
+        actor.error("Invalid subcommand: " + exception.getInput());
     }
 
-    @Override protected void noSubcommandSpecified(@NotNull NoSubcommandSpecifiedException exception) {
-        exception.getActor().error("You must specify a subcommand!");
+    @Override protected void noSubcommandSpecified(@NotNull CommandActor actor, @NotNull NoSubcommandSpecifiedException exception) {
+        actor.error("You must specify a subcommand!");
     }
 
-    @Override protected void cooldown(@NotNull CooldownException exception) {
-        exception.getActor().error("You must wait " + formatTimeFancy(exception.getTimeLeftMillis())
-                + " before using this command again.");
+    @Override protected void cooldown(@NotNull CommandActor actor, @NotNull CooldownException exception) {
+        actor.error("You must wait " + formatTimeFancy(exception.getTimeLeftMillis()) + " before using this command again.");
     }
 
     public static String formatTimeFancy(long time) {
@@ -107,7 +107,7 @@ public /*final*/ class DefaultExceptionHandler extends CommandExceptionAdapter {
         return thing + "s";
     }
 
-    @Override protected void handleUnknown(@NotNull Throwable throwable) {
+    @Override protected void handleUnknown(@NotNull CommandActor actor, @NotNull Throwable throwable) {
         throwable.printStackTrace();
     }
 }

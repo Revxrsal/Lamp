@@ -13,7 +13,10 @@ import revxrsal.commands.velocity.exception.SenderNotPlayerException;
 
 import java.util.UUID;
 
-final class VelocityActor implements VelocityCommandActor {
+import static revxrsal.commands.util.Preconditions.notNull;
+import static revxrsal.commands.util.Strings.colorize;
+
+public final class VelocityActor implements VelocityCommandActor {
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
 
@@ -21,8 +24,8 @@ final class VelocityActor implements VelocityCommandActor {
     private final ProxyServer server;
 
     public VelocityActor(CommandSource source, ProxyServer server) {
-        this.source = source;
-        this.server = server;
+        this.source = notNull(source, "command source");
+        this.server = notNull(server, "proxy server");
     }
 
     @Override public @NotNull String getName() {
@@ -34,7 +37,8 @@ final class VelocityActor implements VelocityCommandActor {
     }
 
     @Override public void reply(@NotNull String message) {
-        source.sendMessage(Component.text(message.replace('&', '\u00A7')));
+        notNull(message, "message");
+        source.sendMessage(Component.text(colorize(message)));
     }
 
     @Override public void error(@NotNull String message) {

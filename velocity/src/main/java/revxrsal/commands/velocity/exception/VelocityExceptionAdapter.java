@@ -1,12 +1,12 @@
-package revxrsal.commands.bungee.exception;
+package revxrsal.commands.velocity.exception;
 
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.DefaultExceptionHandler;
 
-public /*final*/ class BungeeExceptionAdapter extends DefaultExceptionHandler {
+public /*final*/ class VelocityExceptionAdapter extends DefaultExceptionHandler {
 
-    public static final BungeeExceptionAdapter INSTANCE = new BungeeExceptionAdapter();
+    public static final VelocityExceptionAdapter INSTANCE = new VelocityExceptionAdapter();
 
     @Override protected final void handleUnknown(@NotNull CommandActor actor, @NotNull Throwable throwable) {
         if (throwable instanceof SenderNotPlayerException)

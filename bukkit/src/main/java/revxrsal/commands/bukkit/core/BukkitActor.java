@@ -1,6 +1,5 @@
 package revxrsal.commands.bukkit.core;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -12,12 +11,15 @@ import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
 
 import java.util.UUID;
 
-final class BukkitActor implements BukkitCommandActor {
+import static revxrsal.commands.util.Preconditions.notNull;
+import static revxrsal.commands.util.Strings.colorize;
+
+public final class BukkitActor implements BukkitCommandActor {
 
     private final CommandSender sender;
 
     public BukkitActor(CommandSender sender) {
-        this.sender = sender;
+        this.sender = notNull(sender, "sender");
     }
 
     @Override public CommandSender getSender() {
@@ -38,13 +40,13 @@ final class BukkitActor implements BukkitCommandActor {
 
     @Override public @NotNull Player requirePlayer() {
         if (!isPlayer())
-            throw new SenderNotPlayerException(this);
+            throw new SenderNotPlayerException();
         return (Player) sender;
     }
 
     @Override public @NotNull ConsoleCommandSender requireConsole() {
         if (!isConsole())
-            throw new SenderNotConsoleException(this);
+            throw new SenderNotConsoleException();
         return (ConsoleCommandSender) sender;
     }
 
@@ -57,12 +59,12 @@ final class BukkitActor implements BukkitCommandActor {
     }
 
     @Override public void reply(@NotNull String message) {
-        message = ChatColor.translateAlternateColorCodes('&', message);
-        sender.sendMessage(message);
+        notNull(message, "message");
+        sender.sendMessage(colorize(message));
     }
 
     @Override public void error(@NotNull String message) {
-        message = ChatColor.translateAlternateColorCodes('&', "&c" + message);
-        sender.sendMessage(message);
+        notNull(message, "message");
+        sender.sendMessage(colorize("&c" + message));
     }
 }

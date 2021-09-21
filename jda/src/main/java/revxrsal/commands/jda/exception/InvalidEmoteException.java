@@ -1,18 +1,12 @@
 package revxrsal.commands.jda.exception;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.exception.InvalidValueException;
-import revxrsal.commands.jda.JDAActor;
 
 public class InvalidEmoteException extends InvalidValueException {
 
-    public InvalidEmoteException(@NotNull CommandParameter parameter, @NotNull String input, @NotNull CommandActor actor) {
-        super(parameter, input, actor);
-    }
-
-    @Override public @NotNull JDAActor getActor() {
-        return super.getActor().as(JDAActor.class);
+    public InvalidEmoteException(@NotNull CommandParameter parameter, @NotNull String input) {
+        super(parameter, input);
     }
 }

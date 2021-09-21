@@ -1,42 +1,43 @@
 package revxrsal.commands.bukkit.exception;
 
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.DefaultExceptionHandler;
 
 public /*final*/ class BukkitExceptionAdapter extends DefaultExceptionHandler {
 
     public static final BukkitExceptionAdapter INSTANCE = new BukkitExceptionAdapter();
 
-    @Override protected final void handleUnknown(@NotNull Throwable throwable) {
+    @Override protected final void handleUnknown(@NotNull CommandActor actor, @NotNull Throwable throwable) {
         if (throwable instanceof SenderNotPlayerException)
-            senderNotPlayer((SenderNotPlayerException) throwable);
+            senderNotPlayer(actor, (SenderNotPlayerException) throwable);
         else if (throwable instanceof SenderNotConsoleException)
-            senderNotConsole((SenderNotConsoleException) throwable);
+            senderNotConsole(actor, (SenderNotConsoleException) throwable);
         else if (throwable instanceof InvalidPlayerException)
-            invalidPlayer((InvalidPlayerException) throwable);
+            invalidPlayer(actor, (InvalidPlayerException) throwable);
         else if (throwable instanceof InvalidWorldException)
-            invalidWorld((InvalidWorldException) throwable);
+            invalidWorld(actor, (InvalidWorldException) throwable);
         else
-            handleUnknownThrowable(throwable);
+            handleUnknownThrowable(actor, throwable);
     }
 
-    protected void senderNotPlayer(@NotNull SenderNotPlayerException exception) {
-        exception.getActor().error("You must be a player to use this command!");
+    protected void senderNotPlayer(@NotNull CommandActor actor, @NotNull SenderNotPlayerException exception) {
+        actor.error("You must be a player to use this command!");
     }
 
-    protected void senderNotConsole(@NotNull SenderNotConsoleException exception) {
-        exception.getActor().error("This command can only be used on console!");
+    protected void senderNotConsole(@NotNull CommandActor actor, @NotNull SenderNotConsoleException exception) {
+        actor.error("This command can only be used on console!");
     }
 
-    protected void invalidPlayer(@NotNull InvalidPlayerException exception) {
-        exception.getActor().error("Invalid player: &e" + exception.getInput());
+    protected void invalidPlayer(@NotNull CommandActor actor, @NotNull InvalidPlayerException exception) {
+        actor.error("Invalid player: &e" + exception.getInput());
     }
 
-    protected void invalidWorld(@NotNull InvalidWorldException exception) {
-        exception.getActor().error("Invalid world: &e" + exception.getInput());
+    protected void invalidWorld(@NotNull CommandActor actor, @NotNull InvalidWorldException exception) {
+        actor.error("Invalid world: &e" + exception.getInput());
     }
 
-    protected void handleUnknownThrowable(@NotNull Throwable throwable) {
+    protected void handleUnknownThrowable(@NotNull CommandActor actor, @NotNull Throwable throwable) {
         throwable.printStackTrace();
     }
 }

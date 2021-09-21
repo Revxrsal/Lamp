@@ -20,11 +20,6 @@ import revxrsal.commands.annotation.Default;
 public class NoSubcommandSpecifiedException extends RuntimeException {
 
     /**
-     * The command actor
-     */
-    private final @NotNull CommandActor actor;
-
-    /**
      * The category that is inputted
      */
     private final @NotNull CommandCategory category;

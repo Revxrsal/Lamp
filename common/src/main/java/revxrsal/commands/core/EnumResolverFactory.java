@@ -31,7 +31,7 @@ enum EnumResolverFactory implements ValueResolverFactory {
             String value = arguments.pop();
             Enum<?> v = values.get(caseSensitive ? value : value.toLowerCase());
             if (v == null)
-                throw new EnumNotFoundException(parameter, value, actor);
+                throw new EnumNotFoundException(parameter, value);
             return v;
         };
     }

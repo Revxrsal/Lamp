@@ -1,6 +1,7 @@
 package revxrsal.commands.core;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.autocomplete.AutoCompleter;
@@ -20,9 +21,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -32,9 +30,6 @@ import static revxrsal.commands.util.Primitives.getType;
 import static revxrsal.commands.util.Strings.splitBySpace;
 
 public class BaseCommandHandler implements CommandHandler {
-
-    public static final Executor DIRECT = Runnable::run;
-    public static final ExecutorService ASYNC = Executors.newSingleThreadExecutor();
 
     protected final CommandCompound registration = new CommandCompound();
     private final BaseCommandDispatcher dispatcher = new BaseCommandDispatcher(this);
@@ -72,7 +67,7 @@ public class BaseCommandHandler implements CommandHandler {
             try {
                 return UUID.fromString(value);
             } catch (Throwable t) {
-                throw new InvalidUUIDException(parameter, value, actor);
+                throw new InvalidUUIDException(parameter, value);
             }
         });
         registerValueResolver(URL.class, (arguments, actor, parameter, command) -> {
@@ -80,7 +75,7 @@ public class BaseCommandHandler implements CommandHandler {
             try {
                 return new URL(arguments.pop());
             } catch (MalformedURLException e) {
-                throw new InvalidURLException(parameter, value, actor);
+                throw new InvalidURLException(parameter, value);
             }
         });
         registerValueResolver(URI.class, (arguments, actor, parameter, command) -> {
@@ -88,19 +83,18 @@ public class BaseCommandHandler implements CommandHandler {
             try {
                 return new URI(value);
             } catch (URISyntaxException e) {
-                throw new InvalidURLException(parameter, value, actor);
+                throw new InvalidURLException(parameter, value);
             }
         });
         registerContextResolver(CommandHandler.class, (actor, parameter, command) -> this);
         registerContextResolver(ExecutableCommand.class, (actor, parameter, command) -> command);
         registerContextResolver(CommandActor.class, (actor, parameter, command) -> actor);
-        registerContextResolver(Executor.class, (actor, parameter, command) -> command.getExecutor());
         registerContextResolver((Class) CommandHelp.class, new BaseCommandHelp.Resolver(this));
         setExceptionHandler(DefaultExceptionHandler.INSTANCE);
         registerCondition(CooldownCondition.INSTANCE);
         registerCondition((actor, command, arguments) -> {
             if (!command.getPermission().canExecute(actor))
-                throw new NoPermissionException(actor, command, command.getPermission());
+                throw new NoPermissionException(command, command.getPermission());
         });
     }
 
@@ -304,8 +298,8 @@ public class BaseCommandHandler implements CommandHandler {
         return flagPrefix;
     }
 
-    @Override public void dispatch(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
-        dispatcher.eval(actor, arguments);
+    @Override public <T> @NotNull Optional<@Nullable T> dispatch(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
+        return (Optional<T>) Optional.ofNullable(dispatcher.eval(actor, arguments));
     }
 
     @Override public void dispatch(@NotNull CommandActor actor, @NotNull String commandInput) {
@@ -344,7 +338,7 @@ public class BaseCommandHandler implements CommandHandler {
                     return (T) Integer.valueOf(input.substring(2), 16);
                 return f.apply(input);
             } catch (NumberFormatException e) {
-                throw new InvalidNumberException(parameter, input, actor);
+                throw new InvalidNumberException(parameter, input);
             }
         };
     }
@@ -366,7 +360,7 @@ public class BaseCommandHandler implements CommandHandler {
                 case "n":
                     return false;
                 default:
-                    throw new InvalidBooleanException(parameter, v, actor);
+                    throw new InvalidBooleanException(parameter, v);
             }
         };
     }
@@ -379,13 +373,13 @@ public class BaseCommandHandler implements CommandHandler {
             this.handler = handler;
         }
 
-        @Override public void handleException(@NotNull Throwable throwable) {
+        @Override public void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
             Throwable cause = throwable.getCause();
             if (cause != null && cause.getClass().isAnnotationPresent(ThrowableFromCommand.class)) {
                 throwable = cause;
             }
             sanitizer.sanitize(throwable);
-            handler.handleException(throwable);
+            handler.handleException(throwable, actor);
         }
     }
 

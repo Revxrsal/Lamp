@@ -17,7 +17,7 @@ public final class BaseCommandDispatcher {
         this.handler = handler;
     }
 
-    public void eval(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
+    public Object eval(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
         try {
             MutableCommandPath path = MutableCommandPath.empty();
             BaseCommandCategory lastCategory = null;
@@ -29,8 +29,7 @@ public final class BaseCommandDispatcher {
                 CommandExecutable executable = (CommandExecutable) handler.getCommand(path);
                 if (executable != null) {
                     arguments.subList(0, i + 1).clear();
-                    execute(executable, actor, arguments);
-                    return;
+                    return execute(executable, actor, arguments);
                 }
 
                 BaseCommandCategory cat = (BaseCommandCategory) handler.getCategory(path);
@@ -39,53 +38,51 @@ public final class BaseCommandDispatcher {
                     CommandExecutable defaultAction = cat.defaultAction;
                     if (defaultAction != null && i + 1 == arguments.size()) {
                         arguments.subList(0, i).clear();
-                        execute(defaultAction, actor, arguments);
-                        return;
+                        return execute(defaultAction, actor, arguments);
                     } else if (i == arguments.size() - 1 && defaultAction == null) {
-                        throw new NoSubcommandSpecifiedException(actor, cat);
+                        throw new NoSubcommandSpecifiedException(cat);
                     }
                 }
                 if (i == arguments.size() - 1 && lastCategory != null && lastCategory.defaultAction != null) {
                     arguments.subList(0, i).clear();
-                    execute(lastCategory.defaultAction, actor, arguments);
-                    return;
+                    return execute(lastCategory.defaultAction, actor, arguments);
                 }
             }
             if (lastCategory != null) {
                 if (lastCategory.defaultAction != null) {
                     arguments.removeFirst();
-                    execute(lastCategory.defaultAction, actor, arguments);
+                    return execute(lastCategory.defaultAction, actor, arguments);
                 } else
-                    throw new InvalidSubcommandException(actor, path, path.getLast());
+                    throw new InvalidSubcommandException(path, path.getLast());
             } else {
                 if (lastArgument != null)
-                    throw new InvalidCommandException(actor, path, lastArgument);
+                    throw new InvalidCommandException(path, lastArgument);
             }
         } catch (Throwable throwable) {
             if (throwable instanceof SendableException)
                 ((SendableException) throwable).sendTo(actor);
             else
-                handler.getExceptionHandler().handleException(throwable);
+                handler.getExceptionHandler().handleException(throwable, actor);
         }
+        return null;
     }
 
-    private void execute(@NotNull CommandExecutable executable,
-                         @NotNull CommandActor actor,
-                         @NotNull ArgumentStack args) {
-        executable.executor.execute(() -> {
-            handler.conditions.forEach(condition -> condition.test(actor, executable, args));
-            Object[] methodArguments = getMethodArguments(executable, actor, args);
-            if (!args.isEmpty() && handler.failOnExtra) {
-                throw new TooManyArgumentsException(actor, executable, args);
-            }
-            Object result;
-            try {
-                result = executable.methodCaller.call(methodArguments);
-            } catch (Throwable throwable) {
-                throw new CommandInvocationException(actor, executable, throwable);
-            }
-            executable.responseHandler.handleResponse(result, actor, executable);
-        });
+    private Object execute(@NotNull CommandExecutable executable,
+                           @NotNull CommandActor actor,
+                           @NotNull ArgumentStack args) {
+        handler.conditions.forEach(condition -> condition.test(actor, executable, args));
+        Object[] methodArguments = getMethodArguments(executable, actor, args);
+        if (!args.isEmpty() && handler.failOnExtra) {
+            throw new TooManyArgumentsException(executable, args);
+        }
+        Object result;
+        try {
+            result = executable.methodCaller.call(methodArguments);
+        } catch (Throwable throwable) {
+            throw new CommandInvocationException(executable, throwable);
+        }
+        executable.responseHandler.handleResponse(result, actor, executable);
+        return result;
     }
 
     @SneakyThrows
@@ -135,7 +132,7 @@ public final class BaseCommandDispatcher {
                     args.add(parameter.getDefaultValue());
                     return false;
                 } else {
-                    throw new MissingArgumentException(parameter, actor);
+                    throw new MissingArgumentException(parameter);
                 }
             }
         }
@@ -170,7 +167,7 @@ public final class BaseCommandDispatcher {
                     return;
                 }
             } else {
-                throw new MissingArgumentException(parameter, actor);
+                throw new MissingArgumentException(parameter);
             }
         } else {
             args.remove(index); // remove the flag prefix + flag name

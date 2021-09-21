@@ -11,7 +11,7 @@ import revxrsal.commands.bungee.exception.SenderNotPlayerException;
 
 import java.util.UUID;
 
-final class BungeeActor implements BungeeCommandActor {
+public final class BungeeActor implements BungeeCommandActor {
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
 
@@ -35,7 +35,7 @@ final class BungeeActor implements BungeeCommandActor {
 
     @Override public @NotNull ProxiedPlayer requirePlayer() throws SenderNotPlayerException {
         if (!isPlayer())
-            throw new SenderNotPlayerException(this);
+            throw new SenderNotPlayerException();
         return (ProxiedPlayer) sender;
     }
 

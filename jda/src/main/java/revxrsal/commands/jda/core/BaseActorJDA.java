@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import static revxrsal.commands.jda.core.MemoizingSupplier.memoize;
 import static revxrsal.commands.util.Preconditions.notNull;
 
-final class BaseActorJDA implements JDAActor {
+public final class BaseActorJDA implements JDAActor {
 
     private final Supplier<UUID> uuid = memoize(() -> new UUID(0, getUser().getIdLong()));
     private final MessageReceivedEvent event;
@@ -45,13 +45,13 @@ final class BaseActorJDA implements JDAActor {
 
     @Override public JDAActor checkInGuild(ExecutableCommand command) {
         if (!isGuildEvent())
-            throw new GuildOnlyCommandException(this, command);
+            throw new GuildOnlyCommandException(command);
         return this;
     }
 
     @Override public JDAActor checkNotInGuild(ExecutableCommand command) throws PrivateMessageOnlyCommandException {
         if (isGuildEvent())
-            throw new PrivateMessageOnlyCommandException(this, command);
+            throw new PrivateMessageOnlyCommandException(command);
         return this;
     }
 

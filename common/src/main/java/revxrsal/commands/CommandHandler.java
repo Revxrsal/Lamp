@@ -7,15 +7,15 @@ import revxrsal.commands.annotation.Flag;
 import revxrsal.commands.annotation.Switch;
 import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.command.*;
+import revxrsal.commands.core.CommandPath;
+import revxrsal.commands.core.reflect.MethodCallerFactory;
 import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.exception.TooManyArgumentsException;
 import revxrsal.commands.help.CommandHelp;
 import revxrsal.commands.help.CommandHelpWriter;
-import revxrsal.commands.core.BaseCommandHandler;
-import revxrsal.commands.core.CommandPath;
-import revxrsal.commands.core.reflect.MethodCallerFactory;
 import revxrsal.commands.process.*;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -54,7 +54,7 @@ public interface CommandHandler {
      *
      * @param handler The exception handler
      * @return This command handler
-     * @see CommandExceptionHandler#handleException(Throwable)
+     * @see CommandExceptionHandler#handleException(Throwable, CommandActor)
      */
     CommandHandler setExceptionHandler(@NotNull CommandExceptionHandler handler);
 
@@ -371,8 +371,10 @@ public interface CommandHandler {
      *
      * @param actor     Actor to execute as
      * @param arguments Arguments to invoke the command with
+     * @return The result returned from invoking the command method. The
+     * optional value may be null if an exception was thrown.
      */
-    void dispatch(@NotNull CommandActor actor, @NotNull ArgumentStack arguments);
+    <T> @NotNull Optional<@Nullable T> dispatch(@NotNull CommandActor actor, @NotNull ArgumentStack arguments);
 
     /**
      * Evaluates the command from the given input
@@ -381,14 +383,5 @@ public interface CommandHandler {
      * @param commandInput Input to invoke with
      */
     void dispatch(@NotNull CommandActor actor, @NotNull String commandInput);
-
-    /**
-     * Shuts down all {@link java.util.concurrent.Executor}s that are
-     * used by the handler. This can be used to release any resources
-     * allocated by the handler after the program shuts down.
-     */
-    static void shutdownExecutors() {
-        BaseCommandHandler.ASYNC.shutdown();
-    }
 
 }

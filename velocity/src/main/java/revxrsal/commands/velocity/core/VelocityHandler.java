@@ -14,6 +14,7 @@ import revxrsal.commands.velocity.PlayerSelector;
 import revxrsal.commands.velocity.VelocityCommandActor;
 import revxrsal.commands.velocity.VelocityCommandHandler;
 import revxrsal.commands.velocity.exception.InvalidPlayerException;
+import revxrsal.commands.velocity.exception.VelocityExceptionAdapter;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
@@ -33,7 +34,7 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
             if (name.equalsIgnoreCase("me") || name.equalsIgnoreCase("self"))
                 return actor.as(VelocityCommandActor.class).requirePlayer();
             return server.getPlayer(name)
-                    .orElseThrow(() -> new InvalidPlayerException(parameter, name, actor));
+                    .orElseThrow(() -> new InvalidPlayerException(parameter, name));
         });
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);
         getAutoCompleter()
@@ -42,7 +43,7 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
                 .registerSuggestion("playerSelector", SuggestionProvider.of("@a", "@p", "@r", "@s")
                         .compose(getAutoCompleter().getSuggestionProvider("players")))
                 .registerParameterSuggestions(Player.class, "playerSelector");
-
+        setExceptionHandler(VelocityExceptionAdapter.INSTANCE);
     }
 
     @Override public CommandHandler register(@NotNull Object... commands) {

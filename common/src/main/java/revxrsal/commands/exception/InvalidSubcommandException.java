@@ -17,11 +17,6 @@ import revxrsal.commands.core.CommandPath;
 public class InvalidSubcommandException extends RuntimeException {
 
     /**
-     * The command actor
-     */
-    private final @NotNull CommandActor actor;
-
-    /**
      * The inputted path
      */
     private final @NotNull CommandPath path;
