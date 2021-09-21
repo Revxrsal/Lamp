@@ -110,20 +110,30 @@ final class CommandParser {
     private static ResponseHandler<?> getResponseHandler(BaseCommandHandler handler, Method method) {
         Class<?> returnType = method.getReturnType();
         if (CompletionStage.class.isAssignableFrom(returnType)) {
-            Class<?> actualRawType;
-            try {
-                Type actualType = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
-                actualRawType = Primitives.getRawType(actualType);
-                if (CompletionStage.class.isAssignableFrom(actualRawType)) {
-                    throw new IllegalStateException("Cannot have a CompletionStage of a CompletionStage!");
-                }
-            } catch (ClassCastException e) {
-                actualRawType = Object.class;
-            }
-            ResponseHandler delegateHandler = handler.responseHandlers.getFlexibleOrDefault(actualRawType, ResponseHandler.VOID);
+            ResponseHandler delegateHandler = handler.responseHandlers.getFlexibleOrDefault(getRawGeneric(method.getGenericReturnType()),
+                    ResponseHandler.VOID);
             return new CompletionStageResponseHandler(handler, delegateHandler);
         }
+        if (java.util.Optional.class.isAssignableFrom(returnType)) {
+            ResponseHandler delegateHandler = handler.responseHandlers.getFlexibleOrDefault(getRawGeneric(method.getGenericReturnType()),
+                    ResponseHandler.VOID);
+            return new OptionalResponseHandler(delegateHandler);
+        }
         return handler.responseHandlers.getFlexibleOrDefault(method.getReturnType(), ResponseHandler.VOID);
+    }
+
+    private static Class<?> getRawGeneric(Type genericType) {
+        Class<?> actualRawType;
+        try {
+            Type actualType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
+            actualRawType = Primitives.getRawType(actualType);
+            if (java.util.Optional.class.isAssignableFrom(actualRawType)) {
+                throw new IllegalStateException("Cannot have an Optional of an Optional!");
+            }
+        } catch (ClassCastException e) {
+            actualRawType = Object.class;
+        }
+        return actualRawType;
     }
 
     private static Set<BaseCommandCategory> getCategories(@NotNull CommandPath path) {
