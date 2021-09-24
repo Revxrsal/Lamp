@@ -70,7 +70,7 @@ public final class BaseCommandDispatcher {
     private Object execute(@NotNull CommandExecutable executable,
                            @NotNull CommandActor actor,
                            @NotNull ArgumentStack args) {
-        handler.conditions.forEach(condition -> condition.test(actor, executable, args));
+        handler.conditions.forEach(condition -> condition.test(actor, executable, args.asImmutableView()));
         Object[] methodArguments = getMethodArguments(executable, actor, args);
         if (!args.isEmpty() && handler.failOnExtra) {
             throw new TooManyArgumentsException(executable, args);
