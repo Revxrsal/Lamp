@@ -20,14 +20,18 @@ import java.util.Optional;
 final class SpongeCommandCallable implements CommandCallable {
 
     private final SpongeCommandHandler handler;
+    private final String name;
 
-    public SpongeCommandCallable(SpongeCommandHandler handler) {
+    public SpongeCommandCallable(SpongeCommandHandler handler, String name) {
         this.handler = handler;
+        this.name = name;
     }
 
-    @Override public @NotNull CommandResult process(@NotNull CommandSource source, @NotNull String arguments) {
+    @Override public @NotNull CommandResult process(@NotNull CommandSource source, @NotNull String args) {
         CommandActor actor = new SpongeActor(source);
-        handler.dispatch(actor, ArgumentStack.fromString(arguments));
+        ArgumentStack arguments = ArgumentStack.fromString(args);
+        arguments.addFirst(name);
+        handler.dispatch(actor, arguments);
         return CommandResult.empty();
     }
 

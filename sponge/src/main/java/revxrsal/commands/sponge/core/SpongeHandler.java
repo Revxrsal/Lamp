@@ -77,7 +77,7 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
     }
 
     private void createPluginCommand(String name) {
-        CommandCallable command = new SpongeCommandCallable(this);
+        CommandCallable command = new SpongeCommandCallable(this, name);
         Sponge.getCommandManager().register(plugin, command, name);
     }
 
