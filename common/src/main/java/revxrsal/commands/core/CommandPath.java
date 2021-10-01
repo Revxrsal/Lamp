@@ -143,9 +143,9 @@ public class CommandPath implements Iterable<String> {
      * @return The command category path
      */
     public @Nullable CommandPath getCategoryPath() {
+        if (path.size() <= 1) return null;
         LinkedList<String> list = toList();
         list.removeLast();
-        if (list.isEmpty()) return null;
         return CommandPath.get(list);
     }
 
