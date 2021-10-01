@@ -54,9 +54,9 @@ final class CommandParser {
                 for (BaseCommandCategory category : getCategories(path)) {
                     categories.putIfAbsent(category.path, category);
                 }
-                LinkedList<String> pathList = path.toList();
                 CommandExecutable executable = new CommandExecutable();
-                executable.name = pathList.removeLast();
+                categories.remove(path); // prevent duplication.
+                executable.name = path.getLast();
                 executable.id = id;
                 executable.handler = handler;
                 executable.description = reader.get(Description.class, Description::value);
@@ -137,6 +137,7 @@ final class CommandParser {
     }
 
     private static Set<BaseCommandCategory> getCategories(@NotNull CommandPath path) {
+        if (path.size() == 1) return Collections.emptySet();
         String parent = path.getParent();
         Set<BaseCommandCategory> categories = new HashSet<>();
 
