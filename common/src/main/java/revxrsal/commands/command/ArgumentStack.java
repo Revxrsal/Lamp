@@ -51,7 +51,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      * Returns this argument stack as an immutable view. This can be therefore
      * passed to any conditions or resolvers without having to worry about being
      * unintentionally modified.
-     *
+     * <p>
      * Note that this does not create an independent copy, and instead returns
      * a view which does not allow modifications. If this argument stack gets
      * modified from somewhere else, the immutable view will also be modified.
@@ -67,6 +67,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      * @return The newly created argument stack.
      */
     static @NotNull ArgumentStack of(@NotNull Collection<String> arguments) {
+        if (arguments.size() == 0) return empty();
         return new LinkedArgumentStack(String.join(" ", arguments));
     }
 
@@ -78,6 +79,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      * @return The newly created argument stack.
      */
     static @NotNull ArgumentStack exactly(@NotNull Collection<String> arguments) {
+        if (arguments.size() == 0) return empty();
         return new LinkedArgumentStack(arguments.toArray(new String[0]));
     }
 
@@ -88,6 +90,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      * @return The newly created argument stack.
      */
     static @NotNull ArgumentStack of(@NotNull String... arguments) {
+        if (arguments.length == 0) return empty();
         return new LinkedArgumentStack(String.join(" ", arguments));
     }
 
@@ -101,4 +104,14 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
     static @NotNull ArgumentStack fromString(@NotNull String arguments) {
         return new LinkedArgumentStack(QuotedStringTokenizer.tokenize(arguments));
     }
+
+    /**
+     * Returns a new, empty {@link ArgumentStack}.
+     *
+     * @return A new, empty argument stack
+     */
+    static @NotNull ArgumentStack empty() {
+        return new LinkedArgumentStack();
+    }
+
 }
