@@ -91,7 +91,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      */
     static @NotNull ArgumentStack of(@NotNull String... arguments) {
         if (arguments.length == 0) return empty();
-        return new LinkedArgumentStack(String.join(" ", arguments));
+        return new LinkedArgumentStack(arguments);
     }
 
     /**
