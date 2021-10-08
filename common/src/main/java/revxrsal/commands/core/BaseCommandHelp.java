@@ -44,19 +44,20 @@ final class BaseCommandHelp<T> extends ArrayList<T> implements CommandHelp<T> {
             this.handler = handler;
         }
 
-        @Override public CommandHelp<?> resolve(@NotNull CommandActor actor, @NotNull CommandParameter parameter, @NotNull ExecutableCommand command) throws Throwable {
+        @Override public CommandHelp<?> resolve(@NotNull ContextResolverContext context) {
             if (handler.getHelpWriter() == null)
                 throw new IllegalArgumentException("No help writer is registered!");
+            ExecutableCommand command = context.command();
             CommandHelpWriter<?> writer = handler.getHelpWriter();
             BaseCommandHelp<Object> entries = new BaseCommandHelp<>();
-            CommandCategory parent = parameter.getDeclaringCommand().getParent();
+            CommandCategory parent = context.parameter().getDeclaringCommand().getParent();
             if (parent != null) {
                 parent.getCommands().values().forEach(c -> {
-                    if (c != command) entries.add(writer.generate(c, actor));
+                    if (c != command) entries.add(writer.generate(c, context.actor()));
                 });
             } else {
                 handler.registration.getExecutables().values().forEach(c -> {
-                    if (c != command) entries.add(writer.generate(c, actor));
+                    if (c != command) entries.add(writer.generate(c, context.actor()));
                 });
             }
             return entries;

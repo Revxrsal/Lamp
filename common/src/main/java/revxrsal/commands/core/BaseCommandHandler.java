@@ -11,6 +11,8 @@ import revxrsal.commands.exception.*;
 import revxrsal.commands.help.CommandHelp;
 import revxrsal.commands.help.CommandHelpWriter;
 import revxrsal.commands.process.*;
+import revxrsal.commands.process.ParameterResolver.ParameterResolverContext;
+import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 import revxrsal.commands.util.ClassMap;
 import revxrsal.commands.util.Primitives;
 import revxrsal.commands.util.StackTraceSanitizer;
@@ -61,34 +63,34 @@ public class BaseCommandHandler implements CommandHandler {
         registerValueResolver(long.class, num(Long::parseLong));
         registerValueResolver(float.class, num(Float::parseFloat));
         registerValueResolver(boolean.class, bool());
-        registerValueResolver(String.class, (arguments, actor, parameter, command) -> arguments.popForParameter(parameter));
-        registerValueResolver(UUID.class, (arguments, actor, parameter, command) -> {
-            String value = arguments.pop();
+        registerValueResolver(String.class, ValueResolverContext::popForParameter);
+        registerValueResolver(UUID.class, context -> {
+            String value = context.pop();
             try {
                 return UUID.fromString(value);
             } catch (Throwable t) {
-                throw new InvalidUUIDException(parameter, value);
+                throw new InvalidUUIDException(context.parameter(), value);
             }
         });
-        registerValueResolver(URL.class, (arguments, actor, parameter, command) -> {
-            String value = arguments.pop();
+        registerValueResolver(URL.class, context -> {
+            String value = context.pop();
             try {
-                return new URL(arguments.pop());
+                return new URL(context.pop());
             } catch (MalformedURLException e) {
-                throw new InvalidURLException(parameter, value);
+                throw new InvalidURLException(context.parameter(), value);
             }
         });
-        registerValueResolver(URI.class, (arguments, actor, parameter, command) -> {
-            String value = arguments.pop();
+        registerValueResolver(URI.class, context -> {
+            String value = context.pop();
             try {
                 return new URI(value);
             } catch (URISyntaxException e) {
-                throw new InvalidURLException(parameter, value);
+                throw new InvalidURLException(context.parameter(), value);
             }
         });
-        registerContextResolver(CommandHandler.class, (actor, parameter, command) -> this);
-        registerContextResolver(ExecutableCommand.class, (actor, parameter, command) -> command);
-        registerContextResolver(CommandActor.class, (actor, parameter, command) -> actor);
+        registerContextResolver(CommandHandler.class, context -> this);
+        registerContextResolver(ExecutableCommand.class, context -> context.parameter().getDeclaringCommand());
+        registerContextResolver(CommandActor.class, ParameterResolverContext::actor);
         registerContextResolver((Class) CommandHelp.class, new BaseCommandHelp.Resolver(this));
         setExceptionHandler(DefaultExceptionHandler.INSTANCE);
         registerCondition(CooldownCondition.INSTANCE);
@@ -331,21 +333,21 @@ public class BaseCommandHandler implements CommandHandler {
     }
 
     private <T> ValueResolver<T> num(Function<String, T> f) {
-        return (arguments, actor, parameter, command) -> {
-            String input = arguments.pop();
+        return context -> {
+            String input = context.pop();
             try {
                 if (input.startsWith("0x"))
                     return (T) Integer.valueOf(input.substring(2), 16);
                 return f.apply(input);
             } catch (NumberFormatException e) {
-                throw new InvalidNumberException(parameter, input);
+                throw new InvalidNumberException(context.parameter(), input);
             }
         };
     }
 
     private ValueResolver<Boolean> bool() {
-        return (arguments, actor, parameter, command) -> {
-            String v = arguments.pop();
+        return context -> {
+            String v = context.pop();
             switch (v.toLowerCase()) {
                 case "true":
                 case "yes":
@@ -360,7 +362,7 @@ public class BaseCommandHandler implements CommandHandler {
                 case "n":
                     return false;
                 default:
-                    throw new InvalidBooleanException(parameter, v);
+                    throw new InvalidBooleanException(context.parameter(), v);
             }
         };
     }

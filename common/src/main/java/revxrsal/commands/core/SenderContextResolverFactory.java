@@ -41,7 +41,7 @@ final class SenderContextResolverFactory implements ContextResolverFactory {
         if (parameter.hasAnnotation(NotSender.class)) return null;
         for (SenderResolver resolver : resolvers) {
             if (resolver.isCustomType(parameter.getType())) {
-                return (actor, p, command) -> notNull(resolver.getSender(parameter.getType(), actor, command),
+                return context -> notNull(resolver.getSender(parameter.getType(), context.actor(), context.command()),
                         "SenderResolver#getSender() must not return null!");
             }
         }

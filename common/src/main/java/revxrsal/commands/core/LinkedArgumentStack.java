@@ -1,6 +1,7 @@
 package revxrsal.commands.core;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandParameter;
@@ -41,5 +42,9 @@ public final class LinkedArgumentStack extends LinkedList<String> implements Arg
 
     @Override public @NotNull @UnmodifiableView List<String> asImmutableView() {
         return unmodifiableView;
+    }
+
+    @Override public @NotNull @Unmodifiable List<String> asImmutableCopy() {
+        return Collections.unmodifiableList(new ArrayList<>(this));
     }
 }

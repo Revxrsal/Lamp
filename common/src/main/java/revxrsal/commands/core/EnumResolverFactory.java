@@ -27,8 +27,8 @@ enum EnumResolverFactory implements ValueResolverFactory {
             else
                 values.put(enumConstant.name().toLowerCase(), enumConstant);
         }
-        return (ValueResolver<Enum<?>>) (arguments, actor, parameter1, command) -> {
-            String value = arguments.pop();
+        return (ValueResolver<Enum<?>>) (context) -> {
+            String value = context.pop();
             Enum<?> v = values.get(caseSensitive ? value : value.toLowerCase());
             if (v == null)
                 throw new EnumNotFoundException(parameter, value);

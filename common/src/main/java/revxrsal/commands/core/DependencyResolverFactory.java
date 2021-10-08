@@ -2,10 +2,10 @@ package revxrsal.commands.core;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.process.ContextResolver;
 import revxrsal.commands.process.ContextResolverFactory;
-import revxrsal.commands.annotation.Dependency;
 
 import java.util.function.Supplier;
 
@@ -19,6 +19,6 @@ enum DependencyResolverFactory implements ContextResolverFactory {
         if (value == null)
             throw new IllegalArgumentException("Unable to resolve dependency for parameter " +
                     parameter.getName() + " in " + parameter.getDeclaringCommand().getPath().toRealString());
-        return (actor, parameter1, command) -> value.get();
+        return context -> value.get();
     }
 }
