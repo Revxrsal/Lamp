@@ -37,20 +37,20 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
         registerContextValue(Server.class, Sponge.getServer());
         registerContextValue(Scheduler.class, Sponge.getScheduler());
         registerContextValue(Platform.class, Sponge.getPlatform());
-        registerValueResolver(Selector.class, (arguments, actor, parameter, command) -> Selector.parse(arguments.pop()));
-        registerValueResolver(Player.class, (arguments, actor, parameter, command) -> {
-            String name = arguments.pop();
+        registerValueResolver(Selector.class, context -> Selector.parse(context.pop()));
+        registerValueResolver(Player.class, context -> {
+            String name = context.pop();
             if (name.equalsIgnoreCase("me") || name.equalsIgnoreCase("self"))
-                return actor.as(SpongeCommandActor.class).requirePlayer();
+                return context.actor().as(SpongeCommandActor.class).requirePlayer();
             return Sponge.getServer().getPlayer(name)
-                    .orElseThrow(() -> new InvalidPlayerException(parameter, name));
+                    .orElseThrow(() -> new InvalidPlayerException(context.parameter(), name));
         });
-        registerValueResolver(World.class, (arguments, actor, parameter, command) -> {
-            String name = arguments.pop();
+        registerValueResolver(World.class, context -> {
+            String name = context.pop();
             if (name.equalsIgnoreCase("me") || name.equalsIgnoreCase("self"))
-                return actor.as(SpongeCommandActor.class).requirePlayer().getWorld();
+                return context.actor().as(SpongeCommandActor.class).requirePlayer().getWorld();
             return Sponge.getServer().getWorld(name)
-                    .orElseThrow(() -> new InvalidPlayerException(parameter, name));
+                    .orElseThrow(() -> new InvalidPlayerException(context.parameter(), name));
         });
         getAutoCompleter()
                 .registerSuggestion("players", SuggestionProvider.map(Sponge.getServer()::getOnlinePlayers, Player::getName))
