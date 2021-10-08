@@ -8,7 +8,7 @@ subprojects {
     apply plugin: 'maven'
 
     group 'io.github.revxrsal'
-    version '1.4-beta'
+    version '1.4'
 
     repositories {
         mavenCentral()
