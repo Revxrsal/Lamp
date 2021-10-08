@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
@@ -216,6 +217,10 @@ public final class BaseCommandDispatcher {
 
         @Override public @NotNull ExecutableCommand command() {
             return parameter.getDeclaringCommand();
+        }
+
+        @Override public @NotNull CommandHandler commandHandler() {
+            return parameter.getCommandHandler();
         }
 
         @Override public <T> Optional<T> getResolvedParameter(@NotNull CommandParameter parameter) {

@@ -3,6 +3,7 @@ package revxrsal.commands.process;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
@@ -79,6 +80,13 @@ public interface ParameterResolver<T> {
         @NotNull ExecutableCommand command();
 
         /**
+         * Returns the owning {@link CommandHandler} of this resolver.
+         *
+         * @return The command handler
+         */
+        @NotNull CommandHandler commandHandler();
+
+        /**
          * Returns the last resolved value of the given parameter type. If
          * no parameter matches the given type, or if the parameter was not resolved yet,
          * this will return an empty {@link Optional}.
@@ -95,7 +103,7 @@ public interface ParameterResolver<T> {
          * this will return an empty {@link Optional}.
          *
          * @param parameter The parameter to fetch for.
-         * @param <T>  The resolved type
+         * @param <T>       The resolved type
          * @return The last resolved value matching the given type.
          */
         <T> Optional<T> getResolvedParameter(@NotNull CommandParameter parameter);
