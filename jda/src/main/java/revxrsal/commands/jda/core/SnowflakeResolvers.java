@@ -6,10 +6,7 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.ArgumentStack;
-import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
-import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.exception.InvalidValueException;
 import revxrsal.commands.jda.JDAActor;
 import revxrsal.commands.jda.exception.*;
@@ -55,20 +52,20 @@ enum SnowflakeResolvers implements ValueResolver<ISnowflake> {
 
     }
 
-    @Override public ISnowflake resolve(@NotNull ArgumentStack arguments, @NotNull CommandActor actor, @NotNull CommandParameter parameter, @NotNull ExecutableCommand command) {
-        String value = arguments.popForParameter(parameter);
-        Guild guild = actor.as(JDAActor.class).checkInGuild(command).getGuild();
+    @Override public ISnowflake resolve(@NotNull ValueResolverContext context) {
+        String value = context.popForParameter();
+        Guild guild = context.actor().as(JDAActor.class).checkInGuild(context.command()).getGuild();
         String snowflake = Strings.getSnowflake(value);
         if (snowflake != null) {
             Object found = getById.get(guild, snowflake);
             if (found == null)
-                throw exception.get(parameter, value);
+                throw exception.get(context.parameter(), value);
             return (ISnowflake) found;
         } else {
             try {
                 return (ISnowflake) getByName.get(guild, value, true).get(0);
             } catch (IndexOutOfBoundsException e) {
-                throw exception.get(parameter, value);
+                throw exception.get(context.parameter(), value);
             }
         }
     }
@@ -76,10 +73,9 @@ enum SnowflakeResolvers implements ValueResolver<ISnowflake> {
     public enum UserResolver implements ValueResolver<User> {
         USER;
 
-        @Override public User resolve(@NotNull ArgumentStack arguments, @NotNull CommandActor actor, @NotNull CommandParameter parameter, @NotNull ExecutableCommand command) throws Throwable {
-            return ((Member) SnowflakeResolvers.MEMBER.resolve(arguments, actor, parameter, command)).getUser();
+        @Override public User resolve(@NotNull ValueResolverContext context) throws Throwable {
+            return ((Member) SnowflakeResolvers.MEMBER.resolve(context)).getUser();
         }
     }
-
 }
 

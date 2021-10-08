@@ -27,10 +27,10 @@ public final class JDAHandler extends BaseCommandHandler implements JDACommandHa
         notNull(prefix, "prefix");
         this.jda = notNull(jda, "JDA");
         registerSenderResolver(JDASenderResolver.INSTANCE);
-        registerContextResolver(PrivateChannel.class, (actor, parameter, command) -> (PrivateChannel) actor.as(JDAActor.class).getChannel());
-        registerContextResolver(SelfUser.class, (actor, parameter, command) -> jda.getSelfUser());
-        registerContextResolver(MessageReceivedEvent.class, (actor, parameter, command) -> actor.as(JDAActor.class).getEvent());
-        registerContextResolver(Guild.class, (actor, parameter, command) -> actor.as(JDAActor.class).checkInGuild(command).getGuild());
+        registerContextResolver(PrivateChannel.class, context -> (PrivateChannel) context.actor().as(JDAActor.class).getChannel());
+        registerContextResolver(SelfUser.class, context -> jda.getSelfUser());
+        registerContextResolver(MessageReceivedEvent.class, context -> context.actor().as(JDAActor.class).getEvent());
+        registerContextResolver(Guild.class, context -> context.actor().as(JDAActor.class).checkInGuild(context.command()).getGuild());
         registerSnowflakeResolver(TextChannel.class, TEXT_CHANNEL);
         registerSnowflakeResolver(VoiceChannel.class, VOICE_CHANNEL);
         registerSnowflakeResolver(StageChannel.class, STAGE_CHANNEL);
