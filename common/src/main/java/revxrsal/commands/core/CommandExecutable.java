@@ -32,7 +32,7 @@ class CommandExecutable implements ExecutableCommand {
     boolean secret;
     BoundMethodCaller methodCaller;
     BaseCommandCategory parent;
-    @SuppressWarnings("rawtypes") ResponseHandler responseHandler = ResponseHandler.VOID;
+    @SuppressWarnings("rawtypes") ResponseHandler responseHandler = CommandParser.VOID_HANDLER;
     private CommandPermission permission = CommandPermission.ALWAYS_TRUE;
     @Unmodifiable List<CommandParameter> parameters;
     @Unmodifiable Map<Integer, CommandParameter> resolveableParameters;

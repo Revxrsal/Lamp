@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static java.util.Collections.addAll;
 import static java.util.stream.Collectors.toMap;
@@ -30,6 +31,7 @@ import static revxrsal.commands.util.Strings.splitBySpace;
 
 final class CommandParser {
 
+    static final ResponseHandler<?> VOID_HANDLER = (response, actor, command) -> {};
     private static final AtomicInteger COMMAND_ID = new AtomicInteger();
 
     private CommandParser() {}
@@ -66,7 +68,7 @@ final class CommandParser {
                 executable.secret = reader.contains(SecretCommand.class);
                 executable.methodCaller = caller;
                 executable.parent(categories.get(path.getCategoryPath()));
-                executable.responseHandler = getResponseHandler(handler, method);
+                executable.responseHandler = getResponseHandler(handler, method.getGenericReturnType());
                 executable.parameters = getParameters(handler, method, executable);
                 executable.resolveableParameters = executable.parameters.stream()
                         .filter(c -> c.getCommandIndex() != -1)
@@ -107,33 +109,29 @@ final class CommandParser {
     }
 
     @SuppressWarnings("rawtypes")
-    private static ResponseHandler<?> getResponseHandler(BaseCommandHandler handler, Method method) {
-        Class<?> returnType = method.getReturnType();
-        if (CompletionStage.class.isAssignableFrom(returnType)) {
-            ResponseHandler delegateHandler = handler.responseHandlers.getFlexibleOrDefault(getRawGeneric(method.getGenericReturnType()),
-                    ResponseHandler.VOID);
+    private static ResponseHandler<?> getResponseHandler(BaseCommandHandler handler, Type genericType) {
+        Class<?> rawType = Primitives.getRawType(genericType);
+        if (CompletionStage.class.isAssignableFrom(rawType)) {
+            ResponseHandler delegateHandler = getResponseHandler(handler, getInsideGeneric(genericType));
             return new CompletionStageResponseHandler(handler, delegateHandler);
         }
-        if (java.util.Optional.class.isAssignableFrom(returnType)) {
-            ResponseHandler delegateHandler = handler.responseHandlers.getFlexibleOrDefault(getRawGeneric(method.getGenericReturnType()),
-                    ResponseHandler.VOID);
+        if (java.util.Optional.class.isAssignableFrom(rawType)) {
+            ResponseHandler delegateHandler = getResponseHandler(handler, getInsideGeneric(genericType));
             return new OptionalResponseHandler(delegateHandler);
         }
-        return handler.responseHandlers.getFlexibleOrDefault(method.getReturnType(), ResponseHandler.VOID);
+        if (Supplier.class.isAssignableFrom(rawType)) {
+            ResponseHandler delegateHandler = getResponseHandler(handler, getInsideGeneric(genericType));
+            return new SupplierResponseHandler(delegateHandler);
+        }
+        return handler.responseHandlers.getFlexibleOrDefault(rawType, VOID_HANDLER);
     }
 
-    private static Class<?> getRawGeneric(Type genericType) {
-        Class<?> actualRawType;
+    private static Type getInsideGeneric(Type genericType) {
         try {
-            Type actualType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-            actualRawType = Primitives.getRawType(actualType);
-            if (java.util.Optional.class.isAssignableFrom(actualRawType)) {
-                throw new IllegalStateException("Cannot have an Optional of an Optional!");
-            }
+            return ((ParameterizedType) genericType).getActualTypeArguments()[0];
         } catch (ClassCastException e) {
-            actualRawType = Object.class;
+            return Object.class;
         }
-        return actualRawType;
     }
 
     private static Set<BaseCommandCategory> getCategories(@NotNull CommandPath path) {

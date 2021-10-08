@@ -13,11 +13,6 @@ import revxrsal.commands.command.ExecutableCommand;
 public interface ResponseHandler<T> {
 
     /**
-     * The response handler for methods that return void
-     */
-    ResponseHandler<Void> VOID = (response, actor, command) -> {};
-
-    /**
      * Handles the response returned from the method
      *
      * @param response The response returned from the method. May or may
