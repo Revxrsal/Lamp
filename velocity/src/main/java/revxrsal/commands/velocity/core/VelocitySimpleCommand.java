@@ -25,7 +25,7 @@ final class VelocitySimpleCommand implements SimpleCommand {
     }
 
     @Override public List<String> suggest(Invocation invocation) {
-        ArgumentStack arguments = ArgumentStack.of(invocation.arguments());
+        ArgumentStack arguments = ArgumentStack.ofUnsafe(invocation.arguments());
         arguments.addFirst(invocation.alias());
         VelocityCommandActor actor = new VelocityActor(invocation.source(), handler.getServer());
 

@@ -3,6 +3,7 @@ package revxrsal.commands.command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
+import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.core.LinkedArgumentStack;
 import revxrsal.commands.util.tokenize.QuotedStringTokenizer;
 
@@ -101,6 +102,20 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
     static @NotNull ArgumentStack of(@NotNull String... arguments) {
         if (arguments.length == 0) return empty();
         return new LinkedArgumentStack(QuotedStringTokenizer.tokenize(String.join(" ", arguments)));
+    }
+
+
+    /**
+     * Returns a new {@link ArgumentStack} with the specified arguments. This
+     * will not remove trailing space, and hence may give incorrect
+     * measures. This should only be used with {@link AutoCompleter#complete(CommandActor, ArgumentStack)}.
+     *
+     * @param arguments Arguments to clone from
+     * @return The newly created argument stack.
+     */
+    static @NotNull ArgumentStack ofUnsafe(@NotNull String... arguments) {
+        if (arguments.length == 0) return ArgumentStack.empty();
+        return new LinkedArgumentStack(QuotedStringTokenizer.tokenizeUnsafe(String.join(" ", arguments)));
     }
 
     /**

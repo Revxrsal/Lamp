@@ -24,7 +24,7 @@ final class BungeeCommand extends Command implements TabExecutor {
     }
 
     @Override public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        ArgumentStack arguments = ArgumentStack.of(args);
+        ArgumentStack arguments = ArgumentStack.ofUnsafe(args);
         arguments.addFirst(getName());
 
         BungeeCommandActor actor = new BungeeActor(sender);

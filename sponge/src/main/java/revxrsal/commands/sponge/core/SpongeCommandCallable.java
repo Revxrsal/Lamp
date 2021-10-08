@@ -15,6 +15,8 @@ import revxrsal.commands.sponge.SpongeCommandHandler;
 import java.util.List;
 import java.util.Optional;
 
+import static revxrsal.commands.util.tokenize.QuotedStringTokenizer.EMPTY_TEXT;
+
 // i'm not sure if we are supposed to be providing implementations
 // for testPermission(), getHelp() and getUsage().
 final class SpongeCommandCallable implements CommandCallable {
@@ -37,7 +39,7 @@ final class SpongeCommandCallable implements CommandCallable {
 
     @Override public @NotNull List<String> getSuggestions(@NotNull CommandSource source, @NotNull String arguments, @Nullable Location<World> targetPosition) {
         CommandActor actor = new SpongeActor(source);
-        ArgumentStack args = ArgumentStack.fromString(arguments);
+        ArgumentStack args = arguments.isEmpty() ? ArgumentStack.exactly(EMPTY_TEXT) : ArgumentStack.fromString(arguments);
         return handler.getAutoCompleter().complete(actor, args);
     }
 

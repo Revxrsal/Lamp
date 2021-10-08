@@ -46,6 +46,8 @@ import java.util.List;
  */
 public final class QuotedStringTokenizer {
 
+    public static final List<String> EMPTY_TEXT = Collections.singletonList("");
+
     private QuotedStringTokenizer() {}
 
     private static final int CHAR_BACKSLASH = '\\';
@@ -72,6 +74,20 @@ public final class QuotedStringTokenizer {
             returnedArgs.add(arg);
         }
         return returnedArgs;
+    }
+
+    /**
+     * Returns a list of tokens from parsing the given input,
+     * respecting quotes and breaks.
+     *
+     * @param arguments Argument string to parse
+     * @return A list of tokens.
+     */
+    public static List<String> tokenizeUnsafe(String arguments) {
+        if (arguments.length() == 0) {
+            return EMPTY_TEXT;
+        }
+        return tokenize(arguments);
     }
 
     // Parsing methods
