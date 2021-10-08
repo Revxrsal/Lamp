@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
- * A response handler that appropriately handles return types of {@link Optional}s.
+ * A response handler that appropriately handles return types of {@link Supplier}s.
  */
 final class SupplierResponseHandler implements ResponseHandler<Supplier<Object>> {
 
