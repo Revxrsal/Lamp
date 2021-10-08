@@ -33,12 +33,12 @@ public final class BungeeHandler extends BaseCommandHandler implements BungeeCom
         registerDependency((Class) plugin.getClass(), plugin);
         registerDependency(Plugin.class, plugin);
 
-        registerValueResolver(ProxiedPlayer.class, (args, actor, parameter, command) -> {
-            String name = args.pop();
+        registerValueResolver(ProxiedPlayer.class, context -> {
+            String name = context.pop();
             if (name.equalsIgnoreCase("me") || name.equalsIgnoreCase("self"))
-                return ((BungeeCommandActor) actor).requirePlayer();
+                return ((BungeeCommandActor) context.actor()).requirePlayer();
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer(name);
-            if (player == null) throw new InvalidPlayerException(parameter, name);
+            if (player == null) throw new InvalidPlayerException(context.parameter(), name);
             return player;
         });
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);

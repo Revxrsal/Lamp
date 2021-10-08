@@ -21,9 +21,9 @@ enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
 
     INSTANCE;
 
-    @Override public PlayerSelector resolve(@NotNull ArgumentStack arguments, @NotNull CommandActor actor, @NotNull CommandParameter parameter, @NotNull ExecutableCommand command) {
-        BungeeCommandActor subject = (BungeeCommandActor) actor;
-        String value = arguments.pop().toLowerCase();
+    @Override public PlayerSelector resolve(@NotNull ValueResolverContext context) {
+        BungeeCommandActor subject = context.actor();
+        String value = context.pop().toLowerCase();
         List<ProxiedPlayer> coll = new ArrayList<>();
         ProxiedPlayer[] players = ProxyServer.getInstance().getPlayers().toArray(new ProxiedPlayer[0]);
         switch (value) {
@@ -42,7 +42,7 @@ enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
             default: {
                 ProxiedPlayer player = ProxyServer.getInstance().getPlayer(value);
                 if (player == null)
-                    throw new InvalidPlayerException(parameter, value);
+                    throw new InvalidPlayerException(context.parameter(), value);
                 coll.add(player);
                 return coll::iterator;
             }
