@@ -29,12 +29,12 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
         registerSenderResolver(VelocitySenderResolver.INSTANCE);
         registerDependency(ProxyServer.class, server);
         registerContextResolver(ProxyServer.class, ContextResolver.of(server));
-        registerValueResolver(Player.class, (args, actor, parameter, command) -> {
-            String name = args.pop();
+        registerValueResolver(Player.class, context -> {
+            String name = context.pop();
             if (name.equalsIgnoreCase("me") || name.equalsIgnoreCase("self"))
-                return actor.as(VelocityCommandActor.class).requirePlayer();
+                return context.actor().as(VelocityCommandActor.class).requirePlayer();
             return server.getPlayer(name)
-                    .orElseThrow(() -> new InvalidPlayerException(parameter, name));
+                    .orElseThrow(() -> new InvalidPlayerException(context.parameter(), name));
         });
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);
         getAutoCompleter()

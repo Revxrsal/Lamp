@@ -3,10 +3,6 @@ package revxrsal.commands.velocity.core;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.ArgumentStack;
-import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.CommandParameter;
-import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.ValueResolver;
 import revxrsal.commands.velocity.PlayerSelector;
 import revxrsal.commands.velocity.VelocityCommandActor;
@@ -21,10 +17,10 @@ enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
 
     INSTANCE;
 
-    @Override public PlayerSelector resolve(@NotNull ArgumentStack arguments, @NotNull CommandActor actor, @NotNull CommandParameter parameter, @NotNull ExecutableCommand command) {
-        VelocityCommandActor vActor = (VelocityCommandActor) actor;
+    @Override public PlayerSelector resolve(@NotNull ValueResolverContext context) {
+        VelocityCommandActor vActor = context.actor();
         ProxyServer server = vActor.getServer();
-        String value = arguments.pop().toLowerCase();
+        String value = context.pop().toLowerCase();
         List<Player> coll = new ArrayList<>();
         Player[] players = server.getAllPlayers().toArray(new Player[0]);
         switch (value) {
@@ -41,7 +37,7 @@ enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
                 return coll::iterator;
             }
             default: {
-                Player player = server.getPlayer(value).orElseThrow(() -> new InvalidPlayerException(parameter, value));
+                Player player = server.getPlayer(value).orElseThrow(() -> new InvalidPlayerException(context.parameter(), value));
                 coll.add(player);
                 return coll::iterator;
             }
