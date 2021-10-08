@@ -12,7 +12,6 @@ import revxrsal.commands.process.ContextResolver.ContextResolverContext;
 import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a resolver for a {@link CommandParameter}. Instances of this
@@ -89,24 +88,26 @@ public interface ParameterResolver<T> {
         /**
          * Returns the last resolved value of the given parameter type. If
          * no parameter matches the given type, or if the parameter was not resolved yet,
-         * this will return an empty {@link Optional}.
+         * this will throw an {@link IllegalStateException}.
          *
          * @param type The parameter type to fetch for.
          * @param <T>  The resolved type
+         * @throws IllegalStateException If no parameter of this type was resolved.
          * @return The last resolved value matching the given type.
          */
-        <T> Optional<T> getResolvedArgument(@NotNull Class<T> type);
+        <T> @NotNull T getResolvedArgument(@NotNull Class<T> type);
 
         /**
          * Returns the last resolved value of the given parameter type. If
          * no parameter matches the given type, or if the parameter was not resolved yet,
-         * this will return an empty {@link Optional}.
+         * this will throw an {@link IllegalStateException}.
          *
          * @param parameter The parameter to fetch for.
          * @param <T>       The resolved type
+         * @throws IllegalStateException If no parameter of this type was resolved.
          * @return The last resolved value matching the given type.
          */
-        <T> Optional<T> getResolvedParameter(@NotNull CommandParameter parameter);
+        <T> @NotNull T getResolvedParameter(@NotNull CommandParameter parameter);
 
     }
 

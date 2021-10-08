@@ -17,7 +17,6 @@ import revxrsal.commands.process.ParameterValidator;
 import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 
 import java.util.List;
-import java.util.Optional;
 
 public final class BaseCommandDispatcher {
 
@@ -223,20 +222,20 @@ public final class BaseCommandDispatcher {
             return parameter.getCommandHandler();
         }
 
-        @Override public <T> Optional<T> getResolvedParameter(@NotNull CommandParameter parameter) {
+        @Override public <T> @NotNull T getResolvedParameter(@NotNull CommandParameter parameter) {
             try {
-                return (Optional<T>) Optional.of(resolved[parameter.getMethodIndex()]);
+                return (T) resolved[parameter.getMethodIndex()];
             } catch (Throwable throwable) {
-                return Optional.empty();
+                throw new IllegalArgumentException("This parameter has not been resolved yet!");
             }
         }
 
-        @Override public <T> Optional<T> getResolvedArgument(@NotNull Class<T> type) {
+        @Override public <T> @NotNull T getResolvedArgument(@NotNull Class<T> type) {
             for (Object o : resolved) {
                 if (type.isInstance(o))
-                    return (Optional<T>) Optional.of(o);
+                    return (T) o;
             }
-            return Optional.empty();
+            throw new IllegalArgumentException("This parameter has not been resolved yet!");
         }
     }
 
