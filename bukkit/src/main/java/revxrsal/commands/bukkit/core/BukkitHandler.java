@@ -41,32 +41,32 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         super();
         this.plugin = notNull(plugin, "plugin");
         registerSenderResolver(BukkitSenderResolver.INSTANCE);
-        registerValueResolver(Player.class, (arguments, actor, parameter, command) -> {
-            String value = arguments.pop();
+        registerValueResolver(Player.class, context -> {
+            String value = context.pop();
             if (value.equalsIgnoreCase("self") || value.equalsIgnoreCase("me"))
-                return ((BukkitCommandActor) actor).requirePlayer();
+                return ((BukkitCommandActor) context.actor()).requirePlayer();
             Player player = Bukkit.getPlayer(value);
             if (player == null)
-                throw new InvalidPlayerException(parameter, value);
+                throw new InvalidPlayerException(context.parameter(), value);
             return player;
         });
-        registerValueResolver(OfflinePlayer.class, (arguments, actor, parameter, command) -> {
-            String value = arguments.pop();
+        registerValueResolver(OfflinePlayer.class, context -> {
+            String value = context.pop();
             if (value.equalsIgnoreCase("self") || value.equalsIgnoreCase("me"))
-                return ((BukkitCommandActor) actor).requirePlayer();
+                return ((BukkitCommandActor) context.actor()).requirePlayer();
             //noinspection deprecation
             OfflinePlayer player = Bukkit.getOfflinePlayer(value);
             if (!player.hasPlayedBefore())
-                throw new InvalidPlayerException(parameter, value);
+                throw new InvalidPlayerException(context.parameter(), value);
             return player;
         });
-        registerValueResolver(World.class, (arguments, actor, parameter, command) -> {
-            String value = arguments.pop();
+        registerValueResolver(World.class, context -> {
+            String value = context.pop();
             if (value.equalsIgnoreCase("self") || value.equalsIgnoreCase("me"))
-                return ((BukkitCommandActor) actor).requirePlayer().getWorld();
+                return ((BukkitCommandActor) context.actor()).requirePlayer().getWorld();
             World world = Bukkit.getWorld(value);
             if (world == null)
-                throw new InvalidWorldException(parameter, value);
+                throw new InvalidWorldException(context.parameter(), value);
             return world;
         });
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);

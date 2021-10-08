@@ -3,9 +3,9 @@ package revxrsal.commands.bukkit.core;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bukkit.exception.InvalidPlayerException;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.PlayerSelector;
+import revxrsal.commands.bukkit.exception.InvalidPlayerException;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
@@ -20,9 +20,9 @@ import java.util.concurrent.ThreadLocalRandom;
 enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
     INSTANCE;
 
-    @Override public PlayerSelector resolve(@NotNull ArgumentStack arguments, @NotNull CommandActor actor, @NotNull CommandParameter parameter, @NotNull ExecutableCommand command) {
-        BukkitCommandActor bActor = (BukkitCommandActor) actor;
-        String value = arguments.pop().toLowerCase();
+    @Override public PlayerSelector resolve(@NotNull ValueResolverContext context) {
+        BukkitCommandActor bActor = context.actor();
+        String value = context.pop().toLowerCase();
         List<Player> coll = new ArrayList<>();
         Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
         switch (value) {
@@ -41,7 +41,7 @@ enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
             default: {
                 Player player = Bukkit.getPlayer(value);
                 if (player == null)
-                    throw new InvalidPlayerException(parameter, value);
+                    throw new InvalidPlayerException(context.parameter(), value);
                 coll.add(player);
                 return coll::iterator;
             }
