@@ -99,7 +99,6 @@ public final class BaseCommandDispatcher {
     private Object[] getMethodArguments(CommandExecutable executable, CommandActor actor, ArgumentStack args, List<String> input) {
         Object[] values = new Object[executable.parameters.size()];
         for (CommandParameter parameter : executable.parameters) {
-
             if (ArgumentStack.class.isAssignableFrom(parameter.getType()))
                 values[parameter.getMethodIndex()] = args;
             else if (parameter.isSwitch())
@@ -193,12 +192,6 @@ public final class BaseCommandDispatcher {
         }
         values[parameter.getMethodIndex()] = value;
 
-    }
-
-    private ParameterResolverContext createContext(List<String> input, CommandActor actor, CommandParameter parameter, Object[] resolved, @NotNull ArgumentStack args) {
-        if (parameter.getResolver().mutatesArguments()) // is value
-            return new ValueContextR(input, actor, parameter, resolved, args);
-        return new ContextResolverContext(input, actor, parameter, resolved);
     }
 
     @AllArgsConstructor

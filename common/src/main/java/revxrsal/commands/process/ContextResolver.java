@@ -1,7 +1,6 @@
 package revxrsal.commands.process;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.process.ParameterResolver.ParameterResolverContext;
 
 import java.util.function.Supplier;
@@ -50,7 +49,6 @@ public interface ContextResolver<T> {
     static <T> ContextResolver<T> of(@NotNull Supplier<T> value) {
         return context -> value.get();
     }
-
 
     /**
      * Represents the resolving context of {@link ContextResolver}. This contains
