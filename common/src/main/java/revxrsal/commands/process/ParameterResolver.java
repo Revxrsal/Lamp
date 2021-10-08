@@ -7,6 +7,8 @@ import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.process.ContextResolver.ContextResolverContext;
+import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +41,9 @@ public interface ParameterResolver<T> {
     /**
      * Represents the resolving context of a {@link CommandParameter}. This contains
      * all the relevant information about the resolving context.
+     *
+     * @see ValueResolverContext
+     * @see ContextResolverContext
      */
     interface ParameterResolverContext {
 
