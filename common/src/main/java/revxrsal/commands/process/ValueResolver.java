@@ -5,7 +5,10 @@ import revxrsal.commands.annotation.Single;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.exception.CommandExceptionHandler;
+import revxrsal.commands.exception.InvalidNumberException;
 import revxrsal.commands.process.ParameterResolver.ParameterResolverContext;
+
+import java.util.NoSuchElementException;
 
 /**
  * A resolver for resolving values that, by default, require data from the arguments
@@ -61,9 +64,49 @@ public interface ValueResolver<T> {
          * Returns (and removes) the first value in the {@link #arguments() argument stack}.
          *
          * @return The first value.
-         * @throws java.util.NoSuchElementException if the stack is empty
+         * @throws NoSuchElementException if the stack is empty
          */
         String pop();
+
+        /**
+         * Returns (and removes) the first value in the {@link #arguments() argument stack}
+         * and parses it into an integer.
+         *
+         * @return The first value, as an int.
+         * @throws NoSuchElementException if the stack is empty
+         * @throws InvalidNumberException if an invalid number is inputted
+         */
+        int popInt();
+
+        /**
+         * Returns (and removes) the first value in the {@link #arguments() argument stack}
+         * and parses it into a double.
+         *
+         * @return The first value, as a double.
+         * @throws NoSuchElementException if the stack is empty
+         * @throws InvalidNumberException if an invalid number is inputted
+         */
+        double popDouble();
+
+        /**
+         * Returns (and removes) the first value in the {@link #arguments() argument stack}
+         * and parses it into a float.
+         *
+         * @return The first value, as a float.
+         * @throws NoSuchElementException if the stack is empty
+         * @throws InvalidNumberException if an invalid number is inputted
+         */
+        float popFloat();
+
+        /**
+         * Returns (and removes) the first value in the {@link #arguments() argument stack}
+         * and parses it into a double.
+         *
+         * @return The first value, as a long.
+         * @throws NoSuchElementException if the stack is empty
+         * @throws InvalidNumberException if an invalid number is inputted
+         */
+        long popLong();
 
     }
 

@@ -17,6 +17,7 @@ import revxrsal.commands.process.ParameterValidator;
 import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 
 import java.util.List;
+import java.util.function.Function;
 
 public final class BaseCommandDispatcher {
 
@@ -269,6 +270,33 @@ public final class BaseCommandDispatcher {
 
         @Override public String pop() {
             return argumentStack.pop();
+        }
+
+        private <T> T num(Function<String, T> f) {
+            String input = pop();
+            try {
+                if (input.startsWith("0x"))
+                    return (T) Integer.valueOf(input.substring(2), 16);
+                return f.apply(input);
+            } catch (NumberFormatException e) {
+                throw new InvalidNumberException(parameter(), input);
+            }
+        }
+
+        @Override public int popInt() {
+            return num(Integer::parseInt);
+        }
+
+        @Override public double popDouble() {
+            return num(Double::parseDouble);
+        }
+
+        @Override public float popFloat() {
+            return num(Float::parseFloat);
+        }
+
+        @Override public long popLong() {
+            return num(Long::parseLong);
         }
     }
 }
