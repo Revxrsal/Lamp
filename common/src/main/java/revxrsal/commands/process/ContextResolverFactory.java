@@ -18,26 +18,25 @@ import revxrsal.commands.command.CommandParameter;
  * are annotated with a specific annotation, in which the argument will be fed with the player's
  * target location
  * <pre>{@code
+ * @Target(ElementType.PARAMETER)
+ * @Retention(RetentionPolicy.RUNTIME)
+ * public @interface LookingLocation {
  *
- *  @Target(ElementType.PARAMETER)
- *  @Retention(RetentionPolicy.RUNTIME)
- *  public @interface LookingLocation {
+ * }
  *
- *  }
+ * public final class LookingLocationFactory implements ContextResolverFactory {
  *
- *  public class LookingLocationFactory implements ContextResolverFactory {
- *
- *       @Override public ParameterResolver.ContextResolver<?> create(CommandParameter parameter, HandledCommand command, CommandHandler handler) {
- *           if (parameter.getType() != Location.class) return null;
- *           if (!parameter.hasAnnotation(LookingLocation.class)) return null;
- *           return (args, subject, parameter1) -> {
- *               Player player = ((BukkitCommandSubject) subject).requirePlayer();
- *               return player.getTargetBlock(null, 200).getLocation();
- *           };
- *       }
- *    }
+ *     @Override public @Nullable ContextResolver<?> create(@NotNull CommandParameter parameter) {
+ *         if (parameter.getType() != Location.class) return null;
+ *         if (!parameter.hasAnnotation(LookingLocation.class)) return null;
+ *         return (actor, p, command) -> {
+ *             Player player = ((BukkitCommandActor) actor).requirePlayer();
+ *             return player.getTargetBlock(null, 200).getLocation();
+ *         };
+ *     }
+ * }
  * }</pre>
- * <p>
+ *
  * Note that {@link ContextResolverFactory}ies must be registered
  * with {@link CommandHandler#registerContextResolverFactory(ContextResolverFactory)}.
  */
