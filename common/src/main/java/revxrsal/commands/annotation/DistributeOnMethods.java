@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
  * with an annotation that is distributable on methods, all methods will effectively
  * include this annotation in their functionality.
  * <p>
- * For example, if a class is annotated with {@link RunAsync}, all methods will be
- * marked as {@link RunAsync}, without having to annotate each method individually.
+ * For example, if a class is annotated with {@link SecretCommand}, all methods will be
+ * marked as {@link SecretCommand}, without having to annotate each method individually.
  */
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
