@@ -1,6 +1,7 @@
 package revxrsal.commands.command;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.core.LinkedArgumentStack;
 import revxrsal.commands.util.tokenize.QuotedStringTokenizer;
@@ -59,6 +60,14 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      * @return The argument stack as an immutable view
      */
     @NotNull @UnmodifiableView List<String> asImmutableView();
+
+    /**
+     * Returns an immutable copy of this stack. This copy will behave
+     * independently of the original {@link ArgumentStack}.
+     *
+     * @return An immutable copy of this {@link ArgumentStack}.
+     */
+    @NotNull @Unmodifiable List<String> asImmutableCopy();
 
     /**
      * Returns a new {@link ArgumentStack} with the specified arguments.
