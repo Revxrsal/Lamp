@@ -87,7 +87,18 @@ public interface ParameterResolver<T> {
          * @param <T>  The resolved type
          * @return The last resolved value matching the given type.
          */
-        <T> Optional<T> getLastArgument(@NotNull Class<T> type);
+        <T> Optional<T> getResolvedArgument(@NotNull Class<T> type);
+
+        /**
+         * Returns the last resolved value of the given parameter type. If
+         * no parameter matches the given type, or if the parameter was not resolved yet,
+         * this will return an empty {@link Optional}.
+         *
+         * @param parameter The parameter to fetch for.
+         * @param <T>  The resolved type
+         * @return The last resolved value matching the given type.
+         */
+        <T> Optional<T> getResolvedParameter(@NotNull CommandParameter parameter);
 
     }
 

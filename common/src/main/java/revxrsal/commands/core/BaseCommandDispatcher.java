@@ -218,7 +218,15 @@ public final class BaseCommandDispatcher {
             return parameter.getDeclaringCommand();
         }
 
-        @Override public <T> Optional<T> getLastArgument(@NotNull Class<T> type) {
+        @Override public <T> Optional<T> getResolvedParameter(@NotNull CommandParameter parameter) {
+            try {
+                return (Optional<T>) Optional.of(resolved[parameter.getMethodIndex()]);
+            } catch (Throwable throwable) {
+                return Optional.empty();
+            }
+        }
+
+        @Override public <T> Optional<T> getResolvedArgument(@NotNull Class<T> type) {
             for (Object o : resolved) {
                 if (type.isInstance(o))
                     return (Optional<T>) Optional.of(o);
