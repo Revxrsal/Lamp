@@ -21,7 +21,7 @@ public interface ContextResolver<T> {
      * @param context The command resolving context.
      * @return The resolved value. May or may not be null.
      */
-    T resolve(@NotNull ContextResolverContext context);
+    T resolve(@NotNull ContextResolverContext context) throws Throwable;
 
     /**
      * Returns a context resolver that returns a static value. This
