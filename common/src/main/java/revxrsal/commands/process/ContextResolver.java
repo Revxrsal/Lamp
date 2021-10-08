@@ -1,10 +1,8 @@
 package revxrsal.commands.process;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.CommandParameter;
-import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.exception.CommandExceptionHandler;
+import revxrsal.commands.process.ParameterResolver.ParameterResolverContext;
 
 import java.util.function.Supplier;
 
@@ -20,14 +18,10 @@ public interface ContextResolver<T> {
     /**
      * Resolves the value of this resolver
      *
-     * @param actor     The command actor
-     * @param parameter The parameter to resolve
+     * @param context The command resolving context.
      * @return The resolved value. May or may not be null.
-     * @throws Throwable Any exceptions that should be handled by {@link CommandExceptionHandler}
      */
-    T resolve(@NotNull CommandActor actor,
-              @NotNull CommandParameter parameter,
-              @NotNull ExecutableCommand command) throws Throwable;
+    T resolve(@NotNull ContextResolverContext context);
 
     /**
      * Returns a context resolver that returns a static value. This
@@ -40,7 +34,7 @@ public interface ContextResolver<T> {
      * @since 1.3.0
      */
     static <T> ContextResolver<T> of(@NotNull T value) {
-        return (actor, parameter, command) -> value;
+        return context -> value;
     }
 
     /**
@@ -54,6 +48,14 @@ public interface ContextResolver<T> {
      * @since 1.3.0
      */
     static <T> ContextResolver<T> of(@NotNull Supplier<T> value) {
-        return (actor, parameter, command) -> value.get();
+        return context -> value.get();
     }
+
+
+    /**
+     * Represents the resolving context of {@link ContextResolver}. This contains
+     * all the relevant information about the resolving context.
+     */
+    interface ContextResolverContext extends ParameterResolverContext {}
+
 }

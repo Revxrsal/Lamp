@@ -1,0 +1,201 @@
+revxrsal/commands/annotation/CaseSensitive.java
+ revxrsal.commands.annotation.CaseSensitive
+revxrsal/commands/core/reflect/MethodCallerFactory.java
+ revxrsal.commands.core.reflect.MethodCallerFactory
+revxrsal/commands/annotation/SecretCommand.java
+ revxrsal.commands.annotation.SecretCommand
+revxrsal/commands/exception/CommandExceptionHandler.java
+ revxrsal.commands.exception.CommandExceptionHandler
+revxrsal/commands/command/CommandActor.java
+ revxrsal.commands.command.CommandActor
+revxrsal/commands/annotation/NotSender.java
+ revxrsal.commands.annotation.NotSender
+revxrsal/commands/annotation/Usage.java
+ revxrsal.commands.annotation.Usage
+revxrsal/commands/util/Collections.java
+ revxrsal.commands.util.Collections
+revxrsal/commands/annotation/Dependency.java
+ revxrsal.commands.annotation.Dependency
+revxrsal/commands/exception/CooldownException.java
+ revxrsal.commands.exception.CooldownException
+revxrsal/commands/util/tokenize/QuotedStringTokenizer.java
+ revxrsal.commands.util.tokenize.QuotedStringTokenizer
+ revxrsal.commands.util.tokenize.QuotedStringTokenizer$TokenizerState
+revxrsal/commands/annotation/Cooldown.java
+ revxrsal.commands.annotation.Cooldown
+revxrsal/commands/annotation/Description.java
+ revxrsal.commands.annotation.Description
+revxrsal/commands/util/Primitives.java
+ revxrsal.commands.util.Primitives
+revxrsal/commands/util/Preconditions.java
+ revxrsal.commands.util.Preconditions
+revxrsal/commands/annotation/Subcommand.java
+ revxrsal.commands.annotation.Subcommand
+revxrsal/commands/command/CommandPermission.java
+ revxrsal.commands.command.CommandPermission
+revxrsal/commands/annotation/Switch.java
+ revxrsal.commands.annotation.Switch
+revxrsal/commands/annotation/Command.java
+ revxrsal.commands.annotation.Command
+revxrsal/commands/core/reflect/MethodHandlesCallerFactory.java
+ revxrsal.commands.core.reflect.MethodHandlesCallerFactory
+ revxrsal.commands.core.reflect.MethodHandlesCallerFactory$1
+revxrsal/commands/annotation/AutoComplete.java
+ revxrsal.commands.annotation.AutoComplete
+revxrsal/commands/exception/ThrowableFromCommand.java
+ revxrsal.commands.exception.ThrowableFromCommand
+revxrsal/commands/exception/InvalidHelpPageException.java
+ revxrsal.commands.exception.InvalidHelpPageException
+revxrsal/commands/annotation/Optional.java
+ revxrsal.commands.annotation.Optional
+revxrsal/commands/annotation/Single.java
+ revxrsal.commands.annotation.Single
+revxrsal/commands/help/CommandHelp.java
+ revxrsal.commands.help.CommandHelp
+revxrsal/commands/annotation/DistributeOnMethods.java
+ revxrsal.commands.annotation.DistributeOnMethods
+revxrsal/commands/annotation/Named.java
+ revxrsal.commands.annotation.Named
+revxrsal/commands/util/ClassMap.java
+ revxrsal.commands.util.ClassMap
+revxrsal/commands/util/Strings.java
+ revxrsal.commands.util.Strings
+revxrsal/commands/annotation/Flag.java
+ revxrsal.commands.annotation.Flag
+revxrsal/commands/annotation/Default.java
+ revxrsal.commands.annotation.Default
+revxrsal/commands/exception/ArgumentParseException.java
+ revxrsal.commands.exception.ArgumentParseException
+revxrsal/commands/core/AnnotationReader.java
+ revxrsal.commands.core.AnnotationReader
+revxrsal/commands/core/reflect/MethodCaller.java
+ revxrsal.commands.core.reflect.MethodCaller
+ revxrsal.commands.core.reflect.MethodCaller$BoundMethodCaller
+revxrsal/commands/exception/SendMessageException.java
+ revxrsal.commands.exception.SendMessageException
+revxrsal/commands/exception/SendableException.java
+ revxrsal.commands.exception.SendableException
+revxrsal/commands/exception/CommandErrorException.java
+ revxrsal.commands.exception.CommandErrorException
+revxrsal/commands/util/StackTraceSanitizer.java
+ revxrsal.commands.util.StackTraceSanitizer
+ revxrsal.commands.util.StackTraceSanitizer$1
+ revxrsal.commands.util.StackTraceSanitizer$Builder
+revxrsal/commands/CommandHandler.java
+ revxrsal.commands.CommandHandler
+revxrsal/commands/core/BaseCommandCategory.java
+ revxrsal.commands.core.BaseCommandCategory
+revxrsal/commands/exception/InvalidURLException.java
+ revxrsal.commands.exception.InvalidURLException
+revxrsal/commands/core/BaseCommandDispatcher.java
+ revxrsal.commands.core.BaseCommandDispatcher
+ revxrsal.commands.core.BaseCommandDispatcher$ContextResolverContext
+ revxrsal.commands.core.BaseCommandDispatcher$ParamResolverContext
+ revxrsal.commands.core.BaseCommandDispatcher$ValueContextR
+revxrsal/commands/exception/InvalidCommandException.java
+ revxrsal.commands.exception.InvalidCommandException
+revxrsal/commands/process/SenderResolver.java
+ revxrsal.commands.process.SenderResolver
+revxrsal/commands/core/BaseCommandHandler.java
+ revxrsal.commands.core.BaseCommandHandler
+ revxrsal.commands.core.BaseCommandHandler$WrappedExceptionHandler
+revxrsal/commands/command/ArgumentStack.java
+ revxrsal.commands.command.ArgumentStack
+revxrsal/commands/core/CooldownCondition.java
+ revxrsal.commands.core.CooldownCondition
+revxrsal/commands/core/DependencyResolverFactory.java
+ revxrsal.commands.core.DependencyResolverFactory
+revxrsal/commands/exception/CommandInvocationException.java
+ revxrsal.commands.exception.CommandInvocationException
+revxrsal/commands/autocomplete/SuggestionProvider.java
+ revxrsal.commands.autocomplete.SuggestionProvider
+revxrsal/commands/core/BaseAutoCompleter.java
+ revxrsal.commands.core.BaseAutoCompleter
+revxrsal/commands/exception/InvalidNumberException.java
+ revxrsal.commands.exception.InvalidNumberException
+revxrsal/commands/core/CommandParser.java
+ revxrsal.commands.core.CommandParser
+revxrsal/commands/exception/TooManyArgumentsException.java
+ revxrsal.commands.exception.TooManyArgumentsException
+revxrsal/commands/exception/MissingArgumentException.java
+ revxrsal.commands.exception.MissingArgumentException
+revxrsal/commands/command/CommandCategory.java
+ revxrsal.commands.command.CommandCategory
+revxrsal/commands/core/CommandCompound.java
+ revxrsal.commands.core.CommandCompound
+revxrsal/commands/process/ResponseHandler.java
+ revxrsal.commands.process.ResponseHandler
+revxrsal/commands/process/CommandCondition.java
+ revxrsal.commands.process.CommandCondition
+revxrsal/commands/core/ResolverFactory.java
+ revxrsal.commands.core.ResolverFactory
+revxrsal/commands/autocomplete/AutoCompleter.java
+ revxrsal.commands.autocomplete.AutoCompleter
+revxrsal/commands/exception/InvalidValueException.java
+ revxrsal.commands.exception.InvalidValueException
+revxrsal/commands/exception/InvalidUUIDException.java
+ revxrsal.commands.exception.InvalidUUIDException
+revxrsal/commands/process/ValueResolver.java
+ revxrsal.commands.process.ValueResolver
+ revxrsal.commands.process.ValueResolver$ValueResolverContext
+revxrsal/commands/command/CommandParameter.java
+ revxrsal.commands.command.CommandParameter
+revxrsal/commands/process/ValueResolverFactory.java
+ revxrsal.commands.process.ValueResolverFactory
+revxrsal/commands/core/OptionalResponseHandler.java
+ revxrsal.commands.core.OptionalResponseHandler
+revxrsal/commands/exception/DefaultExceptionHandler.java
+ revxrsal.commands.exception.DefaultExceptionHandler
+revxrsal/commands/exception/CommandExceptionAdapter.java
+ revxrsal.commands.exception.CommandExceptionAdapter
+revxrsal/commands/core/Resolver.java
+ revxrsal.commands.core.Resolver
+revxrsal/commands/help/CommandHelpWriter.java
+ revxrsal.commands.help.CommandHelpWriter
+revxrsal/commands/process/ContextResolverFactory.java
+ revxrsal.commands.process.ContextResolverFactory
+revxrsal/commands/core/CompletionStageResponseHandler.java
+ revxrsal.commands.core.CompletionStageResponseHandler
+revxrsal/commands/core/SupplierResponseHandler.java
+ revxrsal.commands.core.SupplierResponseHandler
+revxrsal/commands/core/EnumResolverFactory.java
+ revxrsal.commands.core.EnumResolverFactory
+revxrsal/commands/process/PermissionReader.java
+ revxrsal.commands.process.PermissionReader
+revxrsal/commands/core/SenderContextResolverFactory.java
+ revxrsal.commands.core.SenderContextResolverFactory
+ revxrsal.commands.core.SenderContextResolverFactory$1
+revxrsal/commands/exception/NoPermissionException.java
+ revxrsal.commands.exception.NoPermissionException
+revxrsal/commands/core/CommandPath.java
+ revxrsal.commands.core.CommandPath
+ revxrsal.commands.core.CommandPath$PathIterator
+revxrsal/commands/process/ContextResolver.java
+ revxrsal.commands.process.ContextResolver
+ revxrsal.commands.process.ContextResolver$ContextResolverContext
+revxrsal/commands/exception/InvalidSubcommandException.java
+ revxrsal.commands.exception.InvalidSubcommandException
+revxrsal/commands/exception/EnumNotFoundException.java
+ revxrsal.commands.exception.EnumNotFoundException
+revxrsal/commands/process/ParameterValidator.java
+ revxrsal.commands.process.ParameterValidator
+revxrsal/commands/exception/InvalidBooleanException.java
+ revxrsal.commands.exception.InvalidBooleanException
+revxrsal/commands/exception/NoSubcommandSpecifiedException.java
+ revxrsal.commands.exception.NoSubcommandSpecifiedException
+revxrsal/commands/process/ParameterResolver.java
+ revxrsal.commands.process.ParameterResolver
+ revxrsal.commands.process.ParameterResolver$ParameterResolverContext
+revxrsal/commands/core/MutableCommandPath.java
+ revxrsal.commands.core.MutableCommandPath
+revxrsal/commands/core/BaseCommandParameter.java
+ revxrsal.commands.core.BaseCommandParameter
+revxrsal/commands/core/LinkedArgumentStack.java
+ revxrsal.commands.core.LinkedArgumentStack
+revxrsal/commands/command/ExecutableCommand.java
+ revxrsal.commands.command.ExecutableCommand
+revxrsal/commands/core/BaseCommandHelp.java
+ revxrsal.commands.core.BaseCommandHelp
+ revxrsal.commands.core.BaseCommandHelp$Resolver
+revxrsal/commands/core/CommandExecutable.java
+ revxrsal.commands.core.CommandExecutable

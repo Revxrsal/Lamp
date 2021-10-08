@@ -44,8 +44,7 @@ public interface ParameterValidator<T> {
      * @param value     The parameter value. May or may not be null, depending on the resolver.
      * @param parameter The parameter that will take this value
      * @param actor     The command actor
-     * @throws Throwable Any throwable this validator will throw.
      */
-    void validate(T value, @NotNull CommandParameter parameter, @NotNull CommandActor actor) throws Throwable;
+    void validate(T value, @NotNull CommandParameter parameter, @NotNull CommandActor actor);
 
 }

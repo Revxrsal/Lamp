@@ -1,0 +1,32 @@
+revxrsal/commands/bukkit/annotation/CommandPermission.java
+ revxrsal.commands.bukkit.annotation.CommandPermission
+revxrsal/commands/bukkit/exception/SenderNotPlayerException.java
+ revxrsal.commands.bukkit.exception.SenderNotPlayerException
+revxrsal/commands/bukkit/BukkitCommandActor.java
+ revxrsal.commands.bukkit.BukkitCommandActor
+revxrsal/commands/bukkit/BukkitCommandPermission.java
+ revxrsal.commands.bukkit.BukkitCommandPermission
+revxrsal/commands/bukkit/core/BukkitActor.java
+ revxrsal.commands.bukkit.core.BukkitActor
+revxrsal/commands/bukkit/PlayerSelector.java
+ revxrsal.commands.bukkit.PlayerSelector
+revxrsal/commands/bukkit/exception/SenderNotConsoleException.java
+ revxrsal.commands.bukkit.exception.SenderNotConsoleException
+revxrsal/commands/bukkit/core/BukkitPermissionReader.java
+ revxrsal.commands.bukkit.core.BukkitPermissionReader
+revxrsal/commands/bukkit/exception/BukkitExceptionAdapter.java
+ revxrsal.commands.bukkit.exception.BukkitExceptionAdapter
+revxrsal/commands/bukkit/exception/InvalidPlayerException.java
+ revxrsal.commands.bukkit.exception.InvalidPlayerException
+revxrsal/commands/bukkit/core/BukkitHandler.java
+ revxrsal.commands.bukkit.core.BukkitHandler
+revxrsal/commands/bukkit/BukkitCommandHandler.java
+ revxrsal.commands.bukkit.BukkitCommandHandler
+revxrsal/commands/bukkit/exception/InvalidWorldException.java
+ revxrsal.commands.bukkit.exception.InvalidWorldException
+revxrsal/commands/bukkit/core/BukkitCommandExecutor.java
+ revxrsal.commands.bukkit.core.BukkitCommandExecutor
+revxrsal/commands/bukkit/core/BukkitSenderResolver.java
+ revxrsal.commands.bukkit.core.BukkitSenderResolver
+revxrsal/commands/bukkit/core/PlayerSelectorResolver.java
+ revxrsal.commands.bukkit.core.PlayerSelectorResolver

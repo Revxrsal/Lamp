@@ -7,8 +7,10 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.ContextResolver;
+import revxrsal.commands.process.ContextResolver.ContextResolverContext;
 import revxrsal.commands.process.ParameterResolver;
 import revxrsal.commands.process.ValueResolver;
+import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 
 final class Resolver implements ParameterResolver<Object> {
 
@@ -28,14 +30,11 @@ final class Resolver implements ParameterResolver<Object> {
     }
 
     @SneakyThrows
-    public Object resolve(@NotNull CommandActor actor,
-                                        @NotNull CommandParameter parameter,
-                                        @NotNull ExecutableCommand command,
-                                        @NotNull ArgumentStack arguments) {
+    public Object resolve(@NotNull ParameterResolverContext context) {
         if (valueResolver != null) {
-            return valueResolver.resolve(arguments, actor, parameter, command);
+            return valueResolver.resolve((ValueResolverContext) context);
         }
-        return contextResolver.resolve(actor, parameter, command);
+        return contextResolver.resolve((ContextResolverContext) context);
     }
 
     public static Resolver wrap(Object resolver) {
