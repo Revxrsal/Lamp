@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ## Background
 <details>
-  <summary>Click to expand!</summary>
+  <summary>Click to expand</summary>
 Building commands has always been a core concept in many applications, and, lots of times, a really boring and cumbersome one to pull off: Having to think of all the possible input from the user, all the mistakes they will make, validating input and then finally executing the actual command logic. 
 
 We *aren't* supposed to mess our hands up with so much of this. We really shouldn't get ourselves dirty with the highly error-prone string manipulation, nor are we supposed to repeat 3 lines of code a thousand times. We also should not be forced to think of all the edge cases and possible output of the user side. Developers should focus on what's *important*, not what isn't.
