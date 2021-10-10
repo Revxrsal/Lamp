@@ -38,6 +38,7 @@ Glad you asked!
    - **[A quote-aware argument parser](common/src/main/java/revxrsal/commands/command/ArgumentStack.java)**
    - **[Context resolver factories](common/src/main/java/revxrsal/commands/process/ContextResolverFactory.java)** and **[value resolver factories](common/src/main/java/revxrsal/commands/process/ValueResolverFactory.java)**
    - **[Simple and powerful auto completions API](common/src/main/java/revxrsal/commands/autocomplete/AutoCompleter.java)**
+   - **[Built-in command cooldown handler](common/src/main/java/revxrsal/commands/annotation/Cooldown.java)**
 
 ## Documentation
 - **Examples**: [Lamp/examples](https://github.com/Revxrsal/Lamp/tree/examples)
