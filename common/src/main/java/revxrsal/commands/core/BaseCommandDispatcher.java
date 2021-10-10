@@ -66,7 +66,6 @@ public final class BaseCommandDispatcher {
                 } else
                     throw new InvalidSubcommandException(path, path.getLast());
             } else {
-                System.out.println("Last category: " + arguments);
                 if (lastArgument != null)
                     throw new InvalidCommandException(path, lastArgument);
             }
