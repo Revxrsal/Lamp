@@ -13,7 +13,7 @@ import java.util.StringJoiner;
  * Default implementation of {@link CommandExceptionHandler}, which sends basic messages
  * describing the exception.
  */
-public /*final*/ class DefaultExceptionHandler extends CommandExceptionAdapter {
+public class DefaultExceptionHandler extends CommandExceptionAdapter {
 
     public static final DefaultExceptionHandler INSTANCE = new DefaultExceptionHandler();
 

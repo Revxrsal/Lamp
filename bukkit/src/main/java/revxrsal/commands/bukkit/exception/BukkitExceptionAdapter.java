@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.DefaultExceptionHandler;
 
-public /*final*/ class BukkitExceptionAdapter extends DefaultExceptionHandler {
+public class BukkitExceptionAdapter extends DefaultExceptionHandler {
 
     public static final BukkitExceptionAdapter INSTANCE = new BukkitExceptionAdapter();
 

@@ -7,7 +7,7 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.DefaultExceptionHandler;
 import revxrsal.commands.sponge.SpongeCommandActor;
 
-public /*final*/ class SpongeExceptionAdapter extends DefaultExceptionHandler {
+public class SpongeExceptionAdapter extends DefaultExceptionHandler {
 
     public static final SpongeExceptionAdapter INSTANCE = new SpongeExceptionAdapter();
 

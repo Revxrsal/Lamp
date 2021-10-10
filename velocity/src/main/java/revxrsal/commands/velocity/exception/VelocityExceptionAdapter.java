@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.DefaultExceptionHandler;
 
-public /*final*/ class VelocityExceptionAdapter extends DefaultExceptionHandler {
+public class VelocityExceptionAdapter extends DefaultExceptionHandler {
 
     public static final VelocityExceptionAdapter INSTANCE = new VelocityExceptionAdapter();
 

@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.DefaultExceptionHandler;
 
-public /*final*/ class BungeeExceptionAdapter extends DefaultExceptionHandler {
+public class BungeeExceptionAdapter extends DefaultExceptionHandler {
 
     public static final BungeeExceptionAdapter INSTANCE = new BungeeExceptionAdapter();
 
