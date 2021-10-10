@@ -27,7 +27,7 @@ public final class AnnotationReader implements Iterable<Annotation> {
         }
     }
 
-    public AnnotationReader(Method element) {
+    public AnnotationReader(Class<?> container, Method element) {
         Annotation[] method = element.getDeclaredAnnotations();
         boolean ignore = true;
         for (Annotation annotation : method) {
@@ -41,6 +41,11 @@ public final class AnnotationReader implements Iterable<Annotation> {
             return;
         }
         for (Annotation annotation : element.getDeclaringClass().getDeclaredAnnotations()) {
+            if (annotation.annotationType().isAnnotationPresent(DistributeOnMethods.class)) {
+                annotations.put(annotation.annotationType(), annotation);
+            }
+        }
+        for (Annotation annotation : container.getDeclaredAnnotations()) {
             if (annotation.annotationType().isAnnotationPresent(DistributeOnMethods.class)) {
                 annotations.put(annotation.annotationType(), annotation);
             }

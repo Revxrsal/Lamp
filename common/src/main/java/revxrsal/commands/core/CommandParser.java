@@ -46,10 +46,10 @@ final class CommandParser {
         Map<CommandPath, CommandExecutable> executables = registration.getExecutables();
         Map<CommandPath, BaseCommandCategory> categories = registration.getSubcategories();
         Map<CommandPath, CommandExecutable> subactions = new HashMap<>();
-        for (Method method : container.getDeclaredMethods()) {
-            AnnotationReader reader = new AnnotationReader(method);
+        for (Method method : container.getMethods()) {
+            AnnotationReader reader = new AnnotationReader(container, method);
             if (reader.isEmpty()) continue;
-            List<CommandPath> paths = getCommandPath(method, reader);
+            List<CommandPath> paths = getCommandPath(container, method, reader);
             BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(boundTarget);
             int id = COMMAND_ID.getAndIncrement();
             paths.forEach(path -> {
@@ -205,7 +205,7 @@ final class CommandParser {
         return Collections.unmodifiableList(parameters);
     }
 
-    private static List<CommandPath> getCommandPath(@NotNull Method method, @NotNull AnnotationReader reader) {
+    private static List<CommandPath> getCommandPath(@NotNull Class<?> container, @NotNull Method method, @NotNull AnnotationReader reader) {
         List<CommandPath> paths = new ArrayList<>();
 
         List<String> commands = new ArrayList<>();
@@ -216,7 +216,7 @@ final class CommandParser {
 
         List<String> parentSubcommandAliases = new ArrayList<>();
 
-        for (Class<?> topClass : getTopClasses(method.getDeclaringClass())) {
+        for (Class<?> topClass : getTopClasses(container)) {
             Subcommand ps = topClass.getAnnotation(Subcommand.class);
             if (ps != null) {
                 addAll(parentSubcommandAliases, ps.value());
