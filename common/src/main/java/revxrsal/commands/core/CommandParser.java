@@ -46,7 +46,7 @@ final class CommandParser {
         Map<CommandPath, CommandExecutable> executables = registration.getExecutables();
         Map<CommandPath, BaseCommandCategory> categories = registration.getSubcategories();
         Map<CommandPath, CommandExecutable> subactions = new HashMap<>();
-        for (Method method : container.getMethods()) {
+        for (Method method : getAllMethods(container)) {
             AnnotationReader reader = new AnnotationReader(container, method);
             if (reader.isEmpty()) continue;
             List<CommandPath> paths = getCommandPath(container, method, reader);
@@ -87,6 +87,16 @@ final class CommandParser {
                 cat.defaultAction = subaction;
             }
         });
+    }
+
+    private static Set<Method> getAllMethods(Class<?> c) {
+        Set<Method> methods = new HashSet<>();
+        Class<?> current = c;
+        while (current != null && current != Object.class) {
+            addAll(methods, current.getDeclaredMethods());
+            current = current.getSuperclass();
+        }
+        return methods;
     }
 
     private static String generateUsage(@NotNull ExecutableCommand command) {
