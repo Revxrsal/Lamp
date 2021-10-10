@@ -52,8 +52,9 @@ public final class BaseCommandDispatcher {
                     } else if (i == arguments.size() - 1 && defaultAction == null) {
                         throw new NoSubcommandSpecifiedException(cat);
                     }
-                }
-                if (i == arguments.size() - 1 && lastCategory != null && lastCategory.defaultAction != null) {
+                    // once the category is invalid and no such command is found then stop searching
+                } else break;
+                if (i == arguments.size() - 1 && lastCategory.defaultAction != null) {
                     arguments.subList(0, i).clear();
                     return execute(lastCategory.defaultAction, actor, arguments);
                 }
@@ -65,6 +66,7 @@ public final class BaseCommandDispatcher {
                 } else
                     throw new InvalidSubcommandException(path, path.getLast());
             } else {
+                System.out.println("Last category: " + arguments);
                 if (lastArgument != null)
                     throw new InvalidCommandException(path, lastArgument);
             }
