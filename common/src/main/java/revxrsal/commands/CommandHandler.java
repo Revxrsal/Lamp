@@ -2,6 +2,7 @@ package revxrsal.commands;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.annotation.Flag;
 import revxrsal.commands.annotation.Switch;
@@ -15,6 +16,7 @@ import revxrsal.commands.help.CommandHelp;
 import revxrsal.commands.help.CommandHelpWriter;
 import revxrsal.commands.process.*;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -257,6 +259,16 @@ public interface CommandHandler {
     <T> CommandHandler registerResponseHandler(@NotNull Class<T> responseType, @NotNull ResponseHandler<T> handler);
 
     /**
+     * Accepts the given {@link CommandHandlerVisitor} and allows it to visit
+     * this command handler.
+     *
+     * @param visitor Visitor to accept
+     * @return This command handler
+     * @see CommandHandlerVisitor
+     */
+    CommandHandler accept(@NotNull CommandHandlerVisitor visitor);
+
+    /**
      * Returns the auto-completion handler of this command handler
      *
      * @return The auto-completion handler
@@ -284,6 +296,22 @@ public interface CommandHandler {
      * @return The category at the given path
      */
     CommandCategory getCategory(@NotNull CommandPath path);
+
+    /**
+     * Returns an unmodifiable view of all the registered commands
+     * in this command handler.
+     *
+     * @return The registered commands
+     */
+    @UnmodifiableView Map<CommandPath, ExecutableCommand> getCommands();
+
+    /**
+     * Returns an unmodifiable view of all the registered categories
+     * in this command handler.
+     *
+     * @return The registered categories
+     */
+    @UnmodifiableView Map<CommandPath, CommandCategory> getCategories();
 
     /**
      * Returns the command exception handler currently used by this command handler

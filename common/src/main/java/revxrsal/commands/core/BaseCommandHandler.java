@@ -2,7 +2,9 @@ package revxrsal.commands.core;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.CommandHandler;
+import revxrsal.commands.CommandHandlerVisitor;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.command.*;
@@ -242,6 +244,12 @@ public class BaseCommandHandler implements CommandHandler {
         return this;
     }
 
+    @Override public CommandHandler accept(@NotNull CommandHandlerVisitor visitor) {
+        notNull(visitor, "command handler visitor cannot be null!");
+        visitor.visit(this);
+        return this;
+    }
+
     @Override public AutoCompleter getAutoCompleter() {
         return autoCompleter;
     }
@@ -252,6 +260,14 @@ public class BaseCommandHandler implements CommandHandler {
 
     @Override public CommandCategory getCategory(@NotNull CommandPath path) {
         return registration.getCat(path);
+    }
+
+    @Override public @UnmodifiableView Map<CommandPath, ExecutableCommand> getCommands() {
+        return Collections.unmodifiableMap(registration.getExecutables());
+    }
+
+    @Override public @UnmodifiableView Map<CommandPath, CommandCategory> getCategories() {
+        return Collections.unmodifiableMap(registration.getSubcategories());
     }
 
     public <T> ParameterResolver<T> getResolver(CommandParameter parameter) {
