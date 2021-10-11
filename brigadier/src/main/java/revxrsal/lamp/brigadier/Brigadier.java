@@ -49,10 +49,15 @@ public final class Brigadier {
             nodes.put(value.getPath(), literal(value.getName()));
         }
         for (CommandCategory value : handler.getCategories().values()) {
-            CommandCategory parent = value.getParent();
-            if (parent != null) {
-                nodes.get(parent.getPath()).then(literal(value.getName()));
-            }
+//            CommandCategory parent = value.getParent();
+//            if (parent != null) {
+//                nodes.get(parent.getPath()).then(literal(value.getName()));
+//            }
+            value.getCategories().values()
+                    .forEach(child -> {
+                        LiteralArgumentBuilder childNode = nodes.get(child.getPath());
+                        nodes.get(value.getPath()).then(childNode);
+                    });
         }
         for (ExecutableCommand command : handler.getCommands().values()) {
             nodes.put(command.getPath(), literal(command.getName()));

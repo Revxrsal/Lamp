@@ -32,6 +32,7 @@ import revxrsal.lamp.brigadier.Brigadier;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
