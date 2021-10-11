@@ -35,7 +35,8 @@ import static revxrsal.commands.util.Strings.splitBySpace;
 
 public class BaseCommandHandler implements CommandHandler {
 
-    protected final CommandCompound registration = new CommandCompound();
+    protected final Map<CommandPath, CommandExecutable> executables = new HashMap<>();
+    protected final Map<CommandPath, BaseCommandCategory> categories = new HashMap<>();
     private final BaseCommandDispatcher dispatcher = new BaseCommandDispatcher(this);
 
     final List<ResolverFactory> factories = new ArrayList<>();
@@ -107,10 +108,14 @@ public class BaseCommandHandler implements CommandHandler {
         for (Object command : commands) {
             notNull(command, "Command");
             setDependencies(command);
-            CommandParser.parse(this, registration, command);
+            CommandParser.parse(this, command);
+        }
+        for (BaseCommandCategory category : categories.values()) {
+            CommandPath categoryPath = category.getPath().getCategoryPath();
+            category.parent(categoryPath == null ? null : categories.get(categoryPath));
         }
         command_loop:
-        for (CommandExecutable executable : registration.getExecutables().values()) {
+        for (CommandExecutable executable : executables.values()) {
             if (!executable.permissionSet) {
                 for (PermissionReader reader : permissionReaders) {
                     CommandPermission p = reader.getPermission(executable);
@@ -255,19 +260,19 @@ public class BaseCommandHandler implements CommandHandler {
     }
 
     @Override public ExecutableCommand getCommand(@NotNull CommandPath path) {
-        return registration.getExec(path);
+        return executables.get(path);
     }
 
     @Override public CommandCategory getCategory(@NotNull CommandPath path) {
-        return registration.getCat(path);
+        return categories.get(path);
     }
 
     @Override public @UnmodifiableView Map<CommandPath, ExecutableCommand> getCommands() {
-        return Collections.unmodifiableMap(registration.getExecutables());
+        return Collections.unmodifiableMap(executables);
     }
 
     @Override public @UnmodifiableView Map<CommandPath, CommandCategory> getCategories() {
-        return Collections.unmodifiableMap(registration.getSubcategories());
+        return Collections.unmodifiableMap(categories);
     }
 
     public <T> ParameterResolver<T> getResolver(CommandParameter parameter) {
@@ -299,8 +304,8 @@ public class BaseCommandHandler implements CommandHandler {
 
     @Override public boolean unregister(@NotNull CommandPath path) {
         boolean modified;
-        modified = registration.getSubcategories().keySet().removeIf(c -> c.isChildOf(path));
-        modified |= registration.getExecutables().keySet().removeIf(c -> c.isChildOf(path));
+        modified = categories.keySet().removeIf(c -> c.isChildOf(path));
+        modified |= executables.keySet().removeIf(c -> c.isChildOf(path));
         return modified;
     }
 

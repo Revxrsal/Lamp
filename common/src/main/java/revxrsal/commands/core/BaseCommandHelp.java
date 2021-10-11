@@ -3,9 +3,7 @@ package revxrsal.commands.core;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
-import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandCategory;
-import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.exception.InvalidHelpPageException;
 import revxrsal.commands.help.CommandHelp;
@@ -56,7 +54,7 @@ final class BaseCommandHelp<T> extends ArrayList<T> implements CommandHelp<T> {
                     if (c != command) entries.add(writer.generate(c, context.actor()));
                 });
             } else {
-                handler.registration.getExecutables().values().forEach(c -> {
+                handler.executables.values().forEach(c -> {
                     if (c != command) entries.add(writer.generate(c, context.actor()));
                 });
             }

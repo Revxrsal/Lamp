@@ -1,6 +1,9 @@
 package revxrsal.commands.bukkit.core;
 
+import com.google.common.base.Suppliers;
 import lombok.SneakyThrows;
+import me.lucko.commodore.Commodore;
+import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -25,9 +28,12 @@ import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.core.CommandPath;
+import revxrsal.lamp.brigadier.Brigadier;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -36,6 +42,12 @@ import static revxrsal.commands.util.Preconditions.notNull;
 public final class BukkitHandler extends BaseCommandHandler implements BukkitCommandHandler {
 
     private final Plugin plugin;
+
+    private final Supplier<Optional<Object>> commodore = Suppliers.memoize(() -> {
+        if (!CommodoreProvider.isSupported())
+            return Optional.empty();
+        return Optional.of(CommodoreProvider.getCommodore(getPlugin()));
+    });
 
     public BukkitHandler(@NotNull Plugin plugin) {
         super();
@@ -94,14 +106,21 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
 
     @Override public CommandHandler register(@NotNull Object... commands) {
         super.register(commands);
-        for (ExecutableCommand command : registration.getExecutables().values()) {
+        for (ExecutableCommand command : executables.values()) {
             if (command.getParent() != null) continue;
             createPluginCommand(command.getName(), command.getDescription(), command.getUsage());
         }
-        for (CommandCategory category : registration.getSubcategories().values()) {
+        for (CommandCategory category : categories.values()) {
             if (category.getParent() != null) continue;
             createPluginCommand(category.getName(), null, null);
         }
+        return this;
+    }
+
+    @Override public BukkitCommandHandler registerBrigadier() {
+        commodore.get()
+                .map(c -> (Commodore) c)
+                .ifPresent(commodore -> Brigadier.parse(this).forEach(commodore::register));
         return this;
     }
 
@@ -118,10 +137,11 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         cmd.setDescription(description == null ? "" : description);
         if (usage != null)
             cmd.setUsage(usage);
+
     }
 
     @Override public boolean unregister(@NotNull CommandPath path) {
-        for (CommandCategory c : registration.getSubcategories().values()) {
+        for (CommandCategory c : categories.values()) {
             if (c.getParent() == null) {
                 PluginCommand command = ((JavaPlugin) plugin).getCommand(c.getName());
                 if (command != null) command.unregister(COMMAND_MAP);

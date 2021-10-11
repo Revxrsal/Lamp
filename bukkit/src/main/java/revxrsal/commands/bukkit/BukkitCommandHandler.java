@@ -11,6 +11,14 @@ import revxrsal.commands.bukkit.core.BukkitHandler;
 public interface BukkitCommandHandler extends CommandHandler {
 
     /**
+     * Registers commands automatically on Minecraft's 1.13+ command system
+     * (so that you would get the colorful command completions!)
+     *
+     * @return This command handler
+     */
+    BukkitCommandHandler registerBrigadier();
+
+    /**
      * Returns the plugin this command handler was registered for.
      *
      * @return The owning plugin

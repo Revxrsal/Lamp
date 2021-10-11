@@ -61,11 +61,11 @@ public final class BungeeHandler extends BaseCommandHandler implements BungeeCom
 
     @Override public CommandHandler register(@NotNull Object... commands) {
         super.register(commands);
-        for (ExecutableCommand command : registration.getExecutables().values()) {
+        for (ExecutableCommand command : executables.values()) {
             if (command.getParent() != null) continue;
             createPluginCommand(command.getName());
         }
-        for (CommandCategory category : registration.getSubcategories().values()) {
+        for (CommandCategory category : categories.values()) {
             if (category.getParent() != null) continue;
             createPluginCommand(category.getName());
         }

@@ -36,15 +36,14 @@ final class CommandParser {
 
     private CommandParser() {}
 
-    public static void parse(@NotNull BaseCommandHandler handler, CommandCompound registration, @NotNull Object boundTarget) {
+    public static void parse(@NotNull BaseCommandHandler handler, @NotNull Object boundTarget) {
         Class<?> type = boundTarget instanceof Class ? (Class<?>) boundTarget : boundTarget.getClass();
-        parse(handler, registration, type, boundTarget);
+        parse(handler, type, boundTarget);
     }
 
     @SneakyThrows
-    public static void parse(@NotNull BaseCommandHandler handler, CommandCompound registration, @NotNull Class<?> container, @NotNull Object boundTarget) {
-        Map<CommandPath, CommandExecutable> executables = registration.getExecutables();
-        Map<CommandPath, BaseCommandCategory> categories = registration.getSubcategories();
+    public static void parse(@NotNull BaseCommandHandler handler, @NotNull Class<?> container, @NotNull Object boundTarget) {
+        Map<CommandPath, BaseCommandCategory> categories = handler.categories;
         Map<CommandPath, CommandExecutable> subactions = new HashMap<>();
         for (Method method : getAllMethods(container)) {
             AnnotationReader reader = new AnnotationReader(container, method);
@@ -77,7 +76,7 @@ final class CommandParser {
                 if (reader.contains(Default.class))
                     subactions.put(path, executable);
                 else
-                    putOrError(executables, path, executable, "A command with path '" + path.toRealString() + "' already exists!");
+                    putOrError(handler.executables, path, executable, "A command with path '" + path.toRealString() + "' already exists!");
             });
         }
 
