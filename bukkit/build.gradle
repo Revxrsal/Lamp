@@ -13,6 +13,7 @@ dependencies {
     implementation project(':brigadier')
     implementation ('me.lucko:commodore:1.10') {
         exclude module: 'commodore-file' // we don't need that.
+        exclude module: 'brigadier'
     }
     compileOnly 'org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT'
 }
