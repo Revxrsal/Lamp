@@ -20,6 +20,10 @@ final class SupplierResponseHandler implements ResponseHandler<Supplier<Object>>
     }
 
     @Override public void handleResponse(Supplier<Object> response, @NotNull CommandActor actor, @NotNull ExecutableCommand command) {
-        delegate.handleResponse(response.get(), actor, command);
+        try {
+            delegate.handleResponse(response.get(), actor, command);
+        } catch (Throwable throwable) {
+            command.getCommandHandler().getExceptionHandler().handleException(throwable, actor);
+        }
     }
 }

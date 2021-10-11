@@ -1,8 +1,8 @@
 package revxrsal.commands.core;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.CommandHandler;
+import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.ResponseHandler;
 
@@ -23,11 +23,15 @@ final class CompletionStageResponseHandler implements ResponseHandler<Completion
 
     @Override
     public void handleResponse(CompletionStage<Object> response, @NotNull CommandActor actor, @NotNull ExecutableCommand command) {
-        response.thenAccept(value -> {
-            try {
-                delegate.handleResponse(value, actor, command);
-            } catch (Throwable throwable) {
-                handler.getExceptionHandler().handleException(throwable, actor);
+        response.whenComplete((value, exception) -> {
+            if (exception != null) {
+                handler.getExceptionHandler().handleException(exception, actor);
+            } else {
+                try {
+                    delegate.handleResponse(value, actor, command);
+                } catch (Throwable throwable) {
+                    handler.getExceptionHandler().handleException(throwable, actor);
+                }
             }
         });
     }
