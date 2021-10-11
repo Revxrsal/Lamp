@@ -1,6 +1,7 @@
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url 'https://hub.spigotmc.org/nexus/content/groups/public/' }
+    maven { url 'https://libraries.minecraft.net' }
 }
 
 configurations {
