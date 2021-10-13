@@ -113,8 +113,8 @@ public interface CommandParameter {
     @NotNull @Unmodifiable List<ParameterValidator<Object>> getValidators();
 
     /**
-     * Whether is this parameter optional or not. This is whether
-     * does the parameter have the {@link Optional} annotation or not
+     * Whether is this parameter optional or not. This is whether the parameter
+     * has the {@link Optional} annotation or not
      *
      * @return Whether is this parameter optional
      */

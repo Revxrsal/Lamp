@@ -29,6 +29,7 @@ final class BaseAutoCompleter implements AutoCompleter {
         this.handler = handler;
         registerSuggestion("nothing", Collections.emptyList());
         registerSuggestion("empty", Collections.emptyList());
+        registerParameterSuggestions(boolean.class, SuggestionProvider.of("true", "false"));
     }
 
     @Override public AutoCompleter registerSuggestion(@NotNull String providerID, @NotNull SuggestionProvider provider) {
