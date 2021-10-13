@@ -228,7 +228,7 @@ final class Brigadier {
                 CommandSender sender = commodore.getBukkitSender(context.getSource());
                 BukkitCommandActor actor = BukkitCommandActor.wrap(sender);
                 Message tooltip = new LiteralMessage(parameter.getName());
-                ArgumentStack args = ArgumentStack.ofUnsafe(context.getInput().substring(1));
+                ArgumentStack args = ArgumentStack.forAutoCompletion(context.getInput().substring(1));
                 parameter
                         .getSuggestionProvider()
                         .getSuggestions(args, actor, command)

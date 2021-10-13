@@ -113,7 +113,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      * @param arguments Arguments to clone from
      * @return The newly created argument stack.
      */
-    static @NotNull ArgumentStack ofUnsafe(@NotNull String... arguments) {
+    static @NotNull ArgumentStack forAutoCompletion(@NotNull String... arguments) {
         if (arguments.length == 0) return ArgumentStack.empty();
         return new LinkedArgumentStack(QuotedStringTokenizer.tokenizeUnsafe(String.join(" ", arguments)));
     }
