@@ -120,7 +120,11 @@ final class Brigadier {
     public void parse(@NotNull CommandHandler handler) {
         List<LiteralArgumentBuilder<?>> nodes = new ArrayList<>();
         List<CommandCategory> roots = handler.getCategories().values().stream().filter(c -> c.getPath().size() == 1).collect(Collectors.toList());
+        List<ExecutableCommand> rootCommands = handler.getCommands().values().stream().filter(c -> c.getPath().size() == 1).collect(Collectors.toList());
         for (CommandCategory root : roots) {
+            nodes.add(parse(literal(root.getName()), root));
+        }
+        for (ExecutableCommand root : rootCommands) {
             nodes.add(parse(literal(root.getName()), root));
         }
         nodes.forEach(commodore::register);
@@ -153,7 +157,6 @@ final class Brigadier {
     private LiteralArgumentBuilder<?> parse(LiteralArgumentBuilder<?> parent, ExecutableCommand command) {
         CommandNode<?> lastParameter = null;
         for (CommandParameter parameter : command.getValueParameters().values()) {
-
             CommandNode node = getBuilder(command, parameter, true).build();
             if (lastParameter == null) {
                 parent.then(node);

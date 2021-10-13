@@ -37,6 +37,10 @@ public class BukkitExceptionAdapter extends DefaultExceptionHandler {
         actor.error("Invalid world: &e" + exception.getInput());
     }
 
+    protected void malformedEntitySelector(@NotNull CommandActor actor, @NotNull MalformedEntitySelectorException exception) {
+        actor.error("Invalid selector argument: &e'" + exception.getInput() + "'");
+    }
+
     protected void handleUnknownThrowable(@NotNull CommandActor actor, @NotNull Throwable throwable) {
         throwable.printStackTrace();
     }
