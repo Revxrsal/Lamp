@@ -6,18 +6,18 @@ repositories {
 }
 
 configurations {
-    shade
-    implementation.extendsFrom(shade)
+    testing
+    implementation.extendsFrom(testing)
 }
 
 dependencies {
-    implementation project(':common')
+    implementation(project(':common'))
     implementation('me.lucko:commodore:1.10') {
         exclude module: 'commodore-file' // we don't need that.
         exclude module: 'brigadier'
     }
-    compileOnly 'com.mojang:brigadier:1.0.18'
-    compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+    compileOnly('com.mojang:brigadier:1.0.18')
+    compileOnly('org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT')
 }
 
 compileJava {
@@ -27,7 +27,7 @@ compileJava {
 }
 
 jar {
-    from configurations.shade.asFileTree.files.collect {
+    from configurations.testing.asFileTree.files.collect {
         zipTree(it)
     }
 }
