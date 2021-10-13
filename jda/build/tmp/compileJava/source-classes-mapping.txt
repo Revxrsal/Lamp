@@ -1,0 +1,46 @@
+revxrsal/commands/jda/annotation/RolePermission.java
+ revxrsal.commands.jda.annotation.RolePermission
+revxrsal/commands/jda/annotation/GuildOnly.java
+ revxrsal.commands.jda.annotation.GuildOnly
+revxrsal/commands/jda/core/MemoizingSupplier.java
+ revxrsal.commands.jda.core.MemoizingSupplier
+revxrsal/commands/jda/annotation/UserPermission.java
+ revxrsal.commands.jda.annotation.UserPermission
+revxrsal/commands/jda/annotation/GuildPermission.java
+ revxrsal.commands.jda.annotation.GuildPermission
+revxrsal/commands/jda/core/JDAHandler.java
+ revxrsal.commands.jda.core.JDAHandler
+revxrsal/commands/jda/core/JDACommandListener.java
+ revxrsal.commands.jda.core.JDACommandListener
+revxrsal/commands/jda/exception/GuildOnlyCommandException.java
+ revxrsal.commands.jda.exception.GuildOnlyCommandException
+revxrsal/commands/jda/JDAActor.java
+ revxrsal.commands.jda.JDAActor
+revxrsal/commands/jda/JDAPermission.java
+ revxrsal.commands.jda.JDAPermission
+revxrsal/commands/jda/JDACommandHandler.java
+ revxrsal.commands.jda.JDACommandHandler
+revxrsal/commands/jda/exception/InvalidEmoteException.java
+ revxrsal.commands.jda.exception.InvalidEmoteException
+revxrsal/commands/jda/exception/JDAExceptionAdapter.java
+ revxrsal.commands.jda.exception.JDAExceptionAdapter
+revxrsal/commands/jda/exception/PrivateMessageOnlyCommandException.java
+ revxrsal.commands.jda.exception.PrivateMessageOnlyCommandException
+revxrsal/commands/jda/exception/InvalidMemberException.java
+ revxrsal.commands.jda.exception.InvalidMemberException
+revxrsal/commands/jda/core/JDASenderResolver.java
+ revxrsal.commands.jda.core.JDASenderResolver
+revxrsal/commands/jda/exception/InvalidChannelException.java
+ revxrsal.commands.jda.exception.InvalidChannelException
+revxrsal/commands/jda/core/BaseActorJDA.java
+ revxrsal.commands.jda.core.BaseActorJDA
+revxrsal/commands/jda/exception/InvalidCategoryException.java
+ revxrsal.commands.jda.exception.InvalidCategoryException
+revxrsal/commands/jda/exception/InvalidRoleException.java
+ revxrsal.commands.jda.exception.InvalidRoleException
+revxrsal/commands/jda/core/SnowflakeResolvers.java
+ revxrsal.commands.jda.core.SnowflakeResolvers
+ revxrsal.commands.jda.core.SnowflakeResolvers$GetById
+ revxrsal.commands.jda.core.SnowflakeResolvers$GetByName
+ revxrsal.commands.jda.core.SnowflakeResolvers$SnowflakeExceptionSupplier
+ revxrsal.commands.jda.core.SnowflakeResolvers$UserResolver

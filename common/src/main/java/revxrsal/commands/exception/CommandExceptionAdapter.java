@@ -27,6 +27,8 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
 
     protected void invalidBoolean(@NotNull CommandActor actor, @NotNull InvalidBooleanException exception) {}
 
+    protected void numberNotInRange(@NotNull CommandActor actor, @NotNull NumberNotInRangeException exception) {}
+
     protected void noPermission(@NotNull CommandActor actor, @NotNull NoPermissionException exception) {}
 
     protected void commandInvocation(@NotNull CommandActor actor, @NotNull CommandInvocationException exception) {}
@@ -50,12 +52,16 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
         else if (throwable instanceof InvalidNumberException) invalidNumber(actor, (InvalidNumberException) throwable);
         else if (throwable instanceof InvalidUUIDException) invalidUUID(actor, (InvalidUUIDException) throwable);
         else if (throwable instanceof InvalidURLException) invalidURL(actor, (InvalidURLException) throwable);
+        else if (throwable instanceof NumberNotInRangeException)
+            numberNotInRange(actor, (NumberNotInRangeException) throwable);
         else if (throwable instanceof InvalidBooleanException)
             invalidBoolean(actor, (InvalidBooleanException) throwable);
-        else if (throwable instanceof CooldownException) cooldown(actor, (CooldownException) throwable);
+        else if (throwable instanceof CooldownException)
+            cooldown(actor, (CooldownException) throwable);
         else if (throwable instanceof TooManyArgumentsException)
             tooManyArguments(actor, (TooManyArgumentsException) throwable);
-        else if (throwable instanceof NoPermissionException) noPermission(actor, (NoPermissionException) throwable);
+        else if (throwable instanceof NoPermissionException)
+            noPermission(actor, (NoPermissionException) throwable);
         else if (throwable instanceof CommandInvocationException)
             commandInvocation(actor, (CommandInvocationException) throwable);
         else if (throwable instanceof InvalidCommandException)
@@ -64,6 +70,7 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
             invalidSubcommand(actor, (InvalidSubcommandException) throwable);
         else if (throwable instanceof NoSubcommandSpecifiedException)
             noSubcommandSpecified(actor, (NoSubcommandSpecifiedException) throwable);
-        else handleUnknown(actor, throwable);
+        else
+            handleUnknown(actor, throwable);
     }
 }

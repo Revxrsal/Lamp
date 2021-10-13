@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 
+import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.StringJoiner;
 public class DefaultExceptionHandler extends CommandExceptionAdapter {
 
     public static final DefaultExceptionHandler INSTANCE = new DefaultExceptionHandler();
+    public static final NumberFormat FORMAT = NumberFormat.getInstance();
 
     @Override protected void missingArgument(@NotNull CommandActor actor, @NotNull MissingArgumentException exception) {
         actor.error("You must specify a value for the " + exception.getParameter().getName() + "!");
@@ -69,6 +71,14 @@ public class DefaultExceptionHandler extends CommandExceptionAdapter {
 
     @Override protected void cooldown(@NotNull CommandActor actor, @NotNull CooldownException exception) {
         actor.error("You must wait " + formatTimeFancy(exception.getTimeLeftMillis()) + " before using this command again.");
+    }
+
+    @Override protected void numberNotInRange(@NotNull CommandActor actor, @NotNull NumberNotInRangeException exception) {
+        actor.error(exception.getParameter().getName() + " must be between " +
+                FORMAT.format(exception.getMinimum()) + " and " +
+                FORMAT.format(exception.getMaximum()) + " (found " +
+                FORMAT.format(exception.getInput()) + ")"
+        );
     }
 
     public static String formatTimeFancy(long time) {

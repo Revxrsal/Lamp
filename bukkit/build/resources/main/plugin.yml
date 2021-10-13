@@ -1,0 +1,6 @@
+name: Manhunt
+version: '1.0'
+main: revxrsal.commands.bukkit.Manhunt
+commands:
+  manhunt:
+    description: Main plugin command

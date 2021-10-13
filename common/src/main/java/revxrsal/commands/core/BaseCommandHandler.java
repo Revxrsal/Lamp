@@ -6,6 +6,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.CommandHandlerVisitor;
 import revxrsal.commands.annotation.Dependency;
+import revxrsal.commands.annotation.Range;
 import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.command.*;
 import revxrsal.commands.core.reflect.MethodCallerFactory;
@@ -97,6 +98,12 @@ public class BaseCommandHandler implements CommandHandler {
         registerContextResolver((Class) CommandHelp.class, new BaseCommandHelp.Resolver(this));
         setExceptionHandler(DefaultExceptionHandler.INSTANCE);
         registerCondition(CooldownCondition.INSTANCE);
+        registerParameterValidator(Number.class, (value, parameter, actor) -> {
+            Range range = parameter.getAnnotation(Range.class);
+            if (range != null)
+                if (value.doubleValue() > range.max() || value.doubleValue() < range.min())
+                    throw new NumberNotInRangeException(actor, parameter, value, range.min(), range.max());
+        });
         registerCondition((actor, command, arguments) -> {
             if (!command.getPermission().canExecute(actor))
                 throw new NoPermissionException(command, command.getPermission());
