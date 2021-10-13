@@ -2,7 +2,6 @@ package revxrsal.commands.bukkit.core;
 
 import com.google.common.base.Suppliers;
 import lombok.SneakyThrows;
-import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -20,6 +19,7 @@ import revxrsal.commands.CommandHandler;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
+import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.bukkit.PlayerSelector;
 import revxrsal.commands.bukkit.exception.BukkitExceptionAdapter;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
@@ -28,11 +28,9 @@ import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.core.CommandPath;
-import revxrsal.lamp.brigadier.Brigadier;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -44,10 +42,10 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
 
     private final Plugin plugin;
 
-    private final Supplier<Optional<Object>> commodore = Suppliers.memoize(() -> {
+    private final Supplier<Optional<Brigadier>> brigadier = Suppliers.memoize(() -> {
         if (!CommodoreProvider.isSupported())
             return Optional.empty();
-        return Optional.of(CommodoreProvider.getCommodore(getPlugin()));
+        return Optional.of(new Brigadier(this, CommodoreProvider.getCommodore(getPlugin())));
     });
 
     public BukkitHandler(@NotNull Plugin plugin) {
@@ -82,6 +80,10 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 throw new InvalidWorldException(context.parameter(), value);
             return world;
         });
+        try {
+            Bukkit.getServer().selectEntities(Bukkit.getConsoleSender(), "@a");
+            registerValueResolver(EntitySelector.class, Brigadier.selectorResolver());
+        } catch (Throwable ignored) {}
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);
         getAutoCompleter().registerSuggestion("players", (args, sender, command) -> Bukkit.getOnlinePlayers()
                 .stream()
@@ -96,7 +98,6 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                         SuggestionProvider.of("@a", "@p", "@r", "@s")
                                 .compose(getAutoCompleter().getSuggestionProvider("players")))
                 .registerParameterSuggestions(PlayerSelector.class, "playerSelector");
-
         registerContextValue((Class) plugin.getClass(), plugin);
         registerDependency((Class) plugin.getClass(), plugin);
         registerDependency(FileConfiguration.class, plugin.getConfig());
@@ -119,9 +120,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
     }
 
     @Override public BukkitCommandHandler registerBrigadier() {
-        commodore.get()
-                .map(c -> (Commodore) c)
-                .ifPresent(commodore -> Brigadier.parse(this).forEach(commodore::register));
+        brigadier.get().ifPresent(brigadier -> brigadier.parse(this));
         return this;
     }
 
