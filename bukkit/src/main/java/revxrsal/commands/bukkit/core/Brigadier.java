@@ -78,8 +78,6 @@ final class Brigadier {
     private static final Class<?>[] ENTITIES = new Class<?>[]{boolean.class, boolean.class};
 
     private final Commodore commodore;
-    private boolean registerSwitches;
-    private boolean registerFlags;
     private final ClassMap<ArgumentType<?>> argumentTypes = new ClassMap<>();
 
     public Brigadier(BukkitCommandHandler handler, Commodore commodore) {
@@ -168,11 +166,11 @@ final class Brigadier {
     }
 
     private ArgumentBuilder getBuilder(ExecutableCommand command, CommandParameter parameter, boolean respectFlag) {
-        if (parameter.isSwitch() && registerSwitches) {
+        if (parameter.isSwitch()) {
             return literal(parameter.getCommandHandler().getSwitchPrefix() + parameter.getSwitchName())
                     .executes(a -> 0);
         }
-        if (parameter.isFlag() && respectFlag && registerFlags) {
+        if (parameter.isFlag() && respectFlag) {
             return literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName())
                     .then(getBuilder(command, parameter, false));
         }
