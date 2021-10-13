@@ -11,12 +11,12 @@ configurations {
 }
 
 dependencies {
-    shade project(':common')
-    compileOnly 'com.mojang:brigadier:1.0.18'
-    shade('me.lucko:commodore:1.10') {
+    implementation project(':common')
+    implementation('me.lucko:commodore:1.10') {
         exclude module: 'commodore-file' // we don't need that.
         exclude module: 'brigadier'
     }
+    compileOnly 'com.mojang:brigadier:1.0.18'
     compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
 }
 
