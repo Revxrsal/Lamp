@@ -17,6 +17,8 @@ public class BukkitExceptionAdapter extends DefaultExceptionHandler {
             invalidPlayer(actor, (InvalidPlayerException) throwable);
         else if (throwable instanceof InvalidWorldException)
             invalidWorld(actor, (InvalidWorldException) throwable);
+        else if (throwable instanceof MalformedEntitySelectorException)
+            malformedEntitySelector(actor, (MalformedEntitySelectorException) throwable);
         else
             handleUnknownThrowable(actor, throwable);
     }
