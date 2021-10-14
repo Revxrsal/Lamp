@@ -120,7 +120,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
     }
 
     @Override public BukkitCommandHandler registerBrigadier() {
-        brigadier.get().ifPresent(brigadier -> brigadier.parse(this));
+        brigadier.get().ifPresent(brigadier -> brigadier.parse(plugin, this));
         return this;
     }
 

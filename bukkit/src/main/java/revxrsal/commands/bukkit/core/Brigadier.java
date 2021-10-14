@@ -39,6 +39,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
@@ -117,15 +118,17 @@ final class Brigadier {
         }
     }
 
-    public void parse(@NotNull CommandHandler handler) {
+    public void parse(Plugin plugin, @NotNull CommandHandler handler) {
         List<LiteralArgumentBuilder<?>> nodes = new ArrayList<>();
         List<CommandCategory> roots = handler.getCategories().values().stream().filter(c -> c.getPath().size() == 1).collect(Collectors.toList());
         List<ExecutableCommand> rootCommands = handler.getCommands().values().stream().filter(c -> c.getPath().size() == 1).collect(Collectors.toList());
         for (CommandCategory root : roots) {
             nodes.add(parse(literal(root.getName()), root));
+            nodes.add(parse(literal(plugin.getName().toLowerCase() + ":" + root.getName()), root));
         }
         for (ExecutableCommand root : rootCommands) {
             nodes.add(parse(literal(root.getName()), root));
+            nodes.add(parse(literal(plugin.getName().toLowerCase() + ":" + root.getName()), root));
         }
         nodes.forEach(commodore::register);
     }
