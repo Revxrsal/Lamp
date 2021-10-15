@@ -23,6 +23,8 @@ public interface VelocityCommandHandler extends CommandHandler {
      *
      * @param server Server proxy to register for
      * @return The newly created handler
+     * @deprecated This constructor provides no plugin instance. Therefore, command namespaces
+     * (namespace:command) will not work. Use {@link #create(Object, ProxyServer)}
      */
     @Deprecated
     static VelocityCommandHandler create(@NotNull ProxyServer server) {
