@@ -115,8 +115,8 @@ public final class BrigadierTreeParser {
      * @return The parsed command node
      */
     public static <T> LiteralArgumentBuilder<T> parse(LampBrigadier brigadier,
-                                                  LiteralArgumentBuilder<?> into,
-                                                  ExecutableCommand command) {
+                                                      LiteralArgumentBuilder<?> into,
+                                                      ExecutableCommand command) {
         CommandNode<?> lastParameter = null;
         for (CommandParameter parameter : command.getValueParameters().values()) {
             CommandNode node = getBuilder(brigadier, command, parameter, true).build();
@@ -194,7 +194,8 @@ public final class BrigadierTreeParser {
             try {
                 CommandActor actor = brigadier.wrapSource(context.getSource());
                 Message tooltip = new LiteralMessage(parameter.getName());
-                ArgumentStack args = ArgumentStack.forAutoCompletion(context.getInput().substring(1));
+                String input = context.getInput();
+                ArgumentStack args = ArgumentStack.forAutoCompletion(input.startsWith("/") ? input.substring(1) : input);
                 parameter
                         .getSuggestionProvider()
                         .getSuggestions(args, actor, command)
