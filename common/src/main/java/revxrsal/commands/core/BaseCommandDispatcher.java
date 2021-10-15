@@ -70,10 +70,7 @@ public final class BaseCommandDispatcher {
                     throw new InvalidCommandException(path, lastArgument);
             }
         } catch (Throwable throwable) {
-            if (throwable instanceof SendableException)
-                ((SendableException) throwable).sendTo(actor);
-            else
-                handler.getExceptionHandler().handleException(throwable, actor);
+            handler.getExceptionHandler().handleException(throwable, actor);
         }
         return null;
     }
