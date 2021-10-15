@@ -55,7 +55,6 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
                 .registerSuggestion("playerSelector", SuggestionProvider.of("@a", "@p", "@r", "@s")
                         .compose(getAutoCompleter().getSuggestionProvider("players")))
                 .registerParameterSuggestions(Player.class, "playerSelector");
-//        server.getCommandManager().register(server.getCommandManager().metaBuilder(null));
         setExceptionHandler(VelocityExceptionAdapter.INSTANCE);
     }
 
@@ -63,16 +62,16 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
         super.register(commands);
         for (ExecutableCommand command : executables.values()) {
             if (command.getParent() != null) continue;
-            createPluginCommand(command.getName(), command);
+            createPluginCommand(command);
         }
         for (CommandCategory category : categories.values()) {
             if (category.getParent() != null) continue;
-            createPluginCommand(category.getName(), category);
+            createPluginCommand(category);
         }
         return this;
     }
 
-    private void createPluginCommand(String name, Object commandComponent) {
+    private void createPluginCommand(Object commandComponent) {
         Command command = new VelocitySimpleCommand(this);
         if (commandComponent instanceof CommandCategory) {
             CommandCategory category = ((CommandCategory) commandComponent);
