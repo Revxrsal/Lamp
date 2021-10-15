@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * Marks an exception class as throwable from inside the command. Any exceptions
- * annotated with this annotation will be unwrapped from {@link CommandInvocationException}. *
+ * annotated with this annotation will be unwrapped from {@link CommandInvocationException}.
  *
  * @see CommandInvocationException
  */

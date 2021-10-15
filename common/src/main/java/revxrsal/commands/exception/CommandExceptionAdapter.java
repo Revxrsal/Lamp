@@ -46,8 +46,7 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
     @Override
     public final void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
         if (throwable instanceof MissingArgumentException) missingArgument(actor, (MissingArgumentException) throwable);
-        else if (throwable instanceof SendMessageException) ((SendMessageException) throwable).sendTo(actor);
-        else if (throwable instanceof CommandErrorException) ((CommandErrorException) throwable).sendTo(actor);
+        else if (throwable instanceof SendableException) ((SendableException) throwable).sendTo(actor);
         else if (throwable instanceof EnumNotFoundException) invalidEnumValue(actor, (EnumNotFoundException) throwable);
         else if (throwable instanceof InvalidNumberException) invalidNumber(actor, (InvalidNumberException) throwable);
         else if (throwable instanceof InvalidUUIDException) invalidUUID(actor, (InvalidUUIDException) throwable);
