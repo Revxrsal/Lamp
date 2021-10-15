@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.autocomplete.SuggestionProvider;
+import revxrsal.commands.brigadier.BrigadierTreeParser;
+import revxrsal.commands.brigadier.LampBrigadier;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.EntitySelector;
@@ -42,10 +44,10 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
 
     private final Plugin plugin;
 
-    private final Supplier<Optional<Brigadier>> brigadier = Suppliers.memoize(() -> {
+    private final Supplier<Optional<LampBrigadier>> brigadier = Suppliers.memoize(() -> {
         if (!CommodoreProvider.isSupported())
             return Optional.empty();
-        return Optional.of(new Brigadier(this, CommodoreProvider.getCommodore(getPlugin())));
+        return Optional.of(new BukkitBrigadier(CommodoreProvider.getCommodore(getPlugin()), this));
     });
 
     public BukkitHandler(@NotNull Plugin plugin) {
@@ -82,7 +84,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         });
         try {
             Bukkit.getServer().selectEntities(Bukkit.getConsoleSender(), "@a");
-            registerValueResolver(EntitySelector.class, Brigadier.selectorResolver());
+            registerValueResolver(EntitySelector.class, EntitySelectorResolver.INSTANCE);
         } catch (Throwable ignored) {}
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);
         getAutoCompleter().registerSuggestion("players", (args, sender, command) -> Bukkit.getOnlinePlayers()
@@ -120,7 +122,9 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
     }
 
     @Override public BukkitCommandHandler registerBrigadier() {
-        brigadier.get().ifPresent(brigadier -> brigadier.parse(plugin, this));
+        brigadier.get().ifPresent(brigadier -> BrigadierTreeParser
+                .parse(brigadier, this, plugin.getName().toLowerCase())
+                .forEach(brigadier::register));
         return this;
     }
 
@@ -137,7 +141,6 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         cmd.setDescription(description == null ? "" : description);
         if (usage != null)
             cmd.setUsage(usage);
-
     }
 
     @Override public boolean unregister(@NotNull CommandPath path) {

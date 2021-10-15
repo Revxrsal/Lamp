@@ -21,9 +21,8 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.bukkit.core;
+package revxrsal.commands.brigadier;
 
-import com.google.common.collect.ForwardingList;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -32,32 +31,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
-import me.lucko.commodore.Commodore;
-import me.lucko.commodore.MinecraftArgumentTypes;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Range;
-import revxrsal.commands.bukkit.BukkitCommandActor;
-import revxrsal.commands.bukkit.BukkitCommandHandler;
-import revxrsal.commands.bukkit.EntitySelector;
-import revxrsal.commands.bukkit.PlayerSelector;
-import revxrsal.commands.bukkit.exception.MalformedEntitySelectorException;
-import revxrsal.commands.command.ArgumentStack;
-import revxrsal.commands.command.CommandCategory;
-import revxrsal.commands.command.CommandParameter;
-import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.process.ValueResolver;
-import revxrsal.commands.util.ClassMap;
+import revxrsal.commands.command.*;
 import revxrsal.commands.util.Primitives;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,127 +51,109 @@ import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
-import static org.bukkit.NamespacedKey.minecraft;
-import static revxrsal.commands.util.Preconditions.notNull;
 
-final class Brigadier {
+/**
+ * A utility class for parsing Lamp's components into Brigadier's.
+ */
+@SuppressWarnings("rawtypes")
+public final class BrigadierTreeParser {
 
-    private static final Class<?>[] ENTITIES = new Class<?>[]{boolean.class, boolean.class};
-
-    private final Commodore commodore;
-    private final ClassMap<ArgumentType<?>> argumentTypes = new ClassMap<>();
-
-    public Brigadier(BukkitCommandHandler handler, Commodore commodore) {
-        notNull(handler, "handler");
-        this.commodore = notNull(commodore, "commodore");
-        try {
-            // 1st: single
-            // 2nd: playersOnly
-            argumentTypes.add(PlayerSelector.class, constructMinecraftArgumentType(minecraft("entity"), ENTITIES, false, true));
-            argumentTypes.add(Player.class, constructMinecraftArgumentType(minecraft("entity"), ENTITIES, true, true));
-            argumentTypes.add(EntitySelector.class, constructMinecraftArgumentType(minecraft("entity"), ENTITIES, false, false));
-        } catch (Throwable ignored) {}
-    }
-
-    public static ValueResolver<EntitySelector> selectorResolver() {
-        return context -> {
-            String selector = context.pop();
-            try {
-                List<Entity> c = Bukkit.getServer().selectEntities(context.actor().as(BukkitCommandActor.class).getSender(), selector);
-                return new EntitySelectorImpl(c);
-            } catch (IllegalArgumentException e) {
-                throw new MalformedEntitySelectorException(context.actor(), selector, e.getCause().getMessage());
-            }
-        };
-    }
-
-    private static class EntitySelectorImpl extends ForwardingList<Entity> implements EntitySelector {
-
-        private final List<Entity> entities;
-
-        public EntitySelectorImpl(List<Entity> entities) {
-            this.entities = entities;
-        }
-
-        @Override protected List<Entity> delegate() {
-            return entities;
-        }
-    }
-
-    public void parse(Plugin plugin, @NotNull CommandHandler handler) {
-        List<LiteralArgumentBuilder<?>> nodes = new ArrayList<>();
+    /**
+     * Parses all the registered commands and categories in the given {@link CommandHandler}
+     * and registers all root trees and their corresponding children components
+     * and parameters
+     *
+     * @param brigadier The platform's Brigadier implementation
+     * @param handler   The command handler
+     * @param namespace An optional namespace to register beside standard registration
+     * @return All root nodes
+     */
+    public static <T> List<LiteralArgumentBuilder<T>> parse(
+            @NotNull LampBrigadier brigadier,
+            @NotNull CommandHandler handler,
+            @Nullable String namespace) {
+        List<LiteralArgumentBuilder<T>> nodes = new ArrayList<>();
         List<CommandCategory> roots = handler.getCategories().values().stream().filter(c -> c.getPath().size() == 1).collect(Collectors.toList());
         List<ExecutableCommand> rootCommands = handler.getCommands().values().stream().filter(c -> c.getPath().size() == 1).collect(Collectors.toList());
         for (CommandCategory root : roots) {
-            nodes.add(parse(literal(root.getName()), root));
-            nodes.add(parse(literal(plugin.getName().toLowerCase() + ":" + root.getName()), root));
+            nodes.add(parse(brigadier, literal(root.getName()), root));
+            if (namespace != null) nodes.add(parse(brigadier, literal(namespace + ":" + root.getName()), root));
         }
         for (ExecutableCommand root : rootCommands) {
-            nodes.add(parse(literal(root.getName()), root));
-            nodes.add(parse(literal(plugin.getName().toLowerCase() + ":" + root.getName()), root));
+            nodes.add(parse(brigadier, literal(root.getName()), root));
+            if (namespace != null) nodes.add(parse(brigadier, literal(namespace + ":" + root.getName()), root));
         }
-        nodes.forEach(commodore::register);
+        return nodes;
     }
 
-    private static ArgumentType<?> constructMinecraftArgumentType(NamespacedKey key, Class<?>[] argTypes, Object... args) {
-        try {
-            final Constructor<? extends ArgumentType<?>> constructor = MinecraftArgumentTypes.getClassByKey(key).getDeclaredConstructor(argTypes);
-            constructor.setAccessible(true);
-            return constructor.newInstance(args);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    private LiteralArgumentBuilder<?> parse(LiteralArgumentBuilder<?> parent, CommandCategory category) {
+    /**
+     * Parses the given command category into a {@link LiteralArgumentBuilder}.
+     *
+     * @param brigadier The platform's Brigadier implementation
+     * @param into      The command node to register nodes into
+     * @param category  Category to parse
+     * @return The parsed command node
+     */
+    public static <T> LiteralArgumentBuilder<T> parse(LampBrigadier brigadier, LiteralArgumentBuilder<?> into, CommandCategory category) {
         for (CommandCategory child : category.getCategories().values()) {
-            LiteralArgumentBuilder childLiteral = parse(literal(child.getName()), child);
-            parent.then(childLiteral);
+            LiteralArgumentBuilder childLiteral = parse(brigadier, literal(child.getName()), child);
+            into.then(childLiteral);
         }
         for (ExecutableCommand child : category.getCommands().values()) {
-            LiteralArgumentBuilder childLiteral = parse(literal(child.getName()), child);
-            parent.then(childLiteral);
+            LiteralArgumentBuilder childLiteral = parse(brigadier, literal(child.getName()), child);
+            into.then(childLiteral);
         }
-        return parent;
+        return (LiteralArgumentBuilder<T>) into;
     }
 
-    @SuppressWarnings("rawtypes")
-    private LiteralArgumentBuilder<?> parse(LiteralArgumentBuilder<?> parent, ExecutableCommand command) {
+    /**
+     * Parses the given command into a {@link LiteralArgumentBuilder}.
+     *
+     * @param brigadier The platform's Brigadier implementation
+     * @param into      The command node to register nodes into
+     * @param command   Command to parse
+     * @return The parsed command node
+     */
+    public static <T> LiteralArgumentBuilder<T> parse(LampBrigadier brigadier,
+                                                  LiteralArgumentBuilder<?> into,
+                                                  ExecutableCommand command) {
         CommandNode<?> lastParameter = null;
         for (CommandParameter parameter : command.getValueParameters().values()) {
-            CommandNode node = getBuilder(command, parameter, true).build();
+            CommandNode node = getBuilder(brigadier, command, parameter, true).build();
             if (lastParameter == null) {
-                parent.then(node);
+                into.then(node);
             } else {
                 lastParameter.addChild(node);
             }
             lastParameter = node;
         }
-        return parent;
+        return (LiteralArgumentBuilder<T>) into;
     }
 
-    private ArgumentBuilder getBuilder(ExecutableCommand command, CommandParameter parameter, boolean respectFlag) {
+    private static ArgumentBuilder getBuilder(LampBrigadier brigadier,
+                                              ExecutableCommand command,
+                                              CommandParameter parameter,
+                                              boolean respectFlag) {
         if (parameter.isSwitch()) {
             return literal(parameter.getCommandHandler().getSwitchPrefix() + parameter.getSwitchName())
                     .executes(a -> 0);
         }
         if (parameter.isFlag() && respectFlag) {
             return literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName())
-                    .then(getBuilder(command, parameter, false));
+                    .then(getBuilder(brigadier, command, parameter, false));
         }
-        ArgumentType<?> argumentType = getArgumentType(parameter);
+        ArgumentType<?> argumentType = getArgumentType(brigadier, parameter);
 
         RequiredArgumentBuilder argumentBuilder = argument(parameter.getName(), argumentType)
-                .suggests(createSuggestionProvider(command, parameter));
+                .suggests(createSuggestionProvider(brigadier, command, parameter));
         if (parameter.isOptional())
             argumentBuilder.executes(context -> 1);
         return argumentBuilder;
     }
 
-    private ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {
+    private static ArgumentType<?> getArgumentType(LampBrigadier brigadier, @NotNull CommandParameter parameter) {
         Class<?> type = Primitives.wrap(parameter.getType());
-        ArgumentType<?> registeredType = argumentTypes.getFlexible(type);
+        ArgumentType<?> registeredType = brigadier.getAdditionalArgumentTypes().getFlexible(type);
         if (registeredType != null)
             return registeredType;
         @Nullable Range range = parameter.getAnnotation(Range.class);
@@ -221,7 +183,8 @@ final class Brigadier {
         return string();
     }
 
-    private SuggestionProvider<Object> createSuggestionProvider(
+    private static SuggestionProvider<Object> createSuggestionProvider(
+            LampBrigadier brigadier,
             ExecutableCommand command,
             CommandParameter parameter
     ) {
@@ -229,8 +192,7 @@ final class Brigadier {
             return null;
         return (context, builder) -> {
             try {
-                CommandSender sender = commodore.getBukkitSender(context.getSource());
-                BukkitCommandActor actor = BukkitCommandActor.wrap(sender);
+                CommandActor actor = brigadier.wrapSource(context.getSource());
                 Message tooltip = new LiteralMessage(parameter.getName());
                 ArgumentStack args = ArgumentStack.forAutoCompletion(context.getInput().substring(1));
                 parameter

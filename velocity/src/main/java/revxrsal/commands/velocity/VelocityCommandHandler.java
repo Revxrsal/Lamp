@@ -24,8 +24,19 @@ public interface VelocityCommandHandler extends CommandHandler {
      * @param server Server proxy to register for
      * @return The newly created handler
      */
+    @Deprecated
     static VelocityCommandHandler create(@NotNull ProxyServer server) {
-        return new VelocityHandler(server);
+        return new VelocityHandler(null, server);
+    }
+
+    /**
+     * Creates a new {@link VelocityCommandHandler} for the given proxy.
+     *
+     * @param server Server proxy to register for
+     * @return The newly created handler
+     */
+    static VelocityCommandHandler create(Object plugin, @NotNull ProxyServer server) {
+        return new VelocityHandler(plugin, server);
     }
 
 }
