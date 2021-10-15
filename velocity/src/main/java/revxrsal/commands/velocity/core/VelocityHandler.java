@@ -1,6 +1,7 @@
 package revxrsal.commands.velocity.core;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.Command;
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.command.CommandSource;
@@ -89,10 +90,10 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
     }
 
     private void registerNode(Command command, LiteralArgumentBuilder<CommandSource> builder) {
-        server.getCommandManager().register(
-                metaBuilder(builder.getLiteral()).hint(builder.build()).build(),
-                command
-        );
+        CommandMeta.Builder metaBuilder = metaBuilder(builder.getLiteral());
+        LiteralCommandNode<CommandSource> node = builder.build();
+        node.getChildren().forEach(metaBuilder::hint);
+        server.getCommandManager().register(metaBuilder.build(), command);
     }
 
     private @Nullable String getNamespace() {
