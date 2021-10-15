@@ -4,6 +4,8 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
@@ -23,6 +25,20 @@ public interface VelocityCommandActor extends CommandActor {
      * @return Velocity's command source.
      */
     @NotNull CommandSource getSource();
+
+    /**
+     * Sends the given component message to this actor
+     *
+     * @param component Component to send
+     */
+    void reply(@NotNull Component component);
+
+    /**
+     * Sends the given component message to this actor
+     *
+     * @param component Component to send
+     */
+    void reply(@NotNull ComponentLike component);
 
     /**
      * Returns the {@link ProxyServer} of this actor

@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.velocity.VelocityCommandActor;
@@ -47,6 +48,15 @@ public final class VelocityActor implements VelocityCommandActor {
 
     @Override public @NotNull CommandSource getSource() {
         return source;
+    }
+
+    @Override public void reply(@NotNull Component component) {
+        source.sendMessage(component);
+    }
+
+
+    @Override public void reply(@NotNull ComponentLike component) {
+        source.sendMessage(component);
     }
 
     @Override public @NotNull ProxyServer getServer() {
