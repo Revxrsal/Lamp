@@ -54,7 +54,7 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
                 .registerParameterSuggestions(Player.class, "players")
                 .registerSuggestion("playerSelector", SuggestionProvider.of("@a", "@p", "@r", "@s")
                         .compose(getAutoCompleter().getSuggestionProvider("players")))
-                .registerParameterSuggestions(Player.class, "playerSelector");
+                .registerParameterSuggestions(PlayerSelector.class, "playerSelector");
         setExceptionHandler(VelocityExceptionAdapter.INSTANCE);
     }
 
