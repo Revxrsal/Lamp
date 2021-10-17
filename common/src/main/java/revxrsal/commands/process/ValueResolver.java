@@ -90,6 +90,26 @@ public interface ValueResolver<T> {
 
         /**
          * Returns (and removes) the first value in the {@link #arguments() argument stack}
+         * and parses it into a byte.
+         *
+         * @return The first value, as a byte.
+         * @throws NoSuchElementException if the stack is empty
+         * @throws InvalidNumberException if an invalid number is inputted
+         */
+        byte popByte();
+
+        /**
+         * Returns (and removes) the first value in the {@link #arguments() argument stack}
+         * and parses it into a short.
+         *
+         * @return The first value, as a short.
+         * @throws NoSuchElementException if the stack is empty
+         * @throws InvalidNumberException if an invalid number is inputted
+         */
+        short popShort();
+
+        /**
+         * Returns (and removes) the first value in the {@link #arguments() argument stack}
          * and parses it into a float.
          *
          * @return The first value, as a float.
@@ -100,7 +120,7 @@ public interface ValueResolver<T> {
 
         /**
          * Returns (and removes) the first value in the {@link #arguments() argument stack}
-         * and parses it into a double.
+         * and parses it into a long.
          *
          * @return The first value, as a long.
          * @throws NoSuchElementException if the stack is empty

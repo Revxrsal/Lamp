@@ -26,7 +26,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static revxrsal.commands.util.Preconditions.notEmpty;
@@ -60,12 +59,12 @@ public class BaseCommandHandler implements CommandHandler {
         registerContextResolverFactory(new SenderContextResolverFactory(senderResolvers));
         registerContextResolverFactory(DependencyResolverFactory.INSTANCE);
         registerValueResolverFactory(EnumResolverFactory.INSTANCE);
-        registerValueResolver(int.class, num(Integer::parseInt));
-        registerValueResolver(double.class, num(Double::parseDouble));
-        registerValueResolver(short.class, num(Short::parseShort));
-        registerValueResolver(byte.class, num(Byte::parseByte));
-        registerValueResolver(long.class, num(Long::parseLong));
-        registerValueResolver(float.class, num(Float::parseFloat));
+        registerValueResolver(int.class, ValueResolverContext::popInt);
+        registerValueResolver(double.class, ValueResolverContext::popDouble);
+        registerValueResolver(short.class, ValueResolverContext::popShort);
+        registerValueResolver(byte.class, ValueResolverContext::popByte);
+        registerValueResolver(long.class, ValueResolverContext::popLong);
+        registerValueResolver(float.class, ValueResolverContext::popFloat);
         registerValueResolver(boolean.class, bool());
         registerValueResolver(String.class, ValueResolverContext::popForParameter);
         registerValueResolver(UUID.class, context -> {
@@ -358,19 +357,6 @@ public class BaseCommandHandler implements CommandHandler {
                 throw new IllegalStateException("Unable to inject dependency value into field " + field.getName(), e);
             }
         }
-    }
-
-    private <T> ValueResolver<T> num(Function<String, T> f) {
-        return context -> {
-            String input = context.pop();
-            try {
-                if (input.startsWith("0x"))
-                    return (T) Integer.valueOf(input.substring(2), 16);
-                return f.apply(input);
-            } catch (NumberFormatException e) {
-                throw new InvalidNumberException(context.parameter(), input);
-            }
-        };
     }
 
     private ValueResolver<Boolean> bool() {
