@@ -4,7 +4,6 @@ repositories {
 
 dependencies {
     implementation project(':common')
-    implementation project(':brigadier')
     compileOnly 'com.velocitypowered:velocity-api:3.0.0'
 }
 

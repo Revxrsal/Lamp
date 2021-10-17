@@ -24,15 +24,13 @@ import revxrsal.commands.velocity.exception.VelocityExceptionAdapter;
 
 import java.util.Optional;
 
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
-import static revxrsal.commands.brigadier.BrigadierTreeParser.parse;
 import static revxrsal.commands.util.Preconditions.notNull;
 
 public final class VelocityHandler extends BaseCommandHandler implements VelocityCommandHandler {
 
     private final ProxyServer server;
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType") private final Optional<PluginContainer> plugin;
-    private final DummyVelocityBrigadier brigadier = new DummyVelocityBrigadier(this);
+//    private final DummyVelocityBrigadier brigadier = new DummyVelocityBrigadier(this);
 
     public VelocityHandler(@Nullable Object plugin, @NotNull ProxyServer server) {
         super();
@@ -76,24 +74,22 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
         Command command = new VelocitySimpleCommand(this);
         if (commandComponent instanceof CommandCategory) {
             CommandCategory category = ((CommandCategory) commandComponent);
-            LiteralArgumentBuilder<CommandSource> builder = parse(brigadier, literal(category.getName()), category);
-            registerNode(command, parse(brigadier, literal(category.getName()), category));
-            if (getNamespace() != null)
-                registerNode(command, parse(brigadier, literal(getNamespace() + ":" + category.getName()), category));
+            registerNode(category.getName(), command);
         } else if (commandComponent instanceof ExecutableCommand) {
             ExecutableCommand executable = ((ExecutableCommand) commandComponent);
-            LiteralArgumentBuilder<CommandSource> builder = parse(brigadier, literal(executable.getName()), executable);
-            registerNode(command, parse(brigadier, literal(executable.getName()), executable));
-            if (getNamespace() != null)
-                registerNode(command, parse(brigadier, literal(getNamespace() + ":" + executable.getName()), executable));
+            registerNode(executable.getName(), command);
         }
     }
 
     private void registerNode(Command command, LiteralArgumentBuilder<CommandSource> builder) {
         CommandMeta.Builder metaBuilder = metaBuilder(builder.getLiteral());
         LiteralCommandNode<CommandSource> node = builder.build();
-        node.getChildren().forEach(metaBuilder::hint);
+//        node.getChildren().forEach(metaBuilder::hint);
         server.getCommandManager().register(metaBuilder.build(), command);
+    }
+
+    private void registerNode(String alias, Command command) {
+        server.getCommandManager().register(alias, command);
     }
 
     private @Nullable String getNamespace() {
