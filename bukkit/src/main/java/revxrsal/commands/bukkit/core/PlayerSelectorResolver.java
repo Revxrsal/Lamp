@@ -20,9 +20,24 @@ import java.util.concurrent.ThreadLocalRandom;
 enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
     INSTANCE;
 
+    private boolean supportComplexSelectors;
+
+    PlayerSelectorResolver() {
+        try {
+            Bukkit.getServer().selectEntities(Bukkit.getConsoleSender(), "@a");
+            supportComplexSelectors = true;
+        } catch (Throwable t) {
+            supportComplexSelectors = false;
+        }
+    }
+
     @Override public PlayerSelector resolve(@NotNull ValueResolverContext context) {
         BukkitCommandActor bActor = context.actor();
         String value = context.pop().toLowerCase();
+        if (supportComplexSelectors) {
+            return () -> Bukkit.getServer().selectEntities(bActor.getSender(), value).stream()
+                    .filter(c -> c instanceof Player).map(Player.class::cast).iterator();
+        }
         List<Player> coll = new ArrayList<>();
         Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
         switch (value) {
