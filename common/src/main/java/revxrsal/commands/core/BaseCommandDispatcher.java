@@ -30,49 +30,47 @@ public final class BaseCommandDispatcher {
     public Object eval(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
         try {
             MutableCommandPath path = MutableCommandPath.empty();
-            BaseCommandCategory lastCategory = null;
-            String lastArgument = null;
-            for (int i = 0; i < arguments.size(); i++) {
-                String argument = lastArgument = arguments.get(i);
-                path.add(argument);
-
-                CommandExecutable executable = (CommandExecutable) handler.getCommand(path);
-                if (executable != null) {
-                    arguments.subList(0, i + 1).clear();
-                    return execute(executable, actor, arguments);
-                }
-
-                BaseCommandCategory cat = (BaseCommandCategory) handler.getCategory(path);
-                if (cat != null) {
-                    lastCategory = cat;
-                    CommandExecutable defaultAction = cat.defaultAction;
-                    if (defaultAction != null && i + 1 == arguments.size()) {
-                        arguments.subList(0, i).clear();
-                        return execute(defaultAction, actor, arguments);
-                    } else if (i == arguments.size() - 1 && defaultAction == null) {
-                        throw new NoSubcommandSpecifiedException(cat);
-                    }
-                    // once the category is invalid and no such command is found then stop searching
-                } else break;
-                if (i == arguments.size() - 1 && lastCategory.defaultAction != null) {
-                    arguments.subList(0, i).clear();
-                    return execute(lastCategory.defaultAction, actor, arguments);
-                }
+            String argument = arguments.getFirst();
+            path.add(argument);
+            CommandExecutable executable = handler.executables.get(path);
+            if (executable != null) {
+                arguments.removeFirst();
+                return execute(executable, actor, arguments);
             }
-            if (lastCategory != null) {
-                if (lastCategory.defaultAction != null) {
-                    arguments.removeFirst();
-                    return execute(lastCategory.defaultAction, actor, arguments);
-                } else
-                    throw new InvalidSubcommandException(path, path.getLast());
+
+            BaseCommandCategory category = handler.categories.get(path);
+            if (category != null) {
+                arguments.removeFirst();
+                return searchCategory(actor, category, path, arguments);
             } else {
-                if (lastArgument != null)
-                    throw new InvalidCommandException(path, lastArgument);
+                throw new InvalidCommandException(path, path.getFirst());
             }
         } catch (Throwable throwable) {
             handler.getExceptionHandler().handleException(throwable, actor);
         }
         return null;
+    }
+
+    private Object searchCategory(CommandActor actor, BaseCommandCategory category, MutableCommandPath path, ArgumentStack arguments) {
+        if (!arguments.isEmpty()) {
+            path.add(arguments.getFirst());
+        }
+        CommandExecutable executable = (CommandExecutable) category.commands.get(path);
+        if (executable != null) {
+            arguments.removeFirst();
+            return execute(executable, actor, arguments);
+        }
+        BaseCommandCategory found = (BaseCommandCategory) category.getCategories().get(path);
+        if (found == null) {
+            if (category.defaultAction == null)
+                throw new NoSubcommandSpecifiedException(category);
+            else {
+                return execute(category.defaultAction, actor, arguments);
+            }
+        } else {
+            arguments.removeFirst();
+            return searchCategory(actor, found, path, arguments);
+        }
     }
 
     private Object execute(@NotNull CommandExecutable executable,
@@ -287,6 +285,14 @@ public final class BaseCommandDispatcher {
 
         @Override public double popDouble() {
             return num(Double::parseDouble);
+        }
+
+        @Override public byte popByte() {
+            return num(Byte::parseByte);
+        }
+
+        @Override public short popShort() {
+            return num(Short::parseShort);
         }
 
         @Override public float popFloat() {

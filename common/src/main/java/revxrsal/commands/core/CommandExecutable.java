@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.CommandHandler;
+import revxrsal.commands.annotation.Default;
 import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.CommandPermission;
@@ -95,8 +96,12 @@ class CommandExecutable implements ExecutableCommand {
 
     public void parent(BaseCommandCategory cat) {
         parent = cat;
-        if (cat != null)
-            cat.commands.put(path, this);
+        if (hasAnnotation(Default.class) && cat != null)
+            cat.defaultAction = this;
+        else {
+            if (cat != null)
+                cat.commands.put(path, this);
+        }
     }
 
     public void setPermission(@NotNull CommandPermission permission) {

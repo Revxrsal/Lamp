@@ -51,12 +51,13 @@ final class CommandParser {
             List<CommandPath> paths = getCommandPath(container, method, reader);
             BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(boundTarget);
             int id = COMMAND_ID.getAndIncrement();
+            boolean isDefault = reader.contains(Default.class);
             paths.forEach(path -> {
-                for (BaseCommandCategory category : getCategories(path)) {
+                for (BaseCommandCategory category : getCategories(isDefault, path)) {
                     categories.putIfAbsent(category.path, category);
                 }
                 CommandExecutable executable = new CommandExecutable();
-                categories.remove(path); // prevent duplication.
+                if (!isDefault) categories.remove(path); // prevent duplication.
                 executable.name = path.getLast();
                 executable.id = id;
                 executable.handler = handler;
@@ -66,7 +67,10 @@ final class CommandParser {
                 executable.reader = reader;
                 executable.secret = reader.contains(SecretCommand.class);
                 executable.methodCaller = caller;
-                executable.parent(categories.get(path.getCategoryPath()));
+                if (isDefault)
+                    executable.parent(categories.get(path));
+                else
+                    executable.parent(categories.get(path.getCategoryPath()));
                 executable.responseHandler = getResponseHandler(handler, method.getGenericReturnType());
                 executable.parameters = getParameters(handler, method, executable);
                 executable.resolveableParameters = executable.parameters.stream()
@@ -143,8 +147,8 @@ final class CommandParser {
         }
     }
 
-    private static Set<BaseCommandCategory> getCategories(@NotNull CommandPath path) {
-        if (path.size() == 1) return Collections.emptySet();
+    private static Set<BaseCommandCategory> getCategories(boolean respectDefault, @NotNull CommandPath path) {
+        if (path.size() == 1 && !respectDefault) return Collections.emptySet();
         String parent = path.getParent();
         Set<BaseCommandCategory> categories = new HashSet<>();
 
