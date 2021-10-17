@@ -3,6 +3,7 @@ package revxrsal.commands.velocity.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.exception.ThrowableFromCommand;
 import revxrsal.commands.velocity.VelocityCommandActor;
 
 /**
@@ -10,6 +11,7 @@ import revxrsal.commands.velocity.VelocityCommandActor;
  */
 @Getter
 @AllArgsConstructor
+@ThrowableFromCommand
 public class SenderNotPlayerException extends RuntimeException {
 
     /**

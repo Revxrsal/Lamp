@@ -3,6 +3,7 @@ package revxrsal.commands.sponge.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.exception.ThrowableFromCommand;
 import revxrsal.commands.sponge.SpongeCommandActor;
 
 /**
@@ -10,6 +11,7 @@ import revxrsal.commands.sponge.SpongeCommandActor;
  */
 @Getter
 @AllArgsConstructor
+@ThrowableFromCommand
 public class SenderNotPlayerException extends RuntimeException {
 
     /**
