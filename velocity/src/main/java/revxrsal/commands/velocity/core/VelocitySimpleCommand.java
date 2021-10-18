@@ -24,14 +24,14 @@ final class VelocitySimpleCommand implements SimpleCommand {
         handler.dispatch(actor, arguments);
     }
 
-//    @Override public List<String> suggest(Invocation invocation) {
-//        VelocityCommandActor actor = new VelocityActor(invocation.source(), handler.getServer());
-//        ArgumentStack arguments;
-//        if (invocation.arguments().length == 0)
-//            arguments = ArgumentStack.forAutoCompletion("");
-//        else
-//            arguments = ArgumentStack.forAutoCompletion(invocation.arguments());
-//        arguments.addFirst(invocation.alias());
-//        return handler.getAutoCompleter().complete(actor, arguments);
-//    }
+    @Override public List<String> suggest(Invocation invocation) {
+        VelocityCommandActor actor = new VelocityActor(invocation.source(), handler.getServer());
+        ArgumentStack arguments;
+        if (invocation.arguments().length == 0)
+            arguments = ArgumentStack.forAutoCompletion("");
+        else
+            arguments = ArgumentStack.forAutoCompletion(invocation.arguments());
+        arguments.addFirst(invocation.alias());
+        return handler.getAutoCompleter().complete(actor, arguments);
+    }
 }
