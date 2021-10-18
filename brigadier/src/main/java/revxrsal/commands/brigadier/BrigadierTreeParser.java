@@ -135,8 +135,7 @@ public final class BrigadierTreeParser {
                                               CommandParameter parameter,
                                               boolean respectFlag) {
         if (parameter.isSwitch()) {
-            return literal(parameter.getCommandHandler().getSwitchPrefix() + parameter.getSwitchName())
-                    .executes(a -> 0);
+            return literal(parameter.getCommandHandler().getSwitchPrefix() + parameter.getSwitchName());
         }
         if (parameter.isFlag() && respectFlag) {
             return literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName())
@@ -144,11 +143,8 @@ public final class BrigadierTreeParser {
         }
         ArgumentType<?> argumentType = getArgumentType(brigadier, parameter);
 
-        RequiredArgumentBuilder argumentBuilder = argument(parameter.getName(), argumentType)
+        return argument(parameter.getName(), argumentType)
                 .suggests(createSuggestionProvider(brigadier, command, parameter));
-        if (parameter.isOptional())
-            argumentBuilder.executes(context -> 1);
-        return argumentBuilder;
     }
 
     private static ArgumentType<?> getArgumentType(LampBrigadier brigadier, @NotNull CommandParameter parameter) {
