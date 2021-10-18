@@ -85,14 +85,14 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
             registerNode(command, parse(brigadier, literal(category.getName()), category));
             if (getNamespace() != null)
                 registerNode(command, parse(brigadier, literal(getNamespace() + ":" + category.getName()), category));
-            registerNode(category.getName(), command);
+//            registerNode(category.getName(), command);
         } else if (commandComponent instanceof ExecutableCommand) {
             ExecutableCommand executable = ((ExecutableCommand) commandComponent);
             LiteralArgumentBuilder<CommandSource> builder = parse(brigadier, literal(executable.getName()), executable);
             registerNode(command, parse(brigadier, literal(executable.getName()), executable));
             if (getNamespace() != null)
                 registerNode(command, parse(brigadier, literal(getNamespace() + ":" + executable.getName()), executable));
-            registerNode(executable.getName(), command);
+//            registerNode(executable.getName(), command);
         }
     }
 
@@ -104,9 +104,9 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
         server.getCommandManager().register(metaBuilder.build(), command);
     }
 
-    private void registerNode(String alias, Command command) {
-        server.getCommandManager().register(alias, command);
-    }
+//    private void registerNode(String alias, Command command) {
+//        server.getCommandManager().register(alias, command);
+//    }
 
     private @Nullable String getNamespace() {
         return plugin.map(p -> p.getDescription().getId()).orElse(null);
