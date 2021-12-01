@@ -4,12 +4,11 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.CommandHandler;
-import revxrsal.commands.annotation.AutoComplete;
 import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.autocomplete.SuggestionProvider;
+import revxrsal.commands.autocomplete.SuggestionProviderFactory;
 import revxrsal.commands.command.*;
-import revxrsal.commands.util.ClassMap;
-import revxrsal.commands.util.Strings;
+import revxrsal.commands.util.Primitives;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,32 +16,32 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 import static revxrsal.commands.util.Collections.listOf;
 import static revxrsal.commands.util.Preconditions.notNull;
-import static revxrsal.commands.util.Strings.VERTICAL_BAR;
 
 final class BaseAutoCompleter implements AutoCompleter {
 
     private final BaseCommandHandler handler;
-    final Map<String, SuggestionProvider> tabProviders = new HashMap<>();
-    final ClassMap<SuggestionProvider> parameterTabs = new ClassMap<>();
+    final Map<String, SuggestionProvider> suggestionKeys = new HashMap<>();
+    final List<SuggestionProviderFactory> factories = new ArrayList<>();
 
     public BaseAutoCompleter(BaseCommandHandler handler) {
         this.handler = handler;
         registerSuggestion("nothing", Collections.emptyList());
         registerSuggestion("empty", Collections.emptyList());
         registerParameterSuggestions(boolean.class, SuggestionProvider.of("true", "false"));
+        registerSuggestionFactory(new AutoCompleterAnnotationFactory(suggestionKeys));
     }
 
     @Override public AutoCompleter registerSuggestion(@NotNull String providerID, @NotNull SuggestionProvider provider) {
         notNull(provider, "provider ID");
         notNull(provider, "tab suggestion provider");
-        tabProviders.put(providerID, provider);
+        suggestionKeys.put(providerID, provider);
         return this;
     }
 
     @Override public AutoCompleter registerSuggestion(@NotNull String providerID, @NotNull Collection<String> completions) {
         notNull(providerID, "provider ID");
         notNull(completions, "completions");
-        tabProviders.put(providerID, (args, sender, command) -> completions);
+        suggestionKeys.put(providerID, (args, sender, command) -> completions);
         return this;
     }
 
@@ -54,23 +53,43 @@ final class BaseAutoCompleter implements AutoCompleter {
     @Override public AutoCompleter registerParameterSuggestions(@NotNull Class<?> parameterType, @NotNull SuggestionProvider provider) {
         notNull(parameterType, "parameter type");
         notNull(provider, "provider");
-        parameterTabs.add(parameterType, provider);
+        factories.add(SuggestionProviderFactory.forType(parameterType, provider));
+        Class<?> wrapped = Primitives.wrap(parameterType);
+        if (wrapped != parameterType) {
+            factories.add(SuggestionProviderFactory.forType(wrapped, provider));
+        }
         return this;
     }
 
     @Override public AutoCompleter registerParameterSuggestions(@NotNull Class<?> parameterType, @NotNull String providerID) {
         notNull(parameterType, "parameter type");
         notNull(providerID, "provider ID");
-        SuggestionProvider provider = tabProviders.get(providerID);
+        SuggestionProvider provider = suggestionKeys.get(providerID);
         if (provider == null) {
-            throw new IllegalArgumentException("No such tab provider: " + providerID + ". Available: " + tabProviders.keySet());
+            throw new IllegalArgumentException("No such tab provider: " + providerID + ". Available: " + suggestionKeys.keySet());
         }
         registerParameterSuggestions(parameterType, provider);
         return this;
     }
 
+    @Override public AutoCompleter registerSuggestionFactory(@NotNull SuggestionProviderFactory factory) {
+        notNull(factory, "suggestion provider factory cannot be null!");
+        factories.add(factory);
+        return this;
+    }
+
+    public SuggestionProvider getProvider(CommandParameter parameter) {
+        SuggestionProvider cached = null;
+        for (SuggestionProviderFactory factory : factories) {
+            SuggestionProvider resolver = factory.createSuggestionProvider(parameter);
+            if (resolver == null) continue;
+            return resolver;
+        }
+        return null;
+    }
+
     @Override public SuggestionProvider getSuggestionProvider(@NotNull String id) {
-        return tabProviders.get(id);
+        return suggestionKeys.get(id);
     }
 
     @Override public List<String> complete(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
@@ -178,45 +197,6 @@ final class BaseAutoCompleter implements AutoCompleter {
                 .sorted(String.CASE_INSENSITIVE_ORDER)
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    public SuggestionProvider resolveSuggestionProvider(CommandParameter parameter) {
-        AutoComplete ann = parameter.getDeclaringCommand().getAnnotation(AutoComplete.class);
-        if (ann != null) {
-            return parseTabAnnotation(ann, parameter.getCommandIndex());
-        }
-        return getParameterTab(parameter.getType());
-    }
-
-    @NotNull private SuggestionProvider getParameterTab(Class<?> type) {
-        SuggestionProvider pr = parameterTabs.getFlexible(type);
-        if (pr != null) return pr;
-        if (!type.isEnum()) return SuggestionProvider.EMPTY;
-        //noinspection rawtypes
-        Class<? extends Enum> enumType = type.asSubclass(Enum.class);
-        List<String> values = Arrays.stream(enumType.getEnumConstants()).map(t -> t.name().toLowerCase()).collect(Collectors.toList());
-        pr = (args, sender, command) -> values;
-        parameterTabs.add(type, pr);
-        return pr;
-    }
-
-    private SuggestionProvider parseTabAnnotation(@NotNull AutoComplete annotation, int commandIndex) {
-        if (annotation.value().isEmpty()) return SuggestionProvider.EMPTY;
-        String[] values = Strings.SPACE.split(annotation.value());
-        try {
-            String providerV = values[commandIndex];
-            if (providerV.startsWith("@")) {
-                SuggestionProvider provider = tabProviders.get(providerV.substring(1));
-                if (provider == null)
-                    throw new IllegalStateException("No such tab suggestion provider: " + providerV.substring(1));
-                return provider;
-            } else {
-                List<String> suggestions = Arrays.asList(VERTICAL_BAR.split(providerV));
-                return SuggestionProvider.of(suggestions);
-            }
-        } catch (IndexOutOfBoundsException e) {
-            return SuggestionProvider.EMPTY;
-        }
     }
 
     @Override public CommandHandler and() {

@@ -212,7 +212,7 @@ final class CommandParser {
             param.resolver = resolver;
             if (resolver.mutatesArguments())
                 param.cindex = cIndex++;
-            param.suggestionProvider = handler.autoCompleter.resolveSuggestionProvider(param);
+            param.suggestionProvider = handler.autoCompleter.getProvider(param);
             parameters.add(param);
         }
         return Collections.unmodifiableList(parameters);

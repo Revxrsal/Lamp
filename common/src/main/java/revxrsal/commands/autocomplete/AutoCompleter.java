@@ -21,7 +21,7 @@ public interface AutoCompleter {
      *
      * @param providerID The tab suggestion id
      * @param provider   The provider for this suggestion
-     * @return This command handler
+     * @return This auto-completer
      */
     AutoCompleter registerSuggestion(@NotNull String providerID, @NotNull SuggestionProvider provider);
 
@@ -32,7 +32,7 @@ public interface AutoCompleter {
      * @param providerID  The tab suggestion id
      * @param completions The static list of suggestion. These will be copied and
      *                    will no longer be modifiable
-     * @return This command handler
+     * @return This auto-completer
      */
     AutoCompleter registerSuggestion(@NotNull String providerID, @NotNull Collection<String> completions);
 
@@ -43,7 +43,7 @@ public interface AutoCompleter {
      * @param providerID  The tab suggestion id
      * @param completions The static list of suggestion. These will be copied and
      *                    will no longer be modifiable
-     * @return This command handler
+     * @return This auto-completer
      */
     AutoCompleter registerSuggestion(@NotNull String providerID, @NotNull String... completions);
 
@@ -54,7 +54,7 @@ public interface AutoCompleter {
      *
      * @param parameterType The parameter type to complete
      * @param provider      The tab suggestion provider
-     * @return This command handler
+     * @return This auto-completer
      */
     AutoCompleter registerParameterSuggestions(@NotNull Class<?> parameterType, @NotNull SuggestionProvider provider);
 
@@ -67,9 +67,18 @@ public interface AutoCompleter {
      * @param providerID    The tab suggestion provider id. Must be registered with
      *                      either {@link #registerSuggestion(String, SuggestionProvider)}
      *                      or {@link #registerSuggestion(String, String...)}.
-     * @return This command handler
+     * @return This auto-completer
      */
     AutoCompleter registerParameterSuggestions(@NotNull Class<?> parameterType, @NotNull String providerID);
+
+    /**
+     * Registers a {@link SuggestionProviderFactory} that creates suggestion providers
+     * dynamically for parameters. This allows for checking against custom annotations
+     * in parameters.
+     * @param factory Factory to register
+     * @return This auto-completer
+     */
+    AutoCompleter registerSuggestionFactory(@NotNull SuggestionProviderFactory factory);
 
     /**
      * Returns the suggestion provider that maps to the specified ID.

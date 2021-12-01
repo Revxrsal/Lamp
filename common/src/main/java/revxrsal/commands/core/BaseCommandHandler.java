@@ -41,7 +41,6 @@ public class BaseCommandHandler implements CommandHandler {
 
     final List<ResolverFactory> factories = new ArrayList<>();
     final BaseAutoCompleter autoCompleter = new BaseAutoCompleter(this);
-    final ClassMap<Resolver> resolversCache = new ClassMap<>();
     final ClassMap<List<ParameterValidator<Object>>> validators = new ClassMap<>();
     final ClassMap<ResponseHandler<?>> responseHandlers = new ClassMap<>();
     final ClassMap<Supplier<?>> dependencies = new ClassMap<>();
@@ -282,18 +281,14 @@ public class BaseCommandHandler implements CommandHandler {
     }
 
     public <T> ParameterResolver<T> getResolver(CommandParameter parameter) {
-        ParameterResolver<T> cached = (ParameterResolver<T>) resolversCache.get(parameter.getType());
-        if (cached != null) return cached;
+        ParameterResolver<T> cached = null;
 
         for (ResolverFactory factory : factories) {
             Resolver resolver = factory.create(parameter);
             if (resolver == null) continue;
-            cached = (ParameterResolver<T>) resolver;
-            resolversCache.add(parameter.getType(), (Resolver) cached);
-            break;
+            return (ParameterResolver<T>) resolver;
         }
-
-        return cached;
+        return null;
     }
 
     @Override public @NotNull CommandExceptionHandler getExceptionHandler() {
