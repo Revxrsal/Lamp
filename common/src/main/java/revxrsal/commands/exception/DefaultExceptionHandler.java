@@ -54,7 +54,7 @@ public class DefaultExceptionHandler extends CommandExceptionAdapter {
 
     @Override protected void tooManyArguments(@NotNull CommandActor actor, @NotNull TooManyArgumentsException exception) {
         ExecutableCommand command = exception.getCommand();
-        actor.error("Too many arguments! Correct usage: /" + command.getPath().toRealString() + " " + command.getUsage());
+        actor.error("Too many arguments! Correct usage: /" + (command.getPath().toRealString() + " " + command.getUsage()).trim());
     }
 
     @Override protected void invalidCommand(@NotNull CommandActor actor, @NotNull InvalidCommandException exception) {
