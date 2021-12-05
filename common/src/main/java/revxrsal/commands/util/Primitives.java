@@ -46,6 +46,14 @@ public final class Primitives {
         return (wrapped == null) ? type : wrapped;
     }
 
+    public static Type wrapType(Type type) {
+        notNull(type, "type");
+        if (!(type instanceof Class))
+            return type;
+        Class<?> wrapped = PRIMITIVE_TO_WRAPPER.get(type);
+        return (wrapped == null) ? type : wrapped;
+    }
+
     /**
      * Returns the corresponding primitive type of {@code type} if it is a wrapper type; otherwise
      * returns the type itself.
@@ -107,6 +115,14 @@ public final class Primitives {
             String className = type == null ? "null" : type.getClass().getName();
             throw new IllegalArgumentException("Expected a Class, ParameterizedType, or "
                     + "GenericArrayType, but <" + type + "> is of type " + className);
+        }
+    }
+
+    public static Type getInsideGeneric(Type genericType, Type fallback) {
+        try {
+            return ((ParameterizedType) genericType).getActualTypeArguments()[0];
+        } catch (ClassCastException e) {
+            return fallback;
         }
     }
 
