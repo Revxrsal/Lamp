@@ -40,7 +40,7 @@ public class BukkitExceptionAdapter extends DefaultExceptionHandler {
     }
 
     protected void malformedEntitySelector(@NotNull CommandActor actor, @NotNull MalformedEntitySelectorException exception) {
-        actor.error("Invalid selector argument: &e'" + exception.getInput() + "'");
+        actor.error("Invalid selector argument: &e" + exception.getInput());
     }
 
     protected void handleUnknownThrowable(@NotNull CommandActor actor, @NotNull Throwable throwable) {

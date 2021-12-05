@@ -28,26 +28,29 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.MinecraftArgumentTypes;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.brigadier.LampBrigadier;
 import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.bukkit.PlayerSelector;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.util.ClassMap;
 
 import java.lang.reflect.Constructor;
 
 final class BukkitBrigadier implements LampBrigadier {
 
+    private static final ArgumentType<?> PLAYERS = entity(false, true);
+
     private final ClassMap<ArgumentType<?>> argumentTypes = new ClassMap<>();
     private final Commodore commodore;
-    private final BukkitHandler handler;
 
-    public BukkitBrigadier(Commodore commodore, BukkitHandler handler) {
+    public BukkitBrigadier(Commodore commodore) {
         this.commodore = commodore;
-        this.handler = handler;
-        argumentTypes.add(PlayerSelector.class, entity(false, true));
+        argumentTypes.add(PlayerSelector.class, PLAYERS);
         argumentTypes.add(Player.class, entity(true, true));
         argumentTypes.add(EntitySelector.class, entity(false, false));
     }
@@ -62,6 +65,15 @@ final class BukkitBrigadier implements LampBrigadier {
 
     @Override public void register(@NotNull LiteralCommandNode<?> node) {
         commodore.register(node);
+    }
+
+    @Override public @Nullable ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {
+        if (EntitySelector.class.isAssignableFrom(parameter.getType())) {
+            Class<? extends Entity> type = BukkitHandler.getSelectedEntity(parameter.getFullType());
+            if (Player.class.isAssignableFrom(type)) // EntitySelector<Player>
+                return PLAYERS;
+        }
+        return null;
     }
 
     private static ArgumentType<?> entity(boolean single, boolean playerOnly) {

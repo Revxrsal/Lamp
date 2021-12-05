@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -21,8 +22,8 @@ import revxrsal.commands.brigadier.BrigadierTreeParser;
 import revxrsal.commands.brigadier.LampBrigadier;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
-import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.bukkit.PlayerSelector;
+import revxrsal.commands.bukkit.core.EntitySelectorResolver.SelectorSuggestionFactory;
 import revxrsal.commands.bukkit.exception.BukkitExceptionAdapter;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
 import revxrsal.commands.bukkit.exception.InvalidWorldException;
@@ -30,9 +31,11 @@ import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.core.CommandPath;
+import revxrsal.commands.util.Primitives;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -47,9 +50,10 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
     private final Supplier<Optional<LampBrigadier>> brigadier = Suppliers.memoize(() -> {
         if (!CommodoreProvider.isSupported())
             return Optional.empty();
-        return Optional.of(new BukkitBrigadier(CommodoreProvider.getCommodore(getPlugin()), this));
+        return Optional.of(new BukkitBrigadier(CommodoreProvider.getCommodore(getPlugin())));
     });
 
+    @SuppressWarnings("rawtypes")
     public BukkitHandler(@NotNull Plugin plugin) {
         super();
         this.plugin = notNull(plugin, "plugin");
@@ -58,7 +62,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
             String value = context.pop();
             if (value.equalsIgnoreCase("self") || value.equalsIgnoreCase("me"))
                 return ((BukkitCommandActor) context.actor()).requirePlayer();
-            Player player = Bukkit.getPlayer(value);
+            Player player = Bukkit.getPlayerExact(value);
             if (player == null)
                 throw new InvalidPlayerException(context.parameter(), value);
             return player;
@@ -67,7 +71,6 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
             String value = context.pop();
             if (value.equalsIgnoreCase("self") || value.equalsIgnoreCase("me"))
                 return ((BukkitCommandActor) context.actor()).requirePlayer();
-            //noinspection deprecation
             OfflinePlayer player = Bukkit.getOfflinePlayer(value);
             if (!player.hasPlayedBefore())
                 throw new InvalidPlayerException(context.parameter(), value);
@@ -82,10 +85,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 throw new InvalidWorldException(context.parameter(), value);
             return world;
         });
-        try {
-            Bukkit.getServer().selectEntities(Bukkit.getConsoleSender(), "@a");
-            registerValueResolver(EntitySelector.class, EntitySelectorResolver.INSTANCE);
-        } catch (Throwable ignored) {}
+        registerValueResolverFactory(EntitySelectorResolver.INSTANCE);
         registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);
         getAutoCompleter().registerSuggestion("players", (args, sender, command) -> Bukkit.getOnlinePlayers()
                 .stream()
@@ -96,9 +96,9 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 .registerSuggestion("worlds", SuggestionProvider.map(Bukkit::getWorlds, World::getName))
                 .registerParameterSuggestions(Player.class, "players")
                 .registerParameterSuggestions(World.class, "worlds")
-                .registerSuggestion("playerSelector",
-                        SuggestionProvider.of("@a", "@p", "@r", "@s")
+                .registerSuggestion("playerSelector", SuggestionProvider.of("@a", "@p", "@r", "@s")
                                 .compose(getAutoCompleter().getSuggestionProvider("players")))
+                .registerSuggestionFactory(SelectorSuggestionFactory.INSTANCE)
                 .registerParameterSuggestions(PlayerSelector.class, "playerSelector");
         registerContextValue((Class) plugin.getClass(), plugin);
         registerDependency((Class) plugin.getClass(), plugin);
@@ -173,4 +173,9 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         COMMAND_CONSTRUCTOR = ctr;
         COMMAND_MAP = commandMap;
     }
+
+    public static Class<? extends Entity> getSelectedEntity(@NotNull Type selectorType) {
+        return (Class<? extends Entity>) Primitives.getInsideGeneric(selectorType, Entity.class);
+    }
+
 }

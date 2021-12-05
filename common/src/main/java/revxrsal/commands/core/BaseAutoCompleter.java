@@ -79,13 +79,12 @@ final class BaseAutoCompleter implements AutoCompleter {
     }
 
     public SuggestionProvider getProvider(CommandParameter parameter) {
-        SuggestionProvider cached = null;
         for (SuggestionProviderFactory factory : factories) {
-            SuggestionProvider resolver = factory.createSuggestionProvider(parameter);
-            if (resolver == null) continue;
-            return resolver;
+            SuggestionProvider provider = factory.createSuggestionProvider(parameter);
+            if (provider == null) continue;
+            return provider;
         }
-        return null;
+        return SuggestionProvider.EMPTY;
     }
 
     @Override public SuggestionProvider getSuggestionProvider(@NotNull String id) {
@@ -170,6 +169,7 @@ final class BaseAutoCompleter implements AutoCompleter {
             CommandParameter parameter = command.getValueParameters().get(args.size() - 1);
             if (parameter == null) return emptyList(); // extra arguments
             SuggestionProvider provider = parameter.getSuggestionProvider();
+            notNull(provider, "provider must not be null!");
             return provider.getSuggestions(args, actor, command)
                     .stream()
                     .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
