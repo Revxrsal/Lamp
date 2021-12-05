@@ -33,7 +33,5 @@ import java.util.List;
  * <p>
  * Note that this selector ONLY works on 1.13+. Unfortunately, Bukkit provides no other
  * ways for parsing selectors on older versions.
- *
- * @see PlayerSelector
  */
-public interface EntitySelector extends List<Entity> {}
+public interface EntitySelector<E extends Entity> extends List<E> {}

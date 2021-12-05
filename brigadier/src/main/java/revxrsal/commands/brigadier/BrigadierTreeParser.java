@@ -28,7 +28,6 @@ import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
 import org.jetbrains.annotations.NotNull;
@@ -148,8 +147,10 @@ public final class BrigadierTreeParser {
     }
 
     private static ArgumentType<?> getArgumentType(LampBrigadier brigadier, @NotNull CommandParameter parameter) {
+        ArgumentType<?> registeredType = brigadier.getArgumentType(parameter);
+        if (registeredType != null) return registeredType;
         Class<?> type = Primitives.wrap(parameter.getType());
-        ArgumentType<?> registeredType = brigadier.getAdditionalArgumentTypes().getFlexible(type);
+        registeredType = brigadier.getAdditionalArgumentTypes().getFlexible(type);
         if (registeredType != null)
             return registeredType;
         @Nullable Range range = parameter.getAnnotation(Range.class);

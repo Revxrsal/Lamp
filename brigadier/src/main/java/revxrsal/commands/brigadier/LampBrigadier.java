@@ -27,7 +27,9 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.util.ClassMap;
 
 /**
@@ -50,6 +52,16 @@ public interface LampBrigadier {
      * @param node Node to register
      */
     void register(@NotNull LiteralCommandNode<?> node);
+
+    /**
+     * Returns the {@link ArgumentType} corresponding to this parameter. This
+     * may be used to return certain argument types that cannot be registered
+     * in {@link #getAdditionalArgumentTypes()} (for example, generic types).
+     *
+     * @param parameter Parameter to get for
+     * @return The argument type, or {@code null} if not applicable.
+     */
+    @Nullable default ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {return null;}
 
     /**
      * Returns the special argument types for parameter types.

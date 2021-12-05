@@ -17,10 +17,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
+public enum PlayerSelectorResolver implements ValueResolver<PlayerSelector> {
     INSTANCE;
 
-    private boolean supportComplexSelectors;
+    boolean supportComplexSelectors;
 
     PlayerSelectorResolver() {
         try {
