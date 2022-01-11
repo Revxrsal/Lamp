@@ -77,7 +77,7 @@ public class BaseCommandHandler implements CommandHandler {
         registerValueResolver(URL.class, context -> {
             String value = context.pop();
             try {
-                return new URL(context.pop());
+                return new URL(value);
             } catch (MalformedURLException e) {
                 throw new InvalidURLException(context.parameter(), value);
             }
