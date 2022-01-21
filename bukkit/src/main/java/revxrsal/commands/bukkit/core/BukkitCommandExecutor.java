@@ -38,8 +38,6 @@ final class BukkitCommandExecutor implements TabExecutor {
         ArgumentStack arguments = ArgumentStack.forAutoCompletion(args);
 
         arguments.addFirst(command.getName());
-        List<String> complete = handler.getAutoCompleter().complete(actor, arguments);
-        System.out.println(complete);
-        return complete;
+        return handler.getAutoCompleter().complete(actor, arguments);
     }
 }

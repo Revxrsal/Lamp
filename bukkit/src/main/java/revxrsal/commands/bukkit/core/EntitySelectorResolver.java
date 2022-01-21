@@ -36,6 +36,7 @@ import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
 import revxrsal.commands.bukkit.exception.MalformedEntitySelectorException;
 import revxrsal.commands.command.CommandParameter;
+import revxrsal.commands.exception.CommandErrorException;
 import revxrsal.commands.process.ValueResolver;
 import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 import revxrsal.commands.process.ValueResolverFactory;
@@ -76,6 +77,8 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
                     return new EntitySelectorImpl<>(c);
                 } catch (IllegalArgumentException e) {
                     throw new MalformedEntitySelectorException(context.actor(), selector, e.getCause().getMessage());
+                } catch (NoSuchMethodError e) {
+                    throw new CommandErrorException("Entity selectors on legacy versions are not supported yet!");
                 }
             };
         }
@@ -146,14 +149,6 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
                 if (!EntitySelectorResolver.INSTANCE.supportComplexSelectors) {
                     return SuggestionProvider.EMPTY;
                 }
-//                return (args, sender, command) -> {
-//                    Player player = sender.as(BukkitCommandActor.class).getAsPlayer();
-//                    World world = player == null ? Bukkit.getWorld("world") : player.getWorld();
-//                    if (world != null)
-//                        return world.getEntitiesByClass(type).stream().map(Entity::getUniqueId).map(UUID::toString)
-//                                .collect(Collectors.toList());
-//                    return Collections.emptyList();
-//                };
             }
             return null;
         }
