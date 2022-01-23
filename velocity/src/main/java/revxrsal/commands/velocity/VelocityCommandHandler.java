@@ -27,7 +27,7 @@ public interface VelocityCommandHandler extends CommandHandler {
      * (namespace:command) will not work. Use {@link #create(Object, ProxyServer)}
      */
     @Deprecated
-    static VelocityCommandHandler create(@NotNull ProxyServer server) {
+    static @NotNull VelocityCommandHandler create(@NotNull ProxyServer server) {
         return new VelocityHandler(null, server);
     }
 
@@ -37,7 +37,7 @@ public interface VelocityCommandHandler extends CommandHandler {
      * @param server Server proxy to register for
      * @return The newly created handler
      */
-    static VelocityCommandHandler create(Object plugin, @NotNull ProxyServer server) {
+    static @NotNull VelocityCommandHandler create(Object plugin, @NotNull ProxyServer server) {
         return new VelocityHandler(plugin, server);
     }
 

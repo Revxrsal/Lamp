@@ -23,7 +23,7 @@ public interface BungeeCommandHandler extends CommandHandler {
      * @param plugin Plugin to create for
      * @return The newly created command handler
      */
-    static BungeeCommandHandler create(@NotNull Plugin plugin) {
+    static @NotNull BungeeCommandHandler create(@NotNull Plugin plugin) {
         return new BungeeHandler(plugin);
     }
 
