@@ -1,6 +1,5 @@
 package revxrsal.commands.core;
 
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import revxrsal.commands.command.CommandCategory;
@@ -48,7 +47,7 @@ final class BaseCommandHelp<T> extends ArrayList<T> implements CommandHelp<T> {
             ExecutableCommand command = context.command();
             CommandHelpWriter<?> writer = handler.getHelpWriter();
             BaseCommandHelp<Object> entries = new BaseCommandHelp<>();
-            CommandCategory parent = context.parameter().getDeclaringCommand().getParent();
+            CommandCategory parent = command.getParent();
             if (parent != null) {
                 parent.getCommands().values().forEach(c -> {
                     if (c != command) entries.add(writer.generate(c, context.actor()));
