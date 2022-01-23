@@ -113,12 +113,12 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     private ExecutableCommand searchForCommand(CommandPath path) {
         ExecutableCommand found = handler.getCommand(path);
-        if (found != null) return found;
+        if (found != null && !found.isSecret()) return found;
         MutableCommandPath mpath = MutableCommandPath.empty();
         for (String p : path) {
             mpath.add(p);
             found = handler.getCommand(mpath);
-            if (found != null)
+            if (found != null && !found.isSecret())
                 return found;
         }
         return null;
