@@ -43,6 +43,8 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
 
     protected void cooldown(@NotNull CommandActor actor, @NotNull CooldownException exception) {}
 
+    protected void invalidHelpPage(@NotNull CommandActor actor, @NotNull InvalidHelpPageException exception) {}
+
     @Override
     public final void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
         if (throwable instanceof MissingArgumentException) missingArgument(actor, (MissingArgumentException) throwable);
@@ -69,6 +71,8 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
             invalidSubcommand(actor, (InvalidSubcommandException) throwable);
         else if (throwable instanceof NoSubcommandSpecifiedException)
             noSubcommandSpecified(actor, (NoSubcommandSpecifiedException) throwable);
+        else if (throwable instanceof InvalidHelpPageException)
+            invalidHelpPage(actor, (InvalidHelpPageException) throwable);
         else
             handleUnknown(actor, throwable);
     }

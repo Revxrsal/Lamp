@@ -73,6 +73,10 @@ public class DefaultExceptionHandler extends CommandExceptionAdapter {
         actor.error("You must wait " + formatTimeFancy(exception.getTimeLeftMillis()) + " before using this command again.");
     }
 
+    @Override protected void invalidHelpPage(@NotNull CommandActor actor, @NotNull InvalidHelpPageException exception) {
+        actor.error("Invalid help page: " + exception.getPage() + ". Must be between 1 and " + exception.getPageCount() + ".");
+    }
+
     @Override protected void numberNotInRange(@NotNull CommandActor actor, @NotNull NumberNotInRangeException exception) {
         actor.error(exception.getParameter().getName() + " must be between " +
                 FORMAT.format(exception.getMinimum()) + " and " +

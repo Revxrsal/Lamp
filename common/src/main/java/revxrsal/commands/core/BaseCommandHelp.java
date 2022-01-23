@@ -19,7 +19,7 @@ final class BaseCommandHelp<T> extends ArrayList<T> implements CommandHelp<T> {
         BaseCommandHelp<T> list = new BaseCommandHelp<>();
         int size = getPageSize(elementsPerPage);
         if (page > size)
-            throw new InvalidHelpPageException(this, page);
+            throw new InvalidHelpPageException(this, page, elementsPerPage);
         int listIndex = page - 1;
         int l = Math.min(page * elementsPerPage, size());
         for (int i = listIndex * elementsPerPage; i < l; ++i) {
@@ -61,32 +61,4 @@ final class BaseCommandHelp<T> extends ArrayList<T> implements CommandHelp<T> {
             return entries;
         }
     }
-
-//
-//    public static final class Resolver implements ContextResolver<CommandHelp<?>> {
-//
-//        private final BaseCommandHandler handler;
-//
-//        public Resolver(BaseCommandHandler handler) {
-//            this.handler = handler;
-//        }
-//
-//        @Override public CommandHelp<?> resolve(@NotNull @Unmodifiable List<String> args,
-//                                                @NotNull CommandSubject subject,
-//                                                @NotNull CommandParameter parameter) throws Throwable {
-//            c(handler.helpWriter, "No CommandHelpWriter is registered!");
-//            BaseCommandHelp<Object> entries = new BaseCommandHelp<>();
-//            HandledCommand command = parameter.getDeclaringCommand().getParent();
-//            if (command == null) command = parameter.getDeclaringCommand();
-//            for (HandledCommand subcommand : command.getSubcommands().values()) {
-//                if (subcommand == parameter.getDeclaringCommand())
-//                    continue; // don't include the help command in help menus
-//                Object entry = handler.helpWriter.generate(subcommand, subject, args);
-//                if (entry != null) {
-//                    entries.add(entry);
-//                }
-//            }
-//            return entries;
-//        }
-//    }
 }
