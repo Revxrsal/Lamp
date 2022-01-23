@@ -3,6 +3,7 @@ package revxrsal.commands.command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Default;
 import revxrsal.commands.core.CommandPath;
 
@@ -33,6 +34,13 @@ public interface CommandCategory {
      * @return The command path
      */
     @NotNull CommandPath getPath();
+
+    /**
+     * Returns the command handler that instantiated this category
+     *
+     * @return The owning command handler
+     */
+    @NotNull CommandHandler getCommandHandler();
 
     /**
      * Returns the parent category of this category. This can be null

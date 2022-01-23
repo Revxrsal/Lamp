@@ -53,7 +53,7 @@ final class CommandParser {
             int id = COMMAND_ID.getAndIncrement();
             boolean isDefault = reader.contains(Default.class);
             paths.forEach(path -> {
-                for (BaseCommandCategory category : getCategories(isDefault, path)) {
+                for (BaseCommandCategory category : getCategories(handler, isDefault, path)) {
                     categories.putIfAbsent(category.path, category);
                 }
                 CommandExecutable executable = new CommandExecutable();
@@ -147,12 +147,13 @@ final class CommandParser {
         }
     }
 
-    private static Set<BaseCommandCategory> getCategories(boolean respectDefault, @NotNull CommandPath path) {
+    private static Set<BaseCommandCategory> getCategories(CommandHandler handler, boolean respectDefault, @NotNull CommandPath path) {
         if (path.size() == 1 && !respectDefault) return Collections.emptySet();
         String parent = path.getParent();
         Set<BaseCommandCategory> categories = new HashSet<>();
 
         BaseCommandCategory root = new BaseCommandCategory();
+        root.handler = handler;
         root.path = CommandPath.get(parent);
         root.name = parent;
         categories.add(root);
@@ -163,6 +164,7 @@ final class CommandParser {
         for (String subcommand : path.getSubcommandPath()) {
             pathList.add(subcommand);
             BaseCommandCategory cat = new BaseCommandCategory();
+            cat.handler = handler;
             cat.path = CommandPath.get(pathList);
             cat.name = cat.path.getName();
             categories.add(cat);

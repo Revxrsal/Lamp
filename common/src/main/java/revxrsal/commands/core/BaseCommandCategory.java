@@ -3,6 +3,7 @@ package revxrsal.commands.core;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.ExecutableCommand;
 
@@ -17,6 +18,7 @@ final class BaseCommandCategory implements CommandCategory {
     String name;
     @Nullable BaseCommandCategory parent;
     @Nullable CommandExecutable defaultAction;
+    CommandHandler handler;
 
     final Map<CommandPath, ExecutableCommand> commands = new HashMap<>();
     final Map<CommandPath, BaseCommandCategory> categories = new HashMap<>();
@@ -27,6 +29,10 @@ final class BaseCommandCategory implements CommandCategory {
 
     @Override public @NotNull CommandPath getPath() {
         return path;
+    }
+
+    @Override public @NotNull CommandHandler getCommandHandler() {
+        return handler;
     }
 
     @Override public @Nullable CommandCategory getParent() {
