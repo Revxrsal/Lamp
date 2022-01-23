@@ -188,7 +188,9 @@ final class BaseAutoCompleter implements AutoCompleter {
             suggestions.addAll(getCompletions(actor, args, category.getDefaultAction()));
         }
         if (originalSize - category.getPath().size() == 1) {
-            category.getCommands().values().forEach(c -> suggestions.add(c.getName()));
+            category.getCommands().values().forEach(c -> {
+                if (!c.isSecret()) suggestions.add(c.getName());
+            });
             category.getCategories().values().forEach(c -> suggestions.add(c.getName()));
         }
         return suggestions
