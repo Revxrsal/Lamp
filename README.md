@@ -27,6 +27,7 @@ Glad you asked!
     - [VelocityPowered](velocity)
     - [SpongePowered](sponge)
     - [Java Discord API (JDA)](jda)
+    - [Mojang's Brigadier](brigadier)
     - [Bare-boned command line interface (CLI)](cli)
 
    With the help of the built-in APIs for dispatching commands and auto-completions, it is possible to support almost any platform out-of-the-box.
