@@ -86,37 +86,41 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
     }
 
     private EntitySelector<Player> resolvePlayerSelector(ValueResolverContext context) {
-        BukkitCommandActor bActor = context.actor();
-        String value = context.pop().toLowerCase();
+        String selector = context.pop().toLowerCase();
+        try {
+            BukkitCommandActor bActor = context.actor();
 
-        List<Player> coll;
-        if (supportComplexSelectors) {
-            coll = Bukkit.getServer().selectEntities(bActor.getSender(), value).stream()
-                    .filter(c -> c instanceof Player).map(Player.class::cast).collect(Collectors.toList());
-            return new EntitySelectorImpl<>(coll);
-        }
-        coll = new ArrayList<>();
-        Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
-        switch (value) {
-            case "@r":
-                coll.add(players[ThreadLocalRandom.current().nextInt(players.length)]);
-                return new EntitySelectorImpl<>(coll);
-            case "@a": {
-                Collections.addAll(coll, players);
+            List<Player> coll;
+            if (supportComplexSelectors) {
+                coll = Bukkit.getServer().selectEntities(bActor.getSender(), selector).stream()
+                        .filter(c -> c instanceof Player).map(Player.class::cast).collect(Collectors.toList());
                 return new EntitySelectorImpl<>(coll);
             }
-            case "@s":
-            case "@p": {
-                coll.add(bActor.requirePlayer());
-                return new EntitySelectorImpl<>(coll);
+            coll = new ArrayList<>();
+            Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
+            switch (selector) {
+                case "@r":
+                    coll.add(players[ThreadLocalRandom.current().nextInt(players.length)]);
+                    return new EntitySelectorImpl<>(coll);
+                case "@a": {
+                    Collections.addAll(coll, players);
+                    return new EntitySelectorImpl<>(coll);
+                }
+                case "@s":
+                case "@p": {
+                    coll.add(bActor.requirePlayer());
+                    return new EntitySelectorImpl<>(coll);
+                }
+                default: {
+                    Player player = Bukkit.getPlayer(selector);
+                    if (player == null)
+                        throw new InvalidPlayerException(context.parameter(), selector);
+                    coll.add(player);
+                    return new EntitySelectorImpl<>(coll);
+                }
             }
-            default: {
-                Player player = Bukkit.getPlayer(value);
-                if (player == null)
-                    throw new InvalidPlayerException(context.parameter(), value);
-                coll.add(player);
-                return new EntitySelectorImpl<>(coll);
-            }
+        } catch (IllegalArgumentException e) {
+            throw new MalformedEntitySelectorException(context.actor(), selector, e.getCause().getMessage());
         }
     }
 
