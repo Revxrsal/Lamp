@@ -93,7 +93,7 @@ import java.util.List;
     @Override public @Nullable String getSwitchName() {
         if (!isSwitch())
             throw new IllegalStateException("Not a switch.");
-        return switchAnn.value();
+        return switchAnn.value().isEmpty() ? getName() : switchAnn.value();
     }
 
     @Override public boolean isFlag() {
@@ -103,7 +103,7 @@ import java.util.List;
     @Override public @Nullable String getFlagName() {
         if (!isFlag())
             throw new IllegalStateException("Not a flag.");
-        return flag.value();
+        return flag.value().isEmpty() ? getName() : flag.value();
     }
 
     @Override public boolean getDefaultSwitch() {
