@@ -1,5 +1,6 @@
 package revxrsal.commands.bukkit.core;
 
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -15,6 +16,8 @@ import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.util.Strings.colorize;
 
 public final class BukkitActor implements BukkitCommandActor {
+
+    private static final UUID CONSOLE_UUID = UUID.fromString("CONSOLE");
 
     private final CommandSender sender;
 
@@ -55,7 +58,12 @@ public final class BukkitActor implements BukkitCommandActor {
     }
 
     @Override public @NotNull UUID getUniqueId() {
-        return requirePlayer().getUniqueId();
+        if (isPlayer())
+            return ((Player) sender).getUniqueId();
+        else if (isConsole())
+            return CONSOLE_UUID;
+        else
+            return UUID.fromString(getName());
     }
 
     @Override public void reply(@NotNull String message) {
