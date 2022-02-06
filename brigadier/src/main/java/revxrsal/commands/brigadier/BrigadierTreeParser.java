@@ -193,9 +193,11 @@ public final class BrigadierTreeParser {
                 Message tooltip = new LiteralMessage(parameter.getName());
                 String input = context.getInput();
                 ArgumentStack args = ArgumentStack.forAutoCompletion(input.startsWith("/") ? input.substring(1) : input);
-                parameter
-                        .getSuggestionProvider()
-                        .getSuggestions(args, actor, command)
+                parameter.getSuggestionProvider().getSuggestions(args, actor, command)
+                        .stream()
+                        .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
+                        .sorted(String.CASE_INSENSITIVE_ORDER)
+                        .distinct()
                         .forEach(c -> builder.suggest(c, tooltip));
             } catch (Throwable e) {
                 e.printStackTrace();
