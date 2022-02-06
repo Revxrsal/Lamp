@@ -21,7 +21,7 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     private final BaseCommandHandler handler;
     final Map<String, SuggestionProvider> suggestionKeys = new HashMap<>();
-    final List<SuggestionProviderFactory> factories = new ArrayList<>();
+    final LinkedList<SuggestionProviderFactory> factories = new LinkedList<>();
 
     public BaseAutoCompleter(BaseCommandHandler handler) {
         this.handler = handler;
@@ -54,10 +54,10 @@ final class BaseAutoCompleter implements AutoCompleter {
     @Override public AutoCompleter registerParameterSuggestions(@NotNull Class<?> parameterType, @NotNull SuggestionProvider provider) {
         notNull(parameterType, "parameter type");
         notNull(provider, "provider");
-        factories.add(SuggestionProviderFactory.forType(parameterType, provider));
+        registerSuggestionFactory(SuggestionProviderFactory.forType(parameterType, provider));
         Class<?> wrapped = Primitives.wrap(parameterType);
         if (wrapped != parameterType) {
-            factories.add(SuggestionProviderFactory.forType(wrapped, provider));
+            registerSuggestionFactory(SuggestionProviderFactory.forType(wrapped, provider));
         }
         return this;
     }
@@ -75,7 +75,7 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     @Override public AutoCompleter registerSuggestionFactory(@NotNull SuggestionProviderFactory factory) {
         notNull(factory, "suggestion provider factory cannot be null!");
-        factories.add(0, factory);
+        factories.push(factory);
         return this;
     }
 

@@ -42,7 +42,7 @@ public class BaseCommandHandler implements CommandHandler {
     protected final Map<CommandPath, BaseCommandCategory> categories = new HashMap<>();
     private final BaseCommandDispatcher dispatcher = new BaseCommandDispatcher(this);
 
-    final List<ResolverFactory> factories = new ArrayList<>();
+    final LinkedList<ResolverFactory> factories = new LinkedList<>();
     final BaseAutoCompleter autoCompleter = new BaseAutoCompleter(this);
     final ClassMap<List<ParameterValidator<Object>>> validators = new ClassMap<>();
     final ClassMap<ResponseHandler<?>> responseHandlers = new ClassMap<>();
@@ -215,14 +215,14 @@ public class BaseCommandHandler implements CommandHandler {
         notNull(resolver, "resolver");
         if (type.isPrimitive())
             registerValueResolver(Primitives.wrap(type), resolver);
-        factories.add(new ResolverFactory(ValueResolverFactory.forType(type, resolver)));
+        factories.push(new ResolverFactory(ValueResolverFactory.forType(type, resolver)));
         return this;
     }
 
     @Override public <T> @NotNull CommandHandler registerContextResolver(@NotNull Class<T> type, @NotNull ContextResolver<T> resolver) {
         notNull(type, "type");
         notNull(resolver, "resolver");
-        factories.add(new ResolverFactory(ContextResolverFactory.forType(type, resolver)));
+        factories.push(new ResolverFactory(ContextResolverFactory.forType(type, resolver)));
         return this;
     }
 
@@ -232,13 +232,13 @@ public class BaseCommandHandler implements CommandHandler {
 
     @Override public @NotNull CommandHandler registerValueResolverFactory(@NotNull ValueResolverFactory factory) {
         notNull(factory, "value resolver factory");
-        factories.add(new ResolverFactory(factory));
+        factories.push(new ResolverFactory(factory));
         return this;
     }
 
     @Override public @NotNull CommandHandler registerContextResolverFactory(@NotNull ContextResolverFactory factory) {
         notNull(factory, "context resolver factory");
-        factories.add(new ResolverFactory(factory));
+        factories.push(new ResolverFactory(factory));
         return this;
     }
 
