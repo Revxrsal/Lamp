@@ -79,6 +79,17 @@ public interface SuggestionProvider {
     }
 
     /**
+     * Returns a {@link SuggestionProvider} that computes the given supplier
+     * every time suggestions are returned.
+     *
+     * @param supplier The collection supplier
+     * @return The provider
+     */
+    static SuggestionProvider of(@NotNull Supplier<Collection<String>> supplier) {
+        return (args, sender, command) -> supplier.get();
+    }
+
+    /**
      * Returns a {@link SuggestionProvider} that takes the given collection of
      * values and maps it to strings according to the given function.
      *
