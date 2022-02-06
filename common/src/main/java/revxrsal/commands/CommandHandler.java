@@ -33,7 +33,7 @@ public interface CommandHandler {
      * @param commands The commands object instances. Can be a class if methods are static.
      * @return This command handler
      */
-    CommandHandler register(@NotNull Object... commands);
+    @NotNull CommandHandler register(@NotNull Object... commands);
 
     /**
      * Sets the {@link MethodCallerFactory} responsible for generating access
@@ -46,7 +46,7 @@ public interface CommandHandler {
      * @return This command handler
      * @see MethodCallerFactory
      */
-    CommandHandler setMethodCallerFactory(@NotNull MethodCallerFactory factory);
+    @NotNull CommandHandler setMethodCallerFactory(@NotNull MethodCallerFactory factory);
 
     /**
      * Sets the {@link CommandExceptionHandler} to use for handling any exceptions
@@ -58,7 +58,7 @@ public interface CommandHandler {
      * @return This command handler
      * @see CommandExceptionHandler#handleException(Throwable, CommandActor)
      */
-    CommandHandler setExceptionHandler(@NotNull CommandExceptionHandler handler);
+    @NotNull CommandHandler setExceptionHandler(@NotNull CommandExceptionHandler handler);
 
     /**
      * Sets the prefix that all parameters annotated with {@link Switch} will
@@ -68,7 +68,7 @@ public interface CommandHandler {
      * @return This command handler
      * @throws IllegalArgumentException if the prefix is empty
      */
-    CommandHandler setSwitchPrefix(@NotNull String prefix);
+    @NotNull CommandHandler setSwitchPrefix(@NotNull String prefix);
 
     /**
      * Sets the prefix that all parameters annotated with {@link Flag} will
@@ -78,18 +78,30 @@ public interface CommandHandler {
      * @return This command handler
      * @throws IllegalArgumentException if the prefix is empty
      */
-    CommandHandler setFlagPrefix(@NotNull String prefix);
+    @NotNull CommandHandler setFlagPrefix(@NotNull String prefix);
+
+    /**
+     * Returns the prefix that should preced all messages sent
+     * with {@link CommandActor#reply(String)} and {@link CommandActor#error(String)}.
+     * <p>
+     * Note that the prefix will <em>NOT</em> be followed by spaces, it is your
+     * responsibility to include it in the prefix you set.
+     *
+     * @param prefix Message prefix
+     * @return This command handler
+     */
+    @NotNull CommandHandler setMessagePrefix(@NotNull String prefix);
 
     /**
      * Sets the {@link CommandHelpWriter} responsible for generating help pages
      *
-     * @param helpWriter Help writer to use
      * @param <T>        The help entry type.
+     * @param helpWriter Help writer to use
      * @return This command handler
      * @see CommandHelpWriter
      * @see CommandHelp
      */
-    <T> CommandHandler setHelpWriter(@NotNull CommandHelpWriter<T> helpWriter);
+    @NotNull <T> CommandHandler setHelpWriter(@NotNull CommandHelpWriter<T> helpWriter);
 
     /**
      * Disables stacktrace sanitization.
@@ -101,7 +113,7 @@ public interface CommandHandler {
      *
      * @return This command handler
      */
-    CommandHandler disableStackTraceSanitizing();
+    @NotNull CommandHandler disableStackTraceSanitizing();
 
     /**
      * Sets the command to fail when too many arguments are specified
@@ -110,7 +122,7 @@ public interface CommandHandler {
      * @return This command handler
      * @see TooManyArgumentsException
      */
-    CommandHandler failOnTooManyArguments();
+    @NotNull CommandHandler failOnTooManyArguments();
 
     /**
      * Registers the given sender resolver, which resolves parameters at index 0
@@ -122,7 +134,7 @@ public interface CommandHandler {
      * @return This command handler
      * @see SenderResolver
      */
-    CommandHandler registerSenderResolver(@NotNull SenderResolver resolver);
+    @NotNull CommandHandler registerSenderResolver(@NotNull SenderResolver resolver);
 
     /**
      * Registers the given permission reader, which allows registering
@@ -132,7 +144,7 @@ public interface CommandHandler {
      * @return This command handler
      * @see PermissionReader
      */
-    CommandHandler registerPermissionReader(@NotNull PermissionReader reader);
+    @NotNull CommandHandler registerPermissionReader(@NotNull PermissionReader reader);
 
     /**
      * Registers a parameter resolver that gets its value from the command arguments.
@@ -144,7 +156,7 @@ public interface CommandHandler {
      * @return This command handler
      * @see ValueResolver
      */
-    <T> CommandHandler registerValueResolver(@NotNull Class<T> type, @NotNull ValueResolver<T> resolver);
+    @NotNull <T> CommandHandler registerValueResolver(@NotNull Class<T> type, @NotNull ValueResolver<T> resolver);
 
     /**
      * Registers a parameter resolver that gets its value from the command context.
@@ -156,7 +168,7 @@ public interface CommandHandler {
      * @return This command handler
      * @see ContextResolver
      */
-    <T> CommandHandler registerContextResolver(@NotNull Class<T> type, @NotNull ContextResolver<T> resolver);
+    @NotNull <T> CommandHandler registerContextResolver(@NotNull Class<T> type, @NotNull ContextResolver<T> resolver);
 
     /**
      * Registers a parameter type to always be a static value. This is useful
@@ -171,7 +183,7 @@ public interface CommandHandler {
      * @return This command handler
      * @see ContextResolver
      */
-    <T> CommandHandler registerContextValue(@NotNull Class<T> type, @Nullable T value);
+    @NotNull <T> CommandHandler registerContextValue(@NotNull Class<T> type, @Nullable T value);
 
     /**
      * Registers a {@link ValueResolverFactory} to this handler
@@ -181,7 +193,7 @@ public interface CommandHandler {
      * @see ValueResolverFactory
      * @see #registerContextResolverFactory(ContextResolverFactory)
      */
-    CommandHandler registerValueResolverFactory(@NotNull ValueResolverFactory factory);
+    @NotNull CommandHandler registerValueResolverFactory(@NotNull ValueResolverFactory factory);
 
     /**
      * Registers a {@link ContextResolverFactory} to this handler
@@ -191,7 +203,7 @@ public interface CommandHandler {
      * @see ContextResolverFactory
      * @see #registerValueResolverFactory(ValueResolverFactory)
      */
-    CommandHandler registerContextResolverFactory(@NotNull ContextResolverFactory factory);
+    @NotNull CommandHandler registerContextResolverFactory(@NotNull ContextResolverFactory factory);
 
     /**
      * Registers the specified condition in which all commands will be
@@ -200,7 +212,7 @@ public interface CommandHandler {
      * @param condition Condition to register
      * @return This command handler
      */
-    CommandHandler registerCondition(@NotNull CommandCondition condition);
+    @NotNull CommandHandler registerCondition(@NotNull CommandCondition condition);
 
     /**
      * Registers a dependency for dependency injection.
@@ -208,14 +220,14 @@ public interface CommandHandler {
      * Any fields in the command class or instance with the {@link Dependency} annotation
      * will have their value set from this supplier.
      *
+     * @param <T>      The dependency type
      * @param type     The dependency class type. This <i>must</i> match
      *                 the field type.
      * @param supplier The dependency supplier
-     * @param <T>      The dependency type
      * @return This command handler
      * @see #registerDependency(Class, Object)
      */
-    <T> CommandHandler registerDependency(@NotNull Class<T> type, @NotNull Supplier<T> supplier);
+    @NotNull <T> CommandHandler registerDependency(@NotNull Class<T> type, @NotNull Supplier<T> supplier);
 
     /**
      * Registers a (static) dependency for dependency injection.
@@ -223,25 +235,25 @@ public interface CommandHandler {
      * Any fields in the command class or instance with the {@link Dependency} annotation
      * will have their value set to this value.
      *
+     * @param <T>   The dependency type
      * @param type  The dependency class type. This <i>must</i> match
      *              the field type
      * @param value The dependency value
-     * @param <T>   The dependency type
      * @return This command handler
      * @see #registerDependency(Class, Supplier)
      */
-    <T> CommandHandler registerDependency(@NotNull Class<T> type, T value);
+    @NotNull <T> CommandHandler registerDependency(@NotNull Class<T> type, T value);
 
     /**
      * Registers a {@link ParameterValidator} for the specified parameter type. Parameter
      * validators can access all information about a parameter, including the name and annotations.
      *
+     * @param <T>       The parameter type
      * @param type      The parameter type
      * @param validator The validator for this parameter
-     * @param <T>       The parameter type
      * @return This command handler
      */
-    <T> CommandHandler registerParameterValidator(@NotNull Class<T> type, @NotNull ParameterValidator<T> validator);
+    @NotNull <T> CommandHandler registerParameterValidator(@NotNull Class<T> type, @NotNull ParameterValidator<T> validator);
 
     /**
      * Registers a response handler for the specified response type. Response handlers
@@ -251,12 +263,12 @@ public interface CommandHandler {
      * registered, so they should be registered <i>before</i> the command itself is
      * registered.
      *
+     * @param <T>          The response type
      * @param responseType The response class
      * @param handler      The response handler implementation
-     * @param <T>          The response type
      * @return This command handler
      */
-    <T> CommandHandler registerResponseHandler(@NotNull Class<T> responseType, @NotNull ResponseHandler<T> handler);
+    @NotNull <T> CommandHandler registerResponseHandler(@NotNull Class<T> responseType, @NotNull ResponseHandler<T> handler);
 
     /**
      * Accepts the given {@link CommandHandlerVisitor} and allows it to visit
@@ -266,14 +278,14 @@ public interface CommandHandler {
      * @return This command handler
      * @see CommandHandlerVisitor
      */
-    CommandHandler accept(@NotNull CommandHandlerVisitor visitor);
+    @NotNull CommandHandler accept(@NotNull CommandHandlerVisitor visitor);
 
     /**
      * Returns the auto-completion handler of this command handler
      *
      * @return The auto-completion handler
      */
-    AutoCompleter getAutoCompleter();
+    @NotNull AutoCompleter getAutoCompleter();
 
     /**
      * Returns the given {@link ExecutableCommand} that matches the given path.
@@ -303,7 +315,7 @@ public interface CommandHandler {
      *
      * @return The registered commands
      */
-    @UnmodifiableView Map<CommandPath, ExecutableCommand> getCommands();
+    @NotNull @UnmodifiableView Map<CommandPath, ExecutableCommand> getCommands();
 
     /**
      * Returns an unmodifiable view of all the registered categories
@@ -311,7 +323,7 @@ public interface CommandHandler {
      *
      * @return The registered categories
      */
-    @UnmodifiableView Map<CommandPath, CommandCategory> getCategories();
+    @NotNull @UnmodifiableView Map<CommandPath, CommandCategory> getCategories();
 
     /**
      * Returns the command exception handler currently used by this command handler
@@ -363,7 +375,7 @@ public interface CommandHandler {
      *
      * @return The switch prefix
      */
-    String getSwitchPrefix();
+    @NotNull String getSwitchPrefix();
 
     /**
      * Returns the prefix that comes before all {@link Flag} parameters
@@ -371,7 +383,17 @@ public interface CommandHandler {
      *
      * @return The switch prefix
      */
-    String getFlagPrefix();
+    @NotNull String getFlagPrefix();
+
+    /**
+     * Returns the prefix that preceds all messages sent by {@link CommandActor#reply(String)}
+     * and {@link CommandActor#error(String)}.
+     * <p>
+     * Set with {@link CommandHandler#setMessagePrefix(String)}
+     *
+     * @return The message prefix
+     */
+    @NotNull String getMessagePrefix();
 
     /**
      * Returns the dependency registered for the given type

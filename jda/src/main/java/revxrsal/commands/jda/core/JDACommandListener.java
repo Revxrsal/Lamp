@@ -23,7 +23,7 @@ import revxrsal.commands.jda.JDACommandHandler;
         content = content.substring(prefix.length());
 
         ArgumentStack arguments = ArgumentStack.fromString(content);
-        CommandActor actor = new BaseActorJDA(event);
+        CommandActor actor = new BaseActorJDA(event, handler);
         handler.dispatch(actor, arguments);
     }
 }

@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.velocity.VelocityCommandActor;
 import revxrsal.commands.velocity.exception.SenderNotConsoleException;
 import revxrsal.commands.velocity.exception.SenderNotPlayerException;
@@ -23,10 +24,12 @@ public final class VelocityActor implements VelocityCommandActor {
 
     private final CommandSource source;
     private final ProxyServer server;
+    private final CommandHandler handler;
 
-    public VelocityActor(CommandSource source, ProxyServer server) {
+    public VelocityActor(CommandSource source, ProxyServer server, CommandHandler handler) {
         this.source = notNull(source, "command source");
         this.server = notNull(server, "proxy server");
+        this.handler = notNull(handler, "command handler");
     }
 
     @Override public @NotNull String getName() {
@@ -39,7 +42,7 @@ public final class VelocityActor implements VelocityCommandActor {
 
     @Override public void reply(@NotNull String message) {
         notNull(message, "message");
-        source.sendMessage(Component.text(colorize(message)));
+        source.sendMessage(Component.text(colorize(handler.getMessagePrefix() + message)));
     }
 
     @Override public void error(@NotNull String message) {

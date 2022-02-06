@@ -59,7 +59,7 @@ public final class BungeeHandler extends BaseCommandHandler implements BungeeCom
         setExceptionHandler(BungeeExceptionAdapter.INSTANCE);
     }
 
-    @Override public CommandHandler register(@NotNull Object... commands) {
+    @Override public @NotNull CommandHandler register(@NotNull Object... commands) {
         super.register(commands);
         for (ExecutableCommand command : executables.values()) {
             if (command.getParent() != null) continue;

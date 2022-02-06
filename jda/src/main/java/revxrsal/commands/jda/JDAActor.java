@@ -3,6 +3,7 @@ package revxrsal.commands.jda;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.jda.core.BaseActorJDA;
@@ -105,8 +106,8 @@ public interface JDAActor extends CommandActor {
      * @param event Event to wrap
      * @return The wrapping {@link JDAActor}.
      */
-    static @NotNull JDAActor wrap(@NotNull MessageReceivedEvent event) {
-        return new BaseActorJDA(event);
+    static @NotNull JDAActor wrap(@NotNull MessageReceivedEvent event, @NotNull CommandHandler handler) {
+        return new BaseActorJDA(event, handler);
     }
 
 }

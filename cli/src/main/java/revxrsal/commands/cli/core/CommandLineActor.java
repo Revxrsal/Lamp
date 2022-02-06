@@ -47,10 +47,10 @@ public final class CommandLineActor implements ConsoleActor {
     }
 
     @Override public void reply(@NotNull String message) {
-        getOutputStream().println(message);
+        getOutputStream().println(handler.getMessagePrefix() + message);
     }
 
     @Override public void error(@NotNull String message) {
-        getErrorStream().println(message);
+        getErrorStream().println(handler.getMessagePrefix() + message);
     }
 }

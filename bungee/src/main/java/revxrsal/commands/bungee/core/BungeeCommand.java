@@ -19,7 +19,7 @@ final class BungeeCommand extends Command implements TabExecutor {
         ArgumentStack arguments = ArgumentStack.of(args);
         arguments.addFirst(getName());
 
-        BungeeCommandActor actor = new BungeeActor(sender);
+        BungeeCommandActor actor = new BungeeActor(sender, handler);
         handler.dispatch(actor, arguments);
     }
 
@@ -27,7 +27,7 @@ final class BungeeCommand extends Command implements TabExecutor {
         ArgumentStack arguments = ArgumentStack.forAutoCompletion(args);
         arguments.addFirst(getName());
 
-        BungeeCommandActor actor = new BungeeActor(sender);
+        BungeeCommandActor actor = new BungeeActor(sender, handler);
         return handler.getAutoCompleter().complete(actor, arguments);
     }
 }

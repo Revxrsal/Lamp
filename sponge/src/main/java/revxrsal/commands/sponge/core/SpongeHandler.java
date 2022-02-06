@@ -63,7 +63,7 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
         setExceptionHandler(SpongeExceptionAdapter.INSTANCE);
     }
 
-    @Override public CommandHandler register(@NotNull Object... commands) {
+    @Override public @NotNull CommandHandler register(@NotNull Object... commands) {
         super.register(commands);
         for (ExecutableCommand command : executables.values()) {
             if (command.getParent() != null) continue;

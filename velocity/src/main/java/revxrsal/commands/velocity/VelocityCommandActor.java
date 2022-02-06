@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.velocity.core.VelocityActor;
 import revxrsal.commands.velocity.exception.SenderNotConsoleException;
@@ -94,8 +95,9 @@ public interface VelocityCommandActor extends CommandActor {
      * @param proxyServer The injected proxy server
      * @return The wrapping {@link VelocityCommandActor}.
      */
-    static @NotNull VelocityCommandActor wrap(@NotNull CommandSource source, @NotNull ProxyServer proxyServer) {
-        return new VelocityActor(source, proxyServer);
+    static @NotNull VelocityCommandActor wrap(@NotNull CommandSource source, @NotNull ProxyServer proxyServer,
+                                              @NotNull CommandHandler handler) {
+        return new VelocityActor(source, proxyServer, handler);
     }
 
 }

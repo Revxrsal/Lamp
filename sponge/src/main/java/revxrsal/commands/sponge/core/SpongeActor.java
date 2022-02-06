@@ -6,6 +6,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.sponge.SpongeCommandActor;
 import revxrsal.commands.sponge.exception.SenderNotConsoleException;
 import revxrsal.commands.sponge.exception.SenderNotPlayerException;
@@ -19,9 +20,11 @@ public final class SpongeActor implements SpongeCommandActor {
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
 
     private final CommandSource source;
+    private final CommandHandler handler;
 
-    public SpongeActor(CommandSource source) {
+    public SpongeActor(CommandSource source, CommandHandler handler) {
         this.source = source;
+        this.handler = handler;
     }
 
     @Override public @NotNull String getName() {
@@ -33,7 +36,7 @@ public final class SpongeActor implements SpongeCommandActor {
     }
 
     @Override public void reply(@NotNull String message) {
-        source.sendMessage(Text.of(colorize(message)));
+        source.sendMessage(Text.of(colorize(handler.getMessagePrefix() + message)));
     }
 
     @Override public void error(@NotNull String message) {

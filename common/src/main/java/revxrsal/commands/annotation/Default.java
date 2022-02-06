@@ -18,6 +18,11 @@ import java.lang.annotation.Target;
  * automatically be marked as optional.
  * <p>
  * Accessible with {@link CommandParameter#getDefaultValue()}.
+ * <p>
+ * Aside from being used on parameters, this annotation can also be used on methods
+ * that should be invoked when an invalid command is inputted in the command
+ * tree. Methods annotated with {@link Default} can have parameters just like any
+ * other command methods.
  */
 @Target({ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

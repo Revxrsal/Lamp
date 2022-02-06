@@ -3,6 +3,7 @@ package revxrsal.commands.jda.core;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.jda.JDAActor;
 import revxrsal.commands.jda.exception.GuildOnlyCommandException;
@@ -18,9 +19,11 @@ public final class BaseActorJDA implements JDAActor {
 
     private final Supplier<UUID> uuid = memoize(() -> new UUID(0, getUser().getIdLong()));
     private final MessageReceivedEvent event;
+    private final CommandHandler handler;
 
-    public BaseActorJDA(MessageReceivedEvent event) {
+    public BaseActorJDA(MessageReceivedEvent event, CommandHandler handler) {
         this.event = event;
+        this.handler = handler;
     }
 
     @Override public @NotNull String getName() {
@@ -32,11 +35,11 @@ public final class BaseActorJDA implements JDAActor {
     }
 
     @Override public void reply(@NotNull String message) {
-        getChannel().sendMessage(message).queue();
+        getChannel().sendMessage(handler.getMessagePrefix() + message).queue();
     }
 
     @Override public void error(@NotNull String message) {
-        getChannel().sendMessage(message).queue();
+        getChannel().sendMessage(handler.getMessagePrefix() + message).queue();
     }
 
     @Override public @NotNull Member getMember() {

@@ -30,7 +30,7 @@ final class SpongeCommandCallable implements CommandCallable {
     }
 
     @Override public @NotNull CommandResult process(@NotNull CommandSource source, @NotNull String args) {
-        CommandActor actor = new SpongeActor(source);
+        CommandActor actor = new SpongeActor(source, handler);
         ArgumentStack arguments = ArgumentStack.fromString(args);
         arguments.addFirst(name);
         handler.dispatch(actor, arguments);
@@ -38,7 +38,7 @@ final class SpongeCommandCallable implements CommandCallable {
     }
 
     @Override public @NotNull List<String> getSuggestions(@NotNull CommandSource source, @NotNull String arguments, @Nullable Location<World> targetPosition) {
-        CommandActor actor = new SpongeActor(source);
+        CommandActor actor = new SpongeActor(source, handler);
         ArgumentStack args = arguments.isEmpty() ? ArgumentStack.exactly(EMPTY_TEXT) : ArgumentStack.fromString(arguments);
         return handler.getAutoCompleter().complete(actor, args);
     }

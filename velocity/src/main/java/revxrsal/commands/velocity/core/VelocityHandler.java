@@ -54,7 +54,7 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
         setExceptionHandler(VelocityExceptionAdapter.INSTANCE);
     }
 
-    @Override public CommandHandler register(@NotNull Object... commands) {
+    @Override public @NotNull CommandHandler register(@NotNull Object... commands) {
         super.register(commands);
         for (ExecutableCommand command : executables.values()) {
             if (command.getParent() != null) continue;
