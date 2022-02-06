@@ -10,6 +10,7 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import static revxrsal.commands.util.Preconditions.notNull;
@@ -17,7 +18,7 @@ import static revxrsal.commands.util.Strings.colorize;
 
 public final class BukkitActor implements BukkitCommandActor {
 
-    private static final UUID CONSOLE_UUID = UUID.fromString("CONSOLE");
+    private static final UUID CONSOLE_UUID = UUID.nameUUIDFromBytes("CONSOLE".getBytes(StandardCharsets.UTF_8));
 
     private final CommandSender sender;
     private final CommandHandler handler;
@@ -65,7 +66,7 @@ public final class BukkitActor implements BukkitCommandActor {
         else if (isConsole())
             return CONSOLE_UUID;
         else
-            return UUID.fromString(getName());
+            return UUID.nameUUIDFromBytes(getName().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override public void reply(@NotNull String message) {
