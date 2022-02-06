@@ -25,6 +25,7 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     public BaseAutoCompleter(BaseCommandHandler handler) {
         this.handler = handler;
+        registerSuggestionFactory(EnumSuggestionProviderFactory.INSTANCE);
         registerSuggestion("nothing", Collections.emptyList());
         registerSuggestion("empty", Collections.emptyList());
         registerParameterSuggestions(boolean.class, SuggestionProvider.of("true", "false"));
@@ -74,7 +75,7 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     @Override public AutoCompleter registerSuggestionFactory(@NotNull SuggestionProviderFactory factory) {
         notNull(factory, "suggestion provider factory cannot be null!");
-        factories.add(factory);
+        factories.add(0, factory);
         return this;
     }
 
