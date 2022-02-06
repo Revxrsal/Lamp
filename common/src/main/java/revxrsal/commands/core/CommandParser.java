@@ -8,6 +8,8 @@ import revxrsal.commands.annotation.*;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.reflect.MethodCaller.BoundMethodCaller;
+import revxrsal.commands.orphan.OrphanCommand;
+import revxrsal.commands.orphan.OrphanRegistry;
 import revxrsal.commands.process.ParameterResolver;
 import revxrsal.commands.process.ParameterValidator;
 import revxrsal.commands.process.ResponseHandler;
@@ -36,6 +38,14 @@ final class CommandParser {
 
     private CommandParser() {}
 
+    public static void parse(@NotNull BaseCommandHandler handler, @NotNull OrphanRegistry orphan) {
+        OrphanCommand instance = orphan.getHandler();
+        Class<?> type = instance.getClass();
+
+        // we pass the type of the orphan handler, but pass the object as the orphan registry
+        parse(handler, type, orphan);
+    }
+
     public static void parse(@NotNull BaseCommandHandler handler, @NotNull Object boundTarget) {
         Class<?> type = boundTarget instanceof Class ? (Class<?>) boundTarget : boundTarget.getClass();
         parse(handler, type, boundTarget);
@@ -46,10 +56,14 @@ final class CommandParser {
         Map<CommandPath, BaseCommandCategory> categories = handler.categories;
         Map<CommandPath, CommandExecutable> subactions = new HashMap<>();
         for (Method method : getAllMethods(container)) {
-            AnnotationReader reader = new AnnotationReader(container, method);
+            AnnotationReader reader = new AnnotationReader(container, method, boundTarget);
+            Object target = boundTarget;
+            if (target instanceof OrphanRegistry) {
+                target = ((OrphanRegistry) target).getHandler();
+            }
             if (reader.isEmpty()) continue;
             List<CommandPath> paths = getCommandPath(container, method, reader);
-            BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(boundTarget);
+            BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(target);
             int id = COMMAND_ID.getAndIncrement();
             boolean isDefault = reader.contains(Default.class);
             paths.forEach(path -> {

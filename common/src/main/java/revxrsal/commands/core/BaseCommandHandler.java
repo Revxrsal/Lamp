@@ -13,6 +13,9 @@ import revxrsal.commands.core.reflect.MethodCallerFactory;
 import revxrsal.commands.exception.*;
 import revxrsal.commands.help.CommandHelp;
 import revxrsal.commands.help.CommandHelpWriter;
+import revxrsal.commands.orphan.OrphanCommand;
+import revxrsal.commands.orphan.OrphanRegistry;
+import revxrsal.commands.orphan.Orphans;
 import revxrsal.commands.process.*;
 import revxrsal.commands.process.ParameterResolver.ParameterResolverContext;
 import revxrsal.commands.process.ValueResolver.ValueResolverContext;
@@ -49,7 +52,7 @@ public class BaseCommandHandler implements CommandHandler {
     private MethodCallerFactory methodCallerFactory = MethodCallerFactory.defaultFactory();
     private final WrappedExceptionHandler exceptionHandler = new WrappedExceptionHandler(DefaultExceptionHandler.INSTANCE);
     private StackTraceSanitizer sanitizer = StackTraceSanitizer.defaultSanitizer();
-    String flagPrefix = "-", switchPrefix = "-";
+    String flagPrefix = "-", switchPrefix = "-", messagePrefix = "";
     CommandHelpWriter<?> helpWriter;
     boolean failOnExtra = false;
     final List<CommandCondition> conditions = new ArrayList<>();
@@ -109,11 +112,23 @@ public class BaseCommandHandler implements CommandHandler {
     }
 
     @Override
-    public CommandHandler register(@NotNull Object... commands) {
+    public @NotNull CommandHandler register(@NotNull Object... commands) {
         for (Object command : commands) {
             notNull(command, "Command");
-            setDependencies(command);
-            CommandParser.parse(this, command);
+            if (command instanceof OrphanCommand) {
+                throw new IllegalArgumentException("You cannot register an OrphanCommand directly! " +
+                        "You must wrap it using Orphans.path(...).handler(OrphanCommand)");
+            }
+            if (command instanceof Orphans) {
+                throw new IllegalArgumentException("You forgot to call .handler(OrphanCommand) in your Orphans.path(...)!");
+            }
+            if (command instanceof OrphanRegistry) {
+                setDependencies(((OrphanRegistry) command).getHandler());
+                CommandParser.parse(this, ((OrphanRegistry) command));
+            } else {
+                setDependencies(command);
+                CommandParser.parse(this, command);
+            }
         }
         for (BaseCommandCategory category : categories.values()) {
             CommandPath categoryPath = category.getPath().getCategoryPath();
@@ -135,61 +150,67 @@ public class BaseCommandHandler implements CommandHandler {
         return this;
     }
 
-    @Override public CommandHandler setMethodCallerFactory(@NotNull MethodCallerFactory factory) {
+    @Override public @NotNull CommandHandler setMethodCallerFactory(@NotNull MethodCallerFactory factory) {
         notNull(factory, "method caller factory");
         methodCallerFactory = factory;
         return this;
     }
 
-    @Override public CommandHandler setExceptionHandler(@NotNull CommandExceptionHandler handler) {
+    @Override public @NotNull CommandHandler setExceptionHandler(@NotNull CommandExceptionHandler handler) {
         notNull(handler, "command exception handler");
         exceptionHandler.handler = handler;
         return this;
     }
 
-    @Override public CommandHandler setSwitchPrefix(@NotNull String prefix) {
+    @Override public @NotNull CommandHandler setSwitchPrefix(@NotNull String prefix) {
         notNull(prefix, "prefix");
         notEmpty(prefix, "prefix cannot be empty!");
         switchPrefix = prefix;
         return this;
     }
 
-    @Override public CommandHandler setFlagPrefix(@NotNull String prefix) {
+    @Override public @NotNull CommandHandler setFlagPrefix(@NotNull String prefix) {
         notNull(prefix, "prefix");
         notEmpty(prefix, "prefix cannot be empty!");
         flagPrefix = prefix;
         return this;
     }
 
-    @Override public <T> CommandHandler setHelpWriter(@NotNull CommandHelpWriter<T> helpWriter) {
+    @Override public @NotNull CommandHandler setMessagePrefix(@NotNull String prefix) {
+        notNull(prefix, "prefix");
+        messagePrefix = prefix;
+        return this;
+    }
+
+    @Override public @NotNull <T> CommandHandler setHelpWriter(@NotNull CommandHelpWriter<T> helpWriter) {
         notNull(helpWriter, "command help writer");
         this.helpWriter = helpWriter;
         return this;
     }
 
-    @Override public CommandHandler disableStackTraceSanitizing() {
+    @Override public @NotNull CommandHandler disableStackTraceSanitizing() {
         sanitizer = StackTraceSanitizer.empty();
         return this;
     }
 
-    @Override public CommandHandler failOnTooManyArguments() {
+    @Override public @NotNull CommandHandler failOnTooManyArguments() {
         failOnExtra = true;
         return this;
     }
 
-    @Override public CommandHandler registerSenderResolver(@NotNull SenderResolver resolver) {
+    @Override public @NotNull CommandHandler registerSenderResolver(@NotNull SenderResolver resolver) {
         notNull(resolver, "resolver");
         senderResolvers.add(resolver);
         return this;
     }
 
-    @Override public CommandHandler registerPermissionReader(@NotNull PermissionReader reader) {
+    @Override public @NotNull CommandHandler registerPermissionReader(@NotNull PermissionReader reader) {
         notNull(reader, "permission reader");
         permissionReaders.add(reader);
         return this;
     }
 
-    @Override public <T> CommandHandler registerValueResolver(@NotNull Class<T> type, @NotNull ValueResolver<T> resolver) {
+    @Override public <T> @NotNull CommandHandler registerValueResolver(@NotNull Class<T> type, @NotNull ValueResolver<T> resolver) {
         notNull(type, "type");
         notNull(resolver, "resolver");
         if (type.isPrimitive())
@@ -198,69 +219,69 @@ public class BaseCommandHandler implements CommandHandler {
         return this;
     }
 
-    @Override public <T> CommandHandler registerContextResolver(@NotNull Class<T> type, @NotNull ContextResolver<T> resolver) {
+    @Override public <T> @NotNull CommandHandler registerContextResolver(@NotNull Class<T> type, @NotNull ContextResolver<T> resolver) {
         notNull(type, "type");
         notNull(resolver, "resolver");
         factories.add(new ResolverFactory(ContextResolverFactory.forType(type, resolver)));
         return this;
     }
 
-    @Override public <T> CommandHandler registerContextValue(@NotNull Class<T> type, T value) {
+    @Override public @NotNull <T> CommandHandler registerContextValue(@NotNull Class<T> type, T value) {
         return registerContextResolver(type, ContextResolver.of(value));
     }
 
-    @Override public CommandHandler registerValueResolverFactory(@NotNull ValueResolverFactory factory) {
+    @Override public @NotNull CommandHandler registerValueResolverFactory(@NotNull ValueResolverFactory factory) {
         notNull(factory, "value resolver factory");
         factories.add(new ResolverFactory(factory));
         return this;
     }
 
-    @Override public CommandHandler registerContextResolverFactory(@NotNull ContextResolverFactory factory) {
+    @Override public @NotNull CommandHandler registerContextResolverFactory(@NotNull ContextResolverFactory factory) {
         notNull(factory, "context resolver factory");
         factories.add(new ResolverFactory(factory));
         return this;
     }
 
-    @Override public CommandHandler registerCondition(@NotNull CommandCondition condition) {
+    @Override public @NotNull CommandHandler registerCondition(@NotNull CommandCondition condition) {
         notNull(condition, "condition");
         conditions.add(condition);
         return this;
     }
 
-    @Override public <T> CommandHandler registerDependency(@NotNull Class<T> type, @NotNull Supplier<T> supplier) {
+    @Override public @NotNull <T> CommandHandler registerDependency(@NotNull Class<T> type, @NotNull Supplier<T> supplier) {
         notNull(type, "type");
         notNull(supplier, "supplier");
         dependencies.add(type, supplier);
         return this;
     }
 
-    @Override public <T> CommandHandler registerDependency(@NotNull Class<T> type, T value) {
+    @Override public @NotNull <T> CommandHandler registerDependency(@NotNull Class<T> type, T value) {
         notNull(type, "type");
         dependencies.add(type, () -> value);
         return this;
     }
 
-    @Override public <T> CommandHandler registerParameterValidator(@NotNull Class<T> type, @NotNull ParameterValidator<T> validator) {
+    @Override public @NotNull <T> CommandHandler registerParameterValidator(@NotNull Class<T> type, @NotNull ParameterValidator<T> validator) {
         notNull(type, "type");
         notNull(validator, "validator");
         validators.computeIfAbsent(Primitives.wrap(type), t -> new ArrayList<>()).add((ParameterValidator<Object>) validator);
         return this;
     }
 
-    @Override public <T> CommandHandler registerResponseHandler(@NotNull Class<T> responseType, @NotNull ResponseHandler<T> handler) {
+    @Override public @NotNull <T> CommandHandler registerResponseHandler(@NotNull Class<T> responseType, @NotNull ResponseHandler<T> handler) {
         notNull(responseType, "response type");
         notNull(handler, "response handler");
         responseHandlers.add(responseType, handler);
         return this;
     }
 
-    @Override public CommandHandler accept(@NotNull CommandHandlerVisitor visitor) {
+    @Override public @NotNull CommandHandler accept(@NotNull CommandHandlerVisitor visitor) {
         notNull(visitor, "command handler visitor cannot be null!");
         visitor.visit(this);
         return this;
     }
 
-    @Override public AutoCompleter getAutoCompleter() {
+    @Override public @NotNull AutoCompleter getAutoCompleter() {
         return autoCompleter;
     }
 
@@ -272,11 +293,11 @@ public class BaseCommandHandler implements CommandHandler {
         return categories.get(path);
     }
 
-    @Override public @UnmodifiableView Map<CommandPath, ExecutableCommand> getCommands() {
+    @Override public @UnmodifiableView @NotNull Map<CommandPath, ExecutableCommand> getCommands() {
         return Collections.unmodifiableMap(executables);
     }
 
-    @Override public @UnmodifiableView Map<CommandPath, CommandCategory> getCategories() {
+    @Override public @UnmodifiableView @NotNull Map<CommandPath, CommandCategory> getCategories() {
         return Collections.unmodifiableMap(categories);
     }
 
@@ -314,12 +335,16 @@ public class BaseCommandHandler implements CommandHandler {
         return unregister(CommandPath.get(splitBySpace(commandPath)));
     }
 
-    @Override public String getSwitchPrefix() {
+    @Override public @NotNull String getSwitchPrefix() {
         return switchPrefix;
     }
 
-    @Override public String getFlagPrefix() {
+    @Override public @NotNull String getFlagPrefix() {
         return flagPrefix;
+    }
+
+    @Override public @NotNull String getMessagePrefix() {
+        return messagePrefix;
     }
 
     @Override public <T> @NotNull Optional<@Nullable T> dispatch(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
