@@ -22,7 +22,6 @@ import revxrsal.commands.brigadier.BrigadierTreeParser;
 import revxrsal.commands.brigadier.LampBrigadier;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
-import revxrsal.commands.bukkit.PlayerSelector;
 import revxrsal.commands.bukkit.core.EntitySelectorResolver.SelectorSuggestionFactory;
 import revxrsal.commands.bukkit.exception.BukkitExceptionAdapter;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
@@ -50,7 +49,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
     private final Supplier<Optional<LampBrigadier>> brigadier = Suppliers.memoize(() -> {
         if (!CommodoreProvider.isSupported())
             return Optional.empty();
-        return Optional.of(new BukkitBrigadier(CommodoreProvider.getCommodore(getPlugin())));
+        return Optional.of(new BukkitBrigadier(CommodoreProvider.getCommodore(getPlugin()), this));
     });
 
     @SuppressWarnings("rawtypes")
@@ -86,7 +85,6 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
             return world;
         });
         registerValueResolverFactory(EntitySelectorResolver.INSTANCE);
-        registerValueResolver(PlayerSelector.class, PlayerSelectorResolver.INSTANCE);
         getAutoCompleter().registerSuggestion("players", (args, sender, command) -> Bukkit.getOnlinePlayers()
                 .stream()
                 .filter(player -> !((BukkitCommandActor) sender).isPlayer() || ((BukkitCommandActor) sender).requirePlayer().canSee(player))
@@ -96,10 +94,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 .registerSuggestion("worlds", SuggestionProvider.map(Bukkit::getWorlds, World::getName))
                 .registerParameterSuggestions(Player.class, "players")
                 .registerParameterSuggestions(World.class, "worlds")
-                .registerSuggestion("playerSelector", SuggestionProvider.of("@a", "@p", "@r", "@s")
-                                .compose(getAutoCompleter().getSuggestionProvider("players")))
-                .registerSuggestionFactory(SelectorSuggestionFactory.INSTANCE)
-                .registerParameterSuggestions(PlayerSelector.class, "playerSelector");
+                .registerSuggestionFactory(SelectorSuggestionFactory.INSTANCE);
         registerContextValue((Class) plugin.getClass(), plugin);
         registerDependency((Class) plugin.getClass(), plugin);
         registerDependency(FileConfiguration.class, plugin.getConfig());
@@ -108,7 +103,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         setExceptionHandler(BukkitExceptionAdapter.INSTANCE);
     }
 
-    @Override public CommandHandler register(@NotNull Object... commands) {
+    @Override public @NotNull CommandHandler register(@NotNull Object... commands) {
         super.register(commands);
         for (ExecutableCommand command : executables.values()) {
             if (command.getParent() != null) continue;

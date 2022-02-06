@@ -141,13 +141,23 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
     public enum SelectorSuggestionFactory implements SuggestionProviderFactory {
         INSTANCE;
 
+        private boolean supportComplexSelectors;
+
+        SelectorSuggestionFactory() {
+            try {
+                Bukkit.getServer().selectEntities(Bukkit.getConsoleSender(), "@a");
+                supportComplexSelectors = true;
+            } catch (Throwable t) {
+                supportComplexSelectors = false;
+            }
+        }
+
         @Override public @Nullable SuggestionProvider createSuggestionProvider(@NotNull CommandParameter parameter) {
             if (parameter.getType().isAssignableFrom(EntitySelector.class)) {
                 Class<? extends Entity> type = BukkitHandler.getSelectedEntity(parameter.getFullType());
-                if (Player.class.isAssignableFrom(type) && !PlayerSelectorResolver.INSTANCE.supportComplexSelectors) {
-                    return SuggestionProvider.of("@a", "@p", "@r", "@s").compose(parameter.getCommandHandler()
-                            .getAutoCompleter()
-                            .getSuggestionProvider("players")
+                if (Player.class.isAssignableFrom(type) && !supportComplexSelectors) {
+                    return SuggestionProvider.of("@a", "@p", "@r", "@s").compose(
+                            parameter.getCommandHandler().getAutoCompleter().getSuggestionProvider("players")
                     );
                 }
                 if (!EntitySelectorResolver.INSTANCE.supportComplexSelectors) {

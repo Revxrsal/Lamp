@@ -32,9 +32,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.brigadier.LampBrigadier;
 import revxrsal.commands.bukkit.EntitySelector;
-import revxrsal.commands.bukkit.PlayerSelector;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.util.ClassMap;
@@ -47,16 +47,17 @@ final class BukkitBrigadier implements LampBrigadier {
 
     private final ClassMap<ArgumentType<?>> argumentTypes = new ClassMap<>();
     private final Commodore commodore;
+    private final CommandHandler handler;
 
-    public BukkitBrigadier(Commodore commodore) {
+    public BukkitBrigadier(Commodore commodore, CommandHandler handler) {
         this.commodore = commodore;
-        argumentTypes.add(PlayerSelector.class, PLAYERS);
+        this.handler = handler;
         argumentTypes.add(Player.class, entity(true, true));
         argumentTypes.add(EntitySelector.class, entity(false, false));
     }
 
     @Override public @NotNull CommandActor wrapSource(@NotNull Object commandSource) {
-        return new BukkitActor(commodore.getBukkitSender(commandSource));
+        return new BukkitActor(commodore.getBukkitSender(commandSource), handler);
     }
 
     @Override public @NotNull ClassMap<ArgumentType<?>> getAdditionalArgumentTypes() {

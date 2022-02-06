@@ -5,6 +5,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.core.BukkitActor;
 import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
@@ -68,8 +69,8 @@ public interface BukkitCommandActor extends CommandActor {
      * @param sender Command sender to wrap
      * @return The wrapping {@link BukkitCommandActor}.
      */
-    static @NotNull BukkitCommandActor wrap(@NotNull CommandSender sender) {
-        return new BukkitActor(sender);
+    static @NotNull BukkitCommandActor wrap(@NotNull CommandSender sender, @NotNull CommandHandler handler) {
+        return new BukkitActor(sender, handler);
     }
 
 }

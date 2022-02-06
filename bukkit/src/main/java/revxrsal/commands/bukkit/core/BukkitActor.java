@@ -1,11 +1,11 @@
 package revxrsal.commands.bukkit.core;
 
-import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
@@ -20,9 +20,11 @@ public final class BukkitActor implements BukkitCommandActor {
     private static final UUID CONSOLE_UUID = UUID.fromString("CONSOLE");
 
     private final CommandSender sender;
+    private final CommandHandler handler;
 
-    public BukkitActor(CommandSender sender) {
+    public BukkitActor(CommandSender sender, CommandHandler handler) {
         this.sender = notNull(sender, "sender");
+        this.handler = notNull(handler, "handler");
     }
 
     @Override public CommandSender getSender() {
@@ -68,11 +70,11 @@ public final class BukkitActor implements BukkitCommandActor {
 
     @Override public void reply(@NotNull String message) {
         notNull(message, "message");
-        sender.sendMessage(colorize(message));
+        sender.sendMessage(colorize(handler.getMessagePrefix() + message));
     }
 
     @Override public void error(@NotNull String message) {
         notNull(message, "message");
-        sender.sendMessage(colorize("&c" + message));
+        sender.sendMessage(colorize(handler.getMessagePrefix() + "&c" + message));
     }
 }
