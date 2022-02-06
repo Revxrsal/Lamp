@@ -95,7 +95,7 @@ final class BaseAutoCompleter implements AutoCompleter {
     @Override public List<String> complete(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
         CommandPath path = CommandPath.get(arguments.subList(0, arguments.size() - 1));
         int originalSize = arguments.size();
-        ExecutableCommand command = searchForCommand(path);
+        ExecutableCommand command = searchForCommand(path, actor);
         if (command != null) {
             command.getPath().forEach(c -> arguments.removeFirst());
             return getCompletions(actor, arguments, command);
@@ -112,14 +112,14 @@ final class BaseAutoCompleter implements AutoCompleter {
         return complete(actor, ArgumentStack.fromString(buffer));
     }
 
-    private ExecutableCommand searchForCommand(CommandPath path) {
+    private ExecutableCommand searchForCommand(CommandPath path, CommandActor actor) {
         ExecutableCommand found = handler.getCommand(path);
-        if (found != null && !found.isSecret()) return found;
+        if (found != null && !found.isSecret() && found.getPermission().canExecute(actor)) return found;
         MutableCommandPath mpath = MutableCommandPath.empty();
         for (String p : path) {
             mpath.add(p);
             found = handler.getCommand(mpath);
-            if (found != null && !found.isSecret())
+            if (found != null && !found.isSecret() && found.getPermission().canExecute(actor))
                 return found;
         }
         return null;
@@ -190,7 +190,7 @@ final class BaseAutoCompleter implements AutoCompleter {
         }
         if (originalSize - category.getPath().size() == 1) {
             category.getCommands().values().forEach(c -> {
-                if (!c.isSecret()) suggestions.add(c.getName());
+                if (!c.isSecret() && c.getPermission().canExecute(actor)) suggestions.add(c.getName());
             });
             category.getCategories().values().forEach(c -> suggestions.add(c.getName()));
         }
