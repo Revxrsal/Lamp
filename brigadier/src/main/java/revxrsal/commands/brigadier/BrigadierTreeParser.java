@@ -102,6 +102,10 @@ public final class BrigadierTreeParser {
             LiteralArgumentBuilder childLiteral = parse(brigadier, literal(child.getName()), child);
             into.then(childLiteral);
         }
+        if (category.getDefaultAction() != null) {
+            LiteralArgumentBuilder childLiteral = parse(brigadier, literal(category.getName()), category.getDefaultAction());
+            into.then(childLiteral);
+        }
         return (LiteralArgumentBuilder<T>) into;
     }
 
