@@ -159,6 +159,19 @@ public interface CommandHandler {
     @NotNull <T> CommandHandler registerValueResolver(@NotNull Class<T> type, @NotNull ValueResolver<T> resolver);
 
     /**
+     * Registers a parameter resolver that gets its value from the command arguments.
+     * <p>
+     * See {@link ValueResolver} for more information
+     *
+     * @param priority The resolver priority. Zero represents the highest.
+     * @param type     The parameter type to resolve
+     * @param resolver The resolver
+     * @return This command handler
+     * @see ValueResolver
+     */
+    @NotNull <T> CommandHandler registerValueResolver(int priority, @NotNull Class<T> type, @NotNull ValueResolver<T> resolver);
+
+    /**
      * Registers a parameter resolver that gets its value from the command context.
      * <p>
      * See {@link ContextResolver} for more information
@@ -169,6 +182,19 @@ public interface CommandHandler {
      * @see ContextResolver
      */
     @NotNull <T> CommandHandler registerContextResolver(@NotNull Class<T> type, @NotNull ContextResolver<T> resolver);
+
+    /**
+     * Registers a parameter resolver that gets its value from the command context.
+     * <p>
+     * See {@link ContextResolver} for more information
+     *
+     * @param priority The resolver priority. Zero represents the highest.
+     * @param type     The parameter type to resolve
+     * @param resolver The resolver
+     * @return This command handler
+     * @see ContextResolver
+     */
+    @NotNull <T> CommandHandler registerContextResolver(int priority, @NotNull Class<T> type, @NotNull ContextResolver<T> resolver);
 
     /**
      * Registers a parameter type to always be a static value. This is useful
@@ -186,6 +212,22 @@ public interface CommandHandler {
     @NotNull <T> CommandHandler registerContextValue(@NotNull Class<T> type, @Nullable T value);
 
     /**
+     * Registers a parameter type to always be a static value. This is useful
+     * for registering singletons as parameters.
+     * <p>
+     * This is equivalent to calling {@code registerContextResolver(priority, type, ContextResolver.of(value))}
+     * <p>
+     * See {@link ContextResolver} for more information
+     *
+     * @param priority The resolver priority. Zero represents the highest.
+     * @param type     The parameter type to resolve
+     * @param value    The value to retrun
+     * @return This command handler
+     * @see ContextResolver
+     */
+    @NotNull <T> CommandHandler registerContextValue(int priority, @NotNull Class<T> type, @NotNull T value);
+
+    /**
      * Registers a {@link ValueResolverFactory} to this handler
      *
      * @param factory Factory to register
@@ -196,6 +238,17 @@ public interface CommandHandler {
     @NotNull CommandHandler registerValueResolverFactory(@NotNull ValueResolverFactory factory);
 
     /**
+     * Registers a {@link ValueResolverFactory} to this handler
+     *
+     * @param priority The resolver priority. Zero represents the highest.
+     * @param factory  Factory to register
+     * @return This command handler
+     * @see ValueResolverFactory
+     * @see #registerContextResolverFactory(ContextResolverFactory)
+     */
+    @NotNull CommandHandler registerValueResolverFactory(int priority, @NotNull ValueResolverFactory factory);
+
+    /**
      * Registers a {@link ContextResolverFactory} to this handler
      *
      * @param factory Factory to register
@@ -204,6 +257,17 @@ public interface CommandHandler {
      * @see #registerValueResolverFactory(ValueResolverFactory)
      */
     @NotNull CommandHandler registerContextResolverFactory(@NotNull ContextResolverFactory factory);
+
+    /**
+     * Registers a {@link ContextResolverFactory} to this handler
+     *
+     * @param priority The resolver priority. Zero represents the highest.
+     * @param factory  Factory to register
+     * @return This command handler
+     * @see ContextResolverFactory
+     * @see #registerValueResolverFactory(ValueResolverFactory)
+     */
+    @NotNull CommandHandler registerContextResolverFactory(int priority, @NotNull ContextResolverFactory factory);
 
     /**
      * Registers the specified condition in which all commands will be

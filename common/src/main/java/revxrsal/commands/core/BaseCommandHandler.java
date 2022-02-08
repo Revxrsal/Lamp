@@ -215,14 +215,34 @@ public class BaseCommandHandler implements CommandHandler {
         notNull(resolver, "resolver");
         if (type.isPrimitive())
             registerValueResolver(Primitives.wrap(type), resolver);
-        factories.push(new ResolverFactory(ValueResolverFactory.forType(type, resolver)));
+        factories.add(new ResolverFactory(ValueResolverFactory.forType(type, resolver)));
+        return this;
+    }
+
+    @Override public @NotNull <T> CommandHandler registerValueResolver(int priority, @NotNull Class<T> type, @NotNull ValueResolver<T> resolver) {
+        notNull(type, "type");
+        notNull(resolver, "resolver");
+        if (type.isPrimitive())
+            registerValueResolver(priority, Primitives.wrap(type), resolver);
+        factories.add(Math.max(priority, factories.size()), new ResolverFactory(ValueResolverFactory.forType(type, resolver)));
         return this;
     }
 
     @Override public <T> @NotNull CommandHandler registerContextResolver(@NotNull Class<T> type, @NotNull ContextResolver<T> resolver) {
         notNull(type, "type");
         notNull(resolver, "resolver");
-        factories.push(new ResolverFactory(ContextResolverFactory.forType(type, resolver)));
+        if (type.isPrimitive())
+            registerContextResolver(Primitives.wrap(type), resolver);
+        factories.add(new ResolverFactory(ContextResolverFactory.forType(type, resolver)));
+        return this;
+    }
+
+    @Override public @NotNull <T> CommandHandler registerContextResolver(int priority, @NotNull Class<T> type, @NotNull ContextResolver<T> resolver) {
+        notNull(type, "type");
+        notNull(resolver, "resolver");
+        if (type.isPrimitive())
+            registerContextResolver(Primitives.wrap(type), resolver);
+        factories.add(Math.max(priority, factories.size()), new ResolverFactory(ContextResolverFactory.forType(type, resolver)));
         return this;
     }
 
@@ -230,15 +250,31 @@ public class BaseCommandHandler implements CommandHandler {
         return registerContextResolver(type, ContextResolver.of(value));
     }
 
+    @Override public @NotNull <T> CommandHandler registerContextValue(int priority, @NotNull Class<T> type, @NotNull T value) {
+        return registerContextResolver(priority, type, ContextResolver.of(value));
+    }
+
     @Override public @NotNull CommandHandler registerValueResolverFactory(@NotNull ValueResolverFactory factory) {
         notNull(factory, "value resolver factory");
-        factories.push(new ResolverFactory(factory));
+        factories.add(new ResolverFactory(factory));
+        return this;
+    }
+
+    @Override public @NotNull CommandHandler registerValueResolverFactory(int priority, @NotNull ValueResolverFactory factory) {
+        notNull(factory, "value resolver factory");
+        factories.add(Math.max(priority, factories.size()), new ResolverFactory(factory));
         return this;
     }
 
     @Override public @NotNull CommandHandler registerContextResolverFactory(@NotNull ContextResolverFactory factory) {
         notNull(factory, "context resolver factory");
-        factories.push(new ResolverFactory(factory));
+        factories.add(new ResolverFactory(factory));
+        return this;
+    }
+
+    @Override public @NotNull CommandHandler registerContextResolverFactory(int priority, @NotNull ContextResolverFactory factory) {
+        notNull(factory, "context resolver factory");
+        factories.add(Math.max(priority, factories.size()), new ResolverFactory(factory));
         return this;
     }
 
