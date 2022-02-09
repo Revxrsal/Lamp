@@ -53,7 +53,7 @@ But if you chose to use only one module or two, you have to use "com.github.Revx
 <details>
   <summary>pom.xml</summary>
   
-  ``` Xml
+  ``` xml
   <repositories>
       <repository>
           <id>jitpack.io</id>
@@ -62,10 +62,10 @@ But if you chose to use only one module or two, you have to use "com.github.Revx
   </repositories>
 
   <dependencies>
-      <!-- For the whole project -->
+      <!-- For the common module -->
       <dependency>
-          <groupId>com.github.Revxrsal</groupId>
-          <artifactId>Lamp</artifactId>
+          <groupId>com.github.Revxrsal.Lamp</groupId>
+          <artifactId>common</artifactId> 
           <version>[version]</version>
       </dependency>
 
@@ -83,14 +83,14 @@ But if you chose to use only one module or two, you have to use "com.github.Revx
 <details>
   <summary>build.gradle (Groovy)</summary>
   
-  ```
+  ```groovy
       repositories {
         maven { url 'https://jitpack.io' }
       }
 
       dependencies {
-          // For the whole project
-          implementation 'com.github.Revxrsal:Lamp:[version]'
+          // For the common project
+          implementation 'com.github.Revxrsal.Lamp:common:[version]'
 
           // For the bukkit module
           implementation 'com.github.Revxrsal.Lamp:bukkit:[verison]'
@@ -102,14 +102,14 @@ But if you chose to use only one module or two, you have to use "com.github.Revx
 <details>
   <summary>build.gradle.kts (Kotlin DSL)</summary>
   
-  ```
+  ```kotlin
       repositories {
           maven("https://jitpack.io")
       }
 
       dependencies {
-          // For the whole project
-          implementation("com.github.Revxrsal:Lamp:[version]")
+          // For the common project
+          implementation("com.github.Revxrsal.Lamp:common:[version]")
 
           // For the bukkit module
           implementation("com.github.Revxrsal.Lamp:bukkit:[version]")
