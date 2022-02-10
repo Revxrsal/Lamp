@@ -41,6 +41,82 @@ Glad you asked!
    - **[Simple and powerful auto completions API](common/src/main/java/revxrsal/commands/autocomplete/AutoCompleter.java)**
    - **[Built-in command cooldown handler](common/src/main/java/revxrsal/commands/annotation/Cooldown.java)**
 
+## Getting Started
+Now, for the good part.
+
+First, you'll need to add the JitPack repository, and then you're going to select which part of Lamp you're going to use.
+
+If you for some reason want to use the whole project as dependency, you can use "com.github.Revxrsal" as the groupId (or group on Gradle), and only the name "Lamp" as the artifactId (or name on Gradle).
+But if you chose to use only one module or two, you have to use "com.github.Revxrsal.Lamp" as the groupId and "[the module that you want]" as the artifactId. Bellow, there are examples about Maven and Gradle that will help you get started.
+
+### Maven
+<details>
+  <summary>pom.xml</summary>
+  
+  ``` xml
+  <repositories>
+      <repository>
+          <id>jitpack.io</id>
+          <url>https://jitpack.io</url>
+      </repository>
+  </repositories>
+
+  <dependencies>
+      <!-- For the common module -->
+      <dependency>
+          <groupId>com.github.Revxrsal.Lamp</groupId>
+          <artifactId>common</artifactId> 
+          <version>[version]</version>
+      </dependency>
+
+      <!-- For the bukkit module -->
+      <dependency>
+          <groupId>com.github.Revxrsal.Lamp</groupId>
+          <artifactId>bukkit</artifactId>
+          <version>[version]</version>
+      </dependency>  
+  </dependencies>
+  ```
+ </details>
+
+### Gradle
+<details>
+  <summary>build.gradle (Groovy)</summary>
+  
+  ```groovy
+      repositories {
+        maven { url 'https://jitpack.io' }
+      }
+
+      dependencies {
+          // For the common project
+          implementation 'com.github.Revxrsal.Lamp:common:[version]'
+
+          // For the bukkit module
+          implementation 'com.github.Revxrsal.Lamp:bukkit:[verison]'
+      }
+  ```
+</details>
+
+
+<details>
+  <summary>build.gradle.kts (Kotlin DSL)</summary>
+  
+  ```kotlin
+      repositories {
+          maven("https://jitpack.io")
+      }
+
+      dependencies {
+          // For the common project
+          implementation("com.github.Revxrsal.Lamp:common:[version]")
+
+          // For the bukkit module
+          implementation("com.github.Revxrsal.Lamp:bukkit:[version]")
+      }
+  ```
+</details>
+
 ## Documentation
 - **Examples**: [Lamp/examples](https://github.com/Revxrsal/Lamp/tree/examples)
 - **Overview**: [Lamp/wiki](https://github.com/Revxrsal/Lamp/wiki)
