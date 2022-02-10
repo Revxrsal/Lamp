@@ -75,10 +75,22 @@ public interface AutoCompleter {
      * Registers a {@link SuggestionProviderFactory} that creates suggestion providers
      * dynamically for parameters. This allows for checking against custom annotations
      * in parameters.
+     *
      * @param factory Factory to register
      * @return This auto-completer
      */
     AutoCompleter registerSuggestionFactory(@NotNull SuggestionProviderFactory factory);
+
+    /**
+     * Registers a {@link SuggestionProviderFactory} that creates suggestion providers
+     * dynamically for parameters. This allows for checking against custom annotations
+     * in parameters.
+     *
+     * @param priority The resolver priority. Zero represents the highest.
+     * @param factory  Factory to register
+     * @return This auto-completer
+     */
+    AutoCompleter registerSuggestionFactory(int priority, @NotNull SuggestionProviderFactory factory);
 
     /**
      * Returns the suggestion provider that maps to the specified ID.

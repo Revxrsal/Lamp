@@ -75,7 +75,13 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     @Override public AutoCompleter registerSuggestionFactory(@NotNull SuggestionProviderFactory factory) {
         notNull(factory, "suggestion provider factory cannot be null!");
-        factories.push(factory);
+        factories.add(factory);
+        return this;
+    }
+
+    @Override public AutoCompleter registerSuggestionFactory(int priority, @NotNull SuggestionProviderFactory factory) {
+        notNull(factory, "suggestion provider factory cannot be null!");
+        factories.add(Math.max(priority, factories.size()), factory);
         return this;
     }
 
