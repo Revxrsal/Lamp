@@ -19,7 +19,7 @@ Through annotations, parameter resolvers, command conditions, permissions, argum
 
 ## There are many commands frameworks out there, why should I use Lamp?
 Glad you asked!
-- **Lamp is small in size**: The overall size of Lamp will not exceed 150 KB. Built to be lightweight, Lamp is convenient to package and ship.
+- **Lamp is small**: The overall size of Lamp will not exceed 150 KB. Built to be lightweight, Lamp is convenient to package and ship.
 - **Lamp is extendable**: Lamp has been built thoroughly with this in mind. You can create custom annotations for commands, parameters, permissions and resolvers, with their very own functionality. This gives so much space for your own extendability, and also helps make sure the code you write is minimal.
 - **Lamp is portable**: Created with a high-level command API and an extendable codebase, Lamp has been produced to provide first-class support to as many platforms as possible. As of now, Lamp supports the following platforms:
     - [Bukkit / Spigot](bukkit)
@@ -83,38 +83,58 @@ But if you chose to use only one module or two, you have to use "com.github.Revx
 <details>
   <summary>build.gradle (Groovy)</summary>
   
-  ```groovy
-      repositories {
-        maven { url 'https://jitpack.io' }
-      }
+```groovy
+repositories {
+    maven { url = 'https://jitpack.io' }
+}
 
-      dependencies {
-          // For the common project
-          implementation 'com.github.Revxrsal.Lamp:common:[version]'
+dependencies {
+    // For the common module
+    implementation 'com.github.Revxrsal.Lamp:common:[version]'
 
-          // For the bukkit module
-          implementation 'com.github.Revxrsal.Lamp:bukkit:[verison]'
-      }
-  ```
+    // For the bukkit module
+    implementation 'com.github.Revxrsal.Lamp:bukkit:[verison]'
+}
+
+compileJava { // Preserve parameter names in the bytecode
+    options.compilerArgs += ["-parameters"]
+    options.fork = true
+    options.forkOptions.executable = "javac"
+}
+
+compileKotlin { // optional: if you're using Kotlin
+    kotlinOptions.javaParameters = true
+}
+```
 </details>
 
 
 <details>
   <summary>build.gradle.kts (Kotlin DSL)</summary>
-  
-  ```kotlin
-      repositories {
-          maven("https://jitpack.io")
-      }
 
-      dependencies {
-          // For the common project
-          implementation("com.github.Revxrsal.Lamp:common:[version]")
+```kotlin
+repositories {
+    maven(url = "https://jitpack.io")
+}
 
-          // For the bukkit module
-          implementation("com.github.Revxrsal.Lamp:bukkit:[version]")
-      }
-  ```
+dependencies {
+    // For the common project
+    implementation("com.github.Revxrsal.Lamp:common:[version]")
+
+    // For the bukkit module
+    implementation("com.github.Revxrsal.Lamp:bukkit:[verison]")
+}
+
+compileJava { // Preserve parameter names in the bytecode
+    options.compilerArgs += ["-parameters"]
+    options.fork = true
+    options.forkOptions.executable = "javac"
+}
+
+compileKotlin { // optional: if you're using Kotlin
+    kotlinOptions.javaParameters = true
+}
+```
 </details>
 
 ## Documentation
