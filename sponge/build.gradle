@@ -1,8 +1,8 @@
 plugins {
-    id 'org.spongepowered.plugin' version '0.9.0'
+    id "org.spongepowered.plugin" version "0.9.0"
 }
 
 dependencies {
-    implementation project(":common")
-    compileOnly 'org.spongepowered:spongeapi:7.3.0'
+    implementation(project(":common"))
+    compileOnly "org.spongepowered:spongeapi:7.3.0"
 }

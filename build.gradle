@@ -1,14 +1,14 @@
 plugins {
-    id 'java'
+    id "java"
 }
 
 subprojects {
 
-    apply plugin: 'java'
-    apply plugin: 'maven'
+    apply plugin: "java"
+    apply plugin: "maven"
 
-    group = 'io.github.revxrsal'
-    version = '2.5'
+    group = "io.github.revxrsal"
+    version = "2.6"
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -18,8 +18,8 @@ subprojects {
     }
 
     dependencies {
-        compileOnly 'org.jetbrains:annotations:22.0.0'
-        compileOnly 'org.projectlombok:lombok:1.18.20'
-        annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        compileOnly("org.jetbrains:annotations:22.0.0")
+        compileOnly("org.projectlombok:lombok:1.18.20")
+        annotationProcessor("org.projectlombok:lombok:1.18.20")
     }
 }

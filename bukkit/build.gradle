@@ -1,7 +1,7 @@
 repositories {
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    maven { url 'https://hub.spigotmc.org/nexus/content/groups/public/' }
-    maven { url 'https://libraries.minecraft.net' }
+    maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url = "https://hub.spigotmc.org/nexus/content/groups/public/" }
+    maven { url = "https://libraries.minecraft.net" }
     mavenLocal()
 }
 
@@ -11,20 +11,20 @@ configurations {
 }
 
 dependencies {
-    implementation(project(':common'))
-    implementation(project(':brigadier'))
-    implementation('me.lucko:commodore:1.11') {
-        exclude module: 'commodore-file' // we don't need that.
-        exclude module: 'brigadier'
+    implementation(project(":common"))
+    implementation(project(":brigadier"))
+    implementation("me.lucko:commodore:1.11") {
+        exclude(module: "commodore-file") // we don"t need that.
+        exclude(module: "brigadier")
     }
-    compileOnly('com.mojang:brigadier:1.0.18')
-    compileOnly('org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT')
+    compileOnly("com.mojang:brigadier:1.0.18")
+    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 }
 
 compileJava {
     options.compilerArgs += ["-parameters"]
     options.fork = true
-    options.forkOptions.executable = 'javac'
+    options.forkOptions.executable = "javac"
 }
 
 jar {

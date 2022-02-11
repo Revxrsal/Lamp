@@ -1,11 +1,11 @@
-rootProject.name = 'lamp'
+rootProject.name = "lamp"
 
-include 'common'
-include 'bukkit'
-include 'bungee'
-include 'cli'
-include 'jda'
-include 'velocity'
-include 'sponge'
-include 'brigadier'
+include "common"
+include "bukkit"
+include "bungee"
+include "cli"
+include "jda"
+include "velocity"
+include "sponge"
+include "brigadier"
 
