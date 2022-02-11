@@ -59,11 +59,11 @@ public final class Strings {
         }
         Switch switchAnn = parameter.getAnnotation(Switch.class);
         if (switchAnn != null) {
-            return switchAnn.value();
+            return switchAnn.value().isEmpty() ? parameter.getName() : switchAnn.value();
         }
         Flag flag = parameter.getAnnotation(Flag.class);
         if (flag != null) {
-            return flag.value();
+            return flag.value().isEmpty() ? parameter.getName() : flag.value();
         }
         return parameter.getName();
     }
