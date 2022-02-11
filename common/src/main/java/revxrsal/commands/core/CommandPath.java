@@ -137,6 +137,16 @@ public class CommandPath implements Iterable<String> {
     }
 
     /**
+     * Returns whether this path represents a root command path
+     * or not
+     *
+     * @return If this path represents a root path
+     */
+    public boolean isRoot() {
+        return path.size() == 1;
+    }
+
+    /**
      * Returns the full path of the category of this command. This
      * will return null if this path represents a root command.
      *
