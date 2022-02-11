@@ -1,6 +1,5 @@
 package revxrsal.commands.exception;
 
-import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.Cooldown;
 import revxrsal.commands.command.CommandActor;
@@ -13,13 +12,32 @@ import static revxrsal.commands.util.Preconditions.notNull;
  * Thrown when the {@link CommandActor} has to wait before executing a
  * command again. This is set by {@link Cooldown}.
  */
-@AllArgsConstructor
 public class CooldownException extends RuntimeException {
 
     /**
      * The time left (in milliseconds)
      */
     private final long timeLeft;
+
+    /**
+     * Creates a new {@link CooldownException} with the given timestamp
+     * in milliseconds
+     *
+     * @param timeLeft The time left in milliseconds
+     */
+    public CooldownException(long timeLeft) {
+        this.timeLeft = timeLeft;
+    }
+
+    /**
+     * Creates a new {@link CooldownException} with the given timestamp
+     * in any unit
+     *
+     * @param timeLeft The time left in the given unit
+     */
+    public CooldownException(TimeUnit unit, long timeLeft) {
+        this.timeLeft = unit.toMillis(timeLeft);
+    }
 
     /**
      * Returns the time left before being able to execute again

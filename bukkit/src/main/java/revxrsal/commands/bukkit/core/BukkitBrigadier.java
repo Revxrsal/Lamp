@@ -32,8 +32,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.CommandHandler;
 import revxrsal.commands.brigadier.LampBrigadier;
+import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
@@ -47,9 +47,9 @@ final class BukkitBrigadier implements LampBrigadier {
 
     private final ClassMap<ArgumentType<?>> argumentTypes = new ClassMap<>();
     private final Commodore commodore;
-    private final CommandHandler handler;
+    private final BukkitCommandHandler handler;
 
-    public BukkitBrigadier(Commodore commodore, CommandHandler handler) {
+    public BukkitBrigadier(Commodore commodore, BukkitCommandHandler handler) {
         this.commodore = commodore;
         this.handler = handler;
         argumentTypes.add(Player.class, entity(true, true));
