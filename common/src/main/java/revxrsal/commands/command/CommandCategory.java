@@ -71,6 +71,15 @@ public interface CommandCategory {
     @NotNull CommandPermission getPermission();
 
     /**
+     * Returns whether is this category secret or not. This
+     * will only return true if all the children categories and commands
+     * of this category are secret.
+     *
+     * @return Is this category secret or not.
+     */
+    boolean isSecret();
+
+    /**
      * Returns an unmodifiable view of all the sub-categories in this
      * category.
      *

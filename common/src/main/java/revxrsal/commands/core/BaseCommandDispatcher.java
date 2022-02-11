@@ -60,6 +60,8 @@ public final class BaseCommandDispatcher {
             arguments.removeFirst();
             return execute(executable, actor, arguments);
         }
+        if (!category.getPermission().canExecute(actor))
+            throw new NoPermissionException(null, category, category.getPermission());
         BaseCommandCategory found = (BaseCommandCategory) category.getCategories().get(path);
         if (found == null) {
             if (category.defaultAction == null)

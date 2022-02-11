@@ -107,7 +107,7 @@ public class BaseCommandHandler implements CommandHandler {
         });
         registerCondition((actor, command, arguments) -> {
             if (!command.getPermission().canExecute(actor))
-                throw new NoPermissionException(command, command.getPermission());
+                throw new NoPermissionException(command, command.getParent(), command.getPermission());
         });
     }
 

@@ -50,6 +50,18 @@ final class BaseCommandCategory implements CommandCategory {
         return permission;
     }
 
+    @Override public boolean isSecret() {
+        for (ExecutableCommand command : commands.values()) {
+            if (command.isSecret()) continue;
+            return false;
+        }
+        for (CommandCategory category : categories.values()) {
+            if (category.isSecret()) continue;
+            return false;
+        }
+        return true;
+    }
+
     private final Map<CommandPath, CommandCategory> unmodifiableCategories = Collections.unmodifiableMap(categories);
 
     @Override public @NotNull @UnmodifiableView Map<CommandPath, CommandCategory> getCategories() {

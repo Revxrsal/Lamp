@@ -199,7 +199,7 @@ final class BaseAutoCompleter implements AutoCompleter {
                 if (!c.isSecret() && c.getPermission().canExecute(actor)) suggestions.add(c.getName());
             });
             category.getCategories().values().forEach(c -> {
-                if (c.getPermission().canExecute(actor)) suggestions.add(c.getName());
+                if (!c.isSecret() && c.getPermission().canExecute(actor)) suggestions.add(c.getName());
             });
         }
         return suggestions
