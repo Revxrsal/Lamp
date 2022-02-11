@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import revxrsal.commands.*;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Flag;
 import revxrsal.commands.annotation.Switch;
 import revxrsal.commands.autocomplete.SuggestionProvider;
@@ -126,5 +126,13 @@ import java.util.List;
 
     @Override public @NotNull ExecutableCommand getDeclaringCommand() {
         return parent;
+    }
+
+    @Override public int compareTo(@NotNull CommandParameter o) {
+        if (isFlag() && o.isSwitch())
+            return 1;
+        if (isSwitch() && o.isFlag())
+            return -1;
+        return Integer.compare(getCommandIndex(), o.getCommandIndex());
     }
 }

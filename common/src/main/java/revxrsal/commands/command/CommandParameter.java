@@ -17,8 +17,10 @@ import java.util.List;
 /**
  * Represents a parameter in a command method. This corresponds to
  * a {@link Parameter} in a method.
+ * <p>
+ * Note: this class has a natural ordering that is inconsistent with equals.
  */
-public interface CommandParameter {
+public interface CommandParameter extends Comparable<CommandParameter> {
 
     /**
      * Returns the parameter name, either from the {@code @Named} annotation or the
