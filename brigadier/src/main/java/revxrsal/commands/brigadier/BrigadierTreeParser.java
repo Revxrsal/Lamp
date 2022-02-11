@@ -59,7 +59,7 @@ import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 @SuppressWarnings("rawtypes")
 public final class BrigadierTreeParser {
 
-    private static final Command<?> NO_ACTION = context -> Command.SINGLE_SUCCESS;
+    private static final Command NO_ACTION = context -> Command.SINGLE_SUCCESS;
 
     /**
      * Parses all the registered commands and categories in the given {@link CommandHandler}
@@ -134,7 +134,7 @@ public final class BrigadierTreeParser {
             ArgumentBuilder<?, ?> builder = getBuilder(brigadier, command, parameter, true)
                     .requires(a -> command.getPermission().canExecute(brigadier.wrapSource(a)));
             if (!isLast && sortedParameters.get(i + 1).isOptional())
-                builder.executes(context -> Command.SINGLE_SUCCESS);
+                builder.executes(NO_ACTION);
             CommandNode node = builder.build();
             if (lastParameter == null) {
                 into.then(node);
