@@ -4,7 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.CommandHandler;
+import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandCategory;
+import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.command.ExecutableCommand;
 
 import java.util.Collections;
@@ -22,6 +24,7 @@ final class BaseCommandCategory implements CommandCategory {
 
     final Map<CommandPath, ExecutableCommand> commands = new HashMap<>();
     final Map<CommandPath, BaseCommandCategory> categories = new HashMap<>();
+    final CommandPermission permission = new CategoryPermission();
 
     @Override public @NotNull String getName() {
         return name;
@@ -41,6 +44,10 @@ final class BaseCommandCategory implements CommandCategory {
 
     @Override public @Nullable ExecutableCommand getDefaultAction() {
         return defaultAction;
+    }
+
+    @Override public @NotNull CommandPermission getPermission() {
+        return permission;
     }
 
     private final Map<CommandPath, CommandCategory> unmodifiableCategories = Collections.unmodifiableMap(categories);
@@ -64,4 +71,18 @@ final class BaseCommandCategory implements CommandCategory {
         if (cat != null)
             cat.categories.put(path, this);
     }
+
+    private class CategoryPermission implements CommandPermission {
+
+        @Override public boolean canExecute(@NotNull CommandActor actor) {
+            for (ExecutableCommand command : commands.values())
+                if (command.getPermission().canExecute(actor))
+                    return true;
+            for (CommandCategory category : categories.values())
+                if (category.getPermission().canExecute(actor))
+                    return true;
+            return false;
+        }
+    }
+
 }

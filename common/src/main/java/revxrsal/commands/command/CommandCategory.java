@@ -60,6 +60,17 @@ public interface CommandCategory {
     @Nullable ExecutableCommand getDefaultAction();
 
     /**
+     * Returns the required permission to access this category.
+     * <p>
+     * Command categories by default do not have explicit permissions,
+     * therefore having access to the category is having access to
+     * any of its children commands or categories.
+     *
+     * @return The command permission
+     */
+    @NotNull CommandPermission getPermission();
+
+    /**
      * Returns an unmodifiable view of all the sub-categories in this
      * category.
      *

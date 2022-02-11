@@ -198,7 +198,9 @@ final class BaseAutoCompleter implements AutoCompleter {
             category.getCommands().values().forEach(c -> {
                 if (!c.isSecret() && c.getPermission().canExecute(actor)) suggestions.add(c.getName());
             });
-            category.getCategories().values().forEach(c -> suggestions.add(c.getName()));
+            category.getCategories().values().forEach(c -> {
+                if (c.getPermission().canExecute(actor)) suggestions.add(c.getName());
+            });
         }
         return suggestions
                 .stream()
