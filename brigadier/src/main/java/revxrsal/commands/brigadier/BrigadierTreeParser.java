@@ -107,8 +107,8 @@ public final class BrigadierTreeParser {
             into.then(childLiteral);
         }
         if (category.getDefaultAction() != null) {
-            LiteralArgumentBuilder childLiteral = parse(brigadier, literal(category.getName()), category.getDefaultAction());
-            into.then(childLiteral);
+            parse(brigadier, into, category.getDefaultAction());
+//            into.then(childLiteral);
         }
         into.requires(a -> category.getPermission().canExecute(brigadier.wrapSource(a)));
         return (LiteralArgumentBuilder<T>) into;
