@@ -33,6 +33,7 @@ public class CooldownException extends RuntimeException {
      * Creates a new {@link CooldownException} with the given timestamp
      * in any unit
      *
+     * @param unit     The time unit in which the time left is given
      * @param timeLeft The time left in the given unit
      */
     public CooldownException(TimeUnit unit, long timeLeft) {
