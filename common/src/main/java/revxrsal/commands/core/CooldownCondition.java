@@ -36,7 +36,7 @@ enum CooldownCondition implements CommandCondition {
         long passed = System.currentTimeMillis() - created;
         long left = cooldown.unit().toMillis(cooldown.value()) - passed;
         if (left > 0 && left < 1000) left = 1000L; // for formatting
-        throw new CooldownException(actor, left);
+        throw new CooldownException(left);
     }
 
     private Map<Integer, Long> get(@NotNull UUID uuid) {

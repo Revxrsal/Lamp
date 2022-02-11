@@ -1,10 +1,9 @@
 package revxrsal.commands.exception;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.annotation.Cooldown;
+import revxrsal.commands.command.CommandActor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,11 +15,6 @@ import static revxrsal.commands.util.Preconditions.notNull;
  */
 @AllArgsConstructor
 public class CooldownException extends RuntimeException {
-
-    /**
-     * The command actor
-     */
-    @Getter private final CommandActor actor;
 
     /**
      * The time left (in milliseconds)
