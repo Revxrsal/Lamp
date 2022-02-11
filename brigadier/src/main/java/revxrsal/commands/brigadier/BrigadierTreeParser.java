@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.brigadier;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -57,6 +58,8 @@ import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
  */
 @SuppressWarnings("rawtypes")
 public final class BrigadierTreeParser {
+
+    private static final Command<?> NO_ACTION = context -> Command.SINGLE_SUCCESS;
 
     /**
      * Parses all the registered commands and categories in the given {@link CommandHandler}
@@ -125,10 +128,14 @@ public final class BrigadierTreeParser {
         CommandNode<?> lastParameter = null;
         List<CommandParameter> sortedParameters = new ArrayList<>(command.getValueParameters().values());
         Collections.sort(sortedParameters);
-        for (CommandParameter parameter : sortedParameters) {
-            CommandNode node = getBuilder(brigadier, command, parameter, true)
-                    .requires(a -> command.getPermission().canExecute(brigadier.wrapSource(a)))
-                    .build();
+        for (int i = 0; i < sortedParameters.size(); i++) {
+            boolean isLast = i == sortedParameters.size() - 1;
+            CommandParameter parameter = sortedParameters.get(i);
+            ArgumentBuilder<?, ?> builder = getBuilder(brigadier, command, parameter, true)
+                    .requires(a -> command.getPermission().canExecute(brigadier.wrapSource(a)));
+            if (!isLast && sortedParameters.get(i + 1).isOptional())
+                builder.executes(context -> Command.SINGLE_SUCCESS);
+            CommandNode node = builder.build();
             if (lastParameter == null) {
                 into.then(node);
             } else {

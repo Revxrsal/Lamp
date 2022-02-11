@@ -79,7 +79,7 @@ import java.util.List;
     }
 
     @Override public boolean isOptional() {
-        return optional;
+        return optional || isSwitch();
     }
 
     @Override public <A extends Annotation> A getAnnotation(@NotNull Class<A> annotation) {
