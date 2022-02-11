@@ -137,6 +137,8 @@ public final class BrigadierTreeParser {
                 builder.executes(NO_ACTION);
             CommandNode node = builder.build();
             if (lastParameter == null) {
+                if (parameter.isOptional())
+                    into.executes(NO_ACTION);
                 into.then(node);
             } else {
                 lastParameter.addChild(node);
