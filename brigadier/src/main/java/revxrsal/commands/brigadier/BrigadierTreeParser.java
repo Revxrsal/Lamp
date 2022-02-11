@@ -38,6 +38,7 @@ import revxrsal.commands.command.*;
 import revxrsal.commands.util.Primitives;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,8 +73,8 @@ public final class BrigadierTreeParser {
             @NotNull CommandHandler handler,
             @Nullable String namespace) {
         List<LiteralArgumentBuilder<T>> nodes = new ArrayList<>();
-        List<CommandCategory> roots = handler.getCategories().values().stream().filter(c -> c.getPath().size() == 1).collect(Collectors.toList());
-        List<ExecutableCommand> rootCommands = handler.getCommands().values().stream().filter(c -> c.getPath().size() == 1).collect(Collectors.toList());
+        List<CommandCategory> roots = handler.getCategories().values().stream().filter(c -> c.getPath().isRoot()).collect(Collectors.toList());
+        List<ExecutableCommand> rootCommands = handler.getCommands().values().stream().filter(c -> c.getPath().isRoot()).collect(Collectors.toList());
         for (CommandCategory root : roots) {
             nodes.add(parse(brigadier, literal(root.getName()), root));
             if (namespace != null) nodes.add(parse(brigadier, literal(namespace + ":" + root.getName()), root));
@@ -106,6 +107,7 @@ public final class BrigadierTreeParser {
             LiteralArgumentBuilder childLiteral = parse(brigadier, literal(category.getName()), category.getDefaultAction());
             into.then(childLiteral);
         }
+        into.requires(a -> category.getPermission().canExecute(brigadier.wrapSource(a)));
         return (LiteralArgumentBuilder<T>) into;
     }
 
@@ -121,8 +123,12 @@ public final class BrigadierTreeParser {
                                                       LiteralArgumentBuilder<?> into,
                                                       ExecutableCommand command) {
         CommandNode<?> lastParameter = null;
-        for (CommandParameter parameter : command.getValueParameters().values()) {
-            CommandNode node = getBuilder(brigadier, command, parameter, true).build();
+        List<CommandParameter> sortedParameters = new ArrayList<>(command.getValueParameters().values());
+        Collections.sort(sortedParameters);
+        for (CommandParameter parameter : sortedParameters) {
+            CommandNode node = getBuilder(brigadier, command, parameter, true)
+                    .requires(a -> command.getPermission().canExecute(brigadier.wrapSource(a)))
+                    .build();
             if (lastParameter == null) {
                 into.then(node);
             } else {
@@ -130,6 +136,7 @@ public final class BrigadierTreeParser {
             }
             lastParameter = node;
         }
+        into.requires(a -> command.getPermission().canExecute(brigadier.wrapSource(a)));
         return (LiteralArgumentBuilder<T>) into;
     }
 
