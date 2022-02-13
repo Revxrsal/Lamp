@@ -31,6 +31,8 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
 
     protected void noPermission(@NotNull CommandActor actor, @NotNull NoPermissionException exception) {}
 
+    protected void argumentParse(@NotNull CommandActor actor, @NotNull ArgumentParseException exception) {}
+
     protected void commandInvocation(@NotNull CommandActor actor, @NotNull CommandInvocationException exception) {}
 
     protected void tooManyArguments(@NotNull CommandActor actor, @NotNull TooManyArgumentsException exception) {}
@@ -63,6 +65,8 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
             tooManyArguments(actor, (TooManyArgumentsException) throwable);
         else if (throwable instanceof NoPermissionException)
             noPermission(actor, (NoPermissionException) throwable);
+        else if (throwable instanceof ArgumentParseException)
+            argumentParse(actor, (ArgumentParseException) throwable);
         else if (throwable instanceof CommandInvocationException)
             commandInvocation(actor, (CommandInvocationException) throwable);
         else if (throwable instanceof InvalidCommandException)

@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * Adds a command permission for the given command
  */
 @DistributeOnMethods
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandPermission {
 

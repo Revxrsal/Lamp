@@ -16,6 +16,7 @@ public final class Preconditions {
         if (collection.size() == 0)
             throw new IllegalStateException(err);
     }
+
     public static <T> void notEmpty(String s, String err) {
         if (s.length() == 0)
             throw new IllegalStateException(err);
@@ -24,6 +25,10 @@ public final class Preconditions {
     public static void checkArgument(boolean expr, String err) {
         if (!expr)
             throw new IllegalArgumentException(err);
+    }
+
+    public static int coerceIn(int value, int min, int max) {
+        return value < min ? min : Math.min(value, max);
     }
 
     public static <T> T notNull(T t, String err) {

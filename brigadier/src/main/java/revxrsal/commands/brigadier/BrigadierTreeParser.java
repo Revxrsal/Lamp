@@ -109,7 +109,7 @@ public final class BrigadierTreeParser {
         if (category.getDefaultAction() != null) {
             parse(brigadier, into, category.getDefaultAction());
         }
-        into.requires(a -> category.getPermission().canExecute(brigadier.wrapSource(a)));
+        into.requires(a -> category.hasPermission(brigadier.wrapSource(a)));
         return (LiteralArgumentBuilder<T>) into;
     }
 
@@ -130,8 +130,7 @@ public final class BrigadierTreeParser {
         for (int i = 0; i < sortedParameters.size(); i++) {
             boolean isLast = i == sortedParameters.size() - 1;
             CommandParameter parameter = sortedParameters.get(i);
-            ArgumentBuilder<?, ?> builder = getBuilder(brigadier, command, parameter, true)
-                    .requires(a -> command.getPermission().canExecute(brigadier.wrapSource(a)));
+            ArgumentBuilder<?, ?> builder = getBuilder(brigadier, command, parameter, true);
             if (!isLast && sortedParameters.get(i + 1).isOptional())
                 builder.executes(NO_ACTION);
             CommandNode node = builder.build();
@@ -144,7 +143,7 @@ public final class BrigadierTreeParser {
             }
             lastParameter = node;
         }
-        into.requires(a -> command.getPermission().canExecute(brigadier.wrapSource(a)));
+        into.requires(a -> command.hasPermission(brigadier.wrapSource(a)));
         return (LiteralArgumentBuilder<T>) into;
     }
 
@@ -162,6 +161,7 @@ public final class BrigadierTreeParser {
         ArgumentType<?> argumentType = getArgumentType(brigadier, parameter);
 
         return argument(parameter.getName(), argumentType)
+                .requires(a -> parameter.hasPermission(brigadier.wrapSource(a)))
                 .suggests(createSuggestionProvider(brigadier, command, parameter));
     }
 
@@ -209,7 +209,8 @@ public final class BrigadierTreeParser {
         return (context, builder) -> {
             try {
                 CommandActor actor = brigadier.wrapSource(context.getSource());
-                Message tooltip = new LiteralMessage(parameter.getName());
+                String tooltipMessage = parameter.getDescription() == null ? parameter.getName() : parameter.getDescription();
+                Message tooltip = new LiteralMessage(tooltipMessage);
                 String input = context.getInput();
                 ArgumentStack args = ArgumentStack.forAutoCompletion(input.startsWith("/") ? input.substring(1) : input);
                 parameter.getSuggestionProvider().getSuggestions(args, actor, command)

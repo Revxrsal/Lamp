@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.ArgumentStack;
-import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.jda.JDAActor;
 import revxrsal.commands.jda.JDACommandHandler;
 
 @AllArgsConstructor final class JDACommandListener implements EventListener {
@@ -22,8 +22,12 @@ import revxrsal.commands.jda.JDACommandHandler;
         if (!content.startsWith(prefix)) return;
         content = content.substring(prefix.length());
 
-        ArgumentStack arguments = ArgumentStack.fromString(content);
-        CommandActor actor = new BaseActorJDA(event, handler);
-        handler.dispatch(actor, arguments);
+        JDAActor actor = new BaseActorJDA(event, handler);
+        try {
+            ArgumentStack arguments = ArgumentStack.fromString(content);
+            handler.dispatch(actor, arguments);
+        } catch (Throwable t) {
+            handler.getExceptionHandler().handleException(t, actor);
+        }
     }
 }

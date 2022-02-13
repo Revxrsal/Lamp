@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static revxrsal.commands.util.Collections.listOf;
+import static revxrsal.commands.util.Preconditions.coerceIn;
 import static revxrsal.commands.util.Preconditions.notNull;
 
 final class BaseAutoCompleter implements AutoCompleter {
@@ -81,11 +82,14 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     @Override public AutoCompleter registerSuggestionFactory(int priority, @NotNull SuggestionProviderFactory factory) {
         notNull(factory, "suggestion provider factory cannot be null!");
-        factories.add(Math.max(priority, factories.size()), factory);
+        factories.add(coerceIn(priority, 0, factories.size()), factory);
         return this;
     }
 
     public SuggestionProvider getProvider(CommandParameter parameter) {
+        if (parameter.isSwitch()) {
+            return SuggestionProvider.of(handler.switchPrefix + parameter.getSwitchName());
+        }
         for (SuggestionProviderFactory factory : factories) {
             SuggestionProvider provider = factory.createSuggestionProvider(parameter);
             if (provider == null) continue;
@@ -151,15 +155,14 @@ final class BaseAutoCompleter implements AutoCompleter {
         try {
             if (args.isEmpty()) return emptyList();
             if (command.getValueParameters().isEmpty()) return emptyList();
-            for (CommandParameter parameter : command.getParameters()) {
+            List<CommandParameter> parameters = new ArrayList<>(command.getValueParameters().values());
+            Collections.sort(parameters);
+            for (CommandParameter parameter : parameters) {
                 try {
-                    if (parameter.isSwitch()) {
-                        return listOf(handler.switchPrefix + parameter.getSwitchName());
-                    }
                     if (parameter.isFlag()) {
                         int index = args.indexOf(handler.getFlagPrefix() + parameter.getFlagName());
                         if (index == -1) {
-                            return listOf(handler.getFlagPrefix() + parameter.getFlagName() + " ");
+                            return listOf(handler.getFlagPrefix() + parameter.getFlagName());
                         } else if (index == args.size() - 2) {
                             SuggestionProvider provider = parameter.getSuggestionProvider();
                             return provider.getSuggestions(args, actor, command)
@@ -175,6 +178,7 @@ final class BaseAutoCompleter implements AutoCompleter {
             }
             CommandParameter parameter = command.getValueParameters().get(args.size() - 1);
             if (parameter == null) return emptyList(); // extra arguments
+            if (!parameter.getPermission().canExecute(actor)) return emptyList();
             SuggestionProvider provider = parameter.getSuggestionProvider();
             notNull(provider, "provider must not be null!");
             return provider.getSuggestions(args, actor, command)

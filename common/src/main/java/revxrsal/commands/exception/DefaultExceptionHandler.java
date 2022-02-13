@@ -47,6 +47,12 @@ public class DefaultExceptionHandler extends CommandExceptionAdapter {
         actor.error("You do not have permission to execute this command!");
     }
 
+    @Override protected void argumentParse(@NotNull CommandActor actor, @NotNull ArgumentParseException exception) {
+        actor.error("Invalid quoted string");
+        actor.error(exception.getSourceString());
+        actor.error(exception.getAnnotatedPosition());
+    }
+
     @Override protected void commandInvocation(@NotNull CommandActor actor, @NotNull CommandInvocationException exception) {
         actor.error("An error occurred while executing the command.");
         exception.getCause().printStackTrace();

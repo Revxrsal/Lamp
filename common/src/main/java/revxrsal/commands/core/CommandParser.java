@@ -6,12 +6,14 @@ import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.annotation.*;
 import revxrsal.commands.command.CommandParameter;
+import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.reflect.MethodCaller.BoundMethodCaller;
 import revxrsal.commands.orphan.OrphanCommand;
 import revxrsal.commands.orphan.OrphanRegistry;
 import revxrsal.commands.process.ParameterResolver;
 import revxrsal.commands.process.ParameterValidator;
+import revxrsal.commands.process.PermissionReader;
 import revxrsal.commands.process.ResponseHandler;
 import revxrsal.commands.util.Preconditions;
 import revxrsal.commands.util.Primitives;
@@ -199,6 +201,7 @@ final class CommandParser {
             List<ParameterValidator<Object>> validators = new ArrayList<>(
                     handler.validators.getFlexibleOrDefault(parameter.getType(), Collections.emptyList())
             );
+
             BaseCommandParameter param = new BaseCommandParameter(
                     getName(parameter),
                     paramAnns.get(Description.class, Description::value),
@@ -212,6 +215,14 @@ final class CommandParser {
                     paramAnns.get(Flag.class),
                     Collections.unmodifiableList(validators)
             );
+
+            for (PermissionReader reader : handler.getPermissionReaders()) {
+                CommandPermission permission = reader.getPermission(param);
+                if (permission != null) {
+                    param.permission = permission;
+                    break;
+                }
+            }
 
             if (param.getType().isPrimitive() && param.isOptional() && param.getDefaultValue() == null && !param.isSwitch())
                 throw new IllegalStateException("Optional parameter " + parameter + " at " + method + " cannot be a prmitive!");

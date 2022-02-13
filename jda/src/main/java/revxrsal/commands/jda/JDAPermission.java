@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandPermission;
-import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.command.trait.CommandAnnotationHolder;
 import revxrsal.commands.jda.annotation.GuildPermission;
 import revxrsal.commands.jda.annotation.RolePermission;
 import revxrsal.commands.jda.annotation.UserPermission;
@@ -18,7 +18,7 @@ public final class JDAPermission implements CommandPermission {
     private final @Nullable GuildPermission gp;
     private final @Nullable UserPermission up;
 
-    public JDAPermission(ExecutableCommand command) {
+    public JDAPermission(CommandAnnotationHolder command) {
         rp = command.getAnnotation(RolePermission.class);
         gp = command.getAnnotation(GuildPermission.class);
         up = command.getAnnotation(UserPermission.class);

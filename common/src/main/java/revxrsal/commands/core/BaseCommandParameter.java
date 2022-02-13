@@ -9,6 +9,7 @@ import revxrsal.commands.annotation.Flag;
 import revxrsal.commands.annotation.Switch;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandParameter;
+import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.ParameterResolver;
 import revxrsal.commands.process.ParameterValidator;
@@ -28,6 +29,7 @@ import java.util.List;
     private final ExecutableCommand parent;
     SuggestionProvider suggestionProvider;
     private final Parameter parameter;
+    @Nullable CommandPermission permission;
     ParameterResolver resolver;
     int cindex = -1;
     private final @Nullable Switch switchAnn;
@@ -90,7 +92,7 @@ import java.util.List;
         return switchAnn != null;
     }
 
-    @Override public @Nullable String getSwitchName() {
+    @Override public @NotNull String getSwitchName() {
         if (!isSwitch())
             throw new IllegalStateException("Not a switch.");
         return switchAnn.value().isEmpty() ? getName() : switchAnn.value();
@@ -100,7 +102,7 @@ import java.util.List;
         return flag != null;
     }
 
-    @Override public @Nullable String getFlagName() {
+    @Override public @NotNull String getFlagName() {
         if (!isFlag())
             throw new IllegalStateException("Not a flag.");
         return flag.value().isEmpty() ? getName() : flag.value();
@@ -112,7 +114,7 @@ import java.util.List;
         return switchAnn.defaultValue();
     }
 
-    @Override public boolean hasAnnotation(Class<? extends Annotation> annotation) {
+    @Override public boolean hasAnnotation(@NotNull Class<? extends Annotation> annotation) {
         return parameter.isAnnotationPresent(annotation);
     }
 
@@ -126,6 +128,10 @@ import java.util.List;
 
     @Override public @NotNull ExecutableCommand getDeclaringCommand() {
         return parent;
+    }
+
+    @Override public @NotNull CommandPermission getPermission() {
+        return permission == null ? getDeclaringCommand().getPermission() : permission;
     }
 
     @Override public int compareTo(@NotNull CommandParameter o) {

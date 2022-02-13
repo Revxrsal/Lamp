@@ -22,11 +22,15 @@ final class BukkitCommandExecutor implements TabExecutor {
                                        @NotNull Command command,
                                        @NotNull String label,
                                        @NotNull String[] args) {
-        ArgumentStack arguments = ArgumentStack.of(args);
-        arguments.addFirst(command.getName());
-
         BukkitCommandActor actor = new BukkitActor(sender, handler);
-        handler.dispatch(actor, arguments);
+        try {
+            ArgumentStack arguments = ArgumentStack.of(args);
+            arguments.addFirst(command.getName());
+
+            handler.dispatch(actor, arguments);
+        } catch (Throwable t) {
+            handler.getExceptionHandler().handleException(t, actor);
+        }
         return true;
     }
 

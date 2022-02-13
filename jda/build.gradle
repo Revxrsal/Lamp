@@ -4,5 +4,5 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
-    compileOnly "net.dv8tion:JDA:4.3.0_324"
+    compileOnly("net.dv8tion:JDA:4.3.0_324")
 }

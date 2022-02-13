@@ -8,19 +8,19 @@ import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.SecretCommand;
 import revxrsal.commands.annotation.Usage;
+import revxrsal.commands.command.trait.CommandAnnotationHolder;
+import revxrsal.commands.command.trait.PermissionHolder;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.process.ResponseHandler;
 
-import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 /**
  * Represents a command which can be executed with specific arguments,
  * flags or switches.
  */
-public interface ExecutableCommand {
+public interface ExecutableCommand extends CommandAnnotationHolder, PermissionHolder {
 
     /**
      * Returns the name of the command
@@ -100,13 +100,6 @@ public interface ExecutableCommand {
     @NotNull @Unmodifiable Map<Integer, CommandParameter> getValueParameters();
 
     /**
-     * Returns the required permission to run this command.
-     *
-     * @return The command permission
-     */
-    @NotNull CommandPermission getPermission();
-
-    /**
      * Returns the command handler of this command
      *
      * @return The command handler
@@ -129,21 +122,5 @@ public interface ExecutableCommand {
      * @return is secret or not.
      */
     boolean isSecret();
-
-    /**
-     * Returns the annotation present on this command from the annotation type
-     *
-     * @param annotation The annotation type
-     * @return The annotation value, or null if not present.
-     */
-    <A extends Annotation> A getAnnotation(@NotNull Class<A> annotation);
-
-    /**
-     * Whether this command has the specified annotation or not
-     *
-     * @param annotation The annotation type
-     * @return true if it has the annotation, false if otherwise.
-     */
-    boolean hasAnnotation(@NotNull Class<? extends Annotation> annotation);
 
 }

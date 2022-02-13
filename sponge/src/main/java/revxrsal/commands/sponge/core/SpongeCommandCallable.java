@@ -31,9 +31,13 @@ final class SpongeCommandCallable implements CommandCallable {
 
     @Override public @NotNull CommandResult process(@NotNull CommandSource source, @NotNull String args) {
         CommandActor actor = new SpongeActor(source, handler);
-        ArgumentStack arguments = ArgumentStack.fromString(args);
-        arguments.addFirst(name);
-        handler.dispatch(actor, arguments);
+        try {
+            ArgumentStack arguments = ArgumentStack.fromString(args);
+            arguments.addFirst(name);
+            handler.dispatch(actor, arguments);
+        } catch (Throwable t) {
+            handler.getExceptionHandler().handleException(t, actor);
+        }
         return CommandResult.empty();
     }
 

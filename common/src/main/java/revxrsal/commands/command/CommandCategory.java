@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Default;
+import revxrsal.commands.command.trait.PermissionHolder;
 import revxrsal.commands.core.CommandPath;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ import java.util.Map;
  *     <li>Subactions, such as {@link Default}.</li>
  * </ul>
  */
-public interface CommandCategory {
+public interface CommandCategory extends PermissionHolder {
 
     /**
      * Returns the name of this category

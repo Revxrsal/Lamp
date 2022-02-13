@@ -60,8 +60,7 @@ public final class BaseCommandDispatcher {
             arguments.removeFirst();
             return execute(executable, actor, arguments);
         }
-        if (!category.getPermission().canExecute(actor))
-            throw new NoPermissionException(null, category, category.getPermission());
+        category.checkPermission(actor);
         BaseCommandCategory found = (BaseCommandCategory) category.getCategories().get(path);
         if (found == null) {
             if (category.defaultAction == null)
@@ -109,6 +108,7 @@ public final class BaseCommandDispatcher {
             if (!parameter.isSwitch() && !parameter.isFlag() && !ArgumentStack.class.isAssignableFrom(parameter.getType())) {
                 ParameterResolver<?> resolver = parameter.getResolver();
                 if (!resolver.mutatesArguments()) {
+                    parameter.checkPermission(actor);
                     ContextResolverContext cxt = new ContextResolverContext(input, actor, parameter, values);
                     Object value = resolver.resolve(cxt);
                     for (ParameterValidator<Object> v : parameter.getValidators()) {
@@ -117,6 +117,7 @@ public final class BaseCommandDispatcher {
                     values[parameter.getMethodIndex()] = value;
                 } else {
                     if (!addDefaultValues(args, parameter, actor, values)) {
+                        parameter.checkPermission(actor);
                         ValueContextR cxt = new ValueContextR(input, actor, parameter, values, args);
                         Object value = resolver.resolve(cxt);
                         for (ParameterValidator<Object> v : parameter.getValidators()) {

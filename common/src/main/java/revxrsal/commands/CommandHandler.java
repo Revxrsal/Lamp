@@ -18,6 +18,7 @@ import revxrsal.commands.process.*;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -59,6 +60,18 @@ public interface CommandHandler {
      * @see CommandExceptionHandler#handleException(Throwable, CommandActor)
      */
     @NotNull CommandHandler setExceptionHandler(@NotNull CommandExceptionHandler handler);
+
+    /**
+     * Convenient method to register exception handlers. These will have higher priority
+     * over {@link CommandExceptionHandler}.
+     *
+     * @param exceptionType The exception class
+     * @param handler       The exception handler
+     * @return This command handler
+     * @see CommandExceptionHandler#handleException(Throwable, CommandActor)
+     */
+    @NotNull <T extends Throwable> CommandHandler registerExceptionHandler(@NotNull Class<T> exceptionType,
+                                                                           @NotNull BiConsumer<CommandActor, T> handler);
 
     /**
      * Sets the prefix that all parameters annotated with {@link Switch} will

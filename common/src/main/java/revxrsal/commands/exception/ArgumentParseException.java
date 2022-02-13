@@ -76,17 +76,10 @@ public class ArgumentParseException extends RuntimeException {
             if (position >= 37) {
                 int startPos = position - 37;
                 int endPos = Math.min(source.length(), position + 37);
-                if (endPos < source.length()) {
-                    source = "..." + source.substring(startPos, endPos) + "...";
-                } else {
-                    source = "..." + source.substring(startPos, endPos);
-                }
                 position -= 40;
-            } else {
-                source = source.substring(0, 77) + "...";
             }
         }
-        return source + "\n" + Strings.repeat(" ", position) + "^";
+        return Strings.repeat(" ", position) + "^";
     }
 
     /**

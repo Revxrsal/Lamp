@@ -17,11 +17,16 @@ final class VelocitySimpleCommand implements SimpleCommand {
 
     @Override public void execute(Invocation invocation) {
         CommandSource source = invocation.source();
-        ArgumentStack arguments = ArgumentStack.of(invocation.arguments());
-        arguments.addFirst(invocation.alias());
-
         VelocityCommandActor actor = new VelocityActor(source, handler.getServer(), handler);
-        handler.dispatch(actor, arguments);
+        try {
+            ArgumentStack arguments = ArgumentStack.of(invocation.arguments());
+            arguments.addFirst(invocation.alias());
+
+            handler.dispatch(actor, arguments);
+        } catch (Throwable t) {
+            handler.getExceptionHandler().handleException(t, actor);
+        }
+
     }
 
     @Override public List<String> suggest(Invocation invocation) {

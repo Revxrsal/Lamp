@@ -29,6 +29,7 @@ import me.lucko.commodore.Commodore;
 import me.lucko.commodore.MinecraftArgumentTypes;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +55,7 @@ final class BukkitBrigadier implements LampBrigadier {
         this.handler = handler;
         argumentTypes.add(Player.class, entity(true, true));
         argumentTypes.add(EntitySelector.class, entity(false, false));
+        argumentTypes.add(EntityType.class, MinecraftArgumentTypes.getByKey(NamespacedKey.minecraft("entity_summon")));
     }
 
     @Override public @NotNull CommandActor wrapSource(@NotNull Object commandSource) {

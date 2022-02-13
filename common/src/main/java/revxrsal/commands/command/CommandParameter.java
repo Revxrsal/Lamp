@@ -6,6 +6,8 @@ import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.*;
 import revxrsal.commands.autocomplete.SuggestionProvider;
+import revxrsal.commands.command.trait.CommandAnnotationHolder;
+import revxrsal.commands.command.trait.PermissionHolder;
 import revxrsal.commands.process.ParameterResolver;
 import revxrsal.commands.process.ParameterValidator;
 
@@ -20,7 +22,7 @@ import java.util.List;
  * <p>
  * Note: this class has a natural ordering that is inconsistent with equals.
  */
-public interface CommandParameter extends Comparable<CommandParameter> {
+public interface CommandParameter extends Comparable<CommandParameter>, PermissionHolder, CommandAnnotationHolder {
 
     /**
      * Returns the parameter name, either from the {@code @Named} annotation or the
@@ -133,9 +135,10 @@ public interface CommandParameter extends Comparable<CommandParameter> {
      * Returns the name of the switch. Returns null if {@link #isSwitch()} is
      * false.
      *
-     * @return The switch name, or null if this parameter is not a switch.
+     * @return The switch name, otherwise throws a {@link IllegalStateException}
+     * @throws IllegalStateException If this parameter is not a switch
      */
-    @Nullable String getSwitchName();
+    @NotNull String getSwitchName();
 
     /**
      * Returns whether is this parameter a {@link Flag} parameter or not
@@ -147,9 +150,10 @@ public interface CommandParameter extends Comparable<CommandParameter> {
     /**
      * Returns the name of the flag. Returns null if {@link #isFlag()} is false.
      *
-     * @return The flag name, or null if this parameter is not a flag.
+     * @return The flag name, otherwise throws a {@link IllegalStateException}
+     * @throws IllegalStateException If this parameter is not a switch
      */
-    @Nullable String getFlagName();
+    @NotNull String getFlagName();
 
     /**
      * Returns the default {@link Switch#defaultValue()} if the switch was not provided
@@ -160,22 +164,6 @@ public interface CommandParameter extends Comparable<CommandParameter> {
      * @return The default switch value.
      */
     boolean getDefaultSwitch();
-
-    /**
-     * Returns the annotation present on this parameter from the annotation type
-     *
-     * @param annotation The annotation type
-     * @return The annotation value, or null if not present.
-     */
-    <A extends Annotation> A getAnnotation(@NotNull Class<A> annotation);
-
-    /**
-     * Whether this parameter has the specified annotation or not
-     *
-     * @param annotation The annotation type
-     * @return true if it has the annotation, false if otherwise.
-     */
-    boolean hasAnnotation(Class<? extends Annotation> annotation);
 
     /**
      * Returns the resolver for this parameter. See {@link ParameterResolver} for
@@ -201,4 +189,13 @@ public interface CommandParameter extends Comparable<CommandParameter> {
      */
     @NotNull ExecutableCommand getDeclaringCommand();
 
+    /**
+     * Returns the required permission to access this parameter.
+     * <p>
+     * Parameters by default inherit their parent {@link #getDeclaringCommand()}
+     * permission, unless
+     *
+     * @return The command permission
+     */
+    @NotNull CommandPermission getPermission();
 }

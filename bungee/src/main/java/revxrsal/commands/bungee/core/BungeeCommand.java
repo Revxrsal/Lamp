@@ -16,11 +16,15 @@ final class BungeeCommand extends Command implements TabExecutor {
     }
 
     @Override public void execute(CommandSender sender, String[] args) {
-        ArgumentStack arguments = ArgumentStack.of(args);
-        arguments.addFirst(getName());
-
         BungeeCommandActor actor = new BungeeActor(sender, handler);
-        handler.dispatch(actor, arguments);
+        try {
+            ArgumentStack arguments = ArgumentStack.of(args);
+            arguments.addFirst(getName());
+
+            handler.dispatch(actor, arguments);
+        } catch (Throwable t) {
+            handler.getExceptionHandler().handleException(t, actor);
+        }
     }
 
     @Override public Iterable<String> onTabComplete(CommandSender sender, String[] args) {

@@ -29,10 +29,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static revxrsal.commands.util.Preconditions.notEmpty;
-import static revxrsal.commands.util.Preconditions.notNull;
+import static revxrsal.commands.util.Preconditions.*;
 import static revxrsal.commands.util.Primitives.getType;
 import static revxrsal.commands.util.Strings.splitBySpace;
 
@@ -105,10 +105,7 @@ public class BaseCommandHandler implements CommandHandler {
                 if (value.doubleValue() > range.max() || value.doubleValue() < range.min())
                     throw new NumberNotInRangeException(actor, parameter, value, range.min(), range.max());
         });
-        registerCondition((actor, command, arguments) -> {
-            if (!command.getPermission().canExecute(actor))
-                throw new NoPermissionException(command, command.getParent(), command.getPermission());
-        });
+        registerCondition((actor, command, arguments) -> command.checkPermission(actor));
     }
 
     @Override
@@ -150,6 +147,10 @@ public class BaseCommandHandler implements CommandHandler {
         return this;
     }
 
+    public Set<PermissionReader> getPermissionReaders() {
+        return permissionReaders;
+    }
+
     @Override public @NotNull CommandHandler setMethodCallerFactory(@NotNull MethodCallerFactory factory) {
         notNull(factory, "method caller factory");
         methodCallerFactory = factory;
@@ -159,6 +160,14 @@ public class BaseCommandHandler implements CommandHandler {
     @Override public @NotNull CommandHandler setExceptionHandler(@NotNull CommandExceptionHandler handler) {
         notNull(handler, "command exception handler");
         exceptionHandler.handler = handler;
+        return this;
+    }
+
+    @Override public @NotNull <T extends Throwable> CommandHandler registerExceptionHandler(@NotNull Class<T> exceptionType,
+                                                                                            @NotNull BiConsumer<CommandActor, T> handler) {
+        notNull(exceptionType, "exception type");
+        notNull(handler, "exception handler");
+        exceptionHandler.exceptionsHandlers.add(exceptionType, (BiConsumer<CommandActor, Throwable>) handler);
         return this;
     }
 
@@ -224,7 +233,7 @@ public class BaseCommandHandler implements CommandHandler {
         notNull(resolver, "resolver");
         if (type.isPrimitive())
             registerValueResolver(priority, Primitives.wrap(type), resolver);
-        factories.add(Math.max(priority, factories.size()), new ResolverFactory(ValueResolverFactory.forType(type, resolver)));
+        factories.add(coerceIn(priority, 0, factories.size()), new ResolverFactory(ValueResolverFactory.forType(type, resolver)));
         return this;
     }
 
@@ -242,7 +251,7 @@ public class BaseCommandHandler implements CommandHandler {
         notNull(resolver, "resolver");
         if (type.isPrimitive())
             registerContextResolver(Primitives.wrap(type), resolver);
-        factories.add(Math.max(priority, factories.size()), new ResolverFactory(ContextResolverFactory.forType(type, resolver)));
+        factories.add(coerceIn(priority, 0, factories.size()), new ResolverFactory(ContextResolverFactory.forType(type, resolver)));
         return this;
     }
 
@@ -262,7 +271,7 @@ public class BaseCommandHandler implements CommandHandler {
 
     @Override public @NotNull CommandHandler registerValueResolverFactory(int priority, @NotNull ValueResolverFactory factory) {
         notNull(factory, "value resolver factory");
-        factories.add(Math.max(priority, factories.size()), new ResolverFactory(factory));
+        factories.add(coerceIn(priority, 0, factories.size()), new ResolverFactory(factory));
         return this;
     }
 
@@ -274,7 +283,7 @@ public class BaseCommandHandler implements CommandHandler {
 
     @Override public @NotNull CommandHandler registerContextResolverFactory(int priority, @NotNull ContextResolverFactory factory) {
         notNull(factory, "context resolver factory");
-        factories.add(Math.max(priority, factories.size()), new ResolverFactory(factory));
+        factories.add(coerceIn(priority, 0, factories.size()), new ResolverFactory(factory));
         return this;
     }
 
@@ -388,7 +397,11 @@ public class BaseCommandHandler implements CommandHandler {
     }
 
     @Override public void dispatch(@NotNull CommandActor actor, @NotNull String commandInput) {
-        dispatch(actor, ArgumentStack.fromString(commandInput));
+        try {
+            dispatch(actor, ArgumentStack.fromString(commandInput));
+        } catch (Throwable t) {
+            getExceptionHandler().handleException(t, actor);
+        }
     }
 
     @Override public <T> Supplier<T> getDependency(@NotNull Class<T> dependencyType) {
@@ -439,6 +452,7 @@ public class BaseCommandHandler implements CommandHandler {
 
     private class WrappedExceptionHandler implements CommandExceptionHandler {
 
+        private final ClassMap<BiConsumer<CommandActor, Throwable>> exceptionsHandlers = new ClassMap<>();
         private @NotNull CommandExceptionHandler handler;
 
         public WrappedExceptionHandler(@NotNull CommandExceptionHandler handler) {
@@ -447,10 +461,17 @@ public class BaseCommandHandler implements CommandHandler {
 
         @Override public void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
             Throwable cause = throwable.getCause();
-            if (cause != null && cause.getClass().isAnnotationPresent(ThrowableFromCommand.class)) {
+            if (cause != null && (cause.getClass().isAnnotationPresent(ThrowableFromCommand.class) ||
+                    exceptionsHandlers.getFlexible(cause.getClass()) != null)
+            ) {
                 throwable = cause;
             }
+            @Nullable BiConsumer<CommandActor, Throwable> registered = exceptionsHandlers.getFlexible(throwable.getClass());
             sanitizer.sanitize(throwable);
+            if (registered != null) {
+                registered.accept(actor, throwable);
+                return;
+            }
             handler.handleException(throwable, actor);
         }
     }
