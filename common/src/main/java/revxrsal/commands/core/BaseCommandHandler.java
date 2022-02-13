@@ -60,7 +60,6 @@ public class BaseCommandHandler implements CommandHandler {
     public BaseCommandHandler() {
         registerContextResolverFactory(new SenderContextResolverFactory(senderResolvers));
         registerContextResolverFactory(DependencyResolverFactory.INSTANCE);
-        registerValueResolverFactory(EnumResolverFactory.INSTANCE);
         registerValueResolver(int.class, ValueResolverContext::popInt);
         registerValueResolver(double.class, ValueResolverContext::popDouble);
         registerValueResolver(short.class, ValueResolverContext::popShort);
@@ -353,6 +352,9 @@ public class BaseCommandHandler implements CommandHandler {
             Resolver resolver = factory.create(parameter);
             if (resolver == null) continue;
             return (ParameterResolver<T>) resolver;
+        }
+        if (parameter.getType().isEnum()) {
+            return (ParameterResolver<T>) EnumResolverFactory.INSTANCE.create(parameter);
         }
         return null;
     }

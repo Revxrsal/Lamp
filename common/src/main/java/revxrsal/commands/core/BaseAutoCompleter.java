@@ -26,7 +26,6 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     public BaseAutoCompleter(BaseCommandHandler handler) {
         this.handler = handler;
-        registerSuggestionFactory(EnumSuggestionProviderFactory.INSTANCE);
         registerSuggestion("nothing", Collections.emptyList());
         registerSuggestion("empty", Collections.emptyList());
         registerParameterSuggestions(boolean.class, SuggestionProvider.of("true", "false"));
@@ -94,6 +93,9 @@ final class BaseAutoCompleter implements AutoCompleter {
             SuggestionProvider provider = factory.createSuggestionProvider(parameter);
             if (provider == null) continue;
             return provider;
+        }
+        if (parameter.getType().isEnum()) {
+            return EnumSuggestionProviderFactory.INSTANCE.createSuggestionProvider(parameter);
         }
         return SuggestionProvider.EMPTY;
     }
