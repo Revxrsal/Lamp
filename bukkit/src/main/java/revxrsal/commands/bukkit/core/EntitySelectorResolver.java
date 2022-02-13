@@ -167,4 +167,8 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
             return null;
         }
     }
+
+    public boolean supportsComplexSelectors() {
+        return supportComplexSelectors;
+    }
 }

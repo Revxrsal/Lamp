@@ -10,6 +10,7 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -30,6 +31,7 @@ import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.core.CommandPath;
+import revxrsal.commands.exception.EnumNotFoundException;
 import revxrsal.commands.util.Primitives;
 
 import java.lang.reflect.Constructor;
@@ -84,6 +86,17 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 throw new InvalidWorldException(context.parameter(), value);
             return world;
         });
+        registerValueResolver(EntityType.class, context -> {
+            String value = context.pop().toLowerCase();
+            if (value.startsWith("minecraft:"))
+                value = value.substring("minecraft:".length());
+            EntityType type = EntityType.fromName(value);
+            if (type == null)
+                throw new EnumNotFoundException(context.parameter(), value);
+            return type;
+        });
+        if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors() && brigadier.get().isPresent())
+            getAutoCompleter().registerParameterSuggestions(EntityType.class, SuggestionProvider.EMPTY);
         registerValueResolverFactory(EntitySelectorResolver.INSTANCE);
         getAutoCompleter().registerSuggestion("players", (args, sender, command) -> Bukkit.getOnlinePlayers()
                 .stream()
