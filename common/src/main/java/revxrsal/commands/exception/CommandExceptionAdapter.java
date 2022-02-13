@@ -1,83 +1,142 @@
+/*
+ * This file is part of lamp, licensed under the MIT License.
+ *
+ *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
 package revxrsal.commands.exception;
 
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.core.reflect.MethodCaller.BoundMethodCaller;
+import revxrsal.commands.core.reflect.MethodCallerFactory;
+import revxrsal.commands.util.ClassMap;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 /**
  * An implementation of {@link CommandExceptionHandler} that inlines all exceptions
  * into individual, overridable methods. This greatly simplifies the process
  * of handling exceptions.
  * <p>
- * To handle additional exceptions, override the {@link #handleUnknown(CommandActor, Throwable)} method,
- * which is invoked on any exception that is not inlined here.
+ * This class loosely uses reflections to find the appropriate handler method. To
+ * handle custom exceptions, extend this class and define a method that meets the
+ * following criteria:
+ * <ol>
+ *     <li>Method is public</li>
+ *     <li>Method has 2 parameters, one is a CommandActor (or a subclass of it), and the
+ *     other is your exception. The name of the method, and the order of parameters does
+ *     not matter.</li>
+ * </ol>
+ * <p>
+ * An example:
+ * <pre>
+ * {@code
+ * public void onCustomException(CommandActor actor, CustomException e) {
+ *     actor.error("Caught you!");
+ * }
+ * }
+ * </pre>
  */
 public abstract class CommandExceptionAdapter implements CommandExceptionHandler {
 
-    protected void handleUnknown(@NotNull CommandActor actor, @NotNull Throwable throwable) {}
+    public void onUnhandledException(@NotNull CommandActor actor, @NotNull Throwable throwable) {}
 
-    protected void missingArgument(@NotNull CommandActor actor, @NotNull MissingArgumentException exception) {}
+    public void missingArgument(@NotNull CommandActor actor, @NotNull MissingArgumentException exception) {}
 
-    protected void invalidEnumValue(@NotNull CommandActor actor, @NotNull EnumNotFoundException exception) {}
+    public void invalidEnumValue(@NotNull CommandActor actor, @NotNull EnumNotFoundException exception) {}
 
-    protected void invalidUUID(@NotNull CommandActor actor, @NotNull InvalidUUIDException exception) {}
+    public void invalidUUID(@NotNull CommandActor actor, @NotNull InvalidUUIDException exception) {}
 
-    protected void invalidNumber(@NotNull CommandActor actor, @NotNull InvalidNumberException exception) {}
+    public void invalidNumber(@NotNull CommandActor actor, @NotNull InvalidNumberException exception) {}
 
-    protected void invalidURL(@NotNull CommandActor actor, @NotNull InvalidURLException exception) {}
+    public void invalidURL(@NotNull CommandActor actor, @NotNull InvalidURLException exception) {}
 
-    protected void invalidBoolean(@NotNull CommandActor actor, @NotNull InvalidBooleanException exception) {}
+    public void invalidBoolean(@NotNull CommandActor actor, @NotNull InvalidBooleanException exception) {}
 
-    protected void numberNotInRange(@NotNull CommandActor actor, @NotNull NumberNotInRangeException exception) {}
+    public void numberNotInRange(@NotNull CommandActor actor, @NotNull NumberNotInRangeException exception) {}
 
-    protected void noPermission(@NotNull CommandActor actor, @NotNull NoPermissionException exception) {}
+    public void noPermission(@NotNull CommandActor actor, @NotNull NoPermissionException exception) {}
 
-    protected void argumentParse(@NotNull CommandActor actor, @NotNull ArgumentParseException exception) {}
+    public void argumentParse(@NotNull CommandActor actor, @NotNull ArgumentParseException exception) {}
 
-    protected void commandInvocation(@NotNull CommandActor actor, @NotNull CommandInvocationException exception) {}
+    public void commandInvocation(@NotNull CommandActor actor, @NotNull CommandInvocationException exception) {}
 
-    protected void tooManyArguments(@NotNull CommandActor actor, @NotNull TooManyArgumentsException exception) {}
+    public void tooManyArguments(@NotNull CommandActor actor, @NotNull TooManyArgumentsException exception) {}
 
-    protected void invalidCommand(@NotNull CommandActor actor, @NotNull InvalidCommandException exception) {}
+    public void invalidCommand(@NotNull CommandActor actor, @NotNull InvalidCommandException exception) {}
 
-    protected void invalidSubcommand(@NotNull CommandActor actor, @NotNull InvalidSubcommandException exception) {}
+    public void invalidSubcommand(@NotNull CommandActor actor, @NotNull InvalidSubcommandException exception) {}
 
-    protected void noSubcommandSpecified(@NotNull CommandActor actor, @NotNull NoSubcommandSpecifiedException exception) {}
+    public void noSubcommandSpecified(@NotNull CommandActor actor, @NotNull NoSubcommandSpecifiedException exception) {}
 
-    protected void cooldown(@NotNull CommandActor actor, @NotNull CooldownException exception) {}
+    public void cooldown(@NotNull CommandActor actor, @NotNull CooldownException exception) {}
 
-    protected void invalidHelpPage(@NotNull CommandActor actor, @NotNull InvalidHelpPageException exception) {}
+    public void invalidHelpPage(@NotNull CommandActor actor, @NotNull InvalidHelpPageException exception) {}
 
-    @Override
-    public final void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
-        if (throwable instanceof MissingArgumentException) missingArgument(actor, (MissingArgumentException) throwable);
-        else if (throwable instanceof SendableException) ((SendableException) throwable).sendTo(actor);
-        else if (throwable instanceof EnumNotFoundException) invalidEnumValue(actor, (EnumNotFoundException) throwable);
-        else if (throwable instanceof InvalidNumberException) invalidNumber(actor, (InvalidNumberException) throwable);
-        else if (throwable instanceof InvalidUUIDException) invalidUUID(actor, (InvalidUUIDException) throwable);
-        else if (throwable instanceof InvalidURLException) invalidURL(actor, (InvalidURLException) throwable);
-        else if (throwable instanceof NumberNotInRangeException)
-            numberNotInRange(actor, (NumberNotInRangeException) throwable);
-        else if (throwable instanceof InvalidBooleanException)
-            invalidBoolean(actor, (InvalidBooleanException) throwable);
-        else if (throwable instanceof CooldownException)
-            cooldown(actor, (CooldownException) throwable);
-        else if (throwable instanceof TooManyArgumentsException)
-            tooManyArguments(actor, (TooManyArgumentsException) throwable);
-        else if (throwable instanceof NoPermissionException)
-            noPermission(actor, (NoPermissionException) throwable);
-        else if (throwable instanceof ArgumentParseException)
-            argumentParse(actor, (ArgumentParseException) throwable);
-        else if (throwable instanceof CommandInvocationException)
-            commandInvocation(actor, (CommandInvocationException) throwable);
-        else if (throwable instanceof InvalidCommandException)
-            invalidCommand(actor, (InvalidCommandException) throwable);
-        else if (throwable instanceof InvalidSubcommandException)
-            invalidSubcommand(actor, (InvalidSubcommandException) throwable);
-        else if (throwable instanceof NoSubcommandSpecifiedException)
-            noSubcommandSpecified(actor, (NoSubcommandSpecifiedException) throwable);
-        else if (throwable instanceof InvalidHelpPageException)
-            invalidHelpPage(actor, (InvalidHelpPageException) throwable);
-        else
-            handleUnknown(actor, throwable);
+    public void sendableException(@NotNull CommandActor actor, @NotNull SendableException exception) {}
+
+    @Override @Internal public void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
+        MethodExceptionHandler handler = handlers.getFlexibleOrDefault(throwable.getClass(), unknownHandler);
+        handler.handle(actor, throwable);
     }
+
+    public CommandExceptionAdapter() {
+        for (Method m : getClass().getMethods()) {
+            register(m);
+        }
+    }
+
+    private final ClassMap<MethodExceptionHandler> handlers = new ClassMap<>();
+    private final MethodExceptionHandler unknownHandler = this::onUnhandledException;
+
+    @SneakyThrows private void register(@NotNull Method method) {
+        if (!CommandExceptionAdapter.class.isAssignableFrom(method.getDeclaringClass()))
+            return;
+        if (method.getParameterCount() != 2)
+            return;
+        Parameter[] parameters = method.getParameters();
+        Class<?> firstType = parameters[0].getType();
+        Class<?> secondType = parameters[1].getType();
+        Class<?> exceptionType;
+        MethodExceptionHandler handler;
+        if (CommandActor.class.isAssignableFrom(firstType) && Throwable.class.isAssignableFrom(secondType)) {
+            exceptionType = secondType;
+            BoundMethodCaller caller = MethodCallerFactory.defaultFactory().createFor(method).bindTo(this);
+            handler = caller::call;
+        } else if (Throwable.class.isAssignableFrom(firstType) && CommandActor.class.isAssignableFrom(secondType)) {
+            exceptionType = firstType;
+            BoundMethodCaller caller = MethodCallerFactory.defaultFactory().createFor(method).bindTo(this);
+            handler = (actor, throwable) -> caller.call(throwable, actor);
+        } else {
+            return;
+        }
+        handlers.add(exceptionType, handler);
+    }
+
+    private interface MethodExceptionHandler {
+
+        void handle(@NotNull CommandActor actor, @NotNull Throwable throwable);
+    }
+
 }

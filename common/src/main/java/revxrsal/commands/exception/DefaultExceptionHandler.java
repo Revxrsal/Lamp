@@ -13,82 +13,92 @@ import java.util.StringJoiner;
 /**
  * Default implementation of {@link CommandExceptionHandler}, which sends basic messages
  * describing the exception.
+ * <p>
+ * See {@link CommandExceptionAdapter} for handling custom exceptions.
  */
 public class DefaultExceptionHandler extends CommandExceptionAdapter {
 
     public static final DefaultExceptionHandler INSTANCE = new DefaultExceptionHandler();
     public static final NumberFormat FORMAT = NumberFormat.getInstance();
 
-    @Override protected void missingArgument(@NotNull CommandActor actor, @NotNull MissingArgumentException exception) {
+    @Override public void missingArgument(@NotNull CommandActor actor, @NotNull MissingArgumentException exception) {
         actor.error("You must specify a value for the " + exception.getParameter().getName() + "!");
     }
 
-    @Override protected void invalidEnumValue(@NotNull CommandActor actor, @NotNull EnumNotFoundException exception) {
+    @Override public void invalidEnumValue(@NotNull CommandActor actor, @NotNull EnumNotFoundException exception) {
         actor.error("Invalid " + exception.getParameter().getName() + ": " + exception.getInput() + ".");
     }
 
-    @Override protected void invalidNumber(@NotNull CommandActor actor, @NotNull InvalidNumberException exception) {
+    @Override public void invalidNumber(@NotNull CommandActor actor, @NotNull InvalidNumberException exception) {
         actor.error("Expected a number, but found '" + exception.getInput() + "'.");
     }
 
-    @Override protected void invalidUUID(@NotNull CommandActor actor, @NotNull InvalidUUIDException exception) {
+    @Override public void invalidUUID(@NotNull CommandActor actor, @NotNull InvalidUUIDException exception) {
         actor.error("Invalid UUID: " + exception.getInput());
     }
 
-    @Override protected void invalidURL(@NotNull CommandActor actor, @NotNull InvalidURLException exception) {
+    @Override public void invalidURL(@NotNull CommandActor actor, @NotNull InvalidURLException exception) {
         actor.error("Invalid URL: " + exception.getInput());
     }
 
-    @Override protected void invalidBoolean(@NotNull CommandActor actor, @NotNull InvalidBooleanException exception) {
+    @Override public void invalidBoolean(@NotNull CommandActor actor, @NotNull InvalidBooleanException exception) {
         actor.error("Expected true or false, but found '" + exception.getInput() + "'.");
     }
 
-    @Override protected void noPermission(@NotNull CommandActor actor, @NotNull NoPermissionException exception) {
+    @Override public void noPermission(@NotNull CommandActor actor, @NotNull NoPermissionException exception) {
         actor.error("You do not have permission to execute this command!");
     }
 
-    @Override protected void argumentParse(@NotNull CommandActor actor, @NotNull ArgumentParseException exception) {
+    @Override public void argumentParse(@NotNull CommandActor actor, @NotNull ArgumentParseException exception) {
         actor.error("Invalid quoted string");
         actor.error(exception.getSourceString());
         actor.error(exception.getAnnotatedPosition());
     }
 
-    @Override protected void commandInvocation(@NotNull CommandActor actor, @NotNull CommandInvocationException exception) {
+    @Override public void commandInvocation(@NotNull CommandActor actor, @NotNull CommandInvocationException exception) {
         actor.error("An error occurred while executing the command.");
         exception.getCause().printStackTrace();
     }
 
-    @Override protected void tooManyArguments(@NotNull CommandActor actor, @NotNull TooManyArgumentsException exception) {
+    @Override public void tooManyArguments(@NotNull CommandActor actor, @NotNull TooManyArgumentsException exception) {
         ExecutableCommand command = exception.getCommand();
         actor.error("Too many arguments! Correct usage: /" + (command.getPath().toRealString() + " " + command.getUsage()).trim());
     }
 
-    @Override protected void invalidCommand(@NotNull CommandActor actor, @NotNull InvalidCommandException exception) {
+    @Override public void invalidCommand(@NotNull CommandActor actor, @NotNull InvalidCommandException exception) {
         actor.error("Invalid command: " + exception.getInput());
     }
 
-    @Override protected void invalidSubcommand(@NotNull CommandActor actor, @NotNull InvalidSubcommandException exception) {
+    @Override public void invalidSubcommand(@NotNull CommandActor actor, @NotNull InvalidSubcommandException exception) {
         actor.error("Invalid subcommand: " + exception.getInput());
     }
 
-    @Override protected void noSubcommandSpecified(@NotNull CommandActor actor, @NotNull NoSubcommandSpecifiedException exception) {
+    @Override public void noSubcommandSpecified(@NotNull CommandActor actor, @NotNull NoSubcommandSpecifiedException exception) {
         actor.error("You must specify a subcommand!");
     }
 
-    @Override protected void cooldown(@NotNull CommandActor actor, @NotNull CooldownException exception) {
+    @Override public void cooldown(@NotNull CommandActor actor, @NotNull CooldownException exception) {
         actor.error("You must wait " + formatTimeFancy(exception.getTimeLeftMillis()) + " before using this command again.");
     }
 
-    @Override protected void invalidHelpPage(@NotNull CommandActor actor, @NotNull InvalidHelpPageException exception) {
+    @Override public void invalidHelpPage(@NotNull CommandActor actor, @NotNull InvalidHelpPageException exception) {
         actor.error("Invalid help page: " + exception.getPage() + ". Must be between 1 and " + exception.getPageCount() + ".");
     }
 
-    @Override protected void numberNotInRange(@NotNull CommandActor actor, @NotNull NumberNotInRangeException exception) {
+    @Override public void sendableException(@NotNull CommandActor actor, @NotNull SendableException exception) {
+        exception.sendTo(actor);
+    }
+
+    @Override public void numberNotInRange(@NotNull CommandActor actor, @NotNull NumberNotInRangeException exception) {
         actor.error(exception.getParameter().getName() + " must be between " +
                 FORMAT.format(exception.getMinimum()) + " and " +
                 FORMAT.format(exception.getMaximum()) + " (found " +
                 FORMAT.format(exception.getInput()) + ")"
         );
+    }
+
+    @Override public void onUnhandledException(@NotNull CommandActor actor, @NotNull Throwable throwable) {
+        throwable.printStackTrace();
     }
 
     public static String formatTimeFancy(long time) {
@@ -125,9 +135,5 @@ public class DefaultExceptionHandler extends CommandExceptionAdapter {
         if (thing.endsWith("y"))
             return thing.substring(0, thing.length() - 1) + "ies";
         return thing + "s";
-    }
-
-    @Override protected void handleUnknown(@NotNull CommandActor actor, @NotNull Throwable throwable) {
-        throwable.printStackTrace();
     }
 }
