@@ -25,9 +25,12 @@ public final class ClassMap<V> extends HashMap<Class<?>, V> {
         V v = get(key);
         if (v != null) return v;
         for (Entry<Class<?>, V> entry : entrySet()) {
-            if (entry.getKey().isAssignableFrom(key))
-                return entry.getValue();
+            if (entry.getKey().isAssignableFrom(key)) {
+                v = entry.getValue();
+                break;
+            }
         }
-        return null;
+        put(key, v);
+        return v;
     }
 }
