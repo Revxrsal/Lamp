@@ -101,6 +101,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         registerDependency(Logger.class, plugin.getLogger());
         registerPermissionReader(BukkitPermissionReader.INSTANCE);
         setExceptionHandler(BukkitExceptionAdapter.INSTANCE);
+        Bukkit.getServer().getPluginManager().registerEvents(new BukkitCommandListeners(this), plugin);
     }
 
     @Override public @NotNull CommandHandler register(@NotNull Object... commands) {
