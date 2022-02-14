@@ -24,15 +24,21 @@
 package revxrsal.commands.exception;
 
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.core.reflect.MethodCaller.BoundMethodCaller;
 import revxrsal.commands.core.reflect.MethodCallerFactory;
 import revxrsal.commands.util.ClassMap;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * An implementation of {@link CommandExceptionHandler} that inlines all exceptions
@@ -57,10 +63,20 @@ import java.lang.reflect.Parameter;
  * }
  * }
  * </pre>
+ * If you have methods that meet the above criteria and want the reflection handler
+ * to ignore them, annotate them with {@link Ignore}.
  */
 public abstract class CommandExceptionAdapter implements CommandExceptionHandler {
 
-    public void onUnhandledException(@NotNull CommandActor actor, @NotNull Throwable throwable) {}
+    /**
+     * An annotation to automatically ignore any method that may otherwise
+     * be a handler method.
+     */
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Ignore {}
+
+    @Ignore public void onUnhandledException(@NotNull CommandActor actor, @NotNull Throwable throwable) {}
 
     public void missingArgument(@NotNull CommandActor actor, @NotNull MissingArgumentException exception) {}
 
@@ -96,15 +112,25 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
 
     public void sendableException(@NotNull CommandActor actor, @NotNull SendableException exception) {}
 
-    @Override @Internal public void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
+    private static final List<Method> IGNORED_METHODS = new ArrayList<>();
+
+    static {
+        Method onUnhandledException = null, handleException = null;
+        for (Method method : CommandExceptionAdapter.class.getDeclaredMethods()) {
+            if (method.getParameterCount() != 2) continue;
+            if (method.isAnnotationPresent(Ignore.class))
+                IGNORED_METHODS.add(method);
+        }
+    }
+
+    @Override @Ignore public void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
         MethodExceptionHandler handler = handlers.getFlexibleOrDefault(throwable.getClass(), unknownHandler);
         handler.handle(actor, throwable);
     }
 
     public CommandExceptionAdapter() {
-        for (Method m : getClass().getMethods()) {
+        for (Method m : getClass().getMethods())
             register(m);
-        }
     }
 
     private final ClassMap<MethodExceptionHandler> handlers = new ClassMap<>();
@@ -115,6 +141,12 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
             return;
         if (method.getParameterCount() != 2)
             return;
+        if (method.isAnnotationPresent(Ignore.class))
+            return;
+        for (Method ignoredMethod : IGNORED_METHODS) {
+            if (method.getName().equals(ignoredMethod.getName()) && Arrays.equals(method.getParameterTypes(), ignoredMethod.getParameterTypes()))
+                return;
+        }
         Parameter[] parameters = method.getParameters();
         Class<?> firstType = parameters[0].getType();
         Class<?> secondType = parameters[1].getType();
@@ -137,6 +169,8 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
     private interface MethodExceptionHandler {
 
         void handle(@NotNull CommandActor actor, @NotNull Throwable throwable);
+
+
     }
 
 }
