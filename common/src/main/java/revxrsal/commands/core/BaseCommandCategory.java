@@ -93,7 +93,7 @@ final class BaseCommandCategory implements CommandCategory {
             for (CommandCategory category : categories.values())
                 if (category.getPermission().canExecute(actor))
                     return true;
-            return false;
+            return defaultAction != null && defaultAction.hasPermission(actor);
         }
     }
 

@@ -129,21 +129,26 @@ public class BaseCommandHandler implements CommandHandler {
         for (BaseCommandCategory category : categories.values()) {
             CommandPath categoryPath = category.getPath().getCategoryPath();
             category.parent(categoryPath == null ? null : categories.get(categoryPath));
+            findPermission(category.defaultAction);
         }
-        command_loop:
         for (CommandExecutable executable : executables.values()) {
-            if (!executable.permissionSet) {
-                for (PermissionReader reader : permissionReaders) {
-                    CommandPermission p = reader.getPermission(executable);
-                    if (p != null) {
-                        executable.permissionSet = true;
-                        executable.setPermission(p);
-                        continue command_loop;
-                    }
+            findPermission(executable);
+        }
+        return this;
+    }
+
+    private void findPermission(@Nullable CommandExecutable executable) {
+        if (executable == null) return;
+        if (!executable.permissionSet) {
+            for (PermissionReader reader : permissionReaders) {
+                CommandPermission p = reader.getPermission(executable);
+                if (p != null) {
+                    executable.permissionSet = true;
+                    executable.setPermission(p);
+                    return;
                 }
             }
         }
-        return this;
     }
 
     public Set<PermissionReader> getPermissionReaders() {
