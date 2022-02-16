@@ -29,7 +29,7 @@ package revxrsal.commands.orphan;
  * <p>
  * Example implementation:
  * <pre>{@code
- * public class Foo {
+ * public class Foo implements OrphanCommand {
  *
  *     @Subcommand("bar")
  *     public void bar(CommandActor actor) {
