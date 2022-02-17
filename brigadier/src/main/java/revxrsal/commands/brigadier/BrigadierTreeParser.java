@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Range;
 import revxrsal.commands.command.*;
+import revxrsal.commands.exception.ArgumentParseException;
 import revxrsal.commands.util.Primitives;
 
 import java.util.ArrayList;
@@ -212,13 +213,15 @@ public final class BrigadierTreeParser {
                 String tooltipMessage = parameter.getDescription() == null ? parameter.getName() : parameter.getDescription();
                 Message tooltip = new LiteralMessage(tooltipMessage);
                 String input = context.getInput();
-                ArgumentStack args = ArgumentStack.forAutoCompletion(input.startsWith("/") ? input.substring(1) : input);
-                parameter.getSuggestionProvider().getSuggestions(args, actor, command)
-                        .stream()
-                        .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
-                        .sorted(String.CASE_INSENSITIVE_ORDER)
-                        .distinct()
-                        .forEach(c -> builder.suggest(c, tooltip));
+                try {
+                    ArgumentStack args = ArgumentStack.forAutoCompletion(input.startsWith("/") ? input.substring(1) : input);
+                    parameter.getSuggestionProvider().getSuggestions(args, actor, command)
+                            .stream()
+                            .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
+                            .sorted(String.CASE_INSENSITIVE_ORDER)
+                            .distinct()
+                            .forEach(c -> builder.suggest(c, tooltip));
+                } catch (ArgumentParseException ignore) {}
             } catch (Throwable e) {
                 e.printStackTrace();
             }

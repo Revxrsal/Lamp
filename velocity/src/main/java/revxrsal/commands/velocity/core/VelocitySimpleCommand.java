@@ -3,8 +3,10 @@ package revxrsal.commands.velocity.core;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import revxrsal.commands.command.ArgumentStack;
+import revxrsal.commands.exception.ArgumentParseException;
 import revxrsal.commands.velocity.VelocityCommandActor;
 
+import java.util.Collections;
 import java.util.List;
 
 final class VelocitySimpleCommand implements SimpleCommand {
@@ -30,13 +32,17 @@ final class VelocitySimpleCommand implements SimpleCommand {
     }
 
     @Override public List<String> suggest(Invocation invocation) {
-        VelocityCommandActor actor = new VelocityActor(invocation.source(), handler.getServer(), handler);
-        ArgumentStack arguments;
-        if (invocation.arguments().length == 0)
-            arguments = ArgumentStack.forAutoCompletion("");
-        else
-            arguments = ArgumentStack.forAutoCompletion(invocation.arguments());
-        arguments.addFirst(invocation.alias());
-        return handler.getAutoCompleter().complete(actor, arguments);
+        try {
+            VelocityCommandActor actor = new VelocityActor(invocation.source(), handler.getServer(), handler);
+            ArgumentStack arguments;
+            if (invocation.arguments().length == 0)
+                arguments = ArgumentStack.forAutoCompletion("");
+            else
+                arguments = ArgumentStack.forAutoCompletion(invocation.arguments());
+            arguments.addFirst(invocation.alias());
+            return handler.getAutoCompleter().complete(actor, arguments);
+        } catch (ArgumentParseException e) {
+            return Collections.emptyList();
+        }
     }
 }

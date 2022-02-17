@@ -5,6 +5,9 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import revxrsal.commands.bungee.BungeeCommandActor;
 import revxrsal.commands.command.ArgumentStack;
+import revxrsal.commands.exception.ArgumentParseException;
+
+import java.util.Collections;
 
 final class BungeeCommand extends Command implements TabExecutor {
 
@@ -28,10 +31,14 @@ final class BungeeCommand extends Command implements TabExecutor {
     }
 
     @Override public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        ArgumentStack arguments = ArgumentStack.forAutoCompletion(args);
-        arguments.addFirst(getName());
+       try {
+            ArgumentStack arguments = ArgumentStack.forAutoCompletion(args);
+            arguments.addFirst(getName());
 
-        BungeeCommandActor actor = new BungeeActor(sender, handler);
-        return handler.getAutoCompleter().complete(actor, arguments);
+            BungeeCommandActor actor = new BungeeActor(sender, handler);
+            return handler.getAutoCompleter().complete(actor, arguments);
+       } catch (ArgumentParseException e) {
+           return Collections.emptyList();
+       }
     }
 }

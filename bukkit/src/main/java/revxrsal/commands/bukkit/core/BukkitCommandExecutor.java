@@ -7,7 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.command.ArgumentStack;
+import revxrsal.commands.exception.ArgumentParseException;
 
+import java.util.Collections;
 import java.util.List;
 
 final class BukkitCommandExecutor implements TabExecutor {
@@ -38,10 +40,14 @@ final class BukkitCommandExecutor implements TabExecutor {
                                                           @NotNull Command command,
                                                           @NotNull String alias,
                                                           @NotNull String[] args) {
-        BukkitCommandActor actor = new BukkitActor(sender, handler);
-        ArgumentStack arguments = ArgumentStack.forAutoCompletion(args);
+        try {
+            BukkitCommandActor actor = new BukkitActor(sender, handler);
+            ArgumentStack arguments = ArgumentStack.forAutoCompletion(args);
 
-        arguments.addFirst(command.getName());
-        return handler.getAutoCompleter().complete(actor, arguments);
+            arguments.addFirst(command.getName());
+            return handler.getAutoCompleter().complete(actor, arguments);
+        } catch (ArgumentParseException e) {
+            return Collections.emptyList();
+        }
     }
 }

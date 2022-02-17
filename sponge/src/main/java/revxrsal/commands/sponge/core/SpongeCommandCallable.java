@@ -10,8 +10,10 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.exception.ArgumentParseException;
 import revxrsal.commands.sponge.SpongeCommandHandler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,9 +44,13 @@ final class SpongeCommandCallable implements CommandCallable {
     }
 
     @Override public @NotNull List<String> getSuggestions(@NotNull CommandSource source, @NotNull String arguments, @Nullable Location<World> targetPosition) {
-        CommandActor actor = new SpongeActor(source, handler);
-        ArgumentStack args = arguments.isEmpty() ? ArgumentStack.exactly(EMPTY_TEXT) : ArgumentStack.fromString(arguments);
-        return handler.getAutoCompleter().complete(actor, args);
+        try {
+            CommandActor actor = new SpongeActor(source, handler);
+            ArgumentStack args = arguments.isEmpty() ? ArgumentStack.exactly(EMPTY_TEXT) : ArgumentStack.fromString(arguments);
+            return handler.getAutoCompleter().complete(actor, args);
+        } catch (ArgumentParseException e) {
+            return Collections.emptyList();
+        }
     }
 
     @Override public boolean testPermission(@NotNull CommandSource source) {
