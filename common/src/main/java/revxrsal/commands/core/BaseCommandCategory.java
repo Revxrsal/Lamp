@@ -62,6 +62,10 @@ final class BaseCommandCategory implements CommandCategory {
         return true;
     }
 
+    @Override public boolean isEmpty() {
+        return defaultAction == null && commands.isEmpty() && categories.isEmpty();
+    }
+
     private final Map<CommandPath, CommandCategory> unmodifiableCategories = Collections.unmodifiableMap(categories);
 
     @Override public @NotNull @UnmodifiableView Map<CommandPath, CommandCategory> getCategories() {
@@ -93,7 +97,7 @@ final class BaseCommandCategory implements CommandCategory {
             for (CommandCategory category : categories.values())
                 if (category.getPermission().canExecute(actor))
                     return true;
-            return defaultAction != null && defaultAction.hasPermission(actor);
+            return defaultAction == null || defaultAction.hasPermission(actor);
         }
     }
 

@@ -509,6 +509,6 @@ public interface CommandHandler {
      * @param actor        Actor to execute as
      * @param commandInput Input to invoke with
      */
-    void dispatch(@NotNull CommandActor actor, @NotNull String commandInput);
+    <T> @NotNull Optional<@Nullable T> dispatch(@NotNull CommandActor actor, @NotNull String commandInput);
 
 }

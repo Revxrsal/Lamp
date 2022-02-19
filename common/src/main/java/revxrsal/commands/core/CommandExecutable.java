@@ -110,7 +110,7 @@ class CommandExecutable implements ExecutableCommand {
     }
 
     @Override public String toString() {
-        return "CommandExecutable{" +
+        return "ExecutableCommand{" +
                 "path=" + path +
                 ", name='" + name + '\'' +
                 '}';

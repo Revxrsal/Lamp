@@ -81,6 +81,16 @@ public interface CommandCategory extends PermissionHolder {
     boolean isSecret();
 
     /**
+     * Returns whether is this command category empty or not.
+     * <p>
+     * A command category is empty if it has no sub-commands, no sub-categories,
+     * and no default action.
+     *
+     * @return Is this category empty or not
+     */
+    boolean isEmpty();
+
+    /**
      * Returns an unmodifiable view of all the sub-categories in this
      * category.
      *

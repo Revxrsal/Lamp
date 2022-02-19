@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -330,6 +331,12 @@ public class BaseCommandHandler implements CommandHandler {
         return this;
     }
 
+//    public <T extends Annotation> Collection<Annotation> replaceAnnotation(T ann) {
+//        AnnotationReplacer<?> replacer = annotationReplacers.get(ann.annotationType());
+//        if (replacer == null) return Collections.singleton(ann);
+//        return replacer.replaceAnnotations()
+//    }
+
     @Override public @NotNull AutoCompleter getAutoCompleter() {
         return autoCompleter;
     }
@@ -376,10 +383,40 @@ public class BaseCommandHandler implements CommandHandler {
         return (CommandHelpWriter<T>) helpWriter;
     }
 
+    private void unregister(CommandPath path, CommandExecutable command) {
+        BaseCommandCategory parent = command.parent;
+        if (parent != null) {
+            parent.commands.remove(path);
+            if (parent.isEmpty()) categories.remove(parent.path);
+        }
+    }
+
+    private void unregister(CommandPath path, BaseCommandCategory category) {
+        BaseCommandCategory parent = category.parent;
+        if (parent != null) {
+            parent.commands.remove(path);
+            if (parent.isEmpty()) categories.remove(parent.path);
+        }
+    }
+
     @Override public boolean unregister(@NotNull CommandPath path) {
-        boolean modified;
-        modified = categories.keySet().removeIf(c -> c.isChildOf(path));
-        modified |= executables.keySet().removeIf(c -> c.isChildOf(path));
+        boolean modified = false;
+        for (Iterator<Entry<CommandPath, CommandExecutable>> iterator = executables.entrySet().iterator(); iterator.hasNext(); ) {
+            Entry<CommandPath, CommandExecutable> entry = iterator.next();
+            if (entry.getKey().isChildOf(path)) {
+                modified = true;
+                iterator.remove();
+                unregister(path, entry.getValue());
+            }
+        }
+        for (Iterator<Entry<CommandPath, BaseCommandCategory>> iterator = categories.entrySet().iterator(); iterator.hasNext(); ) {
+            Entry<CommandPath, BaseCommandCategory> entry = iterator.next();
+            if (entry.getKey().isChildOf(path)) {
+                modified = true;
+                iterator.remove();
+                unregister(path, entry.getValue());
+            }
+        }
         return modified;
     }
 
@@ -403,11 +440,12 @@ public class BaseCommandHandler implements CommandHandler {
         return (Optional<T>) Optional.ofNullable(dispatcher.eval(actor, arguments));
     }
 
-    @Override public void dispatch(@NotNull CommandActor actor, @NotNull String commandInput) {
+    @Override public <T> @NotNull Optional<@Nullable T> dispatch(@NotNull CommandActor actor, @NotNull String commandInput) {
         try {
-            dispatch(actor, ArgumentStack.fromString(commandInput));
+            return dispatch(actor, ArgumentStack.fromString(commandInput));
         } catch (Throwable t) {
             getExceptionHandler().handleException(t, actor);
+            return Optional.empty();
         }
     }
 
