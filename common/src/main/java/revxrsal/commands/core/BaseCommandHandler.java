@@ -366,7 +366,7 @@ public class BaseCommandHandler implements CommandHandler {
             return (ParameterResolver<T>) resolver;
         }
         if (parameter.getType().isEnum()) {
-            return (ParameterResolver<T>) EnumResolverFactory.INSTANCE.create(parameter);
+            return (ParameterResolver<T>) new Resolver(null, EnumResolverFactory.INSTANCE.create(parameter));
         }
         return null;
     }
