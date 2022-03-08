@@ -183,6 +183,8 @@ public final class BaseCommandDispatcher {
             }
         } else {
             args.remove(index); // remove the flag prefix + flag name
+            if (args.isEmpty())
+                throw new MissingArgumentException(parameter);
             flagArguments = ArgumentStack.of(args.remove(index)); // put the actual value in a separate argument stack
         }
         ValueContextR contextR = new ValueContextR(input, actor, parameter, values, flagArguments);
