@@ -13,7 +13,7 @@ configurations {
 dependencies {
     implementation(project(":common"))
     implementation(project(":brigadier"))
-    implementation("me.lucko:commodore:1.12") {
+    implementation("me.lucko:commodore:1.13") {
         exclude(module: "commodore-file") // we don"t need that.
         exclude(module: "brigadier")
     }
