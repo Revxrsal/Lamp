@@ -34,7 +34,6 @@ public final class JDAHandler extends BaseCommandHandler implements JDACommandHa
         registerSnowflakeResolver(TextChannel.class, TEXT_CHANNEL);
         registerSnowflakeResolver(VoiceChannel.class, VOICE_CHANNEL);
         registerSnowflakeResolver(StageChannel.class, STAGE_CHANNEL);
-        registerSnowflakeResolver(StoreChannel.class, STORE_CHANNEL);
         registerSnowflakeResolver(Member.class, MEMBER);
         registerSnowflakeResolver(Emote.class, EMOTE);
         registerSnowflakeResolver(Role.class, ROLE);
