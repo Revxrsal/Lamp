@@ -18,6 +18,7 @@ import revxrsal.commands.process.ResponseHandler;
 import revxrsal.commands.util.Preconditions;
 import revxrsal.commands.util.Primitives;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -58,14 +59,17 @@ final class CommandParser {
         Map<CommandPath, BaseCommandCategory> categories = handler.categories;
         Map<CommandPath, CommandExecutable> subactions = new HashMap<>();
         for (Method method : getAllMethods(container)) {
-            AnnotationReader reader = new AnnotationReader(container, method, boundTarget);
-            Object target = boundTarget;
-            if (target instanceof OrphanRegistry) {
-                target = ((OrphanRegistry) target).getHandler();
+            AnnotationReader reader = AnnotationReader.create(handler, method);
+            Object invokeTarget = boundTarget;
+            if (reader.shouldDismiss()) continue;
+            if (boundTarget instanceof OrphanRegistry) {
+                insertCommandPath((OrphanRegistry) boundTarget, reader);
+                invokeTarget = ((OrphanRegistry) invokeTarget).getHandler();
             }
-            if (reader.isEmpty()) continue;
+            reader.distributeAnnotations();
+
             List<CommandPath> paths = getCommandPath(container, method, reader);
-            BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(target);
+            BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(invokeTarget);
             int id = COMMAND_ID.getAndIncrement();
             boolean isDefault = reader.contains(Default.class);
             paths.forEach(path -> {
@@ -105,6 +109,15 @@ final class CommandParser {
             if (cat != null) { // should never be null but let's just do that
                 cat.defaultAction = subaction;
             }
+        });
+    }
+
+    private static void insertCommandPath(OrphanRegistry boundTarget, AnnotationReader reader) {
+        List<CommandPath> paths = boundTarget.getParentPaths();
+        String[] pathsArray = paths.stream().map(CommandPath::toRealString).toArray(String[]::new);
+        reader.add(new Command() {
+            @Override public Class<? extends Annotation> annotationType() {return Command.class;}
+            @Override public String[] value() {return pathsArray;}
         });
     }
 
@@ -197,7 +210,7 @@ final class CommandParser {
         int cIndex = 0;
         for (int i = 0; i < methodParameters.length; i++) {
             Parameter parameter = methodParameters[i];
-            AnnotationReader paramAnns = new AnnotationReader(parameter);
+            AnnotationReader paramAnns = AnnotationReader.create(handler, parameter);
             List<ParameterValidator<Object>> validators = new ArrayList<>(
                     handler.validators.getFlexibleOrDefault(parameter.getType(), Collections.emptyList())
             );
@@ -233,9 +246,11 @@ final class CommandParser {
 
             ParameterResolver<?> resolver = handler.getResolver(param);
 
-            if (resolver == null)
+            if (resolver == null) {
+                System.out.println(paramAnns);
+                System.out.println(parameter.getDeclaringExecutable());
                 throw new IllegalStateException("Unable to find a resolver for parameter type " + parameter.getType());
-
+            }
             param.resolver = resolver;
             if (resolver.mutatesArguments())
                 param.cindex = cIndex++;
@@ -245,12 +260,16 @@ final class CommandParser {
         return Collections.unmodifiableList(parameters);
     }
 
-    private static List<CommandPath> getCommandPath(@NotNull Class<?> container, @NotNull Method method, @NotNull AnnotationReader reader) {
+    private static List<CommandPath> getCommandPath(@NotNull Class<?> container,
+                                                    @NotNull Method method,
+                                                    @NotNull AnnotationReader reader) {
         List<CommandPath> paths = new ArrayList<>();
 
         List<String> commands = new ArrayList<>();
         List<String> subcommands = new ArrayList<>();
-        Command commandAnnotation = reader.get(Command.class, "Method " + method.getName() + " does not have a parent command!");
+        Command commandAnnotation = reader.get(Command.class, "Method " + method.getName() + " does not have a parent command! You might have forgotten one of the following:\n" +
+                "- @Command on the method or class\n" +
+                "- implement OrphanCommand");
         Preconditions.notEmpty(commandAnnotation.value(), "@Command#value() cannot be an empty array!");
         addAll(commands, commandAnnotation.value());
 

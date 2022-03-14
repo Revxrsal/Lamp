@@ -6,6 +6,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.annotation.Flag;
 import revxrsal.commands.annotation.Switch;
+import revxrsal.commands.annotation.dynamic.AnnotationReplacer;
+import revxrsal.commands.annotation.dynamic.Annotations;
 import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.command.*;
 import revxrsal.commands.core.CommandPath;
@@ -16,6 +18,7 @@ import revxrsal.commands.help.CommandHelp;
 import revxrsal.commands.help.CommandHelpWriter;
 import revxrsal.commands.process.*;
 
+import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -346,6 +349,14 @@ public interface CommandHandler {
      * @return This command handler
      */
     @NotNull <T> CommandHandler registerResponseHandler(@NotNull Class<T> responseType, @NotNull ResponseHandler<T> handler);
+
+    /**
+     * Registers an annotation replacer. Annotation replacers allow to
+     * dynamically generate annotations at runtime using APIs
+     * such as {@link Annotations}.
+     */
+    @NotNull <T extends Annotation> CommandHandler registerAnnotationReplacer(@NotNull Class<T> annotationType,
+                                                                              @NotNull AnnotationReplacer<T> replacer);
 
     /**
      * Accepts the given {@link CommandHandlerVisitor} and allows it to visit

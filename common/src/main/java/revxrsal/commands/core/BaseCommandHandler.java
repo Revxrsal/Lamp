@@ -7,6 +7,7 @@ import revxrsal.commands.CommandHandler;
 import revxrsal.commands.CommandHandlerVisitor;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.annotation.Range;
+import revxrsal.commands.annotation.dynamic.AnnotationReplacer;
 import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.command.*;
 import revxrsal.commands.core.reflect.MethodCallerFactory;
@@ -23,6 +24,8 @@ import revxrsal.commands.util.ClassMap;
 import revxrsal.commands.util.Primitives;
 import revxrsal.commands.util.StackTraceSanitizer;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -50,6 +53,7 @@ public class BaseCommandHandler implements CommandHandler {
     final ClassMap<Supplier<?>> dependencies = new ClassMap<>();
     final List<SenderResolver> senderResolvers = new ArrayList<>();
     private final Set<PermissionReader> permissionReaders = new HashSet<>();
+    final Map<Class<?>, Set<AnnotationReplacer<?>>> annotationReplacers = new ClassMap<>();
     private MethodCallerFactory methodCallerFactory = MethodCallerFactory.defaultFactory();
     private final WrappedExceptionHandler exceptionHandler = new WrappedExceptionHandler(DefaultExceptionHandler.INSTANCE);
     private StackTraceSanitizer sanitizer = StackTraceSanitizer.defaultSanitizer();
@@ -325,17 +329,32 @@ public class BaseCommandHandler implements CommandHandler {
         return this;
     }
 
+    @Override public @NotNull <T extends Annotation> CommandHandler registerAnnotationReplacer(@NotNull Class<T> annotationType, @NotNull AnnotationReplacer<T> replacer) {
+        notNull(annotationType, "annotation type");
+        notNull(replacer, "annotation replacer");
+        annotationReplacers.computeIfAbsent(annotationType, e -> new HashSet<>()).add(replacer);
+        return this;
+    }
+
     @Override public @NotNull CommandHandler accept(@NotNull CommandHandlerVisitor visitor) {
         notNull(visitor, "command handler visitor cannot be null!");
         visitor.visit(this);
         return this;
     }
 
-//    public <T extends Annotation> Collection<Annotation> replaceAnnotation(T ann) {
-//        AnnotationReplacer<?> replacer = annotationReplacers.get(ann.annotationType());
-//        if (replacer == null) return Collections.singleton(ann);
-//        return replacer.replaceAnnotations()
-//    }
+    @SuppressWarnings("rawtypes")
+    public @Nullable <T extends Annotation> List<Annotation> replaceAnnotation(AnnotatedElement element, T ann) {
+        Set<AnnotationReplacer<?>> replacers = annotationReplacers.get(ann.annotationType());
+        if (replacers == null || replacers.isEmpty()) return null;
+        List<Annotation> annotations = new ArrayList<>();
+        for (AnnotationReplacer replacer : replacers) {
+            Collection<Annotation> replaced = replacer.replaceAnnotations(element, ann);
+            if (replaced == null || replaced.isEmpty()) continue;
+            annotations.addAll(replaced);
+        }
+        if (annotations.isEmpty()) return null;
+        return annotations;
+    }
 
     @Override public @NotNull AutoCompleter getAutoCompleter() {
         return autoCompleter;
