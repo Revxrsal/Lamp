@@ -67,7 +67,7 @@ final class CommandParser {
                 invokeTarget = ((OrphanRegistry) invokeTarget).getHandler();
             }
             reader.distributeAnnotations();
-
+            reader.replaceAnnotations(handler);
             List<CommandPath> paths = getCommandPath(container, method, reader);
             BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(invokeTarget);
             int id = COMMAND_ID.getAndIncrement();
@@ -117,6 +117,7 @@ final class CommandParser {
         String[] pathsArray = paths.stream().map(CommandPath::toRealString).toArray(String[]::new);
         reader.add(new Command() {
             @Override public Class<? extends Annotation> annotationType() {return Command.class;}
+
             @Override public String[] value() {return pathsArray;}
         });
     }

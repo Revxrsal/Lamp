@@ -29,7 +29,7 @@ import revxrsal.commands.command.CommandParameter
 import revxrsal.commands.command.CommandPermission
 import revxrsal.commands.command.trait.CommandAnnotationHolder
 import revxrsal.commands.process.ContextResolver
-import revxrsal.commands.process.ContextResolver.ContextResolverContext
+import revxrsal.commands.process.ContextResolver.*
 import revxrsal.commands.process.ParameterValidator
 import revxrsal.commands.process.ValueResolver
 import revxrsal.commands.process.ValueResolver.ValueResolverContext

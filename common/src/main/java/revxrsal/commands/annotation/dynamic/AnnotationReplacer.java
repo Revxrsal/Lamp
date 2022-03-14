@@ -25,6 +25,7 @@ package revxrsal.commands.annotation.dynamic;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.trait.CommandAnnotationHolder;
 
 import java.lang.annotation.Annotation;
@@ -37,7 +38,10 @@ import java.util.Collection;
  * This can be exceptionally powerful (and dangerous), as it can create dynamic
  * annotations, whose values are not restricted by static, compile-time known ones.
  * <p>
- * It also allows building shortcut annotations, which may
+ * It also allows building shortcut annotations, as well as
+ * configurable values inside annotations.
+ * <p>
+ * Register with {@link CommandHandler#registerAnnotationReplacer(Class, AnnotationReplacer)}
  *
  * @param <T>
  */

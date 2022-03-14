@@ -68,7 +68,7 @@ import java.util.stream.Stream;
         annotations.put(annotation.annotationType(), annotation);
     }
 
-    private void replaceAnnotations(BaseCommandHandler handler) {
+    void replaceAnnotations(BaseCommandHandler handler) {
         if (handler.annotationReplacers.isEmpty()) return;
         Map<Class<? extends Annotation>, Annotation> newAnnotations = new HashMap<>(annotations);
         for (Annotation annotation : annotations.values()) {
@@ -76,7 +76,7 @@ import java.util.stream.Stream;
             if (replaced == null) continue;
             replaced.forEach(a -> newAnnotations.put(a.annotationType(), a));
         }
-        // we copy the replaced ones into a new map to avoid recursion
+        // we copy the replaced ones into a new map to avoid stackoverflow
         annotations = newAnnotations;
     }
 
