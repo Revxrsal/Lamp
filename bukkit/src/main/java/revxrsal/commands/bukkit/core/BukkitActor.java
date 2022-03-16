@@ -78,4 +78,8 @@ public final class BukkitActor implements BukkitCommandActor {
         notNull(message, "message");
         sender.sendMessage(colorize(handler.getMessagePrefix() + "&c" + message));
     }
+
+    @Override public CommandHandler getCommandHandler() {
+        return handler;
+    }
 }
