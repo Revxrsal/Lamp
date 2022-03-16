@@ -49,6 +49,10 @@ public final class VelocityActor implements VelocityCommandActor {
         reply("&c" + message);
     }
 
+    @Override public CommandHandler getCommandHandler() {
+        return handler;
+    }
+
     @Override public @NotNull CommandSource getSource() {
         return source;
     }

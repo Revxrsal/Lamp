@@ -9,14 +9,14 @@ public class VelocityExceptionAdapter extends DefaultExceptionHandler {
     public static final VelocityExceptionAdapter INSTANCE = new VelocityExceptionAdapter();
 
     public void senderNotPlayer(@NotNull CommandActor actor, @NotNull SenderNotPlayerException exception) {
-        actor.error("You must be a player to use this command!");
+        actor.errorLocalized("must-be-player");
     }
 
     public void senderNotConsole(@NotNull CommandActor actor, @NotNull SenderNotConsoleException exception) {
-        actor.error("This command can only be used on console!");
+        actor.errorLocalized("must-be-console");
     }
 
     public void invalidPlayer(@NotNull CommandActor actor, @NotNull InvalidPlayerException exception) {
-        actor.error("Invalid player: &e" + exception.getInput());
+        actor.errorLocalized("invalid-player", exception.getInput());
     }
 }
