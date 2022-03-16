@@ -1,7 +1,6 @@
 package revxrsal.commands.exception;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
 
 /**
@@ -13,13 +12,16 @@ import revxrsal.commands.command.CommandActor;
  */
 public class SendMessageException extends SendableException {
 
+    private final Object[] arguments;
+
     /**
      * Constructs a new {@link SendMessageException} with an inferred actor
      *
      * @param message Message to send
      */
-    public SendMessageException(String message) {
+    public SendMessageException(String message, Object... arguments) {
         super(message);
+        this.arguments = arguments;
     }
 
     /**
@@ -28,6 +30,6 @@ public class SendMessageException extends SendableException {
      * @param actor Actor to send to
      */
     @Override public void sendTo(@NotNull CommandActor actor) {
-        actor.reply(getMessage());
+        actor.replyLocalized(getMessage(), arguments);
     }
 }

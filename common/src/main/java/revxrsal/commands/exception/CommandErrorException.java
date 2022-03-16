@@ -13,13 +13,16 @@ import revxrsal.commands.command.CommandActor;
  */
 public class CommandErrorException extends SendableException {
 
+    private final Object[] arguments;
+
     /**
      * Constructs a new {@link CommandErrorException} with an inferred actor
      *
      * @param message Message to send
      */
-    public CommandErrorException(String message) {
+    public CommandErrorException(String message, Object... arguments) {
         super(message);
+        this.arguments = arguments;
     }
 
     /**
@@ -28,6 +31,6 @@ public class CommandErrorException extends SendableException {
      * @param actor Actor to send to
      */
     @Override public void sendTo(@NotNull CommandActor actor) {
-        actor.error(getMessage());
+        actor.errorLocalized(getMessage(), arguments);
     }
 }
