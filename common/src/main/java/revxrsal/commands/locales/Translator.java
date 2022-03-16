@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Represents a translator. A localizer allows localizing messages, adding
+ * Represents a translator. A translator allows localizing messages, adding
  * bundles, registering custom locales, and changing the default locale.
  */
 public interface Translator {
@@ -37,7 +37,7 @@ public interface Translator {
     /**
      * Creates a new {@link Translator}
      *
-     * @return The newly created localizer
+     * @return The newly created translator
      */
     static @NotNull Translator create() {
         return new SimpleTranslator();
