@@ -2,6 +2,7 @@ package revxrsal.commands.cli.core;
 
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.CommandHandler;
 import revxrsal.commands.cli.ConsoleActor;
 
 import java.io.InputStream;
@@ -52,5 +53,9 @@ public final class CommandLineActor implements ConsoleActor {
 
     @Override public void error(@NotNull String message) {
         getErrorStream().println(handler.getMessagePrefix() + message);
+    }
+
+    @Override public CommandHandler getCommandHandler() {
+        return handler;
     }
 }
