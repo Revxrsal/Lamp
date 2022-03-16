@@ -1,7 +1,11 @@
 package revxrsal.commands.command;
 
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.CommandHandler;
+import revxrsal.commands.locales.Translator;
 
+import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -51,6 +55,57 @@ public interface CommandActor {
      * @param message Message to reply with
      */
     void error(@NotNull String message);
+
+    /**
+     * Returns the command handler that constructed this actor
+     *
+     * @return The command handler
+     */
+    CommandHandler getCommandHandler();
+
+    /**
+     * Shortcut to {@link CommandHandler#getTranslator()}
+     *
+     * @return The command handler translator
+     */
+    default Translator getTranslator() {
+        return getCommandHandler().getTranslator();
+    }
+
+    /**
+     * Returns the locale of this command actor. This can be used by
+     * translation tools to provide specialized messages.
+     * <p>
+     * Note that platforms that do not support per-actor locales
+     * will return a default locale, mostly {@link Locale#ENGLISH}.
+     *
+     * @return The actor's locale
+     */
+    default @NotNull Locale getLocale() {
+        return getTranslator().getLocale();
+    }
+
+    /**
+     * Replies with the given message
+     *
+     * @param key  Key of the message
+     * @param args The arguments to format with
+     */
+    default void replyLocalized(@NotNull String key, Object... args) {
+        String message = MessageFormat.format(getTranslator().get(key, getLocale()), args);
+        reply(message);
+    }
+
+    /**
+     * Replies with the given message
+     *
+     * @param key  Key of the message
+     * @param args The arguments to format with
+     */
+    default void errorLocalized(@NotNull String key, Object... args) {
+        String message = MessageFormat.format(getTranslator().get(key, getLocale()), args);
+        error(message);
+    }
 
     /**
      * Returns this actor as the specified type. This is effectively

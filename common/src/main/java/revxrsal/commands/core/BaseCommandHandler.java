@@ -6,6 +6,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.CommandHandlerVisitor;
 import revxrsal.commands.annotation.Dependency;
+import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.Range;
 import revxrsal.commands.annotation.dynamic.AnnotationReplacer;
 import revxrsal.commands.autocomplete.AutoCompleter;
@@ -14,6 +15,7 @@ import revxrsal.commands.core.reflect.MethodCallerFactory;
 import revxrsal.commands.exception.*;
 import revxrsal.commands.help.CommandHelp;
 import revxrsal.commands.help.CommandHelpWriter;
+import revxrsal.commands.locales.Translator;
 import revxrsal.commands.orphan.OrphanCommand;
 import revxrsal.commands.orphan.OrphanRegistry;
 import revxrsal.commands.orphan.Orphans;
@@ -61,6 +63,7 @@ public class BaseCommandHandler implements CommandHandler {
     CommandHelpWriter<?> helpWriter;
     boolean failOnExtra = false;
     final List<CommandCondition> conditions = new ArrayList<>();
+    private final Translator translator = Translator.create();
 
     public BaseCommandHandler() {
         registerContextResolverFactory(new SenderContextResolverFactory(senderResolvers));
@@ -110,6 +113,7 @@ public class BaseCommandHandler implements CommandHandler {
                     throw new NumberNotInRangeException(actor, parameter, value, range.min(), range.max());
         });
         registerCondition((actor, command, arguments) -> command.checkPermission(actor));
+        registerAnnotationReplacer(Description.class, new LocalesAnnotationReplacer(this));
     }
 
     @Override
@@ -140,6 +144,18 @@ public class BaseCommandHandler implements CommandHandler {
             findPermission(executable);
         }
         return this;
+    }
+
+    @Override public @NotNull Locale getLocale() {
+        return translator.getLocale();
+    }
+
+    @Override public void setLocale(@NotNull Locale locale) {
+        translator.setLocale(locale);
+    }
+
+    @Override public @NotNull Translator getTranslator() {
+        return translator;
     }
 
     private void findPermission(@Nullable CommandExecutable executable) {

@@ -16,9 +16,11 @@ import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.exception.TooManyArgumentsException;
 import revxrsal.commands.help.CommandHelp;
 import revxrsal.commands.help.CommandHelpWriter;
+import revxrsal.commands.locales.Translator;
 import revxrsal.commands.process.*;
 
 import java.lang.annotation.Annotation;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -38,6 +40,27 @@ public interface CommandHandler {
      * @return This command handler
      */
     @NotNull CommandHandler register(@NotNull Object... commands);
+
+    /**
+     * Gets the current, default locale used by this handler
+     *
+     * @return The default locale
+     */
+    @NotNull Locale getLocale();
+
+    /**
+     * Sets the locale of this handler.
+     *
+     * @param locale The locale of this handler
+     */
+    void setLocale(@NotNull Locale locale);
+
+    /**
+     * Returns the translator of this command handler
+     *
+     * @return The message translator
+     */
+    @NotNull Translator getTranslator();
 
     /**
      * Sets the {@link MethodCallerFactory} responsible for generating access
