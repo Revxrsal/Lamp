@@ -43,6 +43,10 @@ public final class SpongeActor implements SpongeCommandActor {
         reply("&c" + message);
     }
 
+    @Override public CommandHandler getCommandHandler() {
+        return handler;
+    }
+
     @Override public @NotNull CommandSource getSource() {
         return source;
     }
