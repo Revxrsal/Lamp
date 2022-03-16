@@ -38,6 +38,6 @@ public interface JDACommandHandler extends CommandHandler {
      * @return The JDA command handler
      */
     static @NotNull JDACommandHandler create(@NotNull JDA jda, String prefix) {
-        return new JDAHandler(jda, prefix, false);
+        return new JDAHandler(jda, prefix);
     }
 }
