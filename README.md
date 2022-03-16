@@ -29,7 +29,7 @@ Glad you asked!
     - [SpongePowered](sponge)
     - [Java Discord API (JDA)](jda)
     - [Mojang's Brigadier](brigadier)
-    - [Bare-boned command line interface (CLI)](cli)
+    - [Command line interface (CLI)](cli)
 
    With the help of the built-in APIs for dispatching commands and auto-completions, it is possible to support almost any platform out-of-the-box.
 - **Lamp is easy**: Despite all the powerful features and extendability, getting started with Lamp couldn't be easier. Simply create a command handler for your appropriate platform, then proceed with creating your command with the main **\@Command** and **\@Subcommand** annotations, and finally registering it with **CommandHandler#register()**.
@@ -37,6 +37,7 @@ Glad you asked!
    - **[@Switch parameters](common/src/main/java/revxrsal/commands/annotation/Switch.java)**
    - **[@Flag (named) parameters](common/src/main/java/revxrsal/commands/annotation/Flag.java)**
    - **[Simple dependency injection](common/src/main/java/revxrsal/commands/annotation/Dependency.java)**
+   - **[Built-in localization API](common/src/main/java/revxrsal/commands/locales/Translator)
    - **[A quote-aware argument parser](common/src/main/java/revxrsal/commands/command/ArgumentStack.java)**
    - **[Context resolver factories](common/src/main/java/revxrsal/commands/process/ContextResolverFactory.java)** and **[value resolver factories](common/src/main/java/revxrsal/commands/process/ValueResolverFactory.java)**
    - **[Simple and powerful auto completions API](common/src/main/java/revxrsal/commands/autocomplete/AutoCompleter.java)**
