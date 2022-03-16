@@ -94,7 +94,7 @@ public interface Translator {
      * @param resourceBundle Resource bundle to register
      * @param locales        Locales to register for
      */
-    void addResourceBundles(@NotNull String resourceBundle, @NotNull Locale... locales);
+    void addResourceBundle(@NotNull String resourceBundle, @NotNull Locale... locales);
 
     /**
      * Adds the given resource bundle. This will automatically check for all
@@ -111,7 +111,7 @@ public interface Translator {
      *
      * @param resourceBundle Resource bundle to register
      */
-    void addResourceBundles(@NotNull String resourceBundle);
+    void addResourceBundle(@NotNull String resourceBundle);
 
     /**
      * Gets the current, default locale used by this translator

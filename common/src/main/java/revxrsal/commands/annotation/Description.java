@@ -18,7 +18,10 @@ import java.lang.annotation.Target;
 public @interface Description {
 
     /**
-     * The command description
+     * The command description. It is possible to use localized strings
+     * inside this value, using the following syntax:
+     * {@code #{message-key} }, which will effectively use values
+     * from {@link revxrsal.commands.locales.Translator#get(String) Translator#get(key)}.
      *
      * @return The description
      */

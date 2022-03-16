@@ -37,17 +37,17 @@ final class SimpleTranslator implements Translator {
     private volatile Locale locale = Locale.ENGLISH;
 
     SimpleTranslator() {
-        addResourceBundles("lamp");
+        addResourceBundle("lamp");
         if (classExists("org.bukkit.Bukkit"))
-            addResourceBundles("lamp-bukkit");
+            addResourceBundle("lamp-bukkit");
         if (classExists("org.spongepowered.api.Sponge"))
-            addResourceBundles("lamp-sponge");
+            addResourceBundle("lamp-sponge");
         if (classExists("com.velocitypowered.api.proxy.ProxyServer"))
-            addResourceBundles("lamp-velocity");
+            addResourceBundle("lamp-velocity");
         if (classExists("net.md_5.bungee.api.ProxyServer"))
-            addResourceBundles("lamp-bungee");
+            addResourceBundle("lamp-bungee");
         if (classExists("net.dv8tion.jda.api.JDA"))
-            addResourceBundles("lamp-jda");
+            addResourceBundle("lamp-jda");
     }
 
     @Override public @NotNull String get(@NotNull String key) {
@@ -83,7 +83,7 @@ final class SimpleTranslator implements Translator {
     }
 
     @Override
-    public void addResourceBundles(@NotNull String resourceBundle, @NotNull Locale... locales) {
+    public void addResourceBundle(@NotNull String resourceBundle, @NotNull Locale... locales) {
         notNull(resourceBundle, "resource bundle");
         notNull(locales, "locales");
         for (Locale locale : locales) {
@@ -96,7 +96,7 @@ final class SimpleTranslator implements Translator {
     }
 
     @Override
-    public void addResourceBundles(@NotNull String resourceBundle) {
+    public void addResourceBundle(@NotNull String resourceBundle) {
         notNull(resourceBundle, "resource bundle");
         for (Locale locale : Locales.getLocales()) {
             try {
