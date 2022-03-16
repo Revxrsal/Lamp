@@ -13,6 +13,7 @@ import revxrsal.commands.velocity.VelocityCommandActor;
 import revxrsal.commands.velocity.exception.SenderNotConsoleException;
 import revxrsal.commands.velocity.exception.SenderNotPlayerException;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import static revxrsal.commands.util.Preconditions.notNull;
@@ -61,9 +62,14 @@ public final class VelocityActor implements VelocityCommandActor {
         source.sendMessage(component);
     }
 
-
     @Override public void reply(@NotNull ComponentLike component) {
         source.sendMessage(component);
+    }
+
+    @Override public @NotNull Locale getLocale() {
+        if (isPlayer())
+            return requirePlayer().getPlayerSettings().getLocale();
+        return VelocityCommandActor.super.getLocale();
     }
 
     @Override public @NotNull ProxyServer getServer() {

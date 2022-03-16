@@ -11,6 +11,7 @@ import revxrsal.commands.sponge.SpongeCommandActor;
 import revxrsal.commands.sponge.exception.SenderNotConsoleException;
 import revxrsal.commands.sponge.exception.SenderNotPlayerException;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import static revxrsal.commands.util.Strings.colorize;
@@ -73,6 +74,12 @@ public final class SpongeActor implements SpongeCommandActor {
         if (!isPlayer())
             throw new SenderNotConsoleException(this);
         return (ConsoleSource) source;
+    }
+
+    @Override public @NotNull Locale getLocale() {
+        if (isPlayer())
+            return requirePlayer().getLocale();
+        return SpongeCommandActor.super.getLocale();
     }
 
     @Override public void reply(@NotNull Text message) {

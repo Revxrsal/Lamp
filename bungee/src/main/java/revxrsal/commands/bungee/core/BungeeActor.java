@@ -9,6 +9,7 @@ import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bungee.BungeeCommandActor;
 import revxrsal.commands.bungee.exception.SenderNotPlayerException;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import static revxrsal.commands.util.Strings.colorize;
@@ -61,5 +62,11 @@ public final class BungeeActor implements BungeeCommandActor {
 
     @Override public CommandHandler getCommandHandler() {
         return handler;
+    }
+
+    @Override public @NotNull Locale getLocale() {
+        if (isPlayer())
+            return requirePlayer().getLocale();
+        return BungeeCommandActor.super.getLocale();
     }
 }

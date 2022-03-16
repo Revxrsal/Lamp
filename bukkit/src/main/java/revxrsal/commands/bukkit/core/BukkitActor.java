@@ -9,8 +9,10 @@ import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
+import revxrsal.commands.locales.Locales;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.UUID;
 
 import static revxrsal.commands.util.Preconditions.notNull;
@@ -81,5 +83,13 @@ public final class BukkitActor implements BukkitCommandActor {
 
     @Override public CommandHandler getCommandHandler() {
         return handler;
+    }
+
+    @Override public @NotNull Locale getLocale() {
+        if (isPlayer()) {
+            Locale locale = Locales.get(requirePlayer().getLocale());
+            return locale == null ? BukkitCommandActor.super.getLocale() : locale;
+        }
+        return BukkitCommandActor.super.getLocale();
     }
 }
