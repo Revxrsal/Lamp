@@ -75,12 +75,12 @@ public interface JDAActor extends CommandActor {
     @NotNull Guild getGuild();
 
     /**
-     * Returns the {@link Member} of this actor. This may be null
+     * Returns the {@link Member} of this actor. This will throw an exception
      * in case of private messages. Check with {@link #isGuildEvent()}.
      *
      * @return the member of the actor
      */
-    /*@Nullable*/ Member getMember();
+    @NotNull Member getMember();
 
     /**
      * Returns this actor if it is in a guild, otherwise throws a

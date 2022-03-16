@@ -42,8 +42,12 @@ public final class BaseActorJDA implements JDAActor {
         getChannel().sendMessage(handler.getMessagePrefix() + message).queue();
     }
 
+    @Override public CommandHandler getCommandHandler() {
+        return handler;
+    }
+
     @Override public @NotNull Member getMember() {
-        return notNull(event.getMember(), "event.getMember()");
+        return notNull(event.getMember(), "getEvent().getMember()");
     }
 
     @Override public JDAActor checkInGuild(ExecutableCommand command) {
@@ -58,6 +62,14 @@ public final class BaseActorJDA implements JDAActor {
         return this;
     }
 
+    @Override public @NotNull Message getMessage() {
+        return event.getMessage();
+    }
+
+    @Override public @NotNull MessageReceivedEvent getEvent() {
+        return event;
+    }
+
     @Override public long getIdLong() {
         return getUser().getIdLong();
     }
@@ -68,14 +80,6 @@ public final class BaseActorJDA implements JDAActor {
 
     @Override public @NotNull User getUser() {
         return event.getAuthor();
-    }
-
-    @Override public @NotNull Message getMessage() {
-        return event.getMessage();
-    }
-
-    @Override public @NotNull MessageReceivedEvent getEvent() {
-        return event;
     }
 
     @Override public @NotNull Guild getGuild() {
