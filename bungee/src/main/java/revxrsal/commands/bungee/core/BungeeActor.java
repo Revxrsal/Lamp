@@ -58,4 +58,8 @@ public final class BungeeActor implements BungeeCommandActor {
     @Override public void error(@NotNull String message) {
         reply("&c" + message);
     }
+
+    @Override public CommandHandler getCommandHandler() {
+        return handler;
+    }
 }
