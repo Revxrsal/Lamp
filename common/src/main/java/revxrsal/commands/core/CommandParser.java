@@ -248,8 +248,6 @@ final class CommandParser {
             ParameterResolver<?> resolver = handler.getResolver(param);
 
             if (resolver == null) {
-                System.out.println(paramAnns);
-                System.out.println(parameter.getDeclaringExecutable());
                 throw new IllegalStateException("Unable to find a resolver for parameter type " + parameter.getType());
             }
             param.resolver = resolver;

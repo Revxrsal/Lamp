@@ -11,7 +11,6 @@ import revxrsal.commands.command.trait.PermissionHolder;
 import revxrsal.commands.process.ParameterResolver;
 import revxrsal.commands.process.ParameterValidator;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -123,6 +122,13 @@ public interface CommandParameter extends Comparable<CommandParameter>, Permissi
      * @return Whether is this parameter optional
      */
     boolean isOptional();
+
+    /**
+     * Returns whether this parameter is the last in the method
+     *
+     * @return If this parameter is the last in method
+     */
+    boolean isLastInMethod();
 
     /**
      * Returns whether is this parameter a {@link Switch} parameter or not.

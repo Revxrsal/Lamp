@@ -84,6 +84,10 @@ import java.util.List;
         return optional || isSwitch();
     }
 
+    @Override public boolean isLastInMethod() {
+        return getMethodIndex() + 1 == parameter.getDeclaringExecutable().getParameterCount();
+    }
+
     @Override public <A extends Annotation> A getAnnotation(@NotNull Class<A> annotation) {
         return parameter.getAnnotation(annotation);
     }
