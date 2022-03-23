@@ -25,24 +25,20 @@ package revxrsal.commands.ktx
 
 import revxrsal.commands.CommandHandler
 import revxrsal.commands.command.CommandActor
-import revxrsal.commands.command.CommandParameter
 import revxrsal.commands.command.CommandPermission
 import revxrsal.commands.command.trait.CommandAnnotationHolder
-import revxrsal.commands.process.ContextResolver
-import revxrsal.commands.process.ContextResolver.*
-import revxrsal.commands.process.ParameterValidator
-import revxrsal.commands.process.ValueResolver
-import revxrsal.commands.process.ValueResolver.ValueResolverContext
+import revxrsal.commands.process.*
 import java.util.function.Supplier
+import kotlin.reflect.typeOf
 
 /**
  * Registers a [ValueResolver] for the given type.
  */
 inline fun <reified T> CommandHandler.valueResolver(
     priority: Int = Int.MAX_VALUE,
-    crossinline v: (ValueResolverContext) -> T
+    resolver: ValueResolver<T>
 ) = apply {
-    registerValueResolver(priority, T::class.java) { v(it) }
+    registerValueResolver(priority, T::class.java, resolver)
 }
 
 /**
@@ -50,9 +46,9 @@ inline fun <reified T> CommandHandler.valueResolver(
  */
 inline fun <reified T> CommandHandler.contextResolver(
     priority: Int = Int.MAX_VALUE,
-    crossinline v: (ContextResolverContext) -> T
+    resolver: ContextResolver<T>
 ) = apply {
-    registerContextResolver(priority, T::class.java) { v(it) }
+    registerContextResolver(priority, T::class.java, resolver)
 }
 
 /**
@@ -60,7 +56,7 @@ inline fun <reified T> CommandHandler.contextResolver(
  */
 fun CommandHandler.valueResolverFactory(
     priority: Int = Int.MAX_VALUE,
-    factory: (CommandParameter) -> ValueResolver<*>?
+    factory: ValueResolverFactory
 ) = apply {
     registerValueResolverFactory(priority, factory)
 }
@@ -70,7 +66,7 @@ fun CommandHandler.valueResolverFactory(
  */
 fun CommandHandler.contextResolverFactory(
     priority: Int = Int.MAX_VALUE,
-    factory: (CommandParameter) -> ContextResolver<*>?
+    factory: ContextResolverFactory
 ) = apply {
     registerContextResolverFactory(priority, factory)
 }
@@ -88,15 +84,9 @@ inline fun <reified T : Throwable> CommandHandler.handleException(
  * Registers a [ParameterValidator] for the given type.
  */
 inline fun <reified T> CommandHandler.parameterValidator(
-    crossinline validate: (
-        value: T,
-        parameter: CommandParameter,
-        actor: CommandActor
-    ) -> Unit
+    validator: ParameterValidator<T>
 ) = apply {
-    registerParameterValidator(
-        T::class.java,
-        ParameterValidator { value, param, actor -> validate(value, param, actor) })
+    registerParameterValidator(T::class.java, validator)
 }
 
 /**
@@ -124,4 +114,8 @@ fun CommandHandler.permissionReader(
     reader: CommandAnnotationHolder.() -> CommandPermission
 ) = apply {
     registerPermissionReader(reader)
+}
+
+inline fun <reified T> CommandHandler.responseHandler(handler: ResponseHandler<T>) = apply {
+    registerResponseHandler(T::class.java, handler)
 }

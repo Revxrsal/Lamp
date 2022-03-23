@@ -64,9 +64,17 @@ operator fun CommandHandler.minusAssign(path: String) {
     unregister(path)
 }
 
+/**
+ * A shorter way for Kotlin's ABC::class.java syntax, to be used
+ * as classOf<ABC>()
+ */
+inline fun <reified T> classOf() = T::class.java
+
 fun argumentStackOf(vararg values: String) = ArgumentStack.of(*values)
 
 fun argumentStackOf(values: Collection<String>) = ArgumentStack.of(values)
+
+fun pathOf(vararg values: String) = CommandPath.get(*values)
 
 inline val ParameterResolverContext.input: List<String>
     get() = input()
@@ -76,6 +84,9 @@ inline val ValueResolverContext.arguments: ArgumentStack
 
 inline val ParameterResolverContext.command
     get() = command()
+
+inline val ParameterResolverContext.actor
+    get() = actor<CommandActor>()
 
 inline val ParameterResolverContext.parameter
     get() = parameter()
