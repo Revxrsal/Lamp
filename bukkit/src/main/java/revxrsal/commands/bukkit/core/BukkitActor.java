@@ -87,7 +87,7 @@ public final class BukkitActor implements BukkitCommandActor {
 
     @Override public @NotNull Locale getLocale() {
         if (isPlayer()) {
-            Locale locale = Locales.get(requirePlayer().getLocale());
+            Locale locale = Locales.get(requirePlayer().spigot().getLocale());
             return locale == null ? BukkitCommandActor.super.getLocale() : locale;
         }
         return BukkitCommandActor.super.getLocale();
