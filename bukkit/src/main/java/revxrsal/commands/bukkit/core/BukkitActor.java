@@ -11,6 +11,7 @@ import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
 import revxrsal.commands.locales.Locales;
 
+import java.lang.NoSuchMethodError;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
@@ -87,7 +88,17 @@ public final class BukkitActor implements BukkitCommandActor {
 
     @Override public @NotNull Locale getLocale() {
         if (isPlayer()) {
-            Locale locale = Locales.get(requirePlayer().spigot().getLocale());
+            String playerLocale;
+            try {
+                playerLocale = requirePlayer().getLocale();
+            } catch (NoSuchMethodError e) {
+                try {
+                    playerLocale = requirePlayer().spigot().getLocale();                
+                } catch (NoSuchMethodError e2) {
+                    return BukkitCommandActor.super.getLocale();
+                }
+            }
+            Locale locale = Locales.get(playerLocale);
             return locale == null ? BukkitCommandActor.super.getLocale() : locale;
         }
         return BukkitCommandActor.super.getLocale();
