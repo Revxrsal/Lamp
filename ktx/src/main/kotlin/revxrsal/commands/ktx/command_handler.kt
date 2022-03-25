@@ -24,6 +24,7 @@
 package revxrsal.commands.ktx
 
 import revxrsal.commands.CommandHandler
+import revxrsal.commands.annotation.dynamic.AnnotationReplacer
 import revxrsal.commands.command.CommandActor
 import revxrsal.commands.command.CommandPermission
 import revxrsal.commands.command.trait.CommandAnnotationHolder
@@ -39,6 +40,15 @@ inline fun <reified T> CommandHandler.valueResolver(
     resolver: ValueResolver<T>
 ) = apply {
     registerValueResolver(priority, T::class.java, resolver)
+}
+
+/**
+ * Registers an [AnnotationReplacer] for the given type.
+ */
+inline fun <reified T : Annotation> CommandHandler.annotationReplacer(
+    replacer: AnnotationReplacer<T>
+) = apply {
+    registerAnnotationReplacer(T::class.java, replacer)
 }
 
 /**
