@@ -1,4 +1,5 @@
 # Lamp
+[![Discord](https://img.shields.io/badge/Discord-blue?style=for-the-badge )](https://discord.gg/pEGGF785zp)
 [![](https://jitpack.io/v/Revxrsal/Lamp.svg)](https://jitpack.io/#Revxrsal/Lamp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://github.com/Revxrsal/Lamp/actions/workflows/gradle.yml/badge.svg)](https://github.com/Revxrsal/Lamp/actions/workflows/gradle.yml)
