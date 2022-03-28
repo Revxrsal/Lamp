@@ -1,11 +1,8 @@
 repositories {
-    maven {
-        name = 'sponge-repo'
-        url = 'https://repo.spongepowered.org/repository/maven-public/'
-    }
+    maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
 }
 
 dependencies {
     implementation(project(":common"))
-    compileOnly "org.spongepowered:spongeapi:7.3.0"
+    compileOnly("org.spongepowered:spongeapi:7.3.0")
 }
