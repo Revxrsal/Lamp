@@ -38,7 +38,7 @@ Glad you asked!
    - **[@Switch parameters](common/src/main/java/revxrsal/commands/annotation/Switch.java)**
    - **[@Flag (named) parameters](common/src/main/java/revxrsal/commands/annotation/Flag.java)**
    - **[Simple dependency injection](common/src/main/java/revxrsal/commands/annotation/Dependency.java)**
-   - **[Built-in localization API](common/src/main/java/revxrsal/commands/locales/Translator)
+   - **[Built-in localization API](common/src/main/java/revxrsal/commands/locales/Translator.java)**
    - **[A quote-aware argument parser](common/src/main/java/revxrsal/commands/command/ArgumentStack.java)**
    - **[Context resolver factories](common/src/main/java/revxrsal/commands/process/ContextResolverFactory.java)** and **[value resolver factories](common/src/main/java/revxrsal/commands/process/ValueResolverFactory.java)**
    - **[Simple and powerful auto completions API](common/src/main/java/revxrsal/commands/autocomplete/AutoCompleter.java)**
