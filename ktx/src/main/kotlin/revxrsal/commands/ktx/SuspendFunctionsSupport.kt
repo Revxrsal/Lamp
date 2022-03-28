@@ -41,11 +41,8 @@ object SuspendFunctionsSupport : CommandHandlerVisitor {
 
     override fun visit(handler: CommandHandler) {
         handler.registerContextResolverFactory {
-            if (it.isLastInMethod)
-                when {
-                    it.type.isAssignableFrom(Continuation::class.java) -> ContinuationResolver
-                    else -> null
-                }
+            if (it.isLastInMethod && it.type.isAssignableFrom(Continuation::class.java))
+                ContinuationResolver
             else
                 null
         }
