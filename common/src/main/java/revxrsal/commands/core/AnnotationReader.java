@@ -65,7 +65,7 @@ import java.util.stream.Stream;
     }
 
     public void add(@NotNull Annotation annotation) {
-        annotations.put(annotation.annotationType(), annotation);
+        annotations.putIfAbsent(annotation.annotationType(), annotation);
     }
 
     void replaceAnnotations(BaseCommandHandler handler) {
@@ -100,7 +100,7 @@ import java.util.stream.Stream;
             while (top != null) {
                 toMap(top.getAnnotations()).forEach((type, annotation) -> {
                     if (type.isAnnotationPresent(DistributeOnMethods.class))
-                        annotations.put(type, annotation);
+                        annotations.putIfAbsent(type, annotation);
                 });
                 top = top.getDeclaringClass();
             }
