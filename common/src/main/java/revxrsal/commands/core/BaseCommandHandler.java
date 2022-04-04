@@ -459,6 +459,20 @@ public class BaseCommandHandler implements CommandHandler {
         return unregister(CommandPath.get(splitBySpace(commandPath)));
     }
 
+    @Override public void unregisterAllCommands() {
+        // it's important that we don't just do a blind executables.clear()
+        // or categories.clear(), since some platforms register commands
+        // in their own way (such as Bukkit).
+        getRootPaths().forEach(this::unregister);
+    }
+
+    @Override public @NotNull Set<CommandPath> getRootPaths() {
+        Set<CommandPath> paths = new HashSet<>();
+        for (CommandPath path : categories.keySet()) if (path.isRoot()) paths.add(path);
+        for (CommandPath path : executables.keySet()) if (path.isRoot()) paths.add(path);
+        return paths;
+    }
+
     @Override public @NotNull String getSwitchPrefix() {
         return switchPrefix;
     }

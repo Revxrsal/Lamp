@@ -17,7 +17,7 @@ import static revxrsal.commands.util.Collections.linkedListOf;
  * This class is immutable, hence is thread-safe, and is intended to be used
  * as a key for maps that use hashing.
  */
-public class CommandPath implements Iterable<String> {
+public class CommandPath implements Iterable<String>, Comparable<CommandPath> {
 
     /**
      * Returns the corresponding {@link CommandPath} to the given path
@@ -255,5 +255,16 @@ public class CommandPath implements Iterable<String> {
             throw new UnsupportedOperationException("Iterator.remove() is disabled.");
         }
 
+    }
+
+    @Override public int compareTo(@NotNull CommandPath o) {
+        if (isParentOf(o))
+            return -1;
+        else if (isChildOf(o))
+            return 1;
+        else if (o.equals(this))
+            return 0;
+        else
+            return toRealString().compareTo(o.toRealString());
     }
 }

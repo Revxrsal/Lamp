@@ -27,10 +27,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
-import revxrsal.commands.core.CommandPath;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class BukkitCommandListeners implements Listener {
 
@@ -43,15 +39,6 @@ public final class BukkitCommandListeners implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPluginDisable(PluginDisableEvent event) {
         if (!event.getPlugin().equals(handler.getPlugin())) return;
-        for (CommandPath path : getRootPaths())
-            handler.unregister(path);
+        handler.unregisterAllCommands();
     }
-
-    private List<CommandPath> getRootPaths() {
-        List<CommandPath> paths = new ArrayList<>();
-        for (CommandPath path : handler.getCategories().keySet()) if (path.isRoot()) paths.add(path);
-        for (CommandPath path : handler.getCommands().keySet()) if (path.isRoot()) paths.add(path);
-        return paths;
-    }
-
 }

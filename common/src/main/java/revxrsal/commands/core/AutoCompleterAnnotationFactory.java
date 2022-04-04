@@ -58,7 +58,9 @@ class AutoCompleterAnnotationFactory implements SuggestionProviderFactory {
         String[] values = Strings.SPACE.split(annotation.value());
         try {
             String providerV = values[commandIndex];
-            if (providerV.startsWith("@")) {
+            if (providerV.equals("*")) {
+                return null;
+            } else if (providerV.startsWith("@")) {
                 SuggestionProvider provider = tabProviders.get(providerV.substring(1));
                 if (provider == null)
                     throw new IllegalStateException("No such tab suggestion provider: " + providerV.substring(1));

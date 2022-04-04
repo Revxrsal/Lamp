@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -479,6 +480,19 @@ public interface CommandHandler {
      * call.
      */
     boolean unregister(@NotNull String commandPath);
+
+    /**
+     * Unregisters all the command instances in this command handler.
+     */
+    void unregisterAllCommands();
+
+    /**
+     * Returns all the root commands or categories paths in
+     * this command handler.
+     *
+     * @return All root command paths
+     */
+    @NotNull Set<CommandPath> getRootPaths();
 
     /**
      * Returns the prefix that comes before all {@link Switch} parameters
