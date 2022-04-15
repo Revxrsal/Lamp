@@ -23,6 +23,11 @@ import java.lang.annotation.Target;
  *         with <code>|</code>, such as <em>1|2|3</em> which will return 1, 2 and 3 when
  *         tab is requested.
  *     </li>
+ *     <li>
+ *         It is possible to reference the parameter's default auto-completer by using
+ *         <code>*</code>, in which the library would automatically use other suggestion
+ *         factories to auto-complete it.
+ *     </li>
  * </ul>
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
