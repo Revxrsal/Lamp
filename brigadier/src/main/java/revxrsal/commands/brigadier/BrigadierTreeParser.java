@@ -125,24 +125,36 @@ public final class BrigadierTreeParser {
     public static <T> LiteralArgumentBuilder<T> parse(LampBrigadier brigadier,
                                                       LiteralArgumentBuilder<?> into,
                                                       ExecutableCommand command) {
-        CommandNode<?> lastParameter = null;
+        CommandNode lastParameter = null;
         List<CommandParameter> sortedParameters = new ArrayList<>(command.getValueParameters().values());
         Collections.sort(sortedParameters);
         for (int i = 0; i < sortedParameters.size(); i++) {
             boolean isLast = i == sortedParameters.size() - 1;
             CommandParameter parameter = sortedParameters.get(i);
-            ArgumentBuilder<?, ?> builder = getBuilder(brigadier, command, parameter, true);
+            if (parameter.isFlag()) break;
+            ArgumentBuilder<?, ?> builder = getBuilder(brigadier, command, parameter);
             if (!isLast && sortedParameters.get(i + 1).isOptional())
                 builder.executes(NO_ACTION);
-            CommandNode node = builder.build();
             if (lastParameter == null) {
                 if (parameter.isOptional())
                     into.executes(NO_ACTION);
-                into.then(node);
+                into.then(lastParameter = builder.build());
             } else {
-                lastParameter.addChild(node);
+                lastParameter.addChild(lastParameter = builder.build());
             }
-            lastParameter = node;
+        }
+        sortedParameters.removeIf(parameter -> !parameter.isFlag());
+        CommandNode next = null;
+        for (CommandParameter parameter : sortedParameters) {
+            if (next == null) {
+                if (lastParameter == null)
+                    into.then(next = literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()).build());
+                else
+                    lastParameter.addChild(next = literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()).build());
+            } else {
+                next.addChild(next = literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()).build());
+            }
+            next.addChild(next = getBuilder(brigadier, command, parameter).build());
         }
         into.requires(a -> command.hasPermission(brigadier.wrapSource(a)));
         return (LiteralArgumentBuilder<T>) into;
@@ -150,14 +162,9 @@ public final class BrigadierTreeParser {
 
     private static ArgumentBuilder getBuilder(LampBrigadier brigadier,
                                               ExecutableCommand command,
-                                              CommandParameter parameter,
-                                              boolean respectFlag) {
+                                              CommandParameter parameter) {
         if (parameter.isSwitch()) {
             return literal(parameter.getCommandHandler().getSwitchPrefix() + parameter.getSwitchName());
-        }
-        if (parameter.isFlag() && respectFlag) {
-            return literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName())
-                    .then(getBuilder(brigadier, command, parameter, false));
         }
         ArgumentType<?> argumentType = getArgumentType(brigadier, parameter);
 
