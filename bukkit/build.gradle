@@ -14,7 +14,7 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":brigadier"))
     implementation("me.lucko:commodore:1.13") {
-        exclude(module: "commodore-file") // we don"t need that.
+        exclude(module: "commodore-file") // we don't need that.
         exclude(module: "brigadier")
     }
     compileOnly("com.mojang:brigadier:1.0.18")
