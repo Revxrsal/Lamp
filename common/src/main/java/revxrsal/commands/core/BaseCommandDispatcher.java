@@ -183,7 +183,7 @@ public final class BaseCommandDispatcher {
             }
         } else {
             args.remove(index); // remove the flag prefix + flag name
-            if (args.isEmpty())
+            if (index>=args.size())
                 throw new MissingArgumentException(parameter);
             flagArguments = ArgumentStack.of(args.remove(index)); // put the actual value in a separate argument stack
         }
