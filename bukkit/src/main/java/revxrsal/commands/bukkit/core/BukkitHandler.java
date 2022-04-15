@@ -113,7 +113,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 .registerSuggestionFactory(SelectorSuggestionFactory.INSTANCE);
         registerContextValue((Class) plugin.getClass(), plugin);
         registerDependency((Class) plugin.getClass(), plugin);
-        registerDependency(FileConfiguration.class, plugin.getConfig());
+        registerDependency(FileConfiguration.class, (Supplier<FileConfiguration>) plugin::getConfig);
         registerDependency(Logger.class, plugin.getLogger());
         registerPermissionReader(BukkitPermissionReader.INSTANCE);
         setExceptionHandler(BukkitExceptionAdapter.INSTANCE);
