@@ -29,10 +29,6 @@ import revxrsal.commands.command.ArgumentParser;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.exception.ArgumentParseException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Parser for converting a quoted string into a list of arguments.
  *
@@ -51,28 +47,18 @@ public final class QuotedStringTokenizer implements ArgumentParser {
 
     public static final QuotedStringTokenizer INSTANCE = new QuotedStringTokenizer();
 
-    public static final List<String> EMPTY_TEXT = Collections.singletonList("");
-
     private QuotedStringTokenizer() {}
 
     private static final int CHAR_BACKSLASH = '\\';
     private static final int CHAR_SINGLE_QUOTE = '\'';
     private static final int CHAR_DOUBLE_QUOTE = '"';
 
-    /**
-     * Returns a list of tokens from parsing the given input,
-     * respecting quotes and breaks.
-     *
-     * @param arguments Argument string to parse
-     * @return A list of tokens.
-     */
-    public static List<String> tokenize(String arguments) {
+    @Override public ArgumentStack parse(@NotNull String arguments) throws ArgumentParseException {
         if (arguments.length() == 0) {
-            return Collections.emptyList();
+            return ArgumentStack.empty();
         }
-
-        final TokenizerState state = new TokenizerState(arguments);
-        List<String> returnedArgs = new ArrayList<>(arguments.length() / 4);
+        TokenizerState state = new TokenizerState(arguments);
+        ArgumentStack returnedArgs = ArgumentStack.empty();
         while (state.hasMore()) {
             skipWhiteSpace(state);
             String arg = nextArg(state);
@@ -81,23 +67,7 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         return returnedArgs;
     }
 
-    /**
-     * Returns a list of tokens from parsing the given input,
-     * respecting quotes and breaks.
-     *
-     * @param arguments Argument string to parse
-     * @return A list of tokens.
-     */
-    public static List<String> tokenizeUnsafe(String arguments) {
-        if (arguments.length() == 0) {
-            return EMPTY_TEXT;
-        }
-        return tokenize(arguments);
-    }
-
-    // Parsing methods
-
-    private static void skipWhiteSpace(TokenizerState state) throws ArgumentParseException {
+    private void skipWhiteSpace(TokenizerState state) throws ArgumentParseException {
         if (!state.hasMore()) {
             return;
         }
@@ -106,7 +76,7 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         }
     }
 
-    private static String nextArg(TokenizerState state) throws ArgumentParseException {
+    private String nextArg(TokenizerState state) throws ArgumentParseException {
         StringBuilder argBuilder = new StringBuilder();
         if (state.hasMore()) {
             int codePoint = state.peek();
@@ -120,7 +90,7 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         return argBuilder.toString();
     }
 
-    private static void parseQuotedString(TokenizerState state, int startQuotation, StringBuilder builder) throws ArgumentParseException {
+    private void parseQuotedString(TokenizerState state, int startQuotation, StringBuilder builder) throws ArgumentParseException {
         // Consume the start quotation character
         int nextCodePoint = state.next();
         if (nextCodePoint != startQuotation) {
@@ -144,7 +114,7 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         }
     }
 
-    private static void parseUnquotedString(TokenizerState state, StringBuilder builder) throws ArgumentParseException {
+    private void parseUnquotedString(TokenizerState state, StringBuilder builder) throws ArgumentParseException {
         while (state.hasMore()) {
             int nextCodePoint = state.peek();
             if (Character.isWhitespace(nextCodePoint)) {
@@ -197,9 +167,5 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         public int getIndex() {
             return index;
         }
-    }
-
-    @Override public ArgumentStack parse(@NotNull String arguments) throws ArgumentParseException {
-        return ArgumentStack.copy(tokenize(arguments));
     }
 }
