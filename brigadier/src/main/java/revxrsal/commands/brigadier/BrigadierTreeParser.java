@@ -69,13 +69,12 @@ public final class BrigadierTreeParser {
      *
      * @param brigadier The platform's Brigadier implementation
      * @param handler   The command handler
-     * @param namespace An optional namespace to register beside standard registration
      * @return All root nodes
      */
     public static <T> List<LiteralArgumentBuilder<T>> parse(
             @NotNull LampBrigadier brigadier,
-            @NotNull CommandHandler handler,
-            @Nullable String namespace) {
+            @NotNull CommandHandler handler
+    ) {
         List<LiteralArgumentBuilder<T>> nodes = new ArrayList<>();
         List<CommandCategory> roots = handler.getCategories().values().stream().filter(c -> c.getPath().isRoot()).collect(Collectors.toList());
         List<ExecutableCommand> rootCommands = handler.getCommands().values().stream().filter(c -> c.getPath().isRoot()).collect(Collectors.toList());
