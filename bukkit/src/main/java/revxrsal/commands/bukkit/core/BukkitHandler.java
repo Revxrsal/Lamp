@@ -136,7 +136,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
 
     @Override public BukkitCommandHandler registerBrigadier() {
         brigadier.get().ifPresent(brigadier -> BrigadierTreeParser
-                .parse(brigadier, this, plugin.getName().toLowerCase())
+                .parse(brigadier, this, null/*plugin.getName().toLowerCase()*/)
                 .forEach(brigadier::register));
         return this;
     }

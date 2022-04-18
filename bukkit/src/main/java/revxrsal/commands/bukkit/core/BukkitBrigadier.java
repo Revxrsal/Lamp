@@ -28,9 +28,11 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.MinecraftArgumentTypes;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.brigadier.LampBrigadier;
@@ -67,7 +69,11 @@ final class BukkitBrigadier implements LampBrigadier {
     }
 
     @Override public void register(@NotNull LiteralCommandNode<?> node) {
-        commodore.register(node);
+        Command command = ((JavaPlugin) handler.getPlugin()).getCommand(node.getLiteral());
+        if (command == null)
+            commodore.register(node);
+        else
+            commodore.register(command, node);
     }
 
     @Override public @Nullable ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {

@@ -79,14 +79,10 @@ public final class BrigadierTreeParser {
         List<LiteralArgumentBuilder<T>> nodes = new ArrayList<>();
         List<CommandCategory> roots = handler.getCategories().values().stream().filter(c -> c.getPath().isRoot()).collect(Collectors.toList());
         List<ExecutableCommand> rootCommands = handler.getCommands().values().stream().filter(c -> c.getPath().isRoot()).collect(Collectors.toList());
-        for (CommandCategory root : roots) {
+        for (CommandCategory root : roots)
             nodes.add(parse(brigadier, literal(root.getName()), root));
-            if (namespace != null) nodes.add(parse(brigadier, literal(namespace + ":" + root.getName()), root));
-        }
-        for (ExecutableCommand root : rootCommands) {
+        for (ExecutableCommand root : rootCommands)
             nodes.add(parse(brigadier, literal(root.getName()), root));
-            if (namespace != null) nodes.add(parse(brigadier, literal(namespace + ":" + root.getName()), root));
-        }
         return nodes;
     }
 
