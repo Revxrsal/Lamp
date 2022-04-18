@@ -13,6 +13,9 @@ public interface BukkitCommandHandler extends CommandHandler {
     /**
      * Registers commands automatically on Minecraft's 1.13+ command system
      * (so that you would get the colorful command completions!)
+     * <p>
+     * Note that you should call this method after you've registered
+     * all your commands.
      *
      * @return This command handler
      */
