@@ -24,7 +24,7 @@ import revxrsal.commands.jda.JDACommandHandler;
 
         JDAActor actor = new BaseActorJDA(event, handler);
         try {
-            ArgumentStack arguments = ArgumentStack.fromString(content);
+            ArgumentStack arguments = handler.parseArguments(content);
             handler.dispatch(actor, arguments);
         } catch (Throwable t) {
             handler.getExceptionHandler().handleException(t, actor);

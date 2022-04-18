@@ -24,6 +24,9 @@
  */
 package revxrsal.commands.util.tokenize;
 
+import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.command.ArgumentParser;
+import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.exception.ArgumentParseException;
 
 import java.util.ArrayList;
@@ -44,7 +47,9 @@ import java.util.List;
  * QUOTED_ARG := QUOTE (CHAR | ESCAPE)+ QUOTE
  * ARGS := ((UNQUOTED_ARG | QUOTED_ARG) WHITESPACE+)+</pre></blockquote>
  */
-public final class QuotedStringTokenizer {
+public final class QuotedStringTokenizer implements ArgumentParser {
+
+    public static final QuotedStringTokenizer INSTANCE = new QuotedStringTokenizer();
 
     public static final List<String> EMPTY_TEXT = Collections.singletonList("");
 
@@ -194,4 +199,7 @@ public final class QuotedStringTokenizer {
         }
     }
 
+    @Override public ArgumentStack parse(@NotNull String arguments) throws ArgumentParseException {
+        return ArgumentStack.copy(tokenize(arguments));
+    }
 }

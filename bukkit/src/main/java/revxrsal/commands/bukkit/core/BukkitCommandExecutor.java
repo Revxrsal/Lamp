@@ -26,7 +26,7 @@ final class BukkitCommandExecutor implements TabExecutor {
                                        @NotNull String[] args) {
         BukkitCommandActor actor = new BukkitActor(sender, handler);
         try {
-            ArgumentStack arguments = ArgumentStack.of(args);
+            ArgumentStack arguments = handler.parseArguments(args);
             arguments.addFirst(command.getName());
 
             handler.dispatch(actor, arguments);
@@ -42,7 +42,7 @@ final class BukkitCommandExecutor implements TabExecutor {
                                                           @NotNull String[] args) {
         try {
             BukkitCommandActor actor = new BukkitActor(sender, handler);
-            ArgumentStack arguments = ArgumentStack.forAutoCompletion(args);
+            ArgumentStack arguments = handler.parseArgumentsForCompletion(args);
 
             arguments.addFirst(command.getName());
             return handler.getAutoCompleter().complete(actor, arguments);

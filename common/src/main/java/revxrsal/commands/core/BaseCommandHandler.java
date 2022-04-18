@@ -57,6 +57,7 @@ public class BaseCommandHandler implements CommandHandler {
     private final Set<PermissionReader> permissionReaders = new HashSet<>();
     final Map<Class<?>, Set<AnnotationReplacer<?>>> annotationReplacers = new ClassMap<>();
     private MethodCallerFactory methodCallerFactory = MethodCallerFactory.defaultFactory();
+    private ArgumentParser argumentParser = ArgumentParser.QUOTES;
     private final WrappedExceptionHandler exceptionHandler = new WrappedExceptionHandler(DefaultExceptionHandler.INSTANCE);
     private StackTraceSanitizer sanitizer = StackTraceSanitizer.defaultSanitizer();
     String flagPrefix = "-", switchPrefix = "-", messagePrefix = "";
@@ -179,6 +180,35 @@ public class BaseCommandHandler implements CommandHandler {
     @Override public @NotNull CommandHandler setMethodCallerFactory(@NotNull MethodCallerFactory factory) {
         notNull(factory, "method caller factory");
         methodCallerFactory = factory;
+        return this;
+    }
+
+    @Override public @NotNull ArgumentParser getArgumentParser() {
+        return argumentParser;
+    }
+
+    @Override public ArgumentStack parseArgumentsForCompletion(String... arguments) throws ArgumentParseException {
+        String args = String.join(" ", arguments);
+        if (args.isEmpty())
+            return ArgumentStack.copy(EMPTY_TEXT);
+        return argumentParser.parse(args);
+    }
+
+    @Override public ArgumentStack parseArguments(String... arguments) throws ArgumentParseException {
+        String args = String.join(" ", arguments);
+        if (args.isEmpty())
+            return ArgumentStack.empty();
+        return argumentParser.parse(args);
+    }
+
+    /**
+     * A collection that is returned for empty auto-completions.
+     */
+    private static final Collection<String> EMPTY_TEXT = Collections.singletonList("");
+
+    @Override public BaseCommandHandler setArgumentParser(@NotNull ArgumentParser argumentParser) {
+        notNull(argumentParser, "argument parser");
+        this.argumentParser = argumentParser;
         return this;
     }
 
@@ -491,7 +521,7 @@ public class BaseCommandHandler implements CommandHandler {
 
     @Override public <T> @NotNull Optional<@Nullable T> dispatch(@NotNull CommandActor actor, @NotNull String commandInput) {
         try {
-            return dispatch(actor, ArgumentStack.fromString(commandInput));
+            return dispatch(actor, parseArguments(commandInput));
         } catch (Throwable t) {
             getExceptionHandler().handleException(t, actor);
             return Optional.empty();

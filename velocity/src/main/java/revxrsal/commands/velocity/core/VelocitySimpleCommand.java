@@ -21,7 +21,7 @@ final class VelocitySimpleCommand implements SimpleCommand {
         CommandSource source = invocation.source();
         VelocityCommandActor actor = new VelocityActor(source, handler.getServer(), handler);
         try {
-            ArgumentStack arguments = ArgumentStack.of(invocation.arguments());
+            ArgumentStack arguments = handler.parseArguments(invocation.arguments());
             arguments.addFirst(invocation.alias());
 
             handler.dispatch(actor, arguments);
@@ -36,9 +36,9 @@ final class VelocitySimpleCommand implements SimpleCommand {
             VelocityCommandActor actor = new VelocityActor(invocation.source(), handler.getServer(), handler);
             ArgumentStack arguments;
             if (invocation.arguments().length == 0)
-                arguments = ArgumentStack.forAutoCompletion("");
+                arguments = handler.parseArgumentsForCompletion("");
             else
-                arguments = ArgumentStack.forAutoCompletion(invocation.arguments());
+                arguments = handler.parseArgumentsForCompletion(invocation.arguments());
             arguments.addFirst(invocation.alias());
             return handler.getAutoCompleter().complete(actor, arguments);
         } catch (ArgumentParseException e) {

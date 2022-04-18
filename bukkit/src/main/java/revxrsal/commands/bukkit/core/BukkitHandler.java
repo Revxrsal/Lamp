@@ -51,7 +51,8 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
 
     private final Plugin plugin;
 
-    private final Supplier<Optional<LampBrigadier>> brigadier = Suppliers.memoize(() -> {
+    @SuppressWarnings("Guava") // old guava versions would throw an error as they do not implement Java's Supplier.
+    private final com.google.common.base.Supplier<Optional<LampBrigadier>> brigadier = Suppliers.memoize(() -> {
         if (!CommodoreProvider.isSupported())
             return Optional.empty();
         return Optional.of(new BukkitBrigadier(CommodoreProvider.getCommodore(getPlugin()), this));

@@ -17,8 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static revxrsal.commands.util.tokenize.QuotedStringTokenizer.EMPTY_TEXT;
-
 // i'm not sure if we are supposed to be providing implementations
 // for testPermission(), getHelp() and getUsage().
 final class SpongeCommandCallable implements CommandCallable {
@@ -34,7 +32,7 @@ final class SpongeCommandCallable implements CommandCallable {
     @Override public @NotNull CommandResult process(@NotNull CommandSource source, @NotNull String args) {
         CommandActor actor = new SpongeActor(source, handler);
         try {
-            ArgumentStack arguments = ArgumentStack.fromString(args);
+            ArgumentStack arguments = handler.parseArguments(args);
             arguments.addFirst(name);
             handler.dispatch(actor, arguments);
         } catch (Throwable t) {
@@ -46,7 +44,7 @@ final class SpongeCommandCallable implements CommandCallable {
     @Override public @NotNull List<String> getSuggestions(@NotNull CommandSource source, @NotNull String arguments, @Nullable Location<World> targetPosition) {
         try {
             CommandActor actor = new SpongeActor(source, handler);
-            ArgumentStack args = arguments.isEmpty() ? ArgumentStack.exactly(EMPTY_TEXT) : ArgumentStack.fromString(arguments);
+            ArgumentStack args = handler.parseArgumentsForCompletion(arguments);
             return handler.getAutoCompleter().complete(actor, args);
         } catch (ArgumentParseException e) {
             return Collections.emptyList();

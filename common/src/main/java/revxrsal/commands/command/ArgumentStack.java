@@ -3,9 +3,7 @@ package revxrsal.commands.command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
-import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.core.LinkedArgumentStack;
-import revxrsal.commands.util.tokenize.QuotedStringTokenizer;
 
 import java.util.Collection;
 import java.util.Deque;
@@ -16,6 +14,11 @@ import java.util.List;
  * <p>
  * This class holds extremely similar functionality to a LinkedList, and in
  * most contexts should be safely castable to one.
+ * <p>
+ * Command handlers may specify how argument stacks are parsed.
+ * See {@link ArgumentParser} for more information.
+ *
+ * @see ArgumentParser
  */
 public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
 
@@ -71,62 +74,27 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
     @NotNull @Unmodifiable List<String> asImmutableCopy();
 
     /**
-     * Returns a new {@link ArgumentStack} with the specified arguments.
+     * Returns a new {@link ArgumentStack} with the specified arguments, without
+     * doing any modification to the input.
      *
      * @param arguments Arguments to clone from
      * @return The newly created argument stack.
      */
-    static @NotNull ArgumentStack of(@NotNull Collection<String> arguments) {
+    static @NotNull ArgumentStack copy(@NotNull Collection<String> arguments) {
         if (arguments.size() == 0) return empty();
-        return new LinkedArgumentStack(QuotedStringTokenizer.tokenize(String.join(" ", arguments)));
+        return new LinkedArgumentStack(arguments);
     }
 
     /**
      * Returns a new {@link ArgumentStack} with the specified arguments, without
-     * doing any special parsing for quotes.
+     * doing any modification to the input.
      *
      * @param arguments Arguments to clone from
      * @return The newly created argument stack.
      */
-    static @NotNull ArgumentStack exactly(@NotNull Collection<String> arguments) {
-        if (arguments.size() == 0) return empty();
-        return new LinkedArgumentStack(arguments.toArray(new String[0]));
-    }
-
-    /**
-     * Returns a new {@link ArgumentStack} with the specified arguments.
-     *
-     * @param arguments Arguments to clone from
-     * @return The newly created argument stack.
-     */
-    static @NotNull ArgumentStack of(@NotNull String... arguments) {
+    static @NotNull ArgumentStack copy(@NotNull String... arguments) {
         if (arguments.length == 0) return empty();
-        return new LinkedArgumentStack(QuotedStringTokenizer.tokenize(String.join(" ", arguments)));
-    }
-
-
-    /**
-     * Returns a new {@link ArgumentStack} with the specified arguments. This
-     * will not remove trailing space, and hence may give incorrect
-     * measures. This should only be used with {@link AutoCompleter#complete(CommandActor, ArgumentStack)}.
-     *
-     * @param arguments Arguments to clone from
-     * @return The newly created argument stack.
-     */
-    static @NotNull ArgumentStack forAutoCompletion(@NotNull String... arguments) {
-        if (arguments.length == 0) return ArgumentStack.empty();
-        return new LinkedArgumentStack(QuotedStringTokenizer.tokenizeUnsafe(String.join(" ", arguments)));
-    }
-
-    /**
-     * Returns a new {@link ArgumentStack} with the specified arguments,
-     * from splitting the string by whitespace.
-     *
-     * @param arguments Arguments to split
-     * @return The newly created argument stack.
-     */
-    static @NotNull ArgumentStack fromString(@NotNull String arguments) {
-        return new LinkedArgumentStack(QuotedStringTokenizer.tokenize(arguments));
+        return new LinkedArgumentStack(arguments);
     }
 
     /**

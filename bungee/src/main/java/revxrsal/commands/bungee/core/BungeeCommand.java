@@ -21,7 +21,7 @@ final class BungeeCommand extends Command implements TabExecutor {
     @Override public void execute(CommandSender sender, String[] args) {
         BungeeCommandActor actor = new BungeeActor(sender, handler);
         try {
-            ArgumentStack arguments = ArgumentStack.of(args);
+            ArgumentStack arguments = handler.parseArguments(args);
             arguments.addFirst(getName());
 
             handler.dispatch(actor, arguments);
@@ -32,7 +32,7 @@ final class BungeeCommand extends Command implements TabExecutor {
 
     @Override public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
        try {
-            ArgumentStack arguments = ArgumentStack.forAutoCompletion(args);
+            ArgumentStack arguments = handler.parseArgumentsForCompletion(args);
             arguments.addFirst(getName());
 
             BungeeCommandActor actor = new BungeeActor(sender, handler);

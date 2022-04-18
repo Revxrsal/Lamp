@@ -70,10 +70,6 @@ operator fun CommandHandler.minusAssign(path: String) {
  */
 inline fun <reified T> classOf() = T::class.java
 
-fun argumentStackOf(vararg values: String) = ArgumentStack.of(*values)
-
-fun argumentStackOf(values: Collection<String>) = ArgumentStack.of(values)
-
 fun pathOf(vararg values: String) = CommandPath.get(*values)
 
 inline val ParameterResolverContext.input: List<String>
@@ -99,7 +95,5 @@ inline fun <reified T : CommandActor> CommandActor.getAs() = this as T
 fun String.colorize(): String = Strings.colorize(this)
 
 fun String.splitBySpace(): LinkedList<String> = Strings.splitBySpace(this)
-
-fun String.toArgumentStack(): ArgumentStack = ArgumentStack.fromString(this)
 
 infix fun CommandActor.canAccess(permissionHolder: PermissionHolder) = permissionHolder.hasPermission(this)

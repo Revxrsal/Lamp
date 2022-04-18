@@ -12,6 +12,7 @@ import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.command.*;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.core.reflect.MethodCallerFactory;
+import revxrsal.commands.exception.ArgumentParseException;
 import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.exception.TooManyArgumentsException;
 import revxrsal.commands.help.CommandHelp;
@@ -75,6 +76,44 @@ public interface CommandHandler {
      * @see MethodCallerFactory
      */
     @NotNull CommandHandler setMethodCallerFactory(@NotNull MethodCallerFactory factory);
+
+    /**
+     * Returns the {@link ArgumentParser} responsible for controlling
+     * the logic of parsing strings.
+     *
+     * @return The argument parser.
+     */
+    @NotNull ArgumentParser getArgumentParser();
+
+    /**
+     * Parses the string and returns an {@link ArgumentStack} for it. This
+     * method behaves exactly like {@link #parseArguments(String[])}, however
+     * it returns a singleton list of an empty string when the text is empty,
+     * suitable for auto-completion.
+     *
+     * @param arguments Strings to parse. These will get joined
+     *                  to a string separated by spaces.
+     * @return The argument stack.
+     */
+    ArgumentStack parseArgumentsForCompletion(String... arguments) throws ArgumentParseException;
+
+    /**
+     * Parses the string array and returns an {@link ArgumentStack} for it.
+     *
+     * @param arguments String array to parse. This will be joined as a single string
+     *                  with spaces.
+     * @return The argument stack.
+     * @see ArgumentParser#parse(String).
+     */
+    ArgumentStack parseArguments(String... arguments) throws ArgumentParseException;
+
+    /**
+     * Sets the {@link ArgumentParser} responsible for controlling
+     * the logic of parsing strings.
+     *
+     * @param parser The argument parser to use.
+     */
+    CommandHandler setArgumentParser(@NotNull ArgumentParser parser);
 
     /**
      * Sets the {@link CommandExceptionHandler} to use for handling any exceptions

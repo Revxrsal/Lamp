@@ -121,7 +121,7 @@ final class BaseAutoCompleter implements AutoCompleter {
     }
 
     @Override public List<String> complete(@NotNull CommandActor actor, @NotNull String buffer) {
-        return complete(actor, ArgumentStack.fromString(buffer));
+        return complete(actor, handler.parseArgumentsForCompletion(buffer));
     }
 
     private ExecutableCommand searchForCommand(CommandPath path, CommandActor actor) {
@@ -161,37 +161,48 @@ final class BaseAutoCompleter implements AutoCompleter {
             Collections.sort(parameters);
             for (CommandParameter parameter : parameters) {
                 try {
-                    if (parameter.isFlag()) {
-                        int index = args.indexOf(handler.getFlagPrefix() + parameter.getFlagName());
-                        if (index == -1) {
-                            return listOf(handler.getFlagPrefix() + parameter.getFlagName());
-                        } else if (index == args.size() - 2) {
-                            SuggestionProvider provider = parameter.getSuggestionProvider();
-                            return provider.getSuggestions(args, actor, command)
-                                    .stream()
-                                    .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
-                                    .sorted(String.CASE_INSENSITIVE_ORDER)
-                                    .distinct()
-                                    .collect(Collectors.toList());
-                        }
+                    if (parameter.isFlag()) continue;
+                    if (parameter.getCommandIndex() == args.size() - 1) {
+                        if (!parameter.getPermission().canExecute(actor)) return emptyList();
+                        SuggestionProvider provider = parameter.getSuggestionProvider();
+                        notNull(provider, "provider must not be null!");
+                        return getParamCompletions(provider.getSuggestions(args, actor, command), args);
                     }
                 } catch (Throwable ignored) {
                 }
             }
-            CommandParameter parameter = command.getValueParameters().get(args.size() - 1);
-            if (parameter == null) return emptyList(); // extra arguments
-            if (!parameter.getPermission().canExecute(actor)) return emptyList();
-            SuggestionProvider provider = parameter.getSuggestionProvider();
-            notNull(provider, "provider must not be null!");
-            return provider.getSuggestions(args, actor, command)
-                    .stream()
-                    .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
-                    .sorted(String.CASE_INSENSITIVE_ORDER)
-                    .distinct()
-                    .collect(Collectors.toList());
+            parameters.removeIf(c -> !c.isFlag());
+            if (parameters.isEmpty())
+                return emptyList();
+            Optional<CommandParameter> currentFlag = parameters.stream().filter(c -> {
+                int index = args.indexOf(handler.getFlagPrefix() + c.getFlagName());
+                return index == args.size() - 2;
+            }).findFirst();
+            if (currentFlag.isPresent()) {
+                SuggestionProvider provider = currentFlag.get().getSuggestionProvider();
+                return getParamCompletions(provider.getSuggestions(args, actor, command), args);
+            }
+            for (CommandParameter flag : parameters) {
+                int index = args.indexOf(handler.getFlagPrefix() + flag.getFlagName());
+                if (index == -1) {
+                    return listOf(handler.getFlagPrefix() + flag.getFlagName());
+                } else if (index == args.size() - 2) {
+                    return getParamCompletions(flag.getSuggestionProvider().getSuggestions(args, actor, command), args);
+                }
+            }
+            return emptyList();
         } catch (IndexOutOfBoundsException e) {
             return emptyList();
         }
+    }
+
+    @NotNull private List<String> getParamCompletions(Collection<String> provider, ArgumentStack args) {
+        return provider
+                .stream()
+                .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private List<String> getCompletions(CommandActor actor, @Unmodifiable ArgumentStack args, CommandCategory category, int originalSize) {
@@ -208,12 +219,7 @@ final class BaseAutoCompleter implements AutoCompleter {
                 if (!c.isSecret() && c.getPermission().canExecute(actor)) suggestions.add(c.getName());
             });
         }
-        return suggestions
-                .stream()
-                .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
-                .sorted(String.CASE_INSENSITIVE_ORDER)
-                .distinct()
-                .collect(Collectors.toList());
+        return getParamCompletions(suggestions, args);
     }
 
     @Override public CommandHandler and() {
