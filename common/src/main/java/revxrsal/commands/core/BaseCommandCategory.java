@@ -101,4 +101,7 @@ final class BaseCommandCategory implements CommandCategory {
         }
     }
 
+    @Override public int compareTo(@NotNull CommandCategory o) {
+        return path.compareTo(o.getPath());
+    }
 }

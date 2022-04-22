@@ -20,7 +20,7 @@ import java.util.Map;
  *     <li>Subactions, such as {@link Default}.</li>
  * </ul>
  */
-public interface CommandCategory extends PermissionHolder {
+public interface CommandCategory extends PermissionHolder, Comparable<CommandCategory> {
 
     /**
      * Returns the name of this category

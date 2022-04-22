@@ -13,6 +13,7 @@ import revxrsal.commands.command.trait.PermissionHolder;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.process.ResponseHandler;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import java.util.Map;
  * Represents a command which can be executed with specific arguments,
  * flags or switches.
  */
-public interface ExecutableCommand extends CommandAnnotationHolder, PermissionHolder {
+public interface ExecutableCommand extends CommandAnnotationHolder, PermissionHolder, Comparable<ExecutableCommand> {
 
     /**
      * Returns the name of the command

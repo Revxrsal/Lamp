@@ -115,4 +115,8 @@ class CommandExecutable implements ExecutableCommand {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    @Override public int compareTo(@NotNull ExecutableCommand o) {
+        return path.compareTo(o.getPath());
+    }
 }
