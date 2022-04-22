@@ -49,12 +49,12 @@ final class BaseCommandHelp<T> extends ArrayList<T> implements CommandHelp<T> {
             BaseCommandHelp<Object> entries = new BaseCommandHelp<>();
             CommandCategory parent = helpCommand.getParent();
             CommandPath parentPath = parent == null ? null : parent.getPath();
-            for (CommandExecutable c : handler.executables.values()) {
+            handler.executables.values().stream().sorted().forEach(c -> {
                 if (parentPath == null || parentPath.isParentOf(c.getPath())) {
                     if (c != helpCommand)
                         entries.add(writer.generate(c, context.actor()));
                 }
-            }
+            });
             return entries;
         }
     }
