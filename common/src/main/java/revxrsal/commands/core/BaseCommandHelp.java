@@ -51,8 +51,10 @@ final class BaseCommandHelp<T> extends ArrayList<T> implements CommandHelp<T> {
             CommandPath parentPath = parent == null ? null : parent.getPath();
             handler.executables.values().stream().sorted().forEach(c -> {
                 if (parentPath == null || parentPath.isParentOf(c.getPath())) {
-                    if (c != helpCommand)
-                        entries.add(writer.generate(c, context.actor()));
+                    if (c != helpCommand) {
+                        Object generated = writer.generate(c, context.actor());
+                        if (generated != null) entries.add(generated);
+                    }
                 }
             });
             return entries;
