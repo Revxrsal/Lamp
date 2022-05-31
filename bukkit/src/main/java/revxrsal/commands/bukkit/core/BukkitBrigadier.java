@@ -58,6 +58,7 @@ final class BukkitBrigadier implements LampBrigadier {
         argumentTypes.add(Player.class, entity(true, true));
         argumentTypes.add(EntitySelector.class, entity(false, false));
         argumentTypes.add(EntityType.class, MinecraftArgumentTypes.getByKey(NamespacedKey.minecraft("entity_summon")));
+        argumentTypes.add(NamespacedKey.class, MinecraftArgumentTypes.getByKey(NamespacedKey.minecraft("resource_location")));
     }
 
     @Override public @NotNull CommandActor wrapSource(@NotNull Object commandSource) {
