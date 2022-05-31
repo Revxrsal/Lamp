@@ -27,4 +27,8 @@ public class BukkitExceptionAdapter extends DefaultExceptionHandler {
     public void malformedEntitySelector(@NotNull CommandActor actor, @NotNull MalformedEntitySelectorException exception) {
         actor.errorLocalized("invalid-selector", exception.getInput());
     }
+
+    public void invalidNamespacedKey(@NotNull final CommandActor actor, @NotNull InvalidNamespacedKeyException exception) {
+        actor.errorLocalized("invalid-namespacedkey", exception.getInput());
+    }
 }

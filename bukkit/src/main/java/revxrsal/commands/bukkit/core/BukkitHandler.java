@@ -4,6 +4,7 @@ import com.google.common.base.Suppliers;
 import lombok.SneakyThrows;
 import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -27,6 +28,7 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.core.EntitySelectorResolver.SelectorSuggestionFactory;
 import revxrsal.commands.bukkit.exception.BukkitExceptionAdapter;
+import revxrsal.commands.bukkit.exception.InvalidNamespacedKeyException;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
 import revxrsal.commands.bukkit.exception.InvalidWorldException;
 import revxrsal.commands.command.CommandCategory;
@@ -98,6 +100,17 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
             if (type == null)
                 throw new EnumNotFoundException(context.parameter(), value);
             return type;
+        });
+        registerValueResolver(NamespacedKey.class, context -> {
+            final String value = context.pop();
+            final String[] split = value.split(":", 2);
+            if (split.length != 2) throw new InvalidNamespacedKeyException(context.parameter(), value);
+            // Further validation is done by Bukkit so we can try-catch to avoid running validation process twice
+            try {
+                return new NamespacedKey(split[0], split[1]); // Deprecation should be safe to ignore
+            } catch (final IllegalArgumentException e) {
+                throw new InvalidNamespacedKeyException(context.parameter(), value);
+            }
         });
         if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors() && brigadier.get().isPresent())
             getAutoCompleter().registerParameterSuggestions(EntityType.class, SuggestionProvider.EMPTY);
