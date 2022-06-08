@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package revxrsal.commands.bukkit.core;
+package revxrsal.commands.bukkit.brigadier;
 
 import org.bukkit.Bukkit;
 

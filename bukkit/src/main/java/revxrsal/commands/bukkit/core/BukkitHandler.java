@@ -1,6 +1,5 @@
 package revxrsal.commands.bukkit.core;
 
-import com.google.common.base.Suppliers;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -20,14 +19,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.autocomplete.SuggestionProvider;
-import revxrsal.commands.brigadier.BrigadierTreeParser;
-import revxrsal.commands.brigadier.LampBrigadier;
+import revxrsal.commands.bukkit.BukkitBrigadier;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
+import revxrsal.commands.bukkit.brigadier.CommodoreBukkitBrigadier;
 import revxrsal.commands.bukkit.core.EntitySelectorResolver.SelectorSuggestionFactory;
-import revxrsal.commands.bukkit.exception.BukkitExceptionAdapter;
-import revxrsal.commands.bukkit.exception.InvalidPlayerException;
-import revxrsal.commands.bukkit.exception.InvalidWorldException;
+import revxrsal.commands.bukkit.exception.*;
 import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.BaseCommandHandler;
@@ -38,8 +35,8 @@ import revxrsal.commands.util.Primitives;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,24 +45,35 @@ import static revxrsal.commands.util.Preconditions.notNull;
 
 public final class BukkitHandler extends BaseCommandHandler implements BukkitCommandHandler {
 
-    private final Plugin plugin;
+    public static final SuggestionProvider playerSuggestionProvider = (args, sender, command) -> Bukkit.getOnlinePlayers()
+            .stream()
+            .filter(player -> !((BukkitCommandActor) sender).isPlayer() || ((BukkitCommandActor) sender).requirePlayer().canSee(player))
+            .map(HumanEntity::getName)
+            .collect(Collectors.toList());
 
-    @SuppressWarnings("Guava") // old guava versions would throw an error as they do not implement Java's Supplier.
-    private final com.google.common.base.Supplier<Optional<LampBrigadier>> brigadier = Suppliers.memoize(() -> {
-        if (!CommodoreProvider.isSupported())
-            return Optional.empty();
-        return Optional.of(new BukkitBrigadier(CommodoreProvider.getCommodore(getPlugin()), this));
-    });
+    private final Plugin plugin;
+    private final BukkitBrigadier brigadier;
 
     @SuppressWarnings("rawtypes")
     public BukkitHandler(@NotNull Plugin plugin) {
         super();
         this.plugin = notNull(plugin, "plugin");
+        brigadier = new CommodoreBukkitBrigadier(this);
         registerSenderResolver(BukkitSenderResolver.INSTANCE);
         registerValueResolver(Player.class, context -> {
             String value = context.pop();
             if (value.equalsIgnoreCase("self") || value.equalsIgnoreCase("me"))
                 return ((BukkitCommandActor) context.actor()).requirePlayer();
+            if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors()) {
+                List<Entity> entityList = Bukkit.selectEntities(((BukkitActor) context.actor()).getSender(), value);
+                if (entityList.stream().anyMatch(c -> !(c instanceof Player))) {
+                    throw new NonPlayerEntitiesException(value);
+                }
+                if (entityList.size() != 1) {
+                    throw new MoreThanOnePlayerException(value);
+                }
+                return (Player) entityList.get(0);
+            }
             Player player = Bukkit.getPlayerExact(value);
             if (player == null)
                 throw new InvalidPlayerException(context.parameter(), value);
@@ -98,14 +106,10 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 throw new EnumNotFoundException(context.parameter(), value);
             return type;
         });
-        if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors() && brigadier.get().isPresent())
+        if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors() && brigadier.isSupported())
             getAutoCompleter().registerParameterSuggestions(EntityType.class, SuggestionProvider.EMPTY);
         registerValueResolverFactory(EntitySelectorResolver.INSTANCE);
-        getAutoCompleter().registerSuggestion("players", (args, sender, command) -> Bukkit.getOnlinePlayers()
-                .stream()
-                .filter(player -> !((BukkitCommandActor) sender).isPlayer() || ((BukkitCommandActor) sender).requirePlayer().canSee(player))
-                .map(HumanEntity::getName)
-                .collect(Collectors.toList()));
+        getAutoCompleter().registerSuggestion("players", playerSuggestionProvider);
         getAutoCompleter()
                 .registerSuggestion("worlds", SuggestionProvider.map(Bukkit::getWorlds, World::getName))
                 .registerParameterSuggestions(Player.class, "players")
@@ -133,10 +137,12 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         return this;
     }
 
+    @Override public BukkitBrigadier getBrigadier() {
+        return brigadier;
+    }
+
     @Override public BukkitCommandHandler registerBrigadier() {
-        brigadier.get().ifPresent(brigadier -> BrigadierTreeParser
-                .parse(brigadier, this)
-                .forEach(brigadier::register));
+        brigadier.register();
         return this;
     }
 

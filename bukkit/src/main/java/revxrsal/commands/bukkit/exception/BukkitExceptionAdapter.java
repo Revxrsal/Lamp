@@ -27,4 +27,12 @@ public class BukkitExceptionAdapter extends DefaultExceptionHandler {
     public void malformedEntitySelector(@NotNull CommandActor actor, @NotNull MalformedEntitySelectorException exception) {
         actor.errorLocalized("invalid-selector", exception.getInput());
     }
+
+    public void moreThanOnePlayer(@NotNull CommandActor actor, @NotNull MoreThanOnePlayerException exception) {
+        actor.errorLocalized("only-one-player", exception.getInput());
+    }
+
+    public void nonPlayerEntities(@NotNull CommandActor actor, @NotNull NonPlayerEntitiesException exception) {
+        actor.errorLocalized("non-players-not-allowed", exception.getInput());
+    }
 }

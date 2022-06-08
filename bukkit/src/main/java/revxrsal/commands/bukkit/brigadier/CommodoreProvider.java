@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package revxrsal.commands.bukkit.core;
+package revxrsal.commands.bukkit.brigadier;
 
 import org.bukkit.plugin.Plugin;
 
@@ -43,8 +43,8 @@ final class CommodoreProvider {
     private static Throwable checkSupported() {
         try {
             Class.forName("com.mojang.brigadier.CommandDispatcher");
-            CommodoreImpl.ensureSetup();
-            MinecraftArgumentTypes.ensureSetup();
+            Commodore.ensureSetup();
+            ArgumentTypes.ensureSetup();
             return null;
         } catch (Throwable e) {
             return e;
@@ -68,6 +68,6 @@ final class CommodoreProvider {
      */
     public static Commodore getCommodore(Plugin plugin) {
         Objects.requireNonNull(plugin, "plugin");
-        return new CommodoreImpl(plugin);
+        return new Commodore(plugin);
     }
 }

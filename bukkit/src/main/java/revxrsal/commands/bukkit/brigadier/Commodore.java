@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package revxrsal.commands.bukkit.core;
+package revxrsal.commands.bukkit.brigadier;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -34,6 +34,7 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -46,10 +47,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static revxrsal.commands.bukkit.core.Commodore.getAliases;
-
-final class CommodoreImpl implements Commodore {
+final class Commodore {
 
     // obc.CraftServer#console field
     private static final Field CONSOLE_FIELD;
@@ -134,12 +134,11 @@ final class CommodoreImpl implements Commodore {
     private final Plugin plugin;
     private final List<LiteralCommandNode<?>> registeredNodes = new ArrayList<>();
 
-    CommodoreImpl(Plugin plugin) {
+    Commodore(Plugin plugin) {
         this.plugin = plugin;
         this.plugin.getServer().getPluginManager().registerEvents(new ServerReloadListener(), this.plugin);
     }
 
-    @Override
     public CommandDispatcher<?> getDispatcher() {
         try {
             Object mcServerObject = CONSOLE_FIELD.get(Bukkit.getServer());
@@ -150,7 +149,6 @@ final class CommodoreImpl implements Commodore {
         }
     }
 
-    @Override
     public CommandSender getBukkitSender(Object commandWrapperListener) {
         Objects.requireNonNull(commandWrapperListener, "commandWrapperListener");
         try {
@@ -161,7 +159,6 @@ final class CommodoreImpl implements Commodore {
     }
 
     @SuppressWarnings({"rawtypes"})
-    @Override
     public void register(LiteralCommandNode<?> node) {
         Objects.requireNonNull(node, "node");
 
@@ -173,7 +170,6 @@ final class CommodoreImpl implements Commodore {
         registeredNodes.add(node);
     }
 
-    @Override
     public void register(Command command, LiteralCommandNode<?> node, Predicate<? super Player> permissionTest) {
         Objects.requireNonNull(command, "command");
         Objects.requireNonNull(node, "node");
@@ -195,7 +191,6 @@ final class CommodoreImpl implements Commodore {
         plugin.getServer().getPluginManager().registerEvents(new CommandDataSendListener(command, permissionTest), plugin);
     }
 
-    @Override
     public void register(Command command, LiteralCommandNode<?> node) {
         Objects.requireNonNull(command, "command");
         Objects.requireNonNull(node, "node");
@@ -274,4 +269,18 @@ final class CommodoreImpl implements Commodore {
         // do nothing - this is only called to trigger the static initializer
     }
 
+    private static Collection<String> getAliases(Command command) {
+        Objects.requireNonNull(command, "command");
+        Stream<String> aliasesStream = Stream.concat(
+                Stream.of(command.getLabel()),
+                command.getAliases().stream()
+        );
+
+        if (command instanceof PluginCommand) {
+            String fallbackPrefix = ((PluginCommand) command).getPlugin().getName().toLowerCase().trim();
+            aliasesStream = aliasesStream.flatMap(alias -> Stream.of(alias, fallbackPrefix + ":" + alias));
+        }
+
+        return aliasesStream.distinct().collect(Collectors.toList());
+    }
 }

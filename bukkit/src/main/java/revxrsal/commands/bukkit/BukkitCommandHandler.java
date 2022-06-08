@@ -11,11 +11,20 @@ import revxrsal.commands.bukkit.core.BukkitHandler;
 public interface BukkitCommandHandler extends CommandHandler {
 
     /**
+     * Returns the {@link BukkitBrigadier} of this command handler.
+     *
+     * @return The Brigadier accessor
+     */
+    BukkitBrigadier getBrigadier();
+
+    /**
      * Registers commands automatically on Minecraft's 1.13+ command system
      * (so that you would get the colorful command completions!)
      * <p>
      * Note that you should call this method after you've registered
      * all your commands.
+     * <p>
+     * This is effectively the same as {@code getBrigadier().register()}
      *
      * @return This command handler
      */

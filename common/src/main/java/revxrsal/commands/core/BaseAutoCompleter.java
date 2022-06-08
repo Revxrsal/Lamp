@@ -26,8 +26,8 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     public BaseAutoCompleter(BaseCommandHandler handler) {
         this.handler = handler;
-        registerSuggestion("nothing", Collections.emptyList());
-        registerSuggestion("empty", Collections.emptyList());
+        registerSuggestion("nothing", SuggestionProvider.EMPTY);
+        registerSuggestion("empty", SuggestionProvider.EMPTY);
         registerParameterSuggestions(boolean.class, SuggestionProvider.of("true", "false"));
         registerSuggestionFactory(new AutoCompleterAnnotationFactory(suggestionKeys));
     }

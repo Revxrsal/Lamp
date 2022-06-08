@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package revxrsal.commands.bukkit.core;
+package revxrsal.commands.bukkit.brigadier;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import org.bukkit.NamespacedKey;
@@ -35,8 +35,8 @@ import java.util.Map;
 /**
  * A registry of the {@link ArgumentType}s provided by Minecraft.
  */
-public final class MinecraftArgumentTypes {
-    private MinecraftArgumentTypes() {}
+public final class ArgumentTypes {
+    private ArgumentTypes() {}
 
     // MinecraftKey constructor
     private static final Constructor<?> MINECRAFT_KEY_CONSTRUCTOR;
