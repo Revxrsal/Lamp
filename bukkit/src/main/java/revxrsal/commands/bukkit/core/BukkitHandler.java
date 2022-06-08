@@ -70,14 +70,18 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
             if (value.equalsIgnoreCase("self") || value.equalsIgnoreCase("me"))
                 return ((BukkitCommandActor) context.actor()).requirePlayer();
             if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors()) {
-                List<Entity> entityList = Bukkit.selectEntities(((BukkitActor) context.actor()).getSender(), value);
-                if (entityList.stream().anyMatch(c -> !(c instanceof Player))) {
-                    throw new NonPlayerEntitiesException(value);
+                try {
+                    List<Entity> entityList = Bukkit.selectEntities(((BukkitActor) context.actor()).getSender(), value);
+                    if (entityList.stream().anyMatch(c -> !(c instanceof Player))) {
+                        throw new NonPlayerEntitiesException(value);
+                    }
+                    if (entityList.size() != 1) {
+                        throw new MoreThanOnePlayerException(value);
+                    }
+                    return (Player) entityList.get(0);
+                } catch (IllegalArgumentException e) {
+                    throw new MalformedEntitySelectorException(context.actor(), value, e.getCause().getMessage());
                 }
-                if (entityList.size() != 1) {
-                    throw new MoreThanOnePlayerException(value);
-                }
-                return (Player) entityList.get(0);
             }
             Player player = Bukkit.getPlayerExact(value);
             if (player == null)
