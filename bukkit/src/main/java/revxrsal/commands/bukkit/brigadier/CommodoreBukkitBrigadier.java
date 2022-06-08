@@ -39,6 +39,7 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.util.ClassMap;
 
+import static revxrsal.commands.bukkit.brigadier.CommodoreProvider.isSupported;
 import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.*;
 import static revxrsal.commands.util.Preconditions.notNull;
 
@@ -51,10 +52,7 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
     public CommodoreBukkitBrigadier(BukkitCommandHandler handler) {
         this.handler = handler;
-        if (CommodoreProvider.isSupported())
-            commodore = new Commodore(handler.getPlugin());
-        else
-            commodore = null;
+        commodore = new Commodore(handler.getPlugin());
         if (isSupported()) {
             bind(String.class, STRING);
             bind(Number.class, NUMBER);
@@ -62,10 +60,6 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
             bind(Player.class, PLAYER);
             bind(EntitySelector.class, ENTITY_SELECTOR);
         }
-    }
-
-    @Override public boolean isSupported() {
-        return CommodoreProvider.isSupported();
     }
 
     @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentTypeResolver resolver) {

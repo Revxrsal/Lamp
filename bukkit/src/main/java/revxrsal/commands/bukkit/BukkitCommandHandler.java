@@ -5,17 +5,29 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.core.BukkitHandler;
 
+import java.util.Optional;
+
 /**
  * Represents Bukkit's command handler implementation
  */
 public interface BukkitCommandHandler extends CommandHandler {
 
     /**
-     * Returns the {@link BukkitBrigadier} of this command handler.
+     * Returns an optional {@link BukkitBrigadier} of this command handler.
+     * <p>
+     * On versions that do not support Brigadier (i.e. 1.12.2 or earlier),
+     * this optional will be empty.
      *
      * @return The Brigadier accessor
      */
-    BukkitBrigadier getBrigadier();
+    @NotNull Optional<BukkitBrigadier> getBrigadier();
+
+    /**
+     * Checks to see if the Brigadier command system is supported by the server.
+     *
+     * @return true if Brigadier is supported.
+     */
+    boolean isBrigadierSupported();
 
     /**
      * Registers commands automatically on Minecraft's 1.13+ command system
@@ -24,7 +36,8 @@ public interface BukkitCommandHandler extends CommandHandler {
      * Note that you should call this method after you've registered
      * all your commands.
      * <p>
-     * This is effectively the same as {@code getBrigadier().register()}
+     * This is effectively the same as {@code getBrigadier().register()}, and
+     * will have no effect when invoked on older versions.
      *
      * @return This command handler
      */

@@ -37,6 +37,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -52,13 +53,17 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
             .collect(Collectors.toList());
 
     private final Plugin plugin;
-    private final BukkitBrigadier brigadier;
+    private Optional<BukkitBrigadier> brigadier;
 
     @SuppressWarnings("rawtypes")
     public BukkitHandler(@NotNull Plugin plugin) {
         super();
         this.plugin = notNull(plugin, "plugin");
-        brigadier = new CommodoreBukkitBrigadier(this);
+        try {
+            brigadier = Optional.of(new CommodoreBukkitBrigadier(this));
+        } catch (NoClassDefFoundError e) {
+            brigadier = Optional.empty();
+        }
         registerSenderResolver(BukkitSenderResolver.INSTANCE);
         registerValueResolver(Player.class, context -> {
             String value = context.pop();
@@ -106,7 +111,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                 throw new EnumNotFoundException(context.parameter(), value);
             return type;
         });
-        if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors() && brigadier.isSupported())
+        if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors() && isBrigadierSupported())
             getAutoCompleter().registerParameterSuggestions(EntityType.class, SuggestionProvider.EMPTY);
         registerValueResolverFactory(EntitySelectorResolver.INSTANCE);
         getAutoCompleter().registerSuggestion("players", playerSuggestionProvider);
@@ -137,12 +142,16 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         return this;
     }
 
-    @Override public BukkitBrigadier getBrigadier() {
+    @Override public @NotNull Optional<BukkitBrigadier> getBrigadier() {
         return brigadier;
     }
 
+    @Override public boolean isBrigadierSupported() {
+        return brigadier.isPresent();
+    }
+
     @Override public BukkitCommandHandler registerBrigadier() {
-        brigadier.register();
+        brigadier.ifPresent(BukkitBrigadier::register);
         return this;
     }
 

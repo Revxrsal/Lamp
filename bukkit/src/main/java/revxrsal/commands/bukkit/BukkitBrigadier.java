@@ -37,14 +37,6 @@ import revxrsal.commands.command.CommandParameter;
 public interface BukkitBrigadier {
 
     /**
-     * Returns whether is Brigadier supported on this version
-     * or not
-     *
-     * @return If brigadier is supported or not
-     */
-    boolean isSupported();
-
-    /**
      * Registers an argument type resolver for the given class. This
      * will include subclasses as well.
      *
