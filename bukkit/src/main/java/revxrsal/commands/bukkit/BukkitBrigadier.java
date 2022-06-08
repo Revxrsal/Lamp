@@ -64,6 +64,18 @@ public interface BukkitBrigadier {
     void bind(@NotNull Class<?> type, @NotNull ArgumentType<?> argumentType);
 
     /**
+     * Registers a native Minecraft argument type for the given class.
+     * This will include subclasses as well.
+     * <p>
+     * See <a href="https://wiki.vg/Command_Data#Parsers">Command Data</a>
+     *
+     * @param type            Type to register for
+     * @param argumentTypeKey The key of the argument type
+     * @see ArgumentTypes
+     */
+    void bind(@NotNull Class<?> type, @NotNull String argumentTypeKey);
+
+    /**
      * Returns the argument type corresponding to the given parameter. If
      * no resolver is able to handle this parameter, {@link StringArgumentType#greedyString()}
      * will be returned.
