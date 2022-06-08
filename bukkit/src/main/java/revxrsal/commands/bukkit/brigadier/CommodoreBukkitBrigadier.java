@@ -81,9 +81,12 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
     }
 
     public @NotNull ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {
-        ArgumentType<?> type = argumentTypes.getFlexible(parameter.getType()).getArgumentType(parameter);
-        if (type != null)
-            return type;
+        ArgumentTypeResolver resolver = argumentTypes.getFlexible(parameter.getType());
+        if (resolver != null) {
+            ArgumentType<?> type = resolver.getArgumentType(parameter);
+            if (type != null)
+                return type;
+        }
         return StringArgumentType.string();
     }
 
