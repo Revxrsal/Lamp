@@ -105,7 +105,11 @@ public final class BaseCommandDispatcher {
                 handleFlag(input, actor, args, values, parameter);
         }
         for (CommandParameter parameter : executable.parameters) {
-            if (!parameter.isSwitch() && !parameter.isFlag() && !ArgumentStack.class.isAssignableFrom(parameter.getType())) {
+            if (ArgumentStack.class.isAssignableFrom(parameter.getType())) {
+                values[parameter.getMethodIndex()] = args;
+                continue;
+            }
+            if (!parameter.isSwitch() && !parameter.isFlag()) {
                 ParameterResolver<?> resolver = parameter.getResolver();
                 if (!resolver.mutatesArguments()) {
                     parameter.checkPermission(actor);

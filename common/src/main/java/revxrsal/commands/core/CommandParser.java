@@ -2,9 +2,11 @@ package revxrsal.commands.core;
 
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.annotation.*;
+import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.command.ExecutableCommand;
@@ -244,8 +246,11 @@ final class CommandParser {
                 if (Primitives.wrap(param.getType()) != Boolean.class)
                     throw new IllegalStateException("Switch parameter " + parameter + " at " + method + " must be of boolean type!");
             }
-
-            ParameterResolver<?> resolver = handler.getResolver(param);
+            ParameterResolver<?> resolver;
+            if (param.getType() == ArgumentStack.class) {
+                resolver = new Resolver(context -> ArgumentStack.copy(context.input()), null);
+            } else
+                resolver = handler.getResolver(param);
 
             if (resolver == null) {
                 throw new IllegalStateException("Unable to find a resolver for parameter type " + parameter.getType());
