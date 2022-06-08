@@ -31,6 +31,14 @@ public final class Preconditions {
         return value < min ? min : Math.min(value, max);
     }
 
+    public static int coerceAtMost(int value, int max) {
+        return Math.min(value, max);
+    }
+
+    public static int coerceAtLeast(int value, int min) {
+        return Math.max(value, min);
+    }
+
     public static <T> T notNull(T t, String err) {
         return Objects.requireNonNull(t, err + " cannot be null!");
     }
