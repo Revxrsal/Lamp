@@ -115,7 +115,6 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
     private static final List<Method> IGNORED_METHODS = new ArrayList<>();
 
     static {
-        Method onUnhandledException = null, handleException = null;
         for (Method method : CommandExceptionAdapter.class.getDeclaredMethods()) {
             if (method.getParameterCount() != 2) continue;
             if (method.isAnnotationPresent(Ignore.class))
@@ -125,7 +124,10 @@ public abstract class CommandExceptionAdapter implements CommandExceptionHandler
 
     @Override @Ignore public void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor) {
         MethodExceptionHandler handler = handlers.getFlexibleOrDefault(throwable.getClass(), unknownHandler);
-        handler.handle(actor, throwable);
+        if (handler == unknownHandler && throwable instanceof SelfHandledException)
+            ((SelfHandledException) throwable).handle(actor);
+        else
+            handler.handle(actor, throwable);
     }
 
     public CommandExceptionAdapter() {
