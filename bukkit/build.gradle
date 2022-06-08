@@ -6,7 +6,7 @@ repositories {
 }
 
 configurations {
-    create('testing')
+    create("testing")
     implementation.extendsFrom(testing)
 }
 
