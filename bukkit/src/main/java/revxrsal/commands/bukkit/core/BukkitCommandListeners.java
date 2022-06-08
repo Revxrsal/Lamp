@@ -28,7 +28,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 
-public final class BukkitCommandListeners implements Listener {
+final class BukkitCommandListeners implements Listener {
 
     private final BukkitCommandHandler handler;
 
