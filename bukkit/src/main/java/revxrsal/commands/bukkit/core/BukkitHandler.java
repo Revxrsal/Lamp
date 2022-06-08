@@ -2,7 +2,6 @@ package revxrsal.commands.bukkit.core;
 
 import com.google.common.base.Suppliers;
 import lombok.SneakyThrows;
-import me.lucko.commodore.CommodoreProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -115,7 +114,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         registerContextValue((Class) plugin.getClass(), plugin);
         registerDependency((Class) plugin.getClass(), plugin);
         registerDependency(FileConfiguration.class, (Supplier<FileConfiguration>) plugin::getConfig);
-        registerDependency(Logger.class, plugin.getLogger());
+        registerDependency(Logger.class, (Supplier<Logger>) plugin::getLogger);
         registerPermissionReader(BukkitPermissionReader.INSTANCE);
         setExceptionHandler(BukkitExceptionAdapter.INSTANCE);
         Bukkit.getServer().getPluginManager().registerEvents(new BukkitCommandListeners(this), plugin);

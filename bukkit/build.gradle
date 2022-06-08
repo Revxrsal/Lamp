@@ -13,12 +13,8 @@ configurations {
 dependencies {
     implementation(project(":common"))
     implementation(project(":brigadier"))
-    implementation("me.lucko:commodore:1.13") {
-        exclude(module: "commodore-file") // we don't need that.
-        exclude(module: "brigadier")
-    }
     compileOnly("com.mojang:brigadier:1.0.18")
-    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot:1.13.2-R0.1-SNAPSHOT")
 }
 
 compileJava {
