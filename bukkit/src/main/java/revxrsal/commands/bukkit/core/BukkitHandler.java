@@ -114,6 +114,8 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         if (EntitySelectorResolver.INSTANCE.supportsComplexSelectors() && isBrigadierSupported())
             getAutoCompleter().registerParameterSuggestions(EntityType.class, SuggestionProvider.EMPTY);
         registerValueResolverFactory(EntitySelectorResolver.INSTANCE);
+        if (!isBrigadierSupported())
+            getAutoCompleter().registerParameterSuggestions(Player.class, playerSuggestionProvider);
         getAutoCompleter().registerSuggestion("players", playerSuggestionProvider);
         getAutoCompleter()
                 .registerSuggestion("worlds", SuggestionProvider.map(Bukkit::getWorlds, World::getName))
