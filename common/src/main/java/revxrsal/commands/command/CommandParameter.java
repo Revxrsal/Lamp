@@ -81,7 +81,7 @@ public interface CommandParameter extends Comparable<CommandParameter>, Permissi
      *
      * @return The parameter's default value
      */
-    @Nullable String getDefaultValue();
+    @NotNull @Unmodifiable List<String> getDefaultValue();
 
     /**
      * Whether should this parameter consume all arguments that come after it.

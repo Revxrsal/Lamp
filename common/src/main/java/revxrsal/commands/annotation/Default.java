@@ -34,8 +34,10 @@ public @interface Default {
      * If none is specified, and the argument is not present, {@code null}
      * will be passed to the command.
      *
-     * @return The parameter default value.
+     * @return The parameter's default value. Multiple strings
+     * indicate more than 1 argument. Supplying an empty array will
+     * be ignored
      */
-    String value() default "";
+    String[] value() default {};
 
 }

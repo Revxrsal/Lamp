@@ -2,7 +2,6 @@ package revxrsal.commands.core;
 
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.annotation.*;
@@ -217,12 +216,12 @@ final class CommandParser {
             List<ParameterValidator<Object>> validators = new ArrayList<>(
                     handler.validators.getFlexibleOrDefault(parameter.getType(), Collections.emptyList())
             );
-
+            String[] defaultValue = paramAnns.get(Default.class, Default::value);
             BaseCommandParameter param = new BaseCommandParameter(
                     getName(parameter),
                     paramAnns.get(Description.class, Description::value),
                     i,
-                    paramAnns.get(Default.class, Default::value),
+                    defaultValue == null ? Collections.emptyList() : Collections.unmodifiableList(Arrays.asList(defaultValue)),
                     i == methodParameters.length - 1 && !paramAnns.contains(Single.class),
                     paramAnns.contains(Optional.class) || paramAnns.contains(Default.class),
                     parent,
@@ -240,7 +239,7 @@ final class CommandParser {
                 }
             }
 
-            if (param.getType().isPrimitive() && param.isOptional() && param.getDefaultValue() == null && !param.isSwitch())
+            if (param.getType().isPrimitive() && param.isOptional() && param.getDefaultValue().isEmpty() && !param.isSwitch())
                 throw new IllegalStateException("Optional parameter " + parameter + " at " + method + " cannot be a prmitive!");
             if (param.isSwitch()) {
                 if (Primitives.wrap(param.getType()) != Boolean.class)

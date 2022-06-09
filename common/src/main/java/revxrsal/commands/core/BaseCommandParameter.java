@@ -24,7 +24,7 @@ import java.util.List;
     private final String name;
     private final @Nullable String description;
     private final int index;
-    private final @Nullable String def;
+    private final @Unmodifiable List<String> def;
     private final boolean consumeString, optional;
     private final ExecutableCommand parent;
     SuggestionProvider suggestionProvider;
@@ -60,7 +60,7 @@ import java.util.List;
         return parameter.getParameterizedType();
     }
 
-    @Override public @Nullable String getDefaultValue() {
+    @Override public @NotNull @Unmodifiable List<String> getDefaultValue() {
         return def;
     }
 

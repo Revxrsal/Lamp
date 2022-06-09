@@ -140,12 +140,12 @@ public final class BaseCommandDispatcher {
                                      CommandActor actor,
                                      Object[] values) {
         if (args.isEmpty()) {
-            if (parameter.getDefaultValue() == null && parameter.isOptional()) {
+            if (parameter.getDefaultValue().isEmpty() && parameter.isOptional()) {
                 values[parameter.getMethodIndex()] = null;
                 return true;
             } else {
-                if (parameter.getDefaultValue() != null) {
-                    args.add(parameter.getDefaultValue());
+                if (!parameter.getDefaultValue().isEmpty()) {
+                    args.addAll(parameter.getDefaultValue());
                     return false;
                 } else {
                     throw new MissingArgumentException(parameter);
@@ -169,9 +169,9 @@ public final class BaseCommandDispatcher {
         ArgumentStack flagArguments;
         if (index == -1) { // flag isn't specified, use default value or throw an MPE.
             if (parameter.isOptional()) {
-                if (parameter.getDefaultValue() != null) {
+                if (!parameter.getDefaultValue().isEmpty()) {
                     args.add(lookup);
-                    args.add(parameter.getDefaultValue());
+                    args.addAll(parameter.getDefaultValue());
                     index = args.indexOf(lookup);
                     args.remove(index); // remove the flag prefix + flag name
                     flagArguments = handler.parseArguments(args.remove(index)); // put the actual value in a separate argument stack
@@ -187,7 +187,7 @@ public final class BaseCommandDispatcher {
             }
         } else {
             args.remove(index); // remove the flag prefix + flag name
-            if (index>=args.size())
+            if (index >= args.size())
                 throw new MissingArgumentException(parameter);
             flagArguments = handler.parseArguments(args.remove(index)); // put the actual value in a separate argument stack
         }
