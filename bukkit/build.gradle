@@ -1,8 +1,12 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.6.21"
+}
+
 repositories {
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     maven { url = "https://hub.spigotmc.org/nexus/content/groups/public/" }
     maven { url = "https://libraries.minecraft.net" }
-    mavenLocal()
+    mavenCentral()
 }
 
 configurations {
@@ -11,9 +15,15 @@ configurations {
 }
 
 dependencies {
-    testing(project(":common"))
+    compileOnly(project(":common"))
+    /* For adventure components support */
+    compileOnly("net.kyori:adventure-platform-bukkit:4.1.0")
+
     compileOnly("com.mojang:brigadier:1.0.18")
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
+
+    /* For Kotlin extensions */
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
 }
 
 compileJava {
@@ -23,7 +33,10 @@ compileJava {
 }
 
 jar {
-    from configurations.testing.asFileTree.files.collect {
-        zipTree(it)
-    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from configurations.testing.asFileTree.files.collect { zipTree(it) }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
 }
