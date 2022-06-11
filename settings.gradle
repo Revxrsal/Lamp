@@ -8,5 +8,3 @@ include "jda"
 include "velocity"
 include "sponge"
 include "brigadier"
-include "ktx"
-

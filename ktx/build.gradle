@@ -1,8 +1,0 @@
-plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.5.21"
-}
-
-dependencies {
-    compileOnly(project(":common"))
-    compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
-}

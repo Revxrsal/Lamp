@@ -30,7 +30,6 @@ import revxrsal.commands.command.CommandPermission
 import revxrsal.commands.command.trait.CommandAnnotationHolder
 import revxrsal.commands.process.*
 import java.util.function.Supplier
-import kotlin.reflect.typeOf
 
 /**
  * Registers a [ValueResolver] for the given type.
@@ -103,15 +102,15 @@ inline fun <reified T> CommandHandler.parameterValidator(
  * Registers a dependency (accessible using the [revxrsal.commands.annotation.Dependency] annotation)
  * for the given type
  */
-inline fun <reified T> CommandHandler.registerDependency(value: T) = apply {
-    registerDependency(T::class.java, value)
+inline fun <reified T> CommandHandler.dependency(value: T) = apply {
+    registerDependency(T::class.java, Supplier { value })
 }
 
 /**
  * Registers a dependency (accessible using the [revxrsal.commands.annotation.Dependency] annotation)
  * for the given type
  */
-inline fun <reified T> CommandHandler.registerDependency(
+inline fun <reified T> CommandHandler.dependency(
     crossinline supplier: () -> T
 ) = apply {
     registerDependency(T::class.java, Supplier { supplier() })
@@ -129,3 +128,9 @@ fun CommandHandler.permissionReader(
 inline fun <reified T> CommandHandler.responseHandler(handler: ResponseHandler<T>) = apply {
     registerResponseHandler(T::class.java, handler)
 }
+
+/**
+ * Tells the command handler to add support for functions with the [suspend]
+ * modifier.
+ */
+fun CommandHandler.supportSuspendFunctions() = accept(SuspendFunctionsSupport)

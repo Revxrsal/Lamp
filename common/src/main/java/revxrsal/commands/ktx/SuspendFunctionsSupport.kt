@@ -35,7 +35,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  *
  * This works by registering resolvers for Kotlin's [Continuation].
  *
- * To enable, use [CommandHandler.accept(SuspendFunctionsSupport)]
+ * To enable, use [CommandHandler.supportSuspendFunctions]
  */
 object SuspendFunctionsSupport : CommandHandlerVisitor {
 
