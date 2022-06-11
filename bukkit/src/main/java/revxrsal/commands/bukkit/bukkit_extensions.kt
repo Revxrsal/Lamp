@@ -29,26 +29,53 @@ import revxrsal.commands.bukkit.brigadier.ArgumentTypeResolver
 import revxrsal.commands.command.CommandActor
 import revxrsal.commands.command.CommandParameter
 
+/**
+ * Creates a [BukkitCommandHandler] and applies the given block to it
+ */
 inline fun Plugin.bukkitCommandHandler(crossinline block: BukkitCommandHandler.() -> Unit): BukkitCommandHandler {
     return BukkitCommandHandler.create(this).also(block)
 }
 
+/**
+ * Returns the sender of this command actor
+ */
 inline val CommandActor.sender get() = (this as BukkitCommandActor).sender
+
+/**
+ * Returns the sender of this command actor as a player (otherwise throws
+ * a [revxrsal.commands.bukkit.exception.SenderNotPlayerException])
+ */
 inline val CommandActor.player get() = (this as BukkitCommandActor).requirePlayer()
+
+/**
+ * Returns the sender of this command actor as a player, otherwise returns `null`.
+ */
 inline val CommandActor.playerOrNull get() = (this as BukkitCommandActor).asPlayer
 
+/**
+ * Applies the given block to [BukkitCommandHandler.getBrigadier] if it is present.
+ */
 inline fun BukkitCommandHandler.brigadier(crossinline block: BukkitBrigadier.() -> Unit) {
     brigadier.ifPresent { block(it) }
 }
 
+/**
+ * Binds the given type to an argument type resolver
+ */
 inline fun <reified T> BukkitBrigadier.bind(resolver: ArgumentTypeResolver) {
     bind(T::class.java, resolver)
 }
 
+/**
+ * Binds the given type to an argument type resolver
+ */
 inline fun <reified T> BukkitBrigadier.bind(crossinline resolver: (CommandParameter) -> ArgumentType<*>?) {
     bind(T::class.java, ArgumentTypeResolver { resolver(it) })
 }
 
+/**
+ * Binds the given type to an argument type
+ */
 inline fun <reified T> BukkitBrigadier.bind(resolver: ArgumentType<*>) {
     bind(T::class.java, resolver)
 }
