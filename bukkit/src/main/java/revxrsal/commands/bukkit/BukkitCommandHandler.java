@@ -1,5 +1,6 @@
 package revxrsal.commands.bukkit;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
@@ -42,6 +43,22 @@ public interface BukkitCommandHandler extends CommandHandler {
      * @return This command handler
      */
     BukkitCommandHandler registerBrigadier();
+
+    /**
+     * Instantiates a {@link BukkitAudiences} internally and allows accessing
+     * APIs such as {@link BukkitCommandActor#audience()}
+     */
+    void enableAdventure();
+
+    /**
+     * Uses the given {@link BukkitAudiences} for creating audiences
+     * for {@link BukkitCommandActor}s.
+     *
+     * This allows accessing APIs such as {@link BukkitCommandActor#audience()},
+     *
+     * @param audiences Audiences to use for command actors
+     */
+    void enableAdventure(@NotNull BukkitAudiences audiences);
 
     /**
      * Returns the plugin this command handler was registered for.

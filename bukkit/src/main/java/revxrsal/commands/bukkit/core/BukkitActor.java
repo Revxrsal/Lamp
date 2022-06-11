@@ -1,17 +1,21 @@
 package revxrsal.commands.bukkit.core;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
 import revxrsal.commands.locales.Locales;
 
-import java.lang.NoSuchMethodError;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
@@ -19,19 +23,20 @@ import java.util.UUID;
 import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.util.Strings.colorize;
 
+@Internal
 public final class BukkitActor implements BukkitCommandActor {
 
     private static final UUID CONSOLE_UUID = UUID.nameUUIDFromBytes("CONSOLE".getBytes(StandardCharsets.UTF_8));
 
     private final CommandSender sender;
-    private final CommandHandler handler;
+    private final BukkitHandler handler;
 
     public BukkitActor(CommandSender sender, CommandHandler handler) {
         this.sender = notNull(sender, "sender");
-        this.handler = notNull(handler, "handler");
+        this.handler = (BukkitHandler) notNull(handler, "handler");
     }
 
-    @Override public CommandSender getSender() {
+    @Override public @NotNull CommandSender getSender() {
         return sender;
     }
 
@@ -59,6 +64,17 @@ public final class BukkitActor implements BukkitCommandActor {
         return (ConsoleCommandSender) sender;
     }
 
+    @Override public @NotNull Audience audience() {
+        BukkitAudiences audiences = (BukkitAudiences) handler.bukkitAudiences;
+        if (audiences == null)
+            throw new IllegalStateException("You must call BukkitCommandHandler.enableAdventure() to access this method!");
+        return audiences.sender(getSender());
+    }
+
+    @Override public void reply(@NotNull ComponentLike component) {
+        audience().sendMessage(component);
+    }
+
     @Override public @NotNull String getName() {
         return sender.getName();
     }
@@ -82,8 +98,8 @@ public final class BukkitActor implements BukkitCommandActor {
         sender.sendMessage(colorize(handler.getMessagePrefix() + "&c" + message));
     }
 
-    @Override public CommandHandler getCommandHandler() {
-        return handler;
+    @Override public BukkitCommandHandler getCommandHandler() {
+        return (BukkitCommandHandler) handler;
     }
 
     @Override public @NotNull Locale getLocale() {
@@ -93,7 +109,7 @@ public final class BukkitActor implements BukkitCommandActor {
                 playerLocale = requirePlayer().getLocale();
             } catch (NoSuchMethodError e) {
                 try {
-                    playerLocale = requirePlayer().spigot().getLocale();                
+                    playerLocale = requirePlayer().spigot().getLocale();
                 } catch (NoSuchMethodError e2) {
                     return BukkitCommandActor.super.getLocale();
                 }

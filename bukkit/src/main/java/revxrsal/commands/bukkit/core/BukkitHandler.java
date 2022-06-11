@@ -1,6 +1,8 @@
 package revxrsal.commands.bukkit.core;
 
 import lombok.SneakyThrows;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -22,6 +24,8 @@ import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.BukkitBrigadier;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
+import revxrsal.commands.bukkit.adventure.AudienceSenderResolver;
+import revxrsal.commands.bukkit.adventure.ComponentResponseHandler;
 import revxrsal.commands.bukkit.brigadier.CommodoreBukkitBrigadier;
 import revxrsal.commands.bukkit.core.EntitySelectorResolver.SelectorSuggestionFactory;
 import revxrsal.commands.bukkit.exception.*;
@@ -54,6 +58,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
 
     private final Plugin plugin;
     private Optional<BukkitBrigadier> brigadier;
+    @Nullable Object bukkitAudiences; // use Object to avoid loading the class
 
     @SuppressWarnings("rawtypes")
     public BukkitHandler(@NotNull Plugin plugin) {
@@ -159,6 +164,17 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
     @Override public BukkitCommandHandler registerBrigadier() {
         brigadier.ifPresent(BukkitBrigadier::register);
         return this;
+    }
+
+    @Override public void enableAdventure() {
+        enableAdventure(BukkitAudiences.create(plugin));
+    }
+
+    @Override public void enableAdventure(@NotNull BukkitAudiences audiences) {
+        notNull(audiences, "audiences");
+        bukkitAudiences = audiences;
+        registerSenderResolver(new AudienceSenderResolver(audiences));
+        registerResponseHandler(ComponentLike.class, new ComponentResponseHandler(audiences));
     }
 
     @Override public @NotNull Plugin getPlugin() {

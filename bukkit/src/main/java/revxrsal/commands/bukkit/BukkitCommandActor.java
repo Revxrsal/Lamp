@@ -1,5 +1,8 @@
 package revxrsal.commands.bukkit;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +24,7 @@ public interface BukkitCommandActor extends CommandActor {
      *
      * @return The sender
      */
-    CommandSender getSender();
+    @NotNull CommandSender getSender();
 
     /**
      * Tests whether is this actor a player or not
@@ -64,6 +67,35 @@ public interface BukkitCommandActor extends CommandActor {
     @NotNull ConsoleCommandSender requireConsole() throws SenderNotConsoleException;
 
     /**
+     * Returns the {@link Audience} of this sender.
+     * <p>
+     * NOTE: This requires calling {@link BukkitCommandHandler#enableAdventure()} or
+     * {@link BukkitCommandHandler#enableAdventure(BukkitAudiences)}.
+     *
+     * @return The audience of this sender
+     * @throws IllegalStateException if {@code enableAdventure} was not called.
+     */
+    @NotNull Audience audience();
+
+    /**
+     * Sends the given component to this actor.
+     * <p>
+     * NOTE: This requires calling {@link BukkitCommandHandler#enableAdventure()} or
+     * {@link BukkitCommandHandler#enableAdventure(BukkitAudiences)}.
+     *
+     * @param component Component to send
+     * @throws IllegalStateException if {@code enableAdventure} was not called.
+     */
+    void reply(@NotNull ComponentLike component);
+
+    /**
+     * Returns the command handler that constructed this actor
+     *
+     * @return The command handler
+     */
+    @Override BukkitCommandHandler getCommandHandler();
+
+    /**
      * Creates a new {@link BukkitCommandActor} that wraps the given {@link CommandSender}.
      *
      * @param sender Command sender to wrap
@@ -72,5 +104,4 @@ public interface BukkitCommandActor extends CommandActor {
     static @NotNull BukkitCommandActor wrap(@NotNull CommandSender sender, @NotNull CommandHandler handler) {
         return new BukkitActor(sender, handler);
     }
-
 }
