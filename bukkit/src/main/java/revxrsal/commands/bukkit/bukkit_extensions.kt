@@ -79,3 +79,10 @@ inline fun <reified T> BukkitBrigadier.bind(crossinline resolver: (CommandParame
 inline fun <reified T> BukkitBrigadier.bind(resolver: ArgumentType<*>) {
     bind(T::class.java, resolver)
 }
+
+/**
+ * Binds the given type to an argument type
+ */
+inline fun <reified T> BukkitBrigadier.bind(resolverKey: String) {
+    bind(T::class.java, resolverKey)
+}
