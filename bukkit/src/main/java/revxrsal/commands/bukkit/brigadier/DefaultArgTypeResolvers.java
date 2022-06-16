@@ -25,7 +25,6 @@ package revxrsal.commands.bukkit.brigadier;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -33,15 +32,12 @@ import revxrsal.commands.annotation.Range;
 import revxrsal.commands.bukkit.core.BukkitHandler;
 import revxrsal.commands.util.Primitives;
 
-import java.lang.reflect.Constructor;
-
 import static com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg;
 import static com.mojang.brigadier.arguments.FloatArgumentType.floatArg;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.LongArgumentType.longArg;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
-import static revxrsal.commands.bukkit.brigadier.ArgumentTypes.getClassByKey;
 import static revxrsal.commands.util.Preconditions.coerceAtLeast;
 import static revxrsal.commands.util.Preconditions.coerceAtMost;
 
@@ -105,16 +101,6 @@ final class DefaultArgTypeResolvers {
     };
 
     private static ArgumentType<?> entity(boolean single, boolean playerOnly) {
-        return newEntityType(NamespacedKey.minecraft("entity"), single, playerOnly);
-    }
-
-    private static ArgumentType<?> newEntityType(NamespacedKey key, Object... args) {
-        try {
-            final Constructor<? extends ArgumentType<?>> constructor = getClassByKey(key).getDeclaredConstructor(boolean.class, boolean.class);
-            constructor.setAccessible(true);
-            return constructor.newInstance(args);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
+        return MinecraftArgumentType.ENTITY.create(single, playerOnly);
     }
 }

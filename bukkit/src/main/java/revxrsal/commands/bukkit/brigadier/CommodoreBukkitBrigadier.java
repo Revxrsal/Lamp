@@ -26,7 +26,6 @@ package revxrsal.commands.bukkit.brigadier;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -74,10 +73,10 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
         argumentTypes.add(type, parameter -> argumentType);
     }
 
-    @Override public void bind(@NotNull Class<?> type, @NotNull String argumentTypeKey) {
+    @Override public void bind(@NotNull Class<?> type, @NotNull MinecraftArgumentType argumentType) {
         notNull(type, "type");
-        notNull(argumentTypeKey, "argument type key");
-        argumentTypes.add(type, parameter -> ArgumentTypes.getByKey(NamespacedKey.minecraft(argumentTypeKey)));
+        notNull(argumentType, "argument type");
+        argumentType.getIfPresent().ifPresent(c -> argumentTypes.add(type, parameter -> c));
     }
 
     public @NotNull ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {
