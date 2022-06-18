@@ -21,6 +21,7 @@ import revxrsal.commands.jda.JDACommandHandler;
         String content = event.getMessage().getContentRaw();
         if (!content.startsWith(prefix)) return;
         content = content.substring(prefix.length());
+        if (content.isEmpty()) return;
 
         JDAActor actor = new BaseActorJDA(event, handler);
         try {
