@@ -23,17 +23,19 @@ public class MutableCommandPath extends CommandPath {
 
     public String removeLast() {return path.removeLast();}
 
-    public void addFirst(String s) {path.addFirst(s);}
+    public void addFirst(String s) {path.addFirst(s.toLowerCase());}
 
-    public void addLast(String s) {path.addLast(s);}
+    public void addLast(String s) {path.addLast(s.toLowerCase());}
 
-    public boolean contains(Object o) {return path.contains(o);}
+    public boolean contains(Object o) {
+        return o instanceof String ? path.contains(((String) o).toLowerCase()) : path.contains(o);
+    }
 
-    public boolean add(String s) {return path.add(s);}
+    public boolean add(String s) {return path.add(s.toLowerCase());}
 
     public void clear() {path.clear();}
 
-    public void add(int index, String element) {path.add(index, element);}
+    public void add(int index, String element) {path.add(index, element.toLowerCase());}
 
     public String peek() {return path.peek();}
 
