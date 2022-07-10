@@ -2,6 +2,7 @@ package revxrsal.commands.core;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.annotation.Default;
 import revxrsal.commands.annotation.NotSender;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
@@ -38,7 +39,7 @@ final class SenderContextResolverFactory implements ContextResolverFactory {
 
     @Override public @Nullable ContextResolver<?> create(@NotNull CommandParameter parameter) {
         if (parameter.getMethodIndex() != 0) return null;
-        if (parameter.hasAnnotation(NotSender.class)) return null;
+        if (parameter.hasAnnotation(Default.class) || parameter.hasAnnotation(NotSender.class)) return null;
         for (SenderResolver resolver : resolvers) {
             if (resolver.isCustomType(parameter.getType())) {
                 return context -> notNull(resolver.getSender(parameter.getType(), context.actor(), context.command()),
