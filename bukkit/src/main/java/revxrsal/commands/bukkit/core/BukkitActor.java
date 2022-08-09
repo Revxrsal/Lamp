@@ -65,6 +65,8 @@ public final class BukkitActor implements BukkitCommandActor {
     }
 
     @Override public @NotNull Audience audience() {
+        if (sender instanceof Audience)
+            return (Audience) sender;
         BukkitAudiences audiences = (BukkitAudiences) handler.bukkitAudiences;
         if (audiences == null)
             throw new IllegalStateException("You must call BukkitCommandHandler.enableAdventure() to access this method!");
@@ -99,7 +101,7 @@ public final class BukkitActor implements BukkitCommandActor {
     }
 
     @Override public BukkitCommandHandler getCommandHandler() {
-        return (BukkitCommandHandler) handler;
+        return handler;
     }
 
     @Override public @NotNull Locale getLocale() {

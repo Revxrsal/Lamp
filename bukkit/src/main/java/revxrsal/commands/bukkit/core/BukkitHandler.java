@@ -1,15 +1,13 @@
 package revxrsal.commands.bukkit.core;
 
 import lombok.SneakyThrows;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -167,14 +165,19 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
     }
 
     @Override public void enableAdventure() {
-        enableAdventure(BukkitAudiences.create(plugin));
+        if (Audience.class.isAssignableFrom(CommandSender.class)) {
+            // Paper
+            registerSenderResolver(new AudienceSenderResolver(sender -> (Audience) sender));
+            registerResponseHandler(ComponentLike.class, new ComponentResponseHandler(sender -> (Audience) sender));
+        } else
+            enableAdventure(BukkitAudiences.create(plugin));
     }
 
     @Override public void enableAdventure(@NotNull BukkitAudiences audiences) {
         notNull(audiences, "audiences");
         bukkitAudiences = audiences;
-        registerSenderResolver(new AudienceSenderResolver(audiences));
-        registerResponseHandler(ComponentLike.class, new ComponentResponseHandler(audiences));
+        registerSenderResolver(new AudienceSenderResolver(audiences::sender));
+        registerResponseHandler(ComponentLike.class, new ComponentResponseHandler(audiences::sender));
     }
 
     @Override public @NotNull Plugin getPlugin() {
