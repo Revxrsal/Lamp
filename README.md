@@ -141,6 +141,6 @@ compileKotlin { // optional: if you're using Kotlin
 </details>
 
 ## Documentation
-- **Examples**: [Lamp/examples](https://github.com/Revxrsal/Lamp/tree/examples)
 - **Overview**: [Lamp/wiki](https://github.com/Revxrsal/Lamp/wiki)
+- **Examples**: [wiki/examples](https://github.com/Revxrsal/Lamp/wiki/Building-commands)
 - **Javadocs**: https://revxrsal.github.io/Lamp/
