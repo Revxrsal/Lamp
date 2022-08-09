@@ -38,8 +38,8 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.util.ClassMap;
 
-import static revxrsal.commands.bukkit.brigadier.CommodoreProvider.isSupported;
 import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.*;
+import static revxrsal.commands.bukkit.brigadier.CommodoreProvider.isSupported;
 import static revxrsal.commands.util.Preconditions.notNull;
 
 public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
@@ -51,7 +51,7 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
     public CommodoreBukkitBrigadier(BukkitCommandHandler handler) {
         this.handler = handler;
-        commodore = new Commodore(handler.getPlugin());
+        commodore = CommodoreProvider.getCommodore(handler.getPlugin());
         if (isSupported()) {
             bind(String.class, STRING);
             bind(Number.class, NUMBER);

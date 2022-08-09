@@ -27,90 +27,56 @@ package revxrsal.commands.bukkit.brigadier;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandSendEvent;
-import org.bukkit.event.server.ServerLoadEvent;
-import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-final class Commodore {
+abstract class Commodore {
 
-    // obc.CraftServer#console field
-    private static final Field CONSOLE_FIELD;
+    // ArgumentCommandNode#customSuggestions field
+    protected static final Field CUSTOM_SUGGESTIONS_FIELD;
 
-    // nms.MinecraftServer#getCommandDispatcher method
-    private static final Method GET_COMMAND_DISPATCHER_METHOD;
+    // CommandNode#command
+    protected static final Field COMMAND_EXECUTE_FUNCTION_FIELD;
+
+    // CommandNode#children, CommandNode#literals, CommandNode#arguments fields
+    protected static final Field CHILDREN_FIELD;
+    protected static final Field LITERALS_FIELD;
+    protected static final Field ARGUMENTS_FIELD;
 
     // nms.CommandListenerWrapper#getBukkitSender method
     private static final Method GET_BUKKIT_SENDER_METHOD;
 
-    // nms.CommandDispatcher#getDispatcher (obfuscated) method
-    private static final Method GET_BRIGADIER_DISPATCHER_METHOD;
-
-    // ArgumentCommandNode#customSuggestions field
-    private static final Field CUSTOM_SUGGESTIONS_FIELD;
-
-    // CommandNode#command
-    private static final Field COMMAND_EXECUTE_FUNCTION_FIELD;
-
-    // CommandNode#children, CommandNode#literals, CommandNode#arguments fields
-    private static final Field CHILDREN_FIELD;
-    private static final Field LITERALS_FIELD;
-    private static final Field ARGUMENTS_FIELD;
-
     // An array of the CommandNode fields above: [#children, #literals, #arguments]
-    private static final Field[] CHILDREN_FIELDS;
+    protected static final Field[] CHILDREN_FIELDS;
+
+    // Dummy instance of Command used to ensure the executable bit gets set on
+    // mock commands when they're encoded into data sent to the client
+    protected static final com.mojang.brigadier.Command<?> DUMMY_COMMAND;
+    protected static final SuggestionProvider<?> DUMMY_SUGGESTION_PROVIDER;
 
     static {
         try {
-            final Class<?> minecraftServer;
             final Class<?> commandListenerWrapper;
-            final Class<?> commandDispatcher;
-
-            if (ReflectionUtil.minecraftVersion() > 16) {
-                minecraftServer = ReflectionUtil.mcClass("server.MinecraftServer");
+            if (ReflectionUtil.minecraftVersion() > 16)
                 commandListenerWrapper = ReflectionUtil.mcClass("commands.CommandListenerWrapper");
-                commandDispatcher = ReflectionUtil.mcClass("commands.CommandDispatcher");
-            } else {
-                minecraftServer = ReflectionUtil.nmsClass("MinecraftServer");
+            else
                 commandListenerWrapper = ReflectionUtil.nmsClass("CommandListenerWrapper");
-                commandDispatcher = ReflectionUtil.nmsClass("CommandDispatcher");
-            }
-
-            Class<?> craftServer = ReflectionUtil.obcClass("CraftServer");
-            CONSOLE_FIELD = craftServer.getDeclaredField("console");
-            CONSOLE_FIELD.setAccessible(true);
-
-            GET_COMMAND_DISPATCHER_METHOD = Arrays.stream(minecraftServer.getDeclaredMethods())
-                    .filter(method -> method.getParameterCount() == 0)
-                    .filter(method -> commandDispatcher.isAssignableFrom(method.getReturnType()))
-                    .findFirst().orElseThrow(NoSuchMethodException::new);
-            GET_COMMAND_DISPATCHER_METHOD.setAccessible(true);
-
-            GET_BUKKIT_SENDER_METHOD = commandListenerWrapper.getDeclaredMethod("getBukkitSender");
-            GET_BUKKIT_SENDER_METHOD.setAccessible(true);
-
-            GET_BRIGADIER_DISPATCHER_METHOD = Arrays.stream(commandDispatcher.getDeclaredMethods())
-                    .filter(method -> method.getParameterCount() == 0)
-                    .filter(method -> CommandDispatcher.class.isAssignableFrom(method.getReturnType()))
-                    .findFirst().orElseThrow(NoSuchMethodException::new);
-            GET_BRIGADIER_DISPATCHER_METHOD.setAccessible(true);
 
             CUSTOM_SUGGESTIONS_FIELD = ArgumentCommandNode.class.getDeclaredField("customSuggestions");
             CUSTOM_SUGGESTIONS_FIELD.setAccessible(true);
@@ -121,85 +87,30 @@ final class Commodore {
             CHILDREN_FIELD = CommandNode.class.getDeclaredField("children");
             LITERALS_FIELD = CommandNode.class.getDeclaredField("literals");
             ARGUMENTS_FIELD = CommandNode.class.getDeclaredField("arguments");
+
             CHILDREN_FIELDS = new Field[]{CHILDREN_FIELD, LITERALS_FIELD, ARGUMENTS_FIELD};
             for (Field field : CHILDREN_FIELDS) {
                 field.setAccessible(true);
             }
+
+            GET_BUKKIT_SENDER_METHOD = commandListenerWrapper.getDeclaredMethod("getBukkitSender");
+            GET_BUKKIT_SENDER_METHOD.setAccessible(true);
+
+            // should never be called
+            // if ReflectionCommodore: bukkit handling should override
+            // if PaperCommodore: this is only sent to the client, not used for actual command handling
+            DUMMY_COMMAND = (ctx) -> {throw new UnsupportedOperationException();};
+            // should never be called - only used in clientbound root node, and the server impl will pass anything through
+            // SuggestionProviders#safelySwap (swap it for the ASK_SERVER provider) before sending
+            DUMMY_SUGGESTION_PROVIDER = (context, builder) -> {throw new UnsupportedOperationException();};
 
         } catch (ReflectiveOperationException e) {
             throw new ExceptionInInitializerError(e);
         }
     }
 
-    private final Plugin plugin;
-    private final List<LiteralCommandNode<?>> registeredNodes = new ArrayList<>();
-
-    Commodore(Plugin plugin) {
-        this.plugin = plugin;
-        this.plugin.getServer().getPluginManager().registerEvents(new ServerReloadListener(), this.plugin);
-    }
-
-    public CommandDispatcher<?> getDispatcher() {
-        try {
-            Object mcServerObject = CONSOLE_FIELD.get(Bukkit.getServer());
-            Object commandDispatcherObject = GET_COMMAND_DISPATCHER_METHOD.invoke(mcServerObject);
-            return (CommandDispatcher<?>) GET_BRIGADIER_DISPATCHER_METHOD.invoke(commandDispatcherObject);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public CommandSender getBukkitSender(Object commandWrapperListener) {
-        Objects.requireNonNull(commandWrapperListener, "commandWrapperListener");
-        try {
-            return (CommandSender) GET_BUKKIT_SENDER_METHOD.invoke(commandWrapperListener);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @SuppressWarnings({"rawtypes"})
-    public void register(LiteralCommandNode<?> node) {
-        Objects.requireNonNull(node, "node");
-
-        CommandDispatcher dispatcher = getDispatcher();
-        RootCommandNode root = dispatcher.getRoot();
-
-        removeChild(root, node.getName());
-        root.addChild(node);
-        registeredNodes.add(node);
-    }
-
-    public void register(Command command, LiteralCommandNode<?> node, Predicate<? super Player> permissionTest) {
-        Objects.requireNonNull(command, "command");
-        Objects.requireNonNull(node, "node");
-        Objects.requireNonNull(permissionTest, "permissionTest");
-
-        Collection<String> aliases = getAliases(command);
-        if (!aliases.contains(node.getLiteral())) {
-            node = renameLiteralNode(node, command.getName());
-        }
-
-        for (String alias : aliases) {
-            if (node.getLiteral().equals(alias)) {
-                register(node);
-            } else {
-                register(LiteralArgumentBuilder.literal(alias).redirect((LiteralCommandNode<Object>) node).build());
-            }
-        }
-
-        plugin.getServer().getPluginManager().registerEvents(new CommandDataSendListener(command, permissionTest), plugin);
-    }
-
-    public void register(Command command, LiteralCommandNode<?> node) {
-        Objects.requireNonNull(command, "command");
-        Objects.requireNonNull(node, "node");
-
-        register(command, node, command::testPermissionSilent);
-    }
-
-    @SuppressWarnings({"rawtypes"})
-    private static void removeChild(RootCommandNode root, String name) {
+    protected static void removeChild(RootCommandNode root, String name) {
         try {
             for (Field field : CHILDREN_FIELDS) {
                 Map<String, ?> children = (Map<String, ?>) field.get(root);
@@ -210,7 +121,7 @@ final class Commodore {
         }
     }
 
-    private static <S> LiteralCommandNode<S> renameLiteralNode(LiteralCommandNode<S> node, String newLiteral) {
+    protected static <S> LiteralCommandNode<S> renameLiteralNode(LiteralCommandNode<S> node, String newLiteral) {
         LiteralCommandNode<S> clone = new LiteralCommandNode<>(newLiteral, node.getCommand(), node.getRequirement(), node.getRedirect(), node.getRedirectModifier(), node.isFork());
         for (CommandNode<S> child : node.getChildren()) {
             clone.addChild(child);
@@ -218,59 +129,27 @@ final class Commodore {
         return clone;
     }
 
-    /**
-     * Listens for server (re)loads, and re-adds all registered nodes to the dispatcher.
-     */
-    private final class ServerReloadListener implements Listener {
-
-        @SuppressWarnings({"rawtypes"})
-        @EventHandler
-        public void onLoad(ServerLoadEvent e) {
-            CommandDispatcher dispatcher = getDispatcher();
-            RootCommandNode root = dispatcher.getRoot();
-
-            for (LiteralCommandNode<?> node : registeredNodes) {
-                removeChild(root, node.getName());
-                root.addChild(node);
-            }
+    public CommandSender getBukkitSender(Object commandSource) {
+        Objects.requireNonNull(commandSource, "commandSource");
+        try {
+            return (CommandSender) GET_BUKKIT_SENDER_METHOD.invoke(commandSource);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
     }
 
     /**
-     * Removes minecraft namespaced argument data, & data for players without permission to view the
-     * corresponding commands.
+     * Gets the aliases known for the given command.
+     *
+     * <p>This will include the main label, as well as defined aliases, and
+     * aliases including the fallback prefix added by Bukkit.</p>
+     *
+     * @param command the command
+     * @return the aliases
      */
-    private static final class CommandDataSendListener implements Listener {
-
-        private final Set<String> aliases;
-        private final Set<String> minecraftPrefixedAliases;
-        private final Predicate<? super Player> permissionTest;
-
-        CommandDataSendListener(Command pluginCommand, Predicate<? super Player> permissionTest) {
-            aliases = new HashSet<>(getAliases(pluginCommand));
-            minecraftPrefixedAliases = aliases.stream().map(alias -> "minecraft:" + alias).collect(Collectors.toSet());
-            this.permissionTest = permissionTest;
-        }
-
-        @EventHandler
-        public void onCommandSend(PlayerCommandSendEvent e) {
-            // always remove 'minecraft:' prefixed aliases added by craftbukkit.
-            // this happens because bukkit thinks our injected commands are vanilla commands.
-            e.getCommands().removeAll(minecraftPrefixedAliases);
-
-            // remove the actual aliases if the player doesn't pass the permission test
-            if (!permissionTest.test(e.getPlayer())) {
-                e.getCommands().removeAll(aliases);
-            }
-        }
-    }
-
-    static void ensureSetup() {
-        // do nothing - this is only called to trigger the static initializer
-    }
-
-    private static Collection<String> getAliases(Command command) {
+    protected static Collection<String> getAliases(Command command) {
         Objects.requireNonNull(command, "command");
+
         Stream<String> aliasesStream = Stream.concat(
                 Stream.of(command.getLabel()),
                 command.getAliases().stream()
@@ -278,9 +157,114 @@ final class Commodore {
 
         if (command instanceof PluginCommand) {
             String fallbackPrefix = ((PluginCommand) command).getPlugin().getName().toLowerCase().trim();
-            aliasesStream = aliasesStream.flatMap(alias -> Stream.of(alias, fallbackPrefix + ":" + alias));
+            aliasesStream = aliasesStream.flatMap(alias -> Stream.of(
+                    alias,
+                    fallbackPrefix + ":" + alias
+            ));
         }
 
         return aliasesStream.distinct().collect(Collectors.toList());
     }
+
+    /**
+     * Registers the provided argument data to the dispatcher, against all
+     * aliases defined for the {@code command}.
+     *
+     * <p>Additionally applies the CraftBukkit {@link SuggestionProvider}
+     * to all arguments within the node, so ASK_SERVER suggestions can continue
+     * to function for the command.</p>
+     *
+     * <p>Players will only be sent argument data if they pass the provided
+     * {@code permissionTest}.</p>
+     *
+     * @param command         the command to read aliases from
+     * @param argumentBuilder the argument data, in a builder form
+     * @param permissionTest  the predicate to check whether players should be sent argument data
+     */
+    public void register(Command command, LiteralArgumentBuilder<?> argumentBuilder, Predicate<? super Player> permissionTest) {
+        Objects.requireNonNull(command, "command");
+        Objects.requireNonNull(argumentBuilder, "argumentBuilder");
+        Objects.requireNonNull(permissionTest, "permissionTest");
+        register(command, argumentBuilder.build(), permissionTest);
+    }
+
+    /**
+     * Registers the provided argument data to the dispatcher, against all
+     * aliases defined for the {@code command}.
+     *
+     * <p>Additionally applies the CraftBukkit {@link SuggestionProvider}
+     * to all arguments within the node, so ASK_SERVER suggestions can continue
+     * to function for the command.</p>
+     *
+     * <p>Players will only be sent argument data if they pass the provided
+     * {@code permissionTest}.</p>
+     *
+     * @param command        the command to read aliases from
+     * @param node           the argument data
+     * @param permissionTest the predicate to check whether players should be sent argument data
+     */
+    abstract void register(Command command, LiteralCommandNode<?> node, Predicate<? super Player> permissionTest);
+
+    /**
+     * Registers the provided argument data to the dispatcher, against all
+     * aliases defined for the {@code command}.
+     *
+     * <p>Additionally applies the CraftBukkit {@link SuggestionProvider}
+     * to all arguments within the node, so ASK_SERVER suggestions can continue
+     * to function for the command.</p>
+     *
+     * @param command the command to read aliases from
+     * @param node    the argument data
+     */
+    public void register(Command command, LiteralCommandNode<?> node) {
+        Objects.requireNonNull(command, "command");
+        Objects.requireNonNull(node, "node");
+        register(command, node, command::testPermissionSilent);
+    }
+
+    /**
+     * Registers the provided argument data to the dispatcher.
+     *
+     * <p>Equivalent to calling
+     * {@link CommandDispatcher#register(LiteralArgumentBuilder)}.</p>
+     *
+     * <p>Prefer using {@link #register(Command, LiteralArgumentBuilder)}.</p>
+     *
+     * @param argumentBuilder the argument data
+     */
+    public void register(LiteralArgumentBuilder<?> argumentBuilder) {
+        Objects.requireNonNull(argumentBuilder, "argumentBuilder");
+        register(argumentBuilder.build());
+    }
+
+    /**
+     * Registers the provided argument data to the dispatcher, against all
+     * aliases defined for the {@code command}.
+     *
+     * <p>Additionally applies the CraftBukkit {@link SuggestionProvider}
+     * to all arguments within the node, so ASK_SERVER suggestions can continue
+     * to function for the command.</p>
+     *
+     * @param command         the command to read aliases from
+     * @param argumentBuilder the argument data, in a builder form
+     */
+    public void register(Command command, LiteralArgumentBuilder<?> argumentBuilder) {
+        Objects.requireNonNull(command, "command");
+        Objects.requireNonNull(argumentBuilder, "argumentBuilder");
+        register(command, argumentBuilder.build());
+    }
+
+    /**
+     * Registers the provided argument data to the dispatcher.
+     *
+     * <p>Equivalent to calling
+     * {@link CommandDispatcher#register(LiteralArgumentBuilder)}.</p>
+     *
+     * <p>Prefer using {@link #register(Command, LiteralCommandNode)}.</p>
+     *
+     * @param node the argument data
+     */
+    abstract void register(LiteralCommandNode<?> node);
+
+
 }

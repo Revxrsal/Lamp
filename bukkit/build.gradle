@@ -9,20 +9,30 @@ repositories {
 }
 
 configurations {
+    create("shadeBlindly")
     create("testing")
     implementation.extendsFrom(testing)
 }
 
 dependencies {
     compileOnly(project(":common"))
-    /* For adventure components support */
-    compileOnly("net.kyori:adventure-platform-bukkit:4.1.0")
 
-    compileOnly("com.mojang:brigadier:1.0.18")
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
+
+    /* For adventure components support */
+    compileOnly("net.kyori:adventure-platform-bukkit:4.1.1")
+
+    /* For Brigadier on 1.13+ */
+    compileOnly("com.mojang:brigadier:1.0.18")
 
     /* For Kotlin extensions */
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
+
+    /*
+     * We shade paper-internal without adding it as a dependency
+     * because it requires Java 17. We have to access it reflectively though :(
+     */
+    shadeBlindly(project(":paper-internal-dont-use"))
 }
 
 compileJava {
@@ -34,6 +44,7 @@ compileJava {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from configurations.testing.asFileTree.files.collect { zipTree(it) }
+    from configurations.shadeBlindly.asFileTree.files.collect { zipTree(it) }
 }
 
 compileKotlin {

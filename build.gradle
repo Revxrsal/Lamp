@@ -10,8 +10,10 @@ subprojects {
     group = "io.github.revxrsal"
     version = "3.0.71"
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    if (name != "paper-internal-dont-use") {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 
     publishing {
         publications {

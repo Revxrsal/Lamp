@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 
 final class ReflectionUtil {
     private static final String SERVER_VERSION = getServerVersion();
+    private static final int MINECRAFT_VERSION = getMinecraftVersion();
 
     private static String getServerVersion() {
         Class<?> server = Bukkit.getServer().getClass();
@@ -71,7 +72,7 @@ final class ReflectionUtil {
         return Class.forName(obc(className));
     }
 
-    public static int minecraftVersion() {
+    private static int getMinecraftVersion() {
         try {
             final Matcher matcher = Pattern.compile("\\(MC: (\\d)\\.(\\d+)\\.?(\\d+?)?( .*)?\\)").matcher(Bukkit.getVersion());
             if (matcher.find()) {
@@ -82,6 +83,10 @@ final class ReflectionUtil {
         } catch (final IllegalArgumentException ex) {
             throw new RuntimeException("Failed to determine Minecraft version", ex);
         }
+    }
+
+    public static int minecraftVersion() {
+        return MINECRAFT_VERSION;
     }
 
     private ReflectionUtil() {}
