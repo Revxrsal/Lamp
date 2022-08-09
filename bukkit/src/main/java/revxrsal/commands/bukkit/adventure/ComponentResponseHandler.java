@@ -23,14 +23,17 @@
  */
 package revxrsal.commands.bukkit.adventure;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.ComponentLike;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.ResponseHandler;
+
+import java.util.function.Function;
 
 /**
  * Adds support for returning {@link ComponentLike} from methods to respond
@@ -40,15 +43,15 @@ import revxrsal.commands.process.ResponseHandler;
  */
 public final class ComponentResponseHandler implements ResponseHandler<ComponentLike> {
 
-    private final BukkitAudiences audiences;
+    private final Function<CommandSender, Audience> audiences;
 
-    public ComponentResponseHandler(BukkitAudiences audiences) {
+    public ComponentResponseHandler(Function<CommandSender, Audience> audiences) {
         this.audiences = audiences;
     }
 
     @Override public void handleResponse(ComponentLike response, @NotNull CommandActor actor, @NotNull ExecutableCommand command) {
         BukkitCommandActor bActor = (BukkitCommandActor) actor;
         if (response != null)
-            audiences.sender(bActor.getSender()).sendMessage(response);
+            audiences.apply(bActor.getSender()).sendMessage(response);
     }
 }

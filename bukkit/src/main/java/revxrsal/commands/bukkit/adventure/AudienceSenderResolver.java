@@ -24,13 +24,15 @@
 package revxrsal.commands.bukkit.adventure;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.SenderResolver;
+
+import java.util.function.Function;
 
 /**
  * Adds support for using {@link Audience} as a sender in command methods
@@ -39,9 +41,9 @@ import revxrsal.commands.process.SenderResolver;
  */
 public final class AudienceSenderResolver implements SenderResolver {
 
-    private final BukkitAudiences audiences;
+    private final Function<CommandSender, Audience> audiences;
 
-    public AudienceSenderResolver(BukkitAudiences audiences) {
+    public AudienceSenderResolver(Function<CommandSender, Audience> audiences) {
         this.audiences = audiences;
     }
 
@@ -51,6 +53,6 @@ public final class AudienceSenderResolver implements SenderResolver {
 
     @Override public @NotNull Object getSender(@NotNull Class<?> customSenderType, @NotNull CommandActor actor, @NotNull ExecutableCommand command) {
         BukkitCommandActor bActor = (BukkitCommandActor) actor;
-        return audiences.sender(bActor.getSender());
+        return audiences.apply(bActor.getSender());
     }
 }
