@@ -8,7 +8,7 @@ subprojects {
     apply plugin: "maven-publish"
 
     group = "io.github.revxrsal"
-    version = "3.0.71"
+    version = "3.0.8"
 
     if (name != "paper-internal-dont-use") {
         sourceCompatibility = 1.8
