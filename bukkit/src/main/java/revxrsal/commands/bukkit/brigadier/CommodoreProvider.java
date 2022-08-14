@@ -51,6 +51,14 @@ public final class CommodoreProvider {
             return null;
         }
 
+        // try reflection impl
+        try {
+            ReflectionCommodore.ensureSetup();
+            return ReflectionCommodore::new;
+        } catch (Throwable e) {
+            printDebugInfo(e);
+        }
+
         // try the paper impl
         try {
             Constructor<? extends Commodore> ctr = Class.forName("revxrsal.commands.bukkit.brigadier.PaperCommodore")
@@ -69,13 +77,6 @@ public final class CommodoreProvider {
             printDebugInfo(e);
         }
 
-        // try reflection impl
-        try {
-            ReflectionCommodore.ensureSetup();
-            return ReflectionCommodore::new;
-        } catch (Throwable e) {
-            printDebugInfo(e);
-        }
         return null;
     }
 
