@@ -109,7 +109,7 @@ abstract class Commodore {
         }
     }
 
-    @SuppressWarnings({"rawtypes"})
+    @SuppressWarnings("rawtypes")
     protected static void removeChild(RootCommandNode root, String name) {
         try {
             for (Field field : CHILDREN_FIELDS) {

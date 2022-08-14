@@ -112,7 +112,7 @@ final class ReflectionCommodore extends Commodore {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings("rawtypes")
     @Override
     public void register(LiteralCommandNode<?> node) {
         Objects.requireNonNull(node, "node");
@@ -125,7 +125,6 @@ final class ReflectionCommodore extends Commodore {
         registeredNodes.add(node);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void register(Command command, LiteralCommandNode<?> node, Predicate<? super Player> permissionTest) {
         Objects.requireNonNull(command, "command");
@@ -152,7 +151,7 @@ final class ReflectionCommodore extends Commodore {
      */
     private final class ServerReloadListener implements Listener {
 
-        @SuppressWarnings({"rawtypes"})
+        @SuppressWarnings("rawtypes")
         @EventHandler
         public void onLoad(ServerLoadEvent e) {
             CommandDispatcher dispatcher = getDispatcher();
@@ -165,7 +164,7 @@ final class ReflectionCommodore extends Commodore {
         }
 
         @EventHandler
-        @SuppressWarnings({"rawtypes"})
+        @SuppressWarnings("rawtypes")
         public void onPluginDisable(PluginDisableEvent e) {
             if (plugin != e.getPlugin()) return;
             CommandDispatcher dispatcher = getDispatcher();

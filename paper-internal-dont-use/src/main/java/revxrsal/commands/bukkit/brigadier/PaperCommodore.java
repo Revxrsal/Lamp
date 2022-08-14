@@ -99,7 +99,7 @@ final class PaperCommodore extends Commodore implements Listener {
 
     private record CommodoreCommand(LiteralCommandNode<?> node, Predicate<? super Player> permissionTest) {
 
-        @SuppressWarnings({"rawtypes"})
+        @SuppressWarnings("rawtypes")
         public void apply(Player player, RootCommandNode<?> root) {
             if (permissionTest != null && !permissionTest.test(player)) {
                 return;
