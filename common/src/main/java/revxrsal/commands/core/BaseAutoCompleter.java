@@ -209,7 +209,9 @@ final class BaseAutoCompleter implements AutoCompleter {
         if (args.isEmpty()) return emptyList();
         Set<String> suggestions = new HashSet<>();
         if (category.getDefaultAction() != null) {
-            suggestions.addAll(getCompletions(actor, args, category.getDefaultAction()));
+            ExecutableCommand defaultAction = category.getDefaultAction();
+            if (!defaultAction.isSecret() && defaultAction.getPermission().canExecute(actor))
+                suggestions.addAll(getCompletions(actor, args, defaultAction));
         }
         if (originalSize - category.getPath().size() == 1) {
             category.getCommands().values().forEach(c -> {
