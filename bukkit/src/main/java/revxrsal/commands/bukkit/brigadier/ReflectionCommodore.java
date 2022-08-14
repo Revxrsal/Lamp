@@ -39,7 +39,6 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -56,9 +55,6 @@ final class ReflectionCommodore extends Commodore {
 
     // nms.CommandDispatcher#getDispatcher (obfuscated) method
     private static final Method GET_BRIGADIER_DISPATCHER_METHOD;
-
-    // obc.command.BukkitCommandWrapper constructor
-    private static final Constructor<?> COMMAND_WRAPPER_CONSTRUCTOR;
 
     static {
         try {
@@ -92,9 +88,6 @@ final class ReflectionCommodore extends Commodore {
                     .filter(method -> CommandDispatcher.class.isAssignableFrom(method.getReturnType()))
                     .findFirst().orElseThrow(NoSuchMethodException::new);
             GET_BRIGADIER_DISPATCHER_METHOD.setAccessible(true);
-
-            Class<?> commandWrapperClass = ReflectionUtil.obcClass("command.BukkitCommandWrapper");
-            COMMAND_WRAPPER_CONSTRUCTOR = commandWrapperClass.getConstructor(craftServer, Command.class);
 
         } catch (ReflectiveOperationException e) {
             throw new ExceptionInInitializerError(e);
@@ -151,7 +144,7 @@ final class ReflectionCommodore extends Commodore {
                 register(LiteralArgumentBuilder.literal(alias).redirect((LiteralCommandNode<Object>) node).build());
             }
         }
-//        plugin.getServer().getPluginManager().registerEvents(new CommandDataSendListener(command, permissionTest), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new CommandDataSendListener(command, permissionTest), plugin);
     }
 
     /**

@@ -103,7 +103,6 @@ public final class CommodoreProvider {
      */
     public static Commodore getCommodore(Plugin plugin) {
         Objects.requireNonNull(plugin, "plugin");
-        Objects.requireNonNull(PROVIDER, "Commodore is not supported!");
-        return PROVIDER.apply(plugin);
+        return PROVIDER == null ? null : PROVIDER.apply(plugin);
     }
 }
