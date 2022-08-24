@@ -196,7 +196,12 @@ public class CommandPath implements Iterable<String>, Comparable<CommandPath> {
      * @return True if this is a child of it, false if otherwise.
      */
     public boolean isChildOf(CommandPath other) {
-        return toRealString().startsWith(other.toRealString());
+          if (path.size() < other.size()) return false;
+          for (int i = 0; i < path.size(); i++) {
+               if (other.path.size() <= i) return true; // means that all previous arguments matched
+               if (!other.path.get(i).equals(path.get(i))) return false;
+          }
+          return true;
     }
 
     /**
@@ -206,7 +211,7 @@ public class CommandPath implements Iterable<String>, Comparable<CommandPath> {
      * @return True if this is a child of it, false if otherwise.
      */
     public boolean isParentOf(CommandPath other) {
-        return other.toRealString().startsWith(toRealString());
+        return other.isChildOf(this);
     }
 
     @Override public boolean equals(Object o) {
