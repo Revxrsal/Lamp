@@ -78,7 +78,10 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
                     if (entityList.stream().anyMatch(c -> !(c instanceof Player))) {
                         throw new NonPlayerEntitiesException(value);
                     }
-                    if (entityList.size() != 1) {
+                    if (entityList.isEmpty()) {
+                        throw new InvalidPlayerException(context.parameter(), value);
+                    }
+                    if (entityList.size() > 1) {
                         throw new MoreThanOnePlayerException(value);
                     }
                     return (Player) entityList.get(0);
