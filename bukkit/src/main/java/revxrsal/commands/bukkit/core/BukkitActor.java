@@ -3,13 +3,12 @@ package revxrsal.commands.bukkit.core;
 import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.util.Strings.colorize;
 
+import dev.demeng.pluginbase.lib.adventure.audience.Audience;
+import dev.demeng.pluginbase.lib.adventure.text.ComponentLike;
 import dev.demeng.pluginbase.locale.Locales;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -66,10 +65,7 @@ public final class BukkitActor implements BukkitCommandActor {
     @Override public @NotNull Audience audience() {
         if (sender instanceof Audience)
             return (Audience) sender;
-        BukkitAudiences audiences = (BukkitAudiences) handler.bukkitAudiences;
-        if (audiences == null)
-            throw new IllegalStateException("You must call BukkitCommandHandler.enableAdventure() to access this method!");
-        return audiences.sender(getSender());
+        return handler.bukkitAudiences.sender(getSender());
     }
 
     @Override public void reply(@NotNull ComponentLike component) {

@@ -1,13 +1,27 @@
 package revxrsal.commands.bukkit.core;
 
+import static revxrsal.commands.util.Preconditions.notNull;
+
+import dev.demeng.pluginbase.plugin.BaseManager;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.ComponentLike;
+import dev.demeng.pluginbase.lib.adventure.platform.bukkit.BukkitAudiences;
+import dev.demeng.pluginbase.lib.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -26,25 +40,18 @@ import revxrsal.commands.bukkit.adventure.AudienceSenderResolver;
 import revxrsal.commands.bukkit.adventure.ComponentResponseHandler;
 import revxrsal.commands.bukkit.brigadier.CommodoreBukkitBrigadier;
 import revxrsal.commands.bukkit.core.EntitySelectorResolver.SelectorSuggestionFactory;
-import revxrsal.commands.bukkit.exception.*;
+import revxrsal.commands.bukkit.exception.BukkitExceptionAdapter;
+import revxrsal.commands.bukkit.exception.InvalidPlayerException;
+import revxrsal.commands.bukkit.exception.InvalidWorldException;
+import revxrsal.commands.bukkit.exception.MalformedEntitySelectorException;
+import revxrsal.commands.bukkit.exception.MoreThanOnePlayerException;
+import revxrsal.commands.bukkit.exception.NonPlayerEntitiesException;
 import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.exception.EnumNotFoundException;
 import revxrsal.commands.util.Primitives;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import static revxrsal.commands.util.Preconditions.notNull;
 
 public final class BukkitHandler extends BaseCommandHandler implements BukkitCommandHandler {
 
@@ -56,7 +63,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
 
     private final Plugin plugin;
     private Optional<BukkitBrigadier> brigadier;
-    @Nullable Object bukkitAudiences; // use Object to avoid loading the class
+    BukkitAudiences bukkitAudiences;
 
     @SuppressWarnings("rawtypes")
     public BukkitHandler(@NotNull Plugin plugin) {
@@ -139,6 +146,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         registerPermissionReader(BukkitPermissionReader.INSTANCE);
         setExceptionHandler(BukkitExceptionAdapter.INSTANCE);
         Bukkit.getServer().getPluginManager().registerEvents(new BukkitCommandListeners(this), plugin);
+        enableAdventure(BaseManager.getAdventure());
     }
 
     @Override public @NotNull CommandHandler register(@NotNull Object... commands) {
@@ -167,24 +175,15 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
         return this;
     }
 
-    @Override public void enableAdventure() {
-        if (Audience.class.isAssignableFrom(CommandSender.class)) {
-            // Paper
-            registerSenderResolver(new AudienceSenderResolver(sender -> (Audience) sender));
-            registerResponseHandler(ComponentLike.class, new ComponentResponseHandler(sender -> (Audience) sender));
-        } else
-            enableAdventure(BukkitAudiences.create(plugin));
+    @Override public @NotNull Plugin getPlugin() {
+        return plugin;
     }
 
-    @Override public void enableAdventure(@NotNull BukkitAudiences audiences) {
+    private void enableAdventure(@NotNull BukkitAudiences audiences) {
         notNull(audiences, "audiences");
         bukkitAudiences = audiences;
         registerSenderResolver(new AudienceSenderResolver(audiences::sender));
         registerResponseHandler(ComponentLike.class, new ComponentResponseHandler(audiences::sender));
-    }
-
-    @Override public @NotNull Plugin getPlugin() {
-        return plugin;
     }
 
     private @SneakyThrows void createPluginCommand(String name, @Nullable String description, @Nullable String usage) {

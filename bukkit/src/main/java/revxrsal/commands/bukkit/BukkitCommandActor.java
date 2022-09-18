@@ -1,8 +1,7 @@
 package revxrsal.commands.bukkit;
 
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.ComponentLike;
+import dev.demeng.pluginbase.lib.adventure.audience.Audience;
+import dev.demeng.pluginbase.lib.adventure.text.ComponentLike;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -68,23 +67,15 @@ public interface BukkitCommandActor extends CommandActor {
 
     /**
      * Returns the {@link Audience} of this sender.
-     * <p>
-     * NOTE: This requires calling {@link BukkitCommandHandler#enableAdventure()} or
-     * {@link BukkitCommandHandler#enableAdventure(BukkitAudiences)}.
      *
      * @return The audience of this sender
-     * @throws IllegalStateException if {@code enableAdventure} was not called.
      */
     @NotNull Audience audience();
 
     /**
      * Sends the given component to this actor.
-     * <p>
-     * NOTE: This requires calling {@link BukkitCommandHandler#enableAdventure()} or
-     * {@link BukkitCommandHandler#enableAdventure(BukkitAudiences)}.
      *
      * @param component Component to send
-     * @throws IllegalStateException if {@code enableAdventure} was not called.
      */
     void reply(@NotNull ComponentLike component);
 

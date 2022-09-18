@@ -23,21 +23,17 @@
  */
 package revxrsal.commands.bukkit.adventure;
 
-import net.kyori.adventure.audience.Audience;
+import dev.demeng.pluginbase.lib.adventure.audience.Audience;
+import java.util.function.Function;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.bukkit.BukkitCommandActor;
-import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.SenderResolver;
 
-import java.util.function.Function;
-
 /**
  * Adds support for using {@link Audience} as a sender in command methods
- * <p>
- * Use {@link BukkitCommandHandler#enableAdventure()} to register.
  */
 public final class AudienceSenderResolver implements SenderResolver {
 
