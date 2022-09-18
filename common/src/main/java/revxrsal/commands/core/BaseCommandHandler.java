@@ -95,7 +95,7 @@ public class BaseCommandHandler implements CommandHandler {
     private ArgumentParser argumentParser = ArgumentParser.QUOTES;
     private final WrappedExceptionHandler exceptionHandler = new WrappedExceptionHandler(DefaultExceptionHandler.INSTANCE);
     private StackTraceSanitizer sanitizer = StackTraceSanitizer.defaultSanitizer();
-    String flagPrefix = "-", switchPrefix = "-", messagePrefix = "";
+    String flagPrefix = "-", switchPrefix = "-";
     CommandHelpWriter<?> helpWriter;
     boolean failOnExtra = false;
     final List<CommandCondition> conditions = new ArrayList<>();
@@ -277,12 +277,6 @@ public class BaseCommandHandler implements CommandHandler {
         notNull(prefix, "prefix");
         notEmpty(prefix, "prefix cannot be empty!");
         flagPrefix = prefix;
-        return this;
-    }
-
-    @Override public @NotNull CommandHandler setMessagePrefix(@NotNull String prefix) {
-        notNull(prefix, "prefix");
-        messagePrefix = prefix;
         return this;
     }
 
@@ -549,10 +543,6 @@ public class BaseCommandHandler implements CommandHandler {
 
     @Override public @NotNull String getFlagPrefix() {
         return flagPrefix;
-    }
-
-    @Override public @NotNull String getMessagePrefix() {
-        return messagePrefix;
     }
 
     @Override public <T> @NotNull Optional<@Nullable T> dispatch(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {

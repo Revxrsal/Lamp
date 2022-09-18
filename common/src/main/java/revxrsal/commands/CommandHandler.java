@@ -172,18 +172,6 @@ public interface CommandHandler {
     @NotNull CommandHandler setFlagPrefix(@NotNull String prefix);
 
     /**
-     * Returns the prefix that should preced all messages sent
-     * with {@link CommandActor#reply(String)} and {@link CommandActor#error(String)}.
-     * <p>
-     * Note that the prefix will <em>NOT</em> be followed by spaces, it is your
-     * responsibility to include it in the prefix you set.
-     *
-     * @param prefix Message prefix
-     * @return This command handler
-     */
-    @NotNull CommandHandler setMessagePrefix(@NotNull String prefix);
-
-    /**
      * Sets the {@link CommandHelpWriter} responsible for generating help pages
      *
      * @param <T>        The help entry type.
@@ -560,16 +548,6 @@ public interface CommandHandler {
      * @return The switch prefix
      */
     @NotNull String getFlagPrefix();
-
-    /**
-     * Returns the prefix that preceds all messages sent by {@link CommandActor#reply(String)}
-     * and {@link CommandActor#error(String)}.
-     * <p>
-     * Set with {@link CommandHandler#setMessagePrefix(String)}
-     *
-     * @return The message prefix
-     */
-    @NotNull String getMessagePrefix();
 
     /**
      * Returns the dependency registered for the given type

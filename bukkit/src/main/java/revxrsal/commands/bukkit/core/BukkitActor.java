@@ -1,11 +1,11 @@
 package revxrsal.commands.bukkit.core;
 
 import static revxrsal.commands.util.Preconditions.notNull;
-import static revxrsal.commands.util.Strings.colorize;
 
 import dev.demeng.pluginbase.lib.adventure.audience.Audience;
 import dev.demeng.pluginbase.lib.adventure.text.ComponentLike;
-import dev.demeng.pluginbase.locale.Locales;
+import dev.demeng.pluginbase.plugin.BaseManager;
+import dev.demeng.pluginbase.text.Text;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
@@ -87,12 +87,16 @@ public final class BukkitActor implements BukkitCommandActor {
 
     @Override public void reply(@NotNull String message) {
         notNull(message, "message");
-        sender.sendMessage(colorize(handler.getMessagePrefix() + message));
+        if (BaseManager.getBaseSettings().colorScheme() != null) {
+            Text.tell(sender, BaseManager.getBaseSettings().colorScheme().getPrimary() + message);
+        } else {
+            Text.tell(sender, message);
+        }
     }
 
     @Override public void error(@NotNull String message) {
         notNull(message, "message");
-        sender.sendMessage(colorize(handler.getMessagePrefix() + "&c" + message));
+        Text.tell(sender, "&c" + message);
     }
 
     @Override public BukkitCommandHandler getCommandHandler() {
@@ -100,20 +104,6 @@ public final class BukkitActor implements BukkitCommandActor {
     }
 
     @Override public @NotNull Locale getLocale() {
-        if (isPlayer()) {
-            String playerLocale;
-            try {
-                playerLocale = requirePlayer().getLocale();
-            } catch (NoSuchMethodError e) {
-                try {
-                    playerLocale = requirePlayer().spigot().getLocale();
-                } catch (NoSuchMethodError e2) {
-                    return BukkitCommandActor.super.getLocale();
-                }
-            }
-            Locale locale = Locales.get(playerLocale);
-            return locale == null ? BukkitCommandActor.super.getLocale() : locale;
-        }
-        return BukkitCommandActor.super.getLocale();
+        return Text.getLocale(sender);
     }
 }
