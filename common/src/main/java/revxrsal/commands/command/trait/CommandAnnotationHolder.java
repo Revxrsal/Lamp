@@ -23,29 +23,28 @@
  */
 package revxrsal.commands.command.trait;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.annotation.Annotation;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a command component that contains annotations, such as a parameter.
  */
 public interface CommandAnnotationHolder {
 
-    /**
-     * Returns the annotation present on this command from the annotation type
-     *
-     * @param annotation The annotation type
-     * @return The annotation value, or null if not present.
-     */
-    <A extends Annotation> A getAnnotation(@NotNull Class<A> annotation);
+  /**
+   * Returns the annotation present on this command from the annotation type
+   *
+   * @param annotation The annotation type
+   * @return The annotation value, or null if not present.
+   */
+  <A extends Annotation> A getAnnotation(@NotNull Class<A> annotation);
 
-    /**
-     * Whether this command has the specified annotation or not
-     *
-     * @param annotation The annotation type
-     * @return true if it has the annotation, false if otherwise.
-     */
-    boolean hasAnnotation(@NotNull Class<? extends Annotation> annotation);
+  /**
+   * Whether this command has the specified annotation or not
+   *
+   * @param annotation The annotation type
+   * @return true if it has the annotation, false if otherwise.
+   */
+  boolean hasAnnotation(@NotNull Class<? extends Annotation> annotation);
 
 }

@@ -12,4 +12,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CaseSensitive {}
+public @interface CaseSensitive {
+
+}

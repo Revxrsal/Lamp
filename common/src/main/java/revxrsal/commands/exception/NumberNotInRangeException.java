@@ -30,8 +30,8 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 
 /**
- * Thrown when a numerical parameter that is annotated with {@link Range}
- * gets a value outside its allowed range.
+ * Thrown when a numerical parameter that is annotated with {@link Range} gets a value outside its
+ * allowed range.
  *
  * @see Range
  */
@@ -39,24 +39,24 @@ import revxrsal.commands.command.CommandParameter;
 @AllArgsConstructor
 public class NumberNotInRangeException extends RuntimeException {
 
-    /**
-     * The command actor
-     */
-    private final CommandActor actor;
+  /**
+   * The command actor
+   */
+  private final CommandActor actor;
 
-    /**
-     * The inputted parameter
-     */
-    private final CommandParameter parameter;
+  /**
+   * The inputted parameter
+   */
+  private final CommandParameter parameter;
 
-    /**
-     * The inputted value
-     */
-    private final Number input;
+  /**
+   * The inputted value
+   */
+  private final Number input;
 
-    /**
-     * The minimum and maximum values of the range
-     */
-    private final double minimum, maximum;
+  /**
+   * The minimum and maximum values of the range
+   */
+  private final double minimum, maximum;
 
 }

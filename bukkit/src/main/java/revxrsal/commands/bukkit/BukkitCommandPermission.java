@@ -16,19 +16,19 @@ import revxrsal.commands.command.CommandPermission;
 @AllArgsConstructor
 public final class BukkitCommandPermission implements CommandPermission {
 
-    /**
-     * The permission node
-     */
-    private final @NotNull Permission permission;
+  /**
+   * The permission node
+   */
+  private final @NotNull Permission permission;
 
-    /**
-     * Returns whether the sender has permission to use this command
-     * or not.
-     *
-     * @param actor Actor to test against
-     * @return {@code true} if they can use it, false if otherwise.
-     */
-    @Override public boolean canExecute(@NotNull CommandActor actor) {
-        return ((BukkitCommandActor) actor).getSender().hasPermission(permission);
-    }
+  /**
+   * Returns whether the sender has permission to use this command or not.
+   *
+   * @param actor Actor to test against
+   * @return {@code true} if they can use it, false if otherwise.
+   */
+  @Override
+  public boolean canExecute(@NotNull CommandActor actor) {
+    return ((BukkitCommandActor) actor).getSender().hasPermission(permission);
+  }
 }

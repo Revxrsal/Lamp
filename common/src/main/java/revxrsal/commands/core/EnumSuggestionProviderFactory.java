@@ -23,35 +23,39 @@
  */
 package revxrsal.commands.core;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.autocomplete.SuggestionProviderFactory;
 import revxrsal.commands.command.CommandParameter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * A {@link SuggestionProviderFactory} that automatically creates
- * suggestions for enum types.
+ * A {@link SuggestionProviderFactory} that automatically creates suggestions for enum types.
  */
 enum EnumSuggestionProviderFactory implements SuggestionProviderFactory {
 
-    INSTANCE;
+  INSTANCE;
 
-    private static final int MAX_ENUMS_SIZE = 64;
+  private static final int MAX_ENUMS_SIZE = 64;
 
-    @SuppressWarnings("rawtypes")
-    @Override public @Nullable SuggestionProvider createSuggestionProvider(@NotNull CommandParameter parameter) {
-        if (!parameter.getType().isEnum()) return null;
-        Class<? extends Enum> enumType = parameter.getType().asSubclass(Enum.class);
-        Enum<?>[] enums = enumType.getEnumConstants();
-        List<String> suggestions = new ArrayList<>();
-        for (int i = 0; i < enums.length; i++) {
-            if (i >= MAX_ENUMS_SIZE - 1) break;
-            suggestions.add(enums[i].name().toLowerCase());
-        }
-        return SuggestionProvider.of(suggestions);
+  @SuppressWarnings("rawtypes")
+  @Override
+  public @Nullable SuggestionProvider createSuggestionProvider(
+      @NotNull CommandParameter parameter) {
+    if (!parameter.getType().isEnum()) {
+      return null;
     }
+    Class<? extends Enum> enumType = parameter.getType().asSubclass(Enum.class);
+    Enum<?>[] enums = enumType.getEnumConstants();
+    List<String> suggestions = new ArrayList<>();
+    for (int i = 0; i < enums.length; i++) {
+      if (i >= MAX_ENUMS_SIZE - 1) {
+        break;
+      }
+      suggestions.add(enums[i].name().toLowerCase());
+    }
+    return SuggestionProvider.of(suggestions);
+  }
 }

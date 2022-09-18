@@ -37,18 +37,21 @@ import revxrsal.commands.process.SenderResolver;
  */
 public final class AudienceSenderResolver implements SenderResolver {
 
-    private final Function<CommandSender, Audience> audiences;
+  private final Function<CommandSender, Audience> audiences;
 
-    public AudienceSenderResolver(Function<CommandSender, Audience> audiences) {
-        this.audiences = audiences;
-    }
+  public AudienceSenderResolver(Function<CommandSender, Audience> audiences) {
+    this.audiences = audiences;
+  }
 
-    @Override public boolean isCustomType(Class<?> type) {
-        return Audience.class.isAssignableFrom(type);
-    }
+  @Override
+  public boolean isCustomType(Class<?> type) {
+    return Audience.class.isAssignableFrom(type);
+  }
 
-    @Override public @NotNull Object getSender(@NotNull Class<?> customSenderType, @NotNull CommandActor actor, @NotNull ExecutableCommand command) {
-        BukkitCommandActor bActor = (BukkitCommandActor) actor;
-        return audiences.apply(bActor.getSender());
-    }
+  @Override
+  public @NotNull Object getSender(@NotNull Class<?> customSenderType, @NotNull CommandActor actor,
+      @NotNull ExecutableCommand command) {
+    BukkitCommandActor bActor = (BukkitCommandActor) actor;
+    return audiences.apply(bActor.getSender());
+  }
 }

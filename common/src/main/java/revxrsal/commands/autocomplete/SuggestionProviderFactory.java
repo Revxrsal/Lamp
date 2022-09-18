@@ -25,12 +25,11 @@ package revxrsal.commands.autocomplete;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.CommandParameter;
 
 /**
- * Creates a {@link SuggestionProvider} for the given type of parameter. These are
- * most useful in the following cases:
+ * Creates a {@link SuggestionProvider} for the given type of parameter. These are most useful in
+ * the following cases:
  * <ul>
  *     <li>Creating a suggestion provider for only a specific type of parameters,
  *     for example those with a specific annotation</li>
@@ -67,38 +66,38 @@ import revxrsal.commands.command.CommandParameter;
  */
 public interface SuggestionProviderFactory {
 
-    /**
-     * Creates a {@link SuggestionProvider} for the given parameter. If
-     * this parameter is not applicable, {@code null} should be returned.
-     *
-     * @param parameter Parameter to create for
-     * @return The suggestion provider for the parameter, or {@code null}
-     * if not applicable.
-     */
-    @Nullable SuggestionProvider createSuggestionProvider(@NotNull CommandParameter parameter);
+  /**
+   * Creates a {@link SuggestionProvider} for the given parameter. If this parameter is not
+   * applicable, {@code null} should be returned.
+   *
+   * @param parameter Parameter to create for
+   * @return The suggestion provider for the parameter, or {@code null} if not applicable.
+   */
+  @Nullable SuggestionProvider createSuggestionProvider(@NotNull CommandParameter parameter);
 
-    /**
-     * Creates a {@link SuggestionProviderFactory} that will return the same
-     * provider for all parameters that match a specific type
-     *
-     * @param type     Type to check for
-     * @param provider The provider to use
-     * @return The provider factory
-     */
-    static SuggestionProviderFactory forType(Class<?> type, SuggestionProvider provider) {
-        return parameter -> parameter.getType() == type ? provider : null;
-    }
+  /**
+   * Creates a {@link SuggestionProviderFactory} that will return the same provider for all
+   * parameters that match a specific type
+   *
+   * @param type     Type to check for
+   * @param provider The provider to use
+   * @return The provider factory
+   */
+  static SuggestionProviderFactory forType(Class<?> type, SuggestionProvider provider) {
+    return parameter -> parameter.getType() == type ? provider : null;
+  }
 
-    /**
-     * Creates a {@link SuggestionProviderFactory} that will return the same
-     * provider for all parameters that match or extend a specific type
-     *
-     * @param type     Type to check for
-     * @param provider The provider to use
-     * @return The provider factory
-     */
-    static SuggestionProviderFactory forHierarchyType(Class<?> type, SuggestionProvider provider) {
-        return parameter -> parameter.getType() == type || parameter.getType().isAssignableFrom(type) ? provider : null;
-    }
+  /**
+   * Creates a {@link SuggestionProviderFactory} that will return the same provider for all
+   * parameters that match or extend a specific type
+   *
+   * @param type     Type to check for
+   * @param provider The provider to use
+   * @return The provider factory
+   */
+  static SuggestionProviderFactory forHierarchyType(Class<?> type, SuggestionProvider provider) {
+    return parameter -> parameter.getType() == type || parameter.getType().isAssignableFrom(type)
+        ? provider : null;
+  }
 
 }

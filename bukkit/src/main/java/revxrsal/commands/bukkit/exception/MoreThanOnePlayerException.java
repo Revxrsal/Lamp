@@ -28,18 +28,18 @@ import lombok.Getter;
 import revxrsal.commands.exception.ThrowableFromCommand;
 
 /**
- * Thrown when a {@link org.bukkit.entity.Player} selector contains more than 1 player
- * entities (e.g. @e[type=players] will include all players)
+ * Thrown when a {@link org.bukkit.entity.Player} selector contains more than 1 player entities
+ * (e.g. @e[type=players] will include all players)
  */
 @Getter
 @AllArgsConstructor
 @ThrowableFromCommand
 public class MoreThanOnePlayerException extends RuntimeException {
 
-    /**
-     * The inputted value for the selector
-     */
-    private final String input;
+  /**
+   * The inputted value for the selector
+   */
+  private final String input;
 
 }
 

@@ -24,86 +24,105 @@ import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
 @Internal
 public final class BukkitActor implements BukkitCommandActor {
 
-    private static final UUID CONSOLE_UUID = UUID.nameUUIDFromBytes("CONSOLE".getBytes(StandardCharsets.UTF_8));
+  private static final UUID CONSOLE_UUID = UUID.nameUUIDFromBytes(
+      "CONSOLE".getBytes(StandardCharsets.UTF_8));
 
-    private final CommandSender sender;
-    private final BukkitHandler handler;
+  private final CommandSender sender;
+  private final BukkitHandler handler;
 
-    public BukkitActor(CommandSender sender, CommandHandler handler) {
-        this.sender = notNull(sender, "sender");
-        this.handler = (BukkitHandler) notNull(handler, "handler");
+  public BukkitActor(CommandSender sender, CommandHandler handler) {
+    this.sender = notNull(sender, "sender");
+    this.handler = (BukkitHandler) notNull(handler, "handler");
+  }
+
+  @Override
+  public @NotNull CommandSender getSender() {
+    return sender;
+  }
+
+  @Override
+  public boolean isPlayer() {
+    return sender instanceof Player;
+  }
+
+  @Override
+  public boolean isConsole() {
+    return sender instanceof ConsoleCommandSender;
+  }
+
+  @Override
+  public @Nullable Player getAsPlayer() {
+    return isPlayer() ? (Player) sender : null;
+  }
+
+  @Override
+  public @NotNull Player requirePlayer() {
+      if (!isPlayer()) {
+          throw new SenderNotPlayerException();
+      }
+    return (Player) sender;
+  }
+
+  @Override
+  public @NotNull ConsoleCommandSender requireConsole() {
+      if (!isConsole()) {
+          throw new SenderNotConsoleException();
+      }
+    return (ConsoleCommandSender) sender;
+  }
+
+  @Override
+  public @NotNull Audience audience() {
+      if (sender instanceof Audience) {
+          return (Audience) sender;
+      }
+    return handler.bukkitAudiences.sender(getSender());
+  }
+
+  @Override
+  public void reply(@NotNull ComponentLike component) {
+    audience().sendMessage(component);
+  }
+
+  @Override
+  public @NotNull String getName() {
+    return sender.getName();
+  }
+
+  @Override
+  public @NotNull UUID getUniqueId() {
+      if (isPlayer()) {
+          return ((Player) sender).getUniqueId();
+      } else if (isConsole()) {
+          return CONSOLE_UUID;
+      } else {
+          return UUID.nameUUIDFromBytes(getName().getBytes(StandardCharsets.UTF_8));
+      }
+  }
+
+  @Override
+  public void reply(@NotNull String message) {
+    notNull(message, "message");
+    if (BaseManager.getBaseSettings().colorScheme() != null) {
+      Text.tell(sender, BaseManager.getBaseSettings().colorScheme().getPrimary() + message);
+    } else {
+      Text.tell(sender, message);
     }
+  }
 
-    @Override public @NotNull CommandSender getSender() {
-        return sender;
-    }
+  @Override
+  public void error(@NotNull String message) {
+    notNull(message, "message");
+    Text.tell(sender, "&c" + message);
+  }
 
-    @Override public boolean isPlayer() {
-        return sender instanceof Player;
-    }
+  @Override
+  public BukkitCommandHandler getCommandHandler() {
+    return handler;
+  }
 
-    @Override public boolean isConsole() {
-        return sender instanceof ConsoleCommandSender;
-    }
-
-    @Override public @Nullable Player getAsPlayer() {
-        return isPlayer() ? (Player) sender : null;
-    }
-
-    @Override public @NotNull Player requirePlayer() {
-        if (!isPlayer())
-            throw new SenderNotPlayerException();
-        return (Player) sender;
-    }
-
-    @Override public @NotNull ConsoleCommandSender requireConsole() {
-        if (!isConsole())
-            throw new SenderNotConsoleException();
-        return (ConsoleCommandSender) sender;
-    }
-
-    @Override public @NotNull Audience audience() {
-        if (sender instanceof Audience)
-            return (Audience) sender;
-        return handler.bukkitAudiences.sender(getSender());
-    }
-
-    @Override public void reply(@NotNull ComponentLike component) {
-        audience().sendMessage(component);
-    }
-
-    @Override public @NotNull String getName() {
-        return sender.getName();
-    }
-
-    @Override public @NotNull UUID getUniqueId() {
-        if (isPlayer())
-            return ((Player) sender).getUniqueId();
-        else if (isConsole())
-            return CONSOLE_UUID;
-        else
-            return UUID.nameUUIDFromBytes(getName().getBytes(StandardCharsets.UTF_8));
-    }
-
-    @Override public void reply(@NotNull String message) {
-        notNull(message, "message");
-        if (BaseManager.getBaseSettings().colorScheme() != null) {
-            Text.tell(sender, BaseManager.getBaseSettings().colorScheme().getPrimary() + message);
-        } else {
-            Text.tell(sender, message);
-        }
-    }
-
-    @Override public void error(@NotNull String message) {
-        notNull(message, "message");
-        Text.tell(sender, "&c" + message);
-    }
-
-    @Override public BukkitCommandHandler getCommandHandler() {
-        return handler;
-    }
-
-    @Override public @NotNull Locale getLocale() {
-        return Text.getLocale(sender);
-    }
+  @Override
+  public @NotNull Locale getLocale() {
+    return Text.getLocale(sender);
+  }
 }

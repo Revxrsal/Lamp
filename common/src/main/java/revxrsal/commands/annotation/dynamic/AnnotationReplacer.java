@@ -23,23 +23,21 @@
  */
 package revxrsal.commands.annotation.dynamic;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.trait.CommandAnnotationHolder;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.util.Collection;
-
 /**
  * An interface that allows creating annotations that will get replaced by others.
  * <p>
- * This can be exceptionally powerful (and dangerous), as it can create dynamic
- * annotations, whose values are not restricted by static, compile-time known ones.
+ * This can be exceptionally powerful (and dangerous), as it can create dynamic annotations, whose
+ * values are not restricted by static, compile-time known ones.
  * <p>
- * It also allows building shortcut annotations, as well as
- * configurable values inside annotations.
+ * It also allows building shortcut annotations, as well as configurable values inside annotations.
  * <p>
  * Register with {@link CommandHandler#registerAnnotationReplacer(Class, AnnotationReplacer)}
  *
@@ -47,14 +45,15 @@ import java.util.Collection;
  */
 public interface AnnotationReplacer<T> {
 
-    /**
-     * Returns a collection of annotations that will substitute the given annotation,
-     * and be accessible in {@link CommandAnnotationHolder#getAnnotation(Class)}.
-     *
-     * @param element    The element (method, parameter, class, etc.)
-     * @param annotation The annotation to replace.
-     * @return The list of replacing annotations. The collection may be null or empty.
-     */
-    @Nullable Collection<Annotation> replaceAnnotations(@NotNull AnnotatedElement element, @NotNull T annotation);
+  /**
+   * Returns a collection of annotations that will substitute the given annotation, and be
+   * accessible in {@link CommandAnnotationHolder#getAnnotation(Class)}.
+   *
+   * @param element    The element (method, parameter, class, etc.)
+   * @param annotation The annotation to replace.
+   * @return The list of replacing annotations. The collection may be null or empty.
+   */
+  @Nullable Collection<Annotation> replaceAnnotations(@NotNull AnnotatedElement element,
+      @NotNull T annotation);
 
 }

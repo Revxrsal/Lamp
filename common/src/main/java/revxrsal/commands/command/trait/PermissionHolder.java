@@ -29,41 +29,40 @@ import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.exception.NoPermissionException;
 
 /**
- * Represents a command component (category, parameter, etc.) that may hold
- * its own permission.
+ * Represents a command component (category, parameter, etc.) that may hold its own permission.
  */
 public interface PermissionHolder {
 
-    /**
-     * Returns the required permission to access this component.
-     * <p>
-     * Note that not all components may be able to explicitly declare
-     * permissions, and some permissions will be inherited when appropriate.
-     *
-     * @return The command permission
-     */
-    @NotNull CommandPermission getPermission();
+  /**
+   * Returns the required permission to access this component.
+   * <p>
+   * Note that not all components may be able to explicitly declare permissions, and some
+   * permissions will be inherited when appropriate.
+   *
+   * @return The command permission
+   */
+  @NotNull CommandPermission getPermission();
 
-    /**
-     * Returns whether the given command actor has permission to use
-     * this component.
-     *
-     * @param actor Actor to check against
-     * @return {@code true} if they have the permission, false if otherwise.
-     */
-    default boolean hasPermission(@NotNull CommandActor actor) {
-        return getPermission().canExecute(actor);
-    }
+  /**
+   * Returns whether the given command actor has permission to use this component.
+   *
+   * @param actor Actor to check against
+   * @return {@code true} if they have the permission, false if otherwise.
+   */
+  default boolean hasPermission(@NotNull CommandActor actor) {
+    return getPermission().canExecute(actor);
+  }
 
-    /**
-     * Checks if the given command actor has this permission, otherwise
-     * throws a {@link NoPermissionException}
-     *
-     * @param actor Actor to check against.
-     */
-    default void checkPermission(@NotNull CommandActor actor) {
-        if (!getPermission().canExecute(actor))
-            throw new NoPermissionException(this, getPermission());
+  /**
+   * Checks if the given command actor has this permission, otherwise throws a
+   * {@link NoPermissionException}
+   *
+   * @param actor Actor to check against.
+   */
+  default void checkPermission(@NotNull CommandActor actor) {
+    if (!getPermission().canExecute(actor)) {
+      throw new NoPermissionException(this, getPermission());
     }
+  }
 
 }

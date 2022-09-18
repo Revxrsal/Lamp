@@ -26,19 +26,19 @@ package revxrsal.commands.exception;
 import revxrsal.commands.command.CommandActor;
 
 /**
- * An interface designed for exceptions that wish to handle themselves, without
- * having to be explicitly handled by an exception adapter.
+ * An interface designed for exceptions that wish to handle themselves, without having to be
+ * explicitly handled by an exception adapter.
  * <p>
- * This interface should <em>only</em> be implemented by exceptions,
- * as it does not expose any information about the exception being handled.
+ * This interface should <em>only</em> be implemented by exceptions, as it does not expose any
+ * information about the exception being handled.
  */
 public interface SelfHandledException {
 
-    /**
-     * Handles the exception.
-     *
-     * @param actor The command actor
-     */
-    void handle(CommandActor actor);
+  /**
+   * Handles the exception.
+   *
+   * @param actor The command actor
+   */
+  void handle(CommandActor actor);
 
 }

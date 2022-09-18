@@ -48,9 +48,9 @@ public final class Strings {
 
   public static @Nullable String getSnowflake(String mention) {
     Matcher matcher = SNOWFLAKE.matcher(mention);
-      if (matcher.find()) {
-          return matcher.group(2);
-      }
+    if (matcher.find()) {
+      return matcher.group(2);
+    }
     return null;
   }
 

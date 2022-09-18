@@ -36,56 +36,52 @@ import revxrsal.commands.command.CommandParameter;
  */
 public interface BukkitBrigadier {
 
-    /**
-     * Registers an argument type resolver for the given class. This
-     * will include subclasses as well.
-     *
-     * @param type     Type to register for
-     * @param resolver The argument type resolver
-     */
-    void bind(@NotNull Class<?> type, @NotNull ArgumentTypeResolver resolver);
+  /**
+   * Registers an argument type resolver for the given class. This will include subclasses as well.
+   *
+   * @param type     Type to register for
+   * @param resolver The argument type resolver
+   */
+  void bind(@NotNull Class<?> type, @NotNull ArgumentTypeResolver resolver);
 
-    /**
-     * Registers an argument type for the given class. This will
-     * include subclasses as well.
-     *
-     * @param type         Type to register for
-     * @param argumentType The argument type to register
-     * @see revxrsal.commands.bukkit.brigadier.MinecraftArgumentType
-     */
-    void bind(@NotNull Class<?> type, @NotNull ArgumentType<?> argumentType);
+  /**
+   * Registers an argument type for the given class. This will include subclasses as well.
+   *
+   * @param type         Type to register for
+   * @param argumentType The argument type to register
+   * @see revxrsal.commands.bukkit.brigadier.MinecraftArgumentType
+   */
+  void bind(@NotNull Class<?> type, @NotNull ArgumentType<?> argumentType);
 
-    /**
-     * Registers an argument type for the given class. This will
-     * include subclasses as well.
-     *
-     * @param type         Type to register for
-     * @param argumentType The argument type to register
-     * @see revxrsal.commands.bukkit.brigadier.MinecraftArgumentType
-     */
-    void bind(@NotNull Class<?> type, @NotNull MinecraftArgumentType argumentType);
+  /**
+   * Registers an argument type for the given class. This will include subclasses as well.
+   *
+   * @param type         Type to register for
+   * @param argumentType The argument type to register
+   * @see revxrsal.commands.bukkit.brigadier.MinecraftArgumentType
+   */
+  void bind(@NotNull Class<?> type, @NotNull MinecraftArgumentType argumentType);
 
-    /**
-     * Returns the argument type corresponding to the given parameter. If
-     * no resolver is able to handle this parameter, {@link StringArgumentType#greedyString()}
-     * will be returned.
-     *
-     * @param parameter Parameter to got for
-     * @return The argument type
-     */
-    @NotNull ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter);
+  /**
+   * Returns the argument type corresponding to the given parameter. If no resolver is able to
+   * handle this parameter, {@link StringArgumentType#greedyString()} will be returned.
+   *
+   * @param parameter Parameter to got for
+   * @return The argument type
+   */
+  @NotNull ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter);
 
-    /**
-     * Wraps Brigadier's command sender with the platform's appropriate {@link CommandActor}
-     *
-     * @param commandSource Source to wrap
-     * @return The wrapped command source
-     */
-    @NotNull CommandActor wrapSource(@NotNull Object commandSource);
+  /**
+   * Wraps Brigadier's command sender with the platform's appropriate {@link CommandActor}
+   *
+   * @param commandSource Source to wrap
+   * @return The wrapped command source
+   */
+  @NotNull CommandActor wrapSource(@NotNull Object commandSource);
 
-    /**
-     * Registers the command handler's brigadier
-     */
-    void register();
+  /**
+   * Registers the command handler's brigadier
+   */
+  void register();
 
 }

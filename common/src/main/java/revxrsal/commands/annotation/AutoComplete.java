@@ -1,18 +1,17 @@
 package revxrsal.commands.annotation;
 
-import revxrsal.commands.autocomplete.AutoCompleter;
-import revxrsal.commands.autocomplete.SuggestionProvider;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import revxrsal.commands.autocomplete.AutoCompleter;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 
 /**
  * Adds tab completion for the command.
  * <p>
- * Each value in {@link #value()} should be separated with a space, and can either be
- * contextual or static:
+ * Each value in {@link #value()} should be separated with a space, and can either be contextual or
+ * static:
  * <ul>
  *     <li>
  *         If it is contextual, it should be prefixed with <code>@</code> and
@@ -34,13 +33,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AutoComplete {
 
-    /**
-     * The tab completion value, by order.
-     *
-     * @return The tab completion. Check the class documentation
-     * for more information.
-     */
+  /**
+   * The tab completion value, by order.
+   *
+   * @return The tab completion. Check the class documentation for more information.
+   */
 //    @Pattern("@?([\\w]+)\\|?")
-    String value();
+  String value();
 
 }

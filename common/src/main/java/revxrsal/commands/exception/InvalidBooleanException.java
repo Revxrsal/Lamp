@@ -8,7 +8,7 @@ import revxrsal.commands.command.CommandParameter;
  */
 public class InvalidBooleanException extends InvalidValueException {
 
-    public InvalidBooleanException(@NotNull CommandParameter parameter, @NotNull String input) {
-        super(parameter, input);
-    }
+  public InvalidBooleanException(@NotNull CommandParameter parameter, @NotNull String input) {
+    super(parameter, input);
+  }
 }

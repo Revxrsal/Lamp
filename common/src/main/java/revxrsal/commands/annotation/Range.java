@@ -29,8 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation that marks a numerical parameter as required to be in a specific
- * range
+ * An annotation that marks a numerical parameter as required to be in a specific range
  *
  * @see revxrsal.commands.exception.NumberNotInRangeException
  */
@@ -38,18 +37,18 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Range {
 
-    /**
-     * The minimum value allowed for this parameter
-     *
-     * @return The minimum value
-     */
-    double min() default Double.MIN_VALUE;
+  /**
+   * The minimum value allowed for this parameter
+   *
+   * @return The minimum value
+   */
+  double min() default Double.MIN_VALUE;
 
-    /**
-     * The maximum value allowed for this parameter
-     *
-     * @return The maximum value
-     */
-    double max() default Double.MAX_VALUE;
+  /**
+   * The maximum value allowed for this parameter
+   *
+   * @return The maximum value
+   */
+  double max() default Double.MAX_VALUE;
 
 }

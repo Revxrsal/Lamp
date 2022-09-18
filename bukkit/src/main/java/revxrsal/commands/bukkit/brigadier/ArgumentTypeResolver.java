@@ -30,22 +30,21 @@ import revxrsal.commands.bukkit.BukkitBrigadier;
 import revxrsal.commands.command.CommandParameter;
 
 /**
- * A resolver that creates dedicated {@link ArgumentType}s for parameters. This
- * can read annotations and other information to construct a suitable argument
- * type.
+ * A resolver that creates dedicated {@link ArgumentType}s for parameters. This can read annotations
+ * and other information to construct a suitable argument type.
  * <p>
  * Register with {@link BukkitBrigadier#bind(Class, ArgumentTypeResolver)}.
  */
 @FunctionalInterface
 public interface ArgumentTypeResolver {
 
-    /**
-     * Returns the argument type for the given parameter. If this resolver
-     * cannot deal with the parameter, it may return null.
-     *
-     * @param parameter Parameter to create for
-     * @return The argument type
-     */
-    @Nullable ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter);
+  /**
+   * Returns the argument type for the given parameter. If this resolver cannot deal with the
+   * parameter, it may return null.
+   *
+   * @param parameter Parameter to create for
+   * @return The argument type
+   */
+  @Nullable ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter);
 
 }

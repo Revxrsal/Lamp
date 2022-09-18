@@ -14,4 +14,6 @@ import java.util.function.Supplier;
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Dependency {}
+public @interface Dependency {
+
+}

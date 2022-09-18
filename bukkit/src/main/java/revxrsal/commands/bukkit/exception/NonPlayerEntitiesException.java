@@ -28,18 +28,18 @@ import lombok.Getter;
 import revxrsal.commands.exception.ThrowableFromCommand;
 
 /**
- * Thrown when a {@link org.bukkit.entity.Player} selector contains non-player
- * entities (e.g. @e[type=cow] will include cows)
+ * Thrown when a {@link org.bukkit.entity.Player} selector contains non-player entities (e.g.
+ * @e[type=cow] will include cows)
  */
 @Getter
 @AllArgsConstructor
 @ThrowableFromCommand
 public class NonPlayerEntitiesException extends RuntimeException {
 
-    /**
-     * The inputted value for the selector
-     */
-    private final String input;
+  /**
+   * The inputted value for the selector
+   */
+  private final String input;
 
 }
 

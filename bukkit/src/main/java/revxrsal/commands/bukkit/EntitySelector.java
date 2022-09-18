@@ -23,15 +23,16 @@
  */
 package revxrsal.commands.bukkit;
 
+import java.util.List;
 import org.bukkit.entity.Entity;
 
-import java.util.List;
-
 /**
- * A parameter that allows entity selectors, such as '@a', '@p', '@s', '@r', '@e[name=Foo]'
- * or player names individually.
+ * A parameter that allows entity selectors, such as '@a', '@p', '@s', '@r', '@e[name=Foo]' or
+ * player names individually.
  * <p>
- * Note that this selector ONLY works on 1.13+. Unfortunately, Bukkit provides no other
- * ways for parsing selectors on older versions.
+ * Note that this selector ONLY works on 1.13+. Unfortunately, Bukkit provides no other ways for
+ * parsing selectors on older versions.
  */
-public interface EntitySelector<E extends Entity> extends List<E> {}
+public interface EntitySelector<E extends Entity> extends List<E> {
+
+}

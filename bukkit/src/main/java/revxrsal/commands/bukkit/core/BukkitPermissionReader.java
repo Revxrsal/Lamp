@@ -9,12 +9,16 @@ import revxrsal.commands.command.trait.CommandAnnotationHolder;
 import revxrsal.commands.process.PermissionReader;
 
 enum BukkitPermissionReader implements PermissionReader {
-    INSTANCE;
+  INSTANCE;
 
-    @Override public @Nullable revxrsal.commands.command.CommandPermission getPermission(@NotNull CommandAnnotationHolder command) {
-        CommandPermission permissionAnn = command.getAnnotation(CommandPermission.class);
-        if (permissionAnn == null)
-            return null;
-        return new BukkitCommandPermission(new Permission(permissionAnn.value(), permissionAnn.defaultAccess()));
+  @Override
+  public @Nullable revxrsal.commands.command.CommandPermission getPermission(
+      @NotNull CommandAnnotationHolder command) {
+    CommandPermission permissionAnn = command.getAnnotation(CommandPermission.class);
+    if (permissionAnn == null) {
+      return null;
     }
+    return new BukkitCommandPermission(
+        new Permission(permissionAnn.value(), permissionAnn.defaultAccess()));
+  }
 }

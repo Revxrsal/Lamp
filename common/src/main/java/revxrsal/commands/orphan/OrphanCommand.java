@@ -24,8 +24,8 @@
 package revxrsal.commands.orphan;
 
 /**
- * Represents a command that has no parent known at compile-time. Classes
- * that wish to set the command path at runtime should implement this interface.
+ * Represents a command that has no parent known at compile-time. Classes that wish to set the
+ * command path at runtime should implement this interface.
  * <p>
  * Example implementation:
  * <pre>{@code
@@ -47,4 +47,6 @@ package revxrsal.commands.orphan;
  *
  * @see Orphans
  */
-public interface OrphanCommand {}
+public interface OrphanCommand {
+
+}

@@ -1,11 +1,10 @@
 package revxrsal.commands.annotation;
 
-import revxrsal.commands.command.ExecutableCommand;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import revxrsal.commands.command.ExecutableCommand;
 
 /**
  * An annotation to give the {@link ExecutableCommand} a usage.
@@ -19,11 +18,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Usage {
 
-    /**
-     * The command usage
-     *
-     * @return The usage
-     */
-    String value();
+  /**
+   * The command usage
+   *
+   * @return The usage
+   */
+  String value();
 
 }

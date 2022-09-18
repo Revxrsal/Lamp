@@ -2,10 +2,6 @@ package revxrsal.commands.core;
 
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.ArgumentStack;
-import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.CommandParameter;
-import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.ContextResolver;
 import revxrsal.commands.process.ContextResolver.ContextResolverContext;
 import revxrsal.commands.process.ParameterResolver;
@@ -14,34 +10,35 @@ import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 
 final class Resolver implements ParameterResolver<Object> {
 
-    private final boolean mutates;
+  private final boolean mutates;
 
-    private final ContextResolver<?> contextResolver;
-    private final ValueResolver<?> valueResolver;
+  private final ContextResolver<?> contextResolver;
+  private final ValueResolver<?> valueResolver;
 
-    public Resolver(ContextResolver<?> contextResolver, ValueResolver<?> valueResolver) {
-        this.contextResolver = contextResolver;
-        this.valueResolver = valueResolver;
-        mutates = valueResolver != null;
+  public Resolver(ContextResolver<?> contextResolver, ValueResolver<?> valueResolver) {
+    this.contextResolver = contextResolver;
+    this.valueResolver = valueResolver;
+    mutates = valueResolver != null;
+  }
+
+  @Override
+  public boolean mutatesArguments() {
+    return mutates;
+  }
+
+  @SneakyThrows
+  public Object resolve(@NotNull ParameterResolverContext context) {
+    if (valueResolver != null) {
+      return valueResolver.resolve((ValueResolverContext) context);
     }
+    return contextResolver.resolve((ContextResolverContext) context);
+  }
 
-    @Override public boolean mutatesArguments() {
-        return mutates;
+  public static Resolver wrap(Object resolver) {
+    if (resolver instanceof ValueResolver) {
+      return new Resolver(null, (ValueResolver<?>) resolver);
     }
-
-    @SneakyThrows
-    public Object resolve(@NotNull ParameterResolverContext context) {
-        if (valueResolver != null) {
-            return valueResolver.resolve((ValueResolverContext) context);
-        }
-        return contextResolver.resolve((ContextResolverContext) context);
-    }
-
-    public static Resolver wrap(Object resolver) {
-        if (resolver instanceof ValueResolver) {
-            return new Resolver(null, (ValueResolver<?>) resolver);
-        }
-        return new Resolver((ContextResolver<?>) resolver, null);
-    }
+    return new Resolver((ContextResolver<?>) resolver, null);
+  }
 
 }

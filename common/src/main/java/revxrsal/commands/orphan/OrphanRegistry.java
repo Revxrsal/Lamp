@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.orphan;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,13 +32,11 @@ import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.core.CommandPath;
 
-import java.util.List;
-
 /**
  * Represents an orphan command that has finally found its parent path.
  * <p>
- * Instances of this method can be safely passed to {@link CommandHandler#register(Object...)}
- * to be registered.
+ * Instances of this method can be safely passed to {@link CommandHandler#register(Object...)} to be
+ * registered.
  * <p>
  * This should be constructed using {@link Orphans}'s methods.
  */
@@ -45,14 +44,14 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 public final class OrphanRegistry {
 
-    /**
-     * The command paths
-     */
-    private final @NotNull @Unmodifiable List<CommandPath> parentPaths;
+  /**
+   * The command paths
+   */
+  private final @NotNull @Unmodifiable List<CommandPath> parentPaths;
 
-    /**
-     * The orphan command handler
-     */
-    private final @NotNull OrphanCommand handler;
+  /**
+   * The orphan command handler
+   */
+  private final @NotNull OrphanCommand handler;
 
 }

@@ -14,18 +14,18 @@ import java.util.concurrent.TimeUnit;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Cooldown {
 
-    /**
-     * The cooldown value
-     *
-     * @return The command cooldown value
-     */
-    long value();
+  /**
+   * The cooldown value
+   *
+   * @return The command cooldown value
+   */
+  long value();
 
-    /**
-     * The time unit in which the cooldown goes for.
-     *
-     * @return The time unit for the cooldown
-     */
-    TimeUnit unit() default TimeUnit.SECONDS;
+  /**
+   * The time unit in which the cooldown goes for.
+   *
+   * @return The time unit for the cooldown
+   */
+  TimeUnit unit() default TimeUnit.SECONDS;
 
 }

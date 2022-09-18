@@ -37,19 +37,19 @@ import revxrsal.commands.exception.ThrowableFromCommand;
 @ThrowableFromCommand
 public class MalformedEntitySelectorException extends RuntimeException {
 
-    /**
-     * The command actor
-     */
-    private final CommandActor actor;
+  /**
+   * The command actor
+   */
+  private final CommandActor actor;
 
-    /**
-     * The inputted value for the selector
-     */
-    private final String input;
+  /**
+   * The inputted value for the selector
+   */
+  private final String input;
 
-    /**
-     * The syntax error message
-     */
-    private final String errorMessage;
+  /**
+   * The syntax error message
+   */
+  private final String errorMessage;
 
 }

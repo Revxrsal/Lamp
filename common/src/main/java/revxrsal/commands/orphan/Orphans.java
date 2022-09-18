@@ -23,6 +23,12 @@
  */
 package revxrsal.commands.orphan;
 
+import static revxrsal.commands.util.Preconditions.notNull;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
@@ -30,18 +36,11 @@ import revxrsal.commands.annotation.Command;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.util.Strings;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static revxrsal.commands.util.Preconditions.notNull;
-
 /**
  * Represents the entrypoint to creation of {@link OrphanCommand}s.
  * <p>
- * Methods {@link #path(String)}, {@link #path(String...)} have the same exact
- * behavior as {@link Command} annotations.
+ * Methods {@link #path(String)}, {@link #path(String...)} have the same exact behavior as
+ * {@link Command} annotations.
  *
  * <pre>
  * {@code
@@ -63,67 +62,62 @@ import static revxrsal.commands.util.Preconditions.notNull;
 @AllArgsConstructor
 public final class Orphans {
 
-    /**
-     * Starts the registration of an orphan command. The input for
-     * this method has exactly the same behavior as {@link Command}.
-     * <p>
-     * {@code
-     * - @Command("foo bar") -> Orphans.path("foo bar")
-     * }
-     *
-     * @param path The command path. This accepts spaces for commands
-     *             with subcategories.
-     * @return A builder {@link Orphans}. You must call {@link #handler(OrphanCommand)} after.
-     */
-    public static Orphans path(@NotNull String path) {
-        notNull(path, "path");
-        return new Orphans(Collections.singletonList(CommandPath.get(Strings.splitBySpace(path.trim()))));
-    }
+  /**
+   * Starts the registration of an orphan command. The input for this method has exactly the same
+   * behavior as {@link Command}.
+   * <p>
+   * {@code - @Command("foo bar") -> Orphans.path("foo bar") }
+   *
+   * @param path The command path. This accepts spaces for commands with subcategories.
+   * @return A builder {@link Orphans}. You must call {@link #handler(OrphanCommand)} after.
+   */
+  public static Orphans path(@NotNull String path) {
+    notNull(path, "path");
+    return new Orphans(
+        Collections.singletonList(CommandPath.get(Strings.splitBySpace(path.trim()))));
+  }
 
-    /**
-     * Starts the registration of an orphan command. The input for
-     * this method has exactly the same behavior as {@link Command}.
-     * <p>
-     * {@code
-     * - @Command("foo", "bar") -> Orphans.path("foo", "bar")
-     * }
-     *
-     * @param paths The command paths. These accept spaces for commands
-     *              with subcategories.
-     * @return A builder {@link Orphans}. You must call {@link #handler(OrphanCommand)} after.
-     */
-    public static Orphans path(@NotNull String... paths) {
-        notNull(paths, "paths");
-        return new Orphans(Arrays.stream(paths)
-                .map(text -> Strings.splitBySpace(text.trim()))
-                .map(CommandPath::get)
-                .collect(Collectors.toList()));
-    }
+  /**
+   * Starts the registration of an orphan command. The input for this method has exactly the same
+   * behavior as {@link Command}.
+   * <p>
+   * {@code - @Command("foo", "bar") -> Orphans.path("foo", "bar") }
+   *
+   * @param paths The command paths. These accept spaces for commands with subcategories.
+   * @return A builder {@link Orphans}. You must call {@link #handler(OrphanCommand)} after.
+   */
+  public static Orphans path(@NotNull String... paths) {
+    notNull(paths, "paths");
+    return new Orphans(Arrays.stream(paths)
+        .map(text -> Strings.splitBySpace(text.trim()))
+        .map(CommandPath::get)
+        .collect(Collectors.toList()));
+  }
 
-    /**
-     * Starts the registration of an orphan command.
-     *
-     * @param path The command path. See {@link CommandPath}.
-     * @return A builder {@link Orphans}. You must call {@link #handler(OrphanCommand)} after.
-     */
-    public static Orphans path(@NotNull CommandPath path) {
-        notNull(path, "path");
-        return new Orphans(Collections.singletonList(path));
-    }
+  /**
+   * Starts the registration of an orphan command.
+   *
+   * @param path The command path. See {@link CommandPath}.
+   * @return A builder {@link Orphans}. You must call {@link #handler(OrphanCommand)} after.
+   */
+  public static Orphans path(@NotNull CommandPath path) {
+    notNull(path, "path");
+    return new Orphans(Collections.singletonList(path));
+  }
 
-    /**
-     * Sets the handler of this orphan command. This can be any class, however it must
-     * implement {@link OrphanCommand}.
-     *
-     * @param handler The command class logic.
-     * @return An {@link OrphanRegistry} that can be passed to {@link CommandHandler#register(Object...)}
-     * to be registered.
-     */
-    public OrphanRegistry handler(OrphanCommand handler) {
-        notNull(handler, "orphan command");
-        return new OrphanRegistry(path, handler);
-    }
+  /**
+   * Sets the handler of this orphan command. This can be any class, however it must implement
+   * {@link OrphanCommand}.
+   *
+   * @param handler The command class logic.
+   * @return An {@link OrphanRegistry} that can be passed to
+   * {@link CommandHandler#register(Object...)} to be registered.
+   */
+  public OrphanRegistry handler(OrphanCommand handler) {
+    notNull(handler, "orphan command");
+    return new OrphanRegistry(path, handler);
+  }
 
-    private final List<CommandPath> path;
+  private final List<CommandPath> path;
 
 }

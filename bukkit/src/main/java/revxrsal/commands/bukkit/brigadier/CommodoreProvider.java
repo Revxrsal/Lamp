@@ -25,85 +25,86 @@
 
 package revxrsal.commands.bukkit.brigadier;
 
-import org.bukkit.plugin.Plugin;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.function.Function;
+import org.bukkit.plugin.Plugin;
 
 /**
  * Factory for obtaining instances of {@link Commodore}.
  */
 public final class CommodoreProvider {
 
-    private CommodoreProvider() {
-        throw new AssertionError();
+  private CommodoreProvider() {
+    throw new AssertionError();
+  }
+
+  private static final Function<Plugin, Commodore> PROVIDER = checkSupported();
+
+  private static Function<Plugin, Commodore> checkSupported() {
+    try {
+      Class.forName("com.mojang.brigadier.CommandDispatcher");
+    } catch (Throwable e) {
+      printDebugInfo(e);
+      return null;
     }
 
-    private static final Function<Plugin, Commodore> PROVIDER = checkSupported();
+    // try reflection impl
+    try {
+      ReflectionCommodore.ensureSetup();
+      return ReflectionCommodore::new;
+    } catch (Throwable e) {
+      printDebugInfo(e);
+    }
 
-    private static Function<Plugin, Commodore> checkSupported() {
+    // try the paper impl
+    try {
+      Constructor<? extends Commodore> ctr = Class.forName(
+              "revxrsal.commands.bukkit.brigadier.PaperCommodore")
+          .asSubclass(Commodore.class)
+          .getDeclaredConstructor(Plugin.class);
+      if (!ctr.isAccessible()) {
+        ctr.setAccessible(true);
+      }
+      return plugin -> {
         try {
-            Class.forName("com.mojang.brigadier.CommandDispatcher");
-        } catch (Throwable e) {
-            printDebugInfo(e);
-            return null;
+          return ctr.newInstance(plugin);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+          throw new RuntimeException(e);
         }
-
-        // try reflection impl
-        try {
-            ReflectionCommodore.ensureSetup();
-            return ReflectionCommodore::new;
-        } catch (Throwable e) {
-            printDebugInfo(e);
-        }
-
-        // try the paper impl
-        try {
-            Constructor<? extends Commodore> ctr = Class.forName("revxrsal.commands.bukkit.brigadier.PaperCommodore")
-                    .asSubclass(Commodore.class)
-                    .getDeclaredConstructor(Plugin.class);
-            if (!ctr.isAccessible())
-                ctr.setAccessible(true);
-            return plugin -> {
-                try {
-                    return ctr.newInstance(plugin);
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-            };
-        } catch (Throwable e) {
-            printDebugInfo(e);
-        }
-
-        return null;
+      };
+    } catch (Throwable e) {
+      printDebugInfo(e);
     }
 
-    private static void printDebugInfo(Throwable e) {
-        if (System.getProperty("commodore.debug") != null) {
-            System.err.println("Exception while initialising commodore:");
-            e.printStackTrace(System.err);
-        }
-    }
+    return null;
+  }
 
-    /**
-     * Checks to see if the Brigadier command system is supported by the server.
-     *
-     * @return true if commodore is supported.
-     */
-    public static boolean isSupported() {
-        return PROVIDER != null;
+  private static void printDebugInfo(Throwable e) {
+    if (System.getProperty("commodore.debug") != null) {
+      System.err.println("Exception while initialising commodore:");
+      e.printStackTrace(System.err);
     }
+  }
 
-    /**
-     * Obtains a {@link Commodore} instance for the given plugin.
-     *
-     * @param plugin the plugin
-     * @return the commodore instance
-     */
-    public static Commodore getCommodore(Plugin plugin) {
-        Objects.requireNonNull(plugin, "plugin");
-        return PROVIDER == null ? null : PROVIDER.apply(plugin);
-    }
+  /**
+   * Checks to see if the Brigadier command system is supported by the server.
+   *
+   * @return true if commodore is supported.
+   */
+  public static boolean isSupported() {
+    return PROVIDER != null;
+  }
+
+  /**
+   * Obtains a {@link Commodore} instance for the given plugin.
+   *
+   * @param plugin the plugin
+   * @return the commodore instance
+   */
+  public static Commodore getCommodore(Plugin plugin) {
+    Objects.requireNonNull(plugin, "plugin");
+    return PROVIDER == null ? null : PROVIDER.apply(plugin);
+  }
 }

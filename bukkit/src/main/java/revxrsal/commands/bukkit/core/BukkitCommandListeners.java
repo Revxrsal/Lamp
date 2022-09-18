@@ -30,15 +30,17 @@ import revxrsal.commands.bukkit.BukkitCommandHandler;
 
 final class BukkitCommandListeners implements Listener {
 
-    private final BukkitCommandHandler handler;
+  private final BukkitCommandHandler handler;
 
-    public BukkitCommandListeners(BukkitCommandHandler handler) {
-        this.handler = handler;
-    }
+  public BukkitCommandListeners(BukkitCommandHandler handler) {
+    this.handler = handler;
+  }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onPluginDisable(PluginDisableEvent event) {
-        if (!event.getPlugin().equals(handler.getPlugin())) return;
-        handler.unregisterAllCommands();
+  @EventHandler(ignoreCancelled = true)
+  public void onPluginDisable(PluginDisableEvent event) {
+    if (!event.getPlugin().equals(handler.getPlugin())) {
+      return;
     }
+    handler.unregisterAllCommands();
+  }
 }

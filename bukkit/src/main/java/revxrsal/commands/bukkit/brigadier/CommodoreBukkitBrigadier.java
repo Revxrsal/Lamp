@@ -23,6 +23,14 @@
  */
 package revxrsal.commands.bukkit.brigadier;
 
+import static revxrsal.commands.bukkit.brigadier.CommodoreProvider.isSupported;
+import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.BOOLEAN;
+import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.ENTITY_SELECTOR;
+import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.NUMBER;
+import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.PLAYER;
+import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.STRING;
+import static revxrsal.commands.util.Preconditions.notNull;
+
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -38,77 +46,83 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.util.ClassMap;
 
-import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.*;
-import static revxrsal.commands.bukkit.brigadier.CommodoreProvider.isSupported;
-import static revxrsal.commands.util.Preconditions.notNull;
-
 public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
-    private final BukkitCommandHandler handler;
+  private final BukkitCommandHandler handler;
 
-    private final Commodore commodore;
-    private final ClassMap<ArgumentTypeResolver> argumentTypes = new ClassMap<>();
+  private final Commodore commodore;
+  private final ClassMap<ArgumentTypeResolver> argumentTypes = new ClassMap<>();
 
-    public CommodoreBukkitBrigadier(BukkitCommandHandler handler) {
-        this.handler = handler;
-        commodore = CommodoreProvider.getCommodore(handler.getPlugin());
-        if (isSupported()) {
-            bind(String.class, STRING);
-            bind(Number.class, NUMBER);
-            bind(Boolean.class, BOOLEAN);
-            bind(Player.class, PLAYER);
-            bind(EntitySelector.class, ENTITY_SELECTOR);
-        }
+  public CommodoreBukkitBrigadier(BukkitCommandHandler handler) {
+    this.handler = handler;
+    commodore = CommodoreProvider.getCommodore(handler.getPlugin());
+    if (isSupported()) {
+      bind(String.class, STRING);
+      bind(Number.class, NUMBER);
+      bind(Boolean.class, BOOLEAN);
+      bind(Player.class, PLAYER);
+      bind(EntitySelector.class, ENTITY_SELECTOR);
     }
+  }
 
-    @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentTypeResolver resolver) {
-        notNull(type, "type");
-        notNull(resolver, "resolver");
-        argumentTypes.add(type, resolver);
-    }
+  @Override
+  public void bind(@NotNull Class<?> type, @NotNull ArgumentTypeResolver resolver) {
+    notNull(type, "type");
+    notNull(resolver, "resolver");
+    argumentTypes.add(type, resolver);
+  }
 
-    @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentType<?> argumentType) {
-        notNull(type, "type");
-        notNull(argumentType, "argument type");
-        argumentTypes.add(type, parameter -> argumentType);
-    }
+  @Override
+  public void bind(@NotNull Class<?> type, @NotNull ArgumentType<?> argumentType) {
+    notNull(type, "type");
+    notNull(argumentType, "argument type");
+    argumentTypes.add(type, parameter -> argumentType);
+  }
 
-    @Override public void bind(@NotNull Class<?> type, @NotNull MinecraftArgumentType argumentType) {
-        notNull(type, "type");
-        notNull(argumentType, "argument type");
-        argumentType.getIfPresent().ifPresent(c -> argumentTypes.add(type, parameter -> c));
-    }
+  @Override
+  public void bind(@NotNull Class<?> type, @NotNull MinecraftArgumentType argumentType) {
+    notNull(type, "type");
+    notNull(argumentType, "argument type");
+    argumentType.getIfPresent().ifPresent(c -> argumentTypes.add(type, parameter -> c));
+  }
 
-    public @NotNull ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {
-        ArgumentTypeResolver resolver = argumentTypes.getFlexible(parameter.getType());
-        if (resolver != null) {
-            ArgumentType<?> type = resolver.getArgumentType(parameter);
-            if (type != null)
-                return type;
-        }
-        return StringArgumentType.string();
+  public @NotNull ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {
+    ArgumentTypeResolver resolver = argumentTypes.getFlexible(parameter.getType());
+    if (resolver != null) {
+      ArgumentType<?> type = resolver.getArgumentType(parameter);
+      if (type != null) {
+        return type;
+      }
     }
+    return StringArgumentType.string();
+  }
 
-    private void checkSupported() {
-        if (commodore == null)
-            throw new IllegalArgumentException("Brigadier is not supported on this version.");
+  private void checkSupported() {
+    if (commodore == null) {
+      throw new IllegalArgumentException("Brigadier is not supported on this version.");
     }
+  }
 
-    @Override public @NotNull CommandActor wrapSource(@NotNull Object commandSource) {
-        checkSupported();
-        return new BukkitActor(commodore.getBukkitSender(commandSource), handler);
-    }
+  @Override
+  public @NotNull CommandActor wrapSource(@NotNull Object commandSource) {
+    checkSupported();
+    return new BukkitActor(commodore.getBukkitSender(commandSource), handler);
+  }
 
-    @Override public void register() {
-        if (!isSupported()) return;
-        BrigadierTreeParser.parse(this, handler).forEach(n -> register(n.build()));
+  @Override
+  public void register() {
+    if (!isSupported()) {
+      return;
     }
+    BrigadierTreeParser.parse(this, handler).forEach(n -> register(n.build()));
+  }
 
-    private void register(@NotNull LiteralCommandNode<?> node) {
-        Command command = ((JavaPlugin) handler.getPlugin()).getCommand(node.getLiteral());
-        if (command == null)
-            commodore.register(node);
-        else
-            commodore.register(command, node);
+  private void register(@NotNull LiteralCommandNode<?> node) {
+    Command command = ((JavaPlugin) handler.getPlugin()).getCommand(node.getLiteral());
+    if (command == null) {
+      commodore.register(node);
+    } else {
+      commodore.register(command, node);
     }
+  }
 }

@@ -45,127 +45,133 @@ import revxrsal.commands.exception.ArgumentParseException;
  */
 public final class QuotedStringTokenizer implements ArgumentParser {
 
-    public static final QuotedStringTokenizer INSTANCE = new QuotedStringTokenizer();
+  public static final QuotedStringTokenizer INSTANCE = new QuotedStringTokenizer();
 
-    private QuotedStringTokenizer() {}
+  private QuotedStringTokenizer() {
+  }
 
-    private static final int CHAR_BACKSLASH = '\\';
-    private static final int CHAR_SINGLE_QUOTE = '\'';
-    private static final int CHAR_DOUBLE_QUOTE = '"';
+  private static final int CHAR_BACKSLASH = '\\';
+  private static final int CHAR_SINGLE_QUOTE = '\'';
+  private static final int CHAR_DOUBLE_QUOTE = '"';
 
-    @Override public ArgumentStack parse(@NotNull String arguments) throws ArgumentParseException {
-        if (arguments.length() == 0) {
-            return ArgumentStack.empty();
-        }
-        TokenizerState state = new TokenizerState(arguments);
-        ArgumentStack returnedArgs = ArgumentStack.empty();
-        while (state.hasMore()) {
-            skipWhiteSpace(state);
-            String arg = nextArg(state);
-            returnedArgs.add(arg);
-        }
-        return returnedArgs;
+  @Override
+  public ArgumentStack parse(@NotNull String arguments) throws ArgumentParseException {
+    if (arguments.length() == 0) {
+      return ArgumentStack.empty();
+    }
+    TokenizerState state = new TokenizerState(arguments);
+    ArgumentStack returnedArgs = ArgumentStack.empty();
+    while (state.hasMore()) {
+      skipWhiteSpace(state);
+      String arg = nextArg(state);
+      returnedArgs.add(arg);
+    }
+    return returnedArgs;
+  }
+
+  private void skipWhiteSpace(TokenizerState state) throws ArgumentParseException {
+    if (!state.hasMore()) {
+      return;
+    }
+    while (state.hasMore() && Character.isWhitespace(state.peek())) {
+      state.next();
+    }
+  }
+
+  private String nextArg(TokenizerState state) throws ArgumentParseException {
+    StringBuilder argBuilder = new StringBuilder();
+    if (state.hasMore()) {
+      int codePoint = state.peek();
+      if (codePoint == CHAR_DOUBLE_QUOTE || codePoint == CHAR_SINGLE_QUOTE) {
+        // quoted string
+        parseQuotedString(state, codePoint, argBuilder);
+      } else {
+        parseUnquotedString(state, argBuilder);
+      }
+    }
+    return argBuilder.toString();
+  }
+
+  private void parseQuotedString(TokenizerState state, int startQuotation, StringBuilder builder)
+      throws ArgumentParseException {
+    // Consume the start quotation character
+    int nextCodePoint = state.next();
+    if (nextCodePoint != startQuotation) {
+      throw state.createException(String.format(
+          "Actual next character '%c' did not match expected quotation character '%c'",
+          nextCodePoint, startQuotation));
     }
 
-    private void skipWhiteSpace(TokenizerState state) throws ArgumentParseException {
-        if (!state.hasMore()) {
-            return;
-        }
-        while (state.hasMore() && Character.isWhitespace(state.peek())) {
-            state.next();
-        }
-    }
-
-    private String nextArg(TokenizerState state) throws ArgumentParseException {
-        StringBuilder argBuilder = new StringBuilder();
-        if (state.hasMore()) {
-            int codePoint = state.peek();
-            if (codePoint == CHAR_DOUBLE_QUOTE || codePoint == CHAR_SINGLE_QUOTE) {
-                // quoted string
-                parseQuotedString(state, codePoint, argBuilder);
-            } else {
-                parseUnquotedString(state, argBuilder);
-            }
-        }
-        return argBuilder.toString();
-    }
-
-    private void parseQuotedString(TokenizerState state, int startQuotation, StringBuilder builder) throws ArgumentParseException {
-        // Consume the start quotation character
-        int nextCodePoint = state.next();
-        if (nextCodePoint != startQuotation) {
-            throw state.createException(String.format("Actual next character '%c' did not match expected quotation character '%c'",
-                    nextCodePoint, startQuotation));
-        }
-
-        while (true) {
-            if (!state.hasMore()) {
-                return;
-            }
-            nextCodePoint = state.peek();
-            if (nextCodePoint == startQuotation) {
-                state.next();
-                return;
-            } else if (nextCodePoint == CHAR_BACKSLASH) {
-                parseEscape(state, builder);
-            } else {
-                builder.appendCodePoint(state.next());
-            }
-        }
-    }
-
-    private void parseUnquotedString(TokenizerState state, StringBuilder builder) throws ArgumentParseException {
-        while (state.hasMore()) {
-            int nextCodePoint = state.peek();
-            if (Character.isWhitespace(nextCodePoint)) {
-                return;
-            } else if (nextCodePoint == CHAR_BACKSLASH) {
-                parseEscape(state, builder);
-            } else {
-                builder.appendCodePoint(state.next());
-            }
-        }
-    }
-
-    private static void parseEscape(TokenizerState state, StringBuilder builder) throws ArgumentParseException {
-        state.next(); // Consume \
+    while (true) {
+      if (!state.hasMore()) {
+        return;
+      }
+      nextCodePoint = state.peek();
+      if (nextCodePoint == startQuotation) {
+        state.next();
+        return;
+      } else if (nextCodePoint == CHAR_BACKSLASH) {
+        parseEscape(state, builder);
+      } else {
         builder.appendCodePoint(state.next());
+      }
+    }
+  }
+
+  private void parseUnquotedString(TokenizerState state, StringBuilder builder)
+      throws ArgumentParseException {
+    while (state.hasMore()) {
+      int nextCodePoint = state.peek();
+      if (Character.isWhitespace(nextCodePoint)) {
+        return;
+      } else if (nextCodePoint == CHAR_BACKSLASH) {
+        parseEscape(state, builder);
+      } else {
+        builder.appendCodePoint(state.next());
+      }
+    }
+  }
+
+  private static void parseEscape(TokenizerState state, StringBuilder builder)
+      throws ArgumentParseException {
+    state.next(); // Consume \
+    builder.appendCodePoint(state.next());
+  }
+
+  private static class TokenizerState {
+
+    private final String buffer;
+    private int index = -1;
+
+    TokenizerState(String buffer) {
+      this.buffer = buffer;
     }
 
-    private static class TokenizerState {
-
-        private final String buffer;
-        private int index = -1;
-
-        TokenizerState(String buffer) {
-            this.buffer = buffer;
-        }
-
-        // Utility methods
-        public boolean hasMore() {
-            return index + 1 < buffer.length();
-        }
-
-        public int peek() throws ArgumentParseException {
-            if (!hasMore()) {
-                throw createException("Buffer overrun while parsing args");
-            }
-            return buffer.codePointAt(index + 1);
-        }
-
-        public int next() throws ArgumentParseException {
-            if (!hasMore()) {
-                throw createException("Buffer overrun while parsing args");
-            }
-            return buffer.codePointAt(++index);
-        }
-
-        public ArgumentParseException createException(String message) {
-            return new ArgumentParseException(message, buffer, index);
-        }
-
-        public int getIndex() {
-            return index;
-        }
+    // Utility methods
+    public boolean hasMore() {
+      return index + 1 < buffer.length();
     }
+
+    public int peek() throws ArgumentParseException {
+      if (!hasMore()) {
+        throw createException("Buffer overrun while parsing args");
+      }
+      return buffer.codePointAt(index + 1);
+    }
+
+    public int next() throws ArgumentParseException {
+      if (!hasMore()) {
+        throw createException("Buffer overrun while parsing args");
+      }
+      return buffer.codePointAt(++index);
+    }
+
+    public ArgumentParseException createException(String message) {
+      return new ArgumentParseException(message, buffer, index);
+    }
+
+    public int getIndex() {
+      return index;
+    }
+  }
 }

@@ -34,20 +34,22 @@ import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.ResponseHandler;
 
 /**
- * Adds support for returning {@link ComponentLike} from methods to respond
- * directly to actors.
+ * Adds support for returning {@link ComponentLike} from methods to respond directly to actors.
  */
 public final class ComponentResponseHandler implements ResponseHandler<ComponentLike> {
 
-    private final Function<CommandSender, Audience> audiences;
+  private final Function<CommandSender, Audience> audiences;
 
-    public ComponentResponseHandler(Function<CommandSender, Audience> audiences) {
-        this.audiences = audiences;
-    }
+  public ComponentResponseHandler(Function<CommandSender, Audience> audiences) {
+    this.audiences = audiences;
+  }
 
-    @Override public void handleResponse(ComponentLike response, @NotNull CommandActor actor, @NotNull ExecutableCommand command) {
-        BukkitCommandActor bActor = (BukkitCommandActor) actor;
-        if (response != null)
-            audiences.apply(bActor.getSender()).sendMessage(response);
+  @Override
+  public void handleResponse(ComponentLike response, @NotNull CommandActor actor,
+      @NotNull ExecutableCommand command) {
+    BukkitCommandActor bActor = (BukkitCommandActor) actor;
+    if (response != null) {
+      audiences.apply(bActor.getSender()).sendMessage(response);
     }
+  }
 }
