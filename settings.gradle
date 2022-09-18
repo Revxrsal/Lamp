@@ -1,4 +1,4 @@
-rootProject.name = "lamp"
+rootProject.name = "pluginbase-commands"
 
 include "common"
 include "bukkit"
