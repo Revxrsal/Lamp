@@ -25,9 +25,11 @@ subprojects {
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 
     dependencies {
+        compileOnly("dev.demeng:pluginbase-core:1.31.1-SNAPSHOT")
         compileOnly("org.jetbrains:annotations:22.0.0")
         compileOnly("org.projectlombok:lombok:1.18.20")
         annotationProcessor("org.projectlombok:lombok:1.18.20")

@@ -1,5 +1,12 @@
 package revxrsal.commands.bukkit.core;
 
+import static revxrsal.commands.util.Preconditions.notNull;
+import static revxrsal.commands.util.Strings.colorize;
+
+import dev.demeng.pluginbase.locale.Locales;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.ComponentLike;
@@ -14,14 +21,6 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
-import revxrsal.commands.locales.Locales;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.UUID;
-
-import static revxrsal.commands.util.Preconditions.notNull;
-import static revxrsal.commands.util.Strings.colorize;
 
 @Internal
 public final class BukkitActor implements BukkitCommandActor {

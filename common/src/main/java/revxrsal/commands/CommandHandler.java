@@ -1,5 +1,13 @@
 package revxrsal.commands;
 
+import dev.demeng.pluginbase.locale.Translator;
+import java.lang.annotation.Annotation;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -9,7 +17,12 @@ import revxrsal.commands.annotation.Switch;
 import revxrsal.commands.annotation.dynamic.AnnotationReplacer;
 import revxrsal.commands.annotation.dynamic.Annotations;
 import revxrsal.commands.autocomplete.AutoCompleter;
-import revxrsal.commands.command.*;
+import revxrsal.commands.command.ArgumentParser;
+import revxrsal.commands.command.ArgumentStack;
+import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.CommandCategory;
+import revxrsal.commands.command.CommandPermission;
+import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.core.reflect.MethodCallerFactory;
 import revxrsal.commands.exception.ArgumentParseException;
@@ -17,16 +30,15 @@ import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.exception.TooManyArgumentsException;
 import revxrsal.commands.help.CommandHelp;
 import revxrsal.commands.help.CommandHelpWriter;
-import revxrsal.commands.locales.Translator;
-import revxrsal.commands.process.*;
-
-import java.lang.annotation.Annotation;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import revxrsal.commands.process.CommandCondition;
+import revxrsal.commands.process.ContextResolver;
+import revxrsal.commands.process.ContextResolverFactory;
+import revxrsal.commands.process.ParameterValidator;
+import revxrsal.commands.process.PermissionReader;
+import revxrsal.commands.process.ResponseHandler;
+import revxrsal.commands.process.SenderResolver;
+import revxrsal.commands.process.ValueResolver;
+import revxrsal.commands.process.ValueResolverFactory;
 
 /**
  * The main handler for registering commands, resolvers, interceptors, handlers,

@@ -1,12 +1,11 @@
 package revxrsal.commands.command;
 
-import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.CommandHandler;
-import revxrsal.commands.locales.Translator;
-
+import dev.demeng.pluginbase.locale.Translator;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.CommandHandler;
 
 /**
  * Represents a command sender, responsible for performing a command-related
