@@ -1,11 +1,15 @@
-# Lamp
+# pluginbase-commands
 
-[![Discord](https://img.shields.io/badge/Discord-blue?style=for-the-badge )](https://discord.gg/pEGGF785zp)
-[![](https://jitpack.io/v/Revxrsal/Lamp.svg)](https://jitpack.io/#Revxrsal/Lamp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build](https://github.com/Revxrsal/Lamp/actions/workflows/gradle.yml/badge.svg)](https://github.com/Revxrsal/Lamp/actions/workflows/gradle.yml)
 
-## Background
+`pluginbase-commands` is a fork of [Lamp](https://github.com/Revxrsal/Lamp) that has been adapted
+for my own library, [PluginBase](https://github.com/Demeng7215/PluginBase).
+
+## Disclaimer
+
+PluginBase is meant to be a private library for use on my personal plugins.
+
+## Background (Lamp)
 
 <details>
   <summary>Click to expand</summary>
@@ -30,8 +34,10 @@ cooldowns, dependency injection, auto-completers, Lamp not only makes the comman
 much easier, it also becomes more fun, intuitive and less error prone.
 </details>
 
-## There are many commands frameworks out there, why should I use Lamp?
+## Features (Lamp)
 
+<details>
+  <summary>Click to expand</summary>
 Glad you asked!
 
 - **Lamp is small**: The overall size of Lamp will not exceed 150 KB. Built to be lightweight, Lamp
@@ -69,19 +75,9 @@ Glad you asked!
     - **[Simple and powerful auto completions API](common/src/main/java/revxrsal/commands/autocomplete/AutoCompleter.java)**
     - **[Built-in command cooldown handler](common/src/main/java/revxrsal/commands/annotation/Cooldown.java)**
 
+</details>
+
 ## Getting Started
-
-Now, for the good part.
-
-First, you'll need to add the JitPack repository, and then you're going to select which part of Lamp
-you're going to use.
-
-If you for some reason want to use the whole project as dependency, you can use "
-com.github.Revxrsal" as the groupId (or group on Gradle), and only the name "Lamp" as the
-artifactId (or name on Gradle).
-But if you chose to use only one module or two, you have to use "com.github.Revxrsal.Lamp" as the
-groupId and "[the module that you want]" as the artifactId. Bellow, there are examples about Maven
-and Gradle that will help you get started.
 
 ### Maven
 
@@ -99,14 +95,14 @@ and Gradle that will help you get started.
   <dependencies>
       <!-- For the common module -->
       <dependency>
-          <groupId>com.github.Revxrsal.Lamp</groupId>
+          <groupId>com.github.Demeng7215.pluginbase-commands</groupId>
           <artifactId>common</artifactId> 
           <version>[version]</version>
       </dependency>
 
       <!-- For the bukkit module -->
       <dependency>
-          <groupId>com.github.Revxrsal.Lamp</groupId>
+          <groupId>com.github.Demeng7215.pluginbase-commands</groupId>
           <artifactId>bukkit</artifactId>
           <version>[version]</version>
       </dependency>  
@@ -127,50 +123,16 @@ repositories {
 
 dependencies {
     // For the common module
-    implementation 'com.github.Revxrsal.Lamp:common:[version]'
+    implementation 'com.github.Demeng7215.pluginbase-commands:common:[version]'
 
     // For the bukkit module
-    implementation 'com.github.Revxrsal.Lamp:bukkit:[verison]'
+    implementation 'com.github.Demeng7215.pluginbase-commands:bukkit:[verison]'
 }
 
 compileJava { // Preserve parameter names in the bytecode
     options.compilerArgs += ["-parameters"]
     options.fork = true
     options.forkOptions.executable = "javac"
-}
-
-compileKotlin { // optional: if you're using Kotlin
-    kotlinOptions.javaParameters = true
-}
-```
-
-</details>
-
-
-<details>
-  <summary>build.gradle.kts (Kotlin DSL)</summary>
-
-```kotlin
-repositories {
-    maven(url = "https://jitpack.io")
-}
-
-dependencies {
-    // For the common project
-    implementation("com.github.Revxrsal.Lamp:common:[version]")
-
-    // For the bukkit module
-    implementation("com.github.Revxrsal.Lamp:bukkit:[verison]")
-}
-
-compileJava { // Preserve parameter names in the bytecode
-    options.compilerArgs += ["-parameters"]
-    options.fork = true
-    options.forkOptions.executable = "javac"
-}
-
-compileKotlin { // optional: if you're using Kotlin
-    kotlinOptions.javaParameters = true
 }
 ```
 
