@@ -69,6 +69,7 @@ public class BaseCommandHandler implements CommandHandler {
     public BaseCommandHandler() {
         registerContextResolverFactory(new SenderContextResolverFactory(senderResolvers));
         registerContextResolverFactory(DependencyResolverFactory.INSTANCE);
+        registerValueResolverFactory(EitherResolverFactory.INSTANCE);
         registerValueResolver(int.class, ValueResolverContext::popInt);
         registerValueResolver(double.class, ValueResolverContext::popDouble);
         registerValueResolver(short.class, ValueResolverContext::popShort);
@@ -423,8 +424,6 @@ public class BaseCommandHandler implements CommandHandler {
     }
 
     public <T> ParameterResolver<T> getResolver(CommandParameter parameter) {
-        ParameterResolver<T> cached = null;
-
         for (ResolverFactory factory : factories) {
             Resolver resolver = factory.create(parameter);
             if (resolver == null) continue;
