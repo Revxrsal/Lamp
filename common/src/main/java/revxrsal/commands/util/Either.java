@@ -41,14 +41,14 @@ import java.util.function.Function;
 public abstract class Either<A, B> {
 
     /**
-     * Creates a new {@link Either} with the value on the second side
+     * Creates a new {@link Either} with the value on the first side
      *
      * @param value Value to create
      * @param <A>   The first side type
      * @param <B>   The second side type
      * @return The {@link Either} instance
      */
-    public static <A, B> Either<A, B> second(B value) {
+    public static <A, B> Either<A, B> first(A value) {
         return new First<>(value);
     }
 
@@ -56,11 +56,11 @@ public abstract class Either<A, B> {
      * Creates a new {@link Either} with the value on the second first
      *
      * @param value Value to create
-     * @param <L>   The first side type
-     * @param <R>   The second side type
+     * @param <A>   The first side type
+     * @param <B>   The second side type
      * @return The {@link Either} instance
      */
-    public static <L, R> Either<L, R> first(L value) {
+    public static <A, B> Either<A, B> second(B value) {
         return new Second<>(value);
     }
 
@@ -102,7 +102,7 @@ public abstract class Either<A, B> {
      * @param action Action to execute
      * @return This {@link Either}
      */
-    public abstract Either<A, B> ifLeft(Consumer<A> action);
+    public abstract Either<A, B> ifFirst(Consumer<A> action);
 
     /**
      * Executes the given consumer only if the second type is present.
@@ -110,7 +110,7 @@ public abstract class Either<A, B> {
      * @param action Action to execute
      * @return This {@link Either}
      */
-    public abstract Either<A, B> ifRight(Consumer<B> action);
+    public abstract Either<A, B> ifSecond(Consumer<B> action);
 
     /**
      * Swaps the values in this {@link Either}
@@ -125,12 +125,12 @@ public abstract class Either<A, B> {
      * Converts this {@link Either} to a single type by providing two functions for each
      * side and give the same type of output
      *
-     * @param mapLeft  The function to map the first side to the given type
-     * @param mapRight The function to map the second side to the given type
-     * @param <T>      The output type
+     * @param mapFirst  The function to map the first side to the given type
+     * @param mapSecond The function to map the second side to the given type
+     * @param <T>       The output type
      * @return The output of either functions depending on the type of this {@link Either}.
      */
-    public abstract <T> T map(final Function<? super A, ? extends T> mapLeft, Function<? super B, ? extends T> mapRight);
+    public abstract <T> T map(final Function<? super A, ? extends T> mapFirst, Function<? super B, ? extends T> mapSecond);
 
     /**
      * Maps the first value if it was present
@@ -139,7 +139,7 @@ public abstract class Either<A, B> {
      * @param <T>      The output type
      * @return A new {@link Either} with the possibly mapped value
      */
-    public <T> Either<T, B> mapLeft(final Function<? super A, ? extends T> function) {
+    public <T> Either<T, B> mapFirst(final Function<? super A, ? extends T> function) {
         return map(t -> first(function.apply(t)), Either::second);
     }
 
@@ -150,39 +150,39 @@ public abstract class Either<A, B> {
      * @param <T>      The output type
      * @return A new {@link Either} with the possibly mapped value
      */
-    public <T> Either<A, T> mapRight(final Function<? super B, ? extends T> function) {
+    public <T> Either<A, T> mapSecond(final Function<? super B, ? extends T> function) {
         return map(Either::first, t -> second(function.apply(t)));
     }
 
     @SuppressWarnings({"OptionalAssignedToNull"})
-    private static class First<L, R> extends Either<L, R> {
+    private static class First<A, B> extends Either<A, B> {
 
-        private final R value;
-        private Optional<R> valueOptional;
+        private final A value;
+        private Optional<A> valueOptional;
 
-        First(R value) {
+        First(A value) {
             this.value = value;
         }
 
-        @Override public Optional<L> first() {
-            return Optional.empty();
-        }
-
-        @Override public Optional<R> second() {
+        @Override public Optional<A> first() {
             return valueOptional == null ? valueOptional = Optional.of(value) : valueOptional;
         }
 
-        @Override public Either<L, R> ifLeft(Consumer<L> action) {
-            return this;
+        @Override public Optional<B> second() {
+            return Optional.empty();
         }
 
-        @Override public Either<L, R> ifRight(Consumer<R> action) {
+        @Override public Either<A, B> ifFirst(Consumer<A> action) {
             action.accept(value);
             return this;
         }
 
-        @Override public <T> T map(Function<? super L, ? extends T> mapLeft, Function<? super R, ? extends T> mapRight) {
-            return mapRight.apply(value);
+        @Override public Either<A, B> ifSecond(Consumer<B> action) {
+            return this;
+        }
+
+        @Override public <T> T map(Function<? super A, ? extends T> mapFirst, Function<? super B, ? extends T> mapSecond) {
+            return mapFirst.apply(value);
         }
 
         @Override public String toString() {
@@ -207,34 +207,34 @@ public abstract class Either<A, B> {
     }
 
     @SuppressWarnings("OptionalAssignedToNull")
-    private static class Second<L, R> extends Either<L, R> {
+    private static class Second<A, B> extends Either<A, B> {
 
-        private final L value;
-        private Optional<L> valueOptional;
+        private final B value;
+        private Optional<B> valueOptional;
 
-        Second(final L value) {
+        Second(final B value) {
             this.value = value;
         }
 
-        @Override public Optional<L> first() {
-            return valueOptional == null ? valueOptional = Optional.of(value) : valueOptional;
-        }
-
-        @Override public Optional<R> second() {
+        @Override public Optional<A> first() {
             return Optional.empty();
         }
 
-        @Override public Either<L, R> ifLeft(Consumer<L> action) {
+        @Override public Optional<B> second() {
+            return valueOptional == null ? valueOptional = Optional.of(value) : valueOptional;
+        }
+
+        @Override public Either<A, B> ifFirst(Consumer<A> action) {
+            return this;
+        }
+
+        @Override public Either<A, B> ifSecond(Consumer<B> action) {
             action.accept(value);
             return this;
         }
 
-        @Override public Either<L, R> ifRight(Consumer<R> action) {
-            return this;
-        }
-
-        @Override public <T> T map(Function<? super L, ? extends T> mapLeft, Function<? super R, ? extends T> mapRight) {
-            return mapLeft.apply(value);
+        @Override public <T> T map(Function<? super A, ? extends T> mapFirst, Function<? super B, ? extends T> mapSecond) {
+            return mapSecond.apply(value);
         }
 
         @Override public String toString() {
