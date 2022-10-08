@@ -31,10 +31,10 @@ import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.*;
+import revxrsal.commands.core.BaseCommandDispatcher.ValueContextR;
 import revxrsal.commands.process.ParameterResolver;
 import revxrsal.commands.process.ParameterValidator;
 import revxrsal.commands.process.ValueResolver;
-import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 import revxrsal.commands.process.ValueResolverFactory;
 import revxrsal.commands.util.Either;
 import revxrsal.commands.util.Primitives;
@@ -57,36 +57,44 @@ enum EitherResolverFactory implements ValueResolverFactory {
         if (!(type instanceof ParameterizedType))
             throw new IllegalArgumentException("'Either' parameter does not specify types!");
         Type[] p = ((ParameterizedType) type).getActualTypeArguments();
-        Type first = p[0];
-        Type second = p[1];
+        Type firstType = p[0];
+        Type secondType = p[1];
 
-        MockParameter firstParameter = new MockParameter(parameter, first, Primitives.getRawType(first));
-        ParameterResolver<Object> firstResolver = ((BaseCommandHandler) parameter.getCommandHandler()).getResolver(firstParameter);
-        if (firstResolver == null) {
-            throw new IllegalStateException("Unable to find a resolver for parameter type " + firstParameter.getType());
-        }
-        firstParameter.resolver = firstResolver;
+        MockParameter first = new MockParameter(parameter, firstType, Primitives.getRawType(firstType));
+        ParameterResolver<Object> firstResolver = ((BaseCommandHandler) parameter.getCommandHandler()).getResolver(first);
+        checkValid(first, firstResolver);
+        first.resolver = firstResolver;
 
-        MockParameter secondParameter = new MockParameter(parameter, second, Primitives.getRawType(second));
-        ParameterResolver<Object> secondResolver = ((BaseCommandHandler) parameter.getCommandHandler()).getResolver(secondParameter);
-        if (secondResolver == null) {
-            throw new IllegalStateException("Unable to find a resolver for parameter type " + secondParameter.getType());
-        }
-        secondParameter.resolver = secondResolver;
+        MockParameter second = new MockParameter(parameter, secondType, Primitives.getRawType(secondType));
+        ParameterResolver<Object> secondResolver = ((BaseCommandHandler) parameter.getCommandHandler()).getResolver(second);
+        checkValid(second, secondResolver);
+        second.resolver = secondResolver;
 
         return context -> {
+            ArgumentStack original = context.arguments().copy();
             try {
-                Context c = new Context(context, context.arguments().copy());
-                return Either.first(firstParameter.resolver.resolve(c));
+                return Either.first(first.resolver.resolve(context));
             } catch (Throwable t) {
-                return Either.second(secondParameter.resolver.resolve(context));
+                ((ValueContextR) context).argumentStack = original;
+                System.out.println("Testing for the 2nd argument type");
+                System.out.println(context.arguments());
+                return Either.second(second.resolver.resolve(context));
             }
         };
     }
 
+    private static void checkValid(CommandParameter parameter, ParameterResolver<Object> resolver) {
+        if (resolver == null) {
+            throw new IllegalStateException("Unable to find a resolver for parameter type " + parameter.getType());
+        }
+        if (!resolver.mutatesArguments()) {
+            throw new IllegalStateException("Only value-based arguments are allowed in the Either type (found " + parameter.getType() + ")");
+        }
+    }
+
     // This is extremely hacky. If any better way exists, it should be used.
-    @RequiredArgsConstructor
     @Setter
+    @RequiredArgsConstructor
     static class MockParameter implements CommandParameter {
 
         private final CommandParameter delegate;
@@ -152,45 +160,4 @@ enum EitherResolverFactory implements ValueResolverFactory {
 
         @Override public void checkPermission(@NotNull CommandActor actor) {delegate.checkPermission(actor);}
     }
-
-
-    @RequiredArgsConstructor
-    static class Context implements ValueResolverContext {
-
-        private final ValueResolverContext delegate;
-        private final ArgumentStack arguments;
-
-        @Override public ArgumentStack arguments() {return arguments;}
-
-        @Override @NotNull @Unmodifiable public List<String> input() {return delegate.input();}
-
-        @Override public <A extends CommandActor> @NotNull A actor() {return delegate.actor();}
-
-        @Override @NotNull public CommandParameter parameter() {return delegate.parameter();}
-
-        @Override @NotNull public ExecutableCommand command() {return delegate.command();}
-
-        @Override @NotNull public CommandHandler commandHandler() {return delegate.commandHandler();}
-
-        @Override public <T> @NotNull T getResolvedArgument(@NotNull Class<T> type) {return delegate.getResolvedArgument(type);}
-
-        @Override public <T> @NotNull T getResolvedParameter(@NotNull CommandParameter parameter) {return delegate.getResolvedParameter(parameter);}
-
-        @Override public String popForParameter() {return delegate.popForParameter();}
-
-        @Override public String pop() {return delegate.pop();}
-
-        @Override public int popInt() {return delegate.popInt();}
-
-        @Override public double popDouble() {return delegate.popDouble();}
-
-        @Override public byte popByte() {return delegate.popByte();}
-
-        @Override public short popShort() {return delegate.popShort();}
-
-        @Override public float popFloat() {return delegate.popFloat();}
-
-        @Override public long popLong() {return delegate.popLong();}
-    }
-
 }

@@ -252,9 +252,9 @@ public final class BaseCommandDispatcher {
         }
     }
 
-    private static final class ValueContextR extends ParamResolverContext implements ValueResolverContext {
+    static final class ValueContextR extends ParamResolverContext implements ValueResolverContext {
 
-        private final ArgumentStack argumentStack;
+        ArgumentStack argumentStack;
 
         public ValueContextR(List<String> input,
                              CommandActor actor,
@@ -270,11 +270,11 @@ public final class BaseCommandDispatcher {
         }
 
         @Override public String popForParameter() {
-            return argumentStack.popForParameter(parameter());
+            return arguments().popForParameter(parameter());
         }
 
         @Override public String pop() {
-            return argumentStack.pop();
+            return arguments().pop();
         }
 
         private <T> T num(Function<String, T> f) {

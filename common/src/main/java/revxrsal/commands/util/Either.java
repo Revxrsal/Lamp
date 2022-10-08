@@ -34,6 +34,11 @@ import java.util.function.Function;
  * <p>
  * Inspired by Mojang datafixer's Either class, with some optimizations from
  * Paper.
+ * <p>
+ * Note that the order of generic types matters when used as a parameter type. The
+ * first generic type will be tested against, and if it fails, it will try the second
+ * one. Therefore, you should always make the never-failing types, such as {@link String}
+ * the second type and not the first one.
  *
  * @param <A> The first value
  * @param <B> The second value
