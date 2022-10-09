@@ -1,5 +1,6 @@
 package revxrsal.commands.bukkit.core;
 
+import com.google.common.base.Suppliers;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.ComponentLike;
@@ -14,11 +15,16 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
+import revxrsal.commands.core.reflect.MethodCaller;
+import revxrsal.commands.core.reflect.MethodCallerFactory;
 import revxrsal.commands.locales.Locales;
 
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.util.Strings.colorize;
@@ -110,9 +116,10 @@ public final class BukkitActor implements BukkitCommandActor {
             try {
                 playerLocale = requirePlayer().getLocale();
             } catch (NoSuchMethodError e) {
-                try {
-                    playerLocale = requirePlayer().spigot().getLocale();
-                } catch (NoSuchMethodError e2) {
+                Optional<MethodCaller> getLocale = BukkitActor.getLocale.get();
+                if (getLocale.isPresent()) {
+                    playerLocale = (String) getLocale.get().call(requirePlayer().spigot());
+                } else {
                     return BukkitCommandActor.super.getLocale();
                 }
             }
@@ -121,4 +128,14 @@ public final class BukkitActor implements BukkitCommandActor {
         }
         return BukkitCommandActor.super.getLocale();
     }
+
+    private static final Supplier<Optional<MethodCaller>> getLocale = Suppliers.memoize(() -> {
+        try {
+            Method spigotGetLocale = Player.Spigot.class.getDeclaredMethod("getLocale");
+            MethodCaller caller = MethodCallerFactory.defaultFactory().createFor(spigotGetLocale);
+            return Optional.of(caller);
+        } catch (Throwable e) {
+            return Optional.empty();
+        }
+    });
 }
