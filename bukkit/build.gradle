@@ -6,10 +6,10 @@ repositories {
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     maven { url = "https://hub.spigotmc.org/nexus/content/groups/public/" }
     maven { url = "https://libraries.minecraft.net" }
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
 }
 
 configurations {
-    create("shadeBlindly")
     create("testing")
     implementation.extendsFrom(testing)
 }
@@ -28,11 +28,12 @@ dependencies {
     /* For Kotlin extensions */
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
 
-    /*
-     * We shade paper-internal without adding it as a dependency
-     * because it requires Java 17. We have to access it reflectively though :(
-     */
-    shadeBlindly(project(":paper-internal-dont-use"))
+    compileOnly("io.papermc.paper:paper-api:1.19.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-mojangapi:1.19.1-R0.1-SNAPSHOT")
+}
+
+java {
+    disableAutoTargetJvm()
 }
 
 compileJava {
@@ -44,7 +45,6 @@ compileJava {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from configurations.testing.asFileTree.files.collect { zipTree(it) }
-    from configurations.shadeBlindly.asFileTree.files.collect { zipTree(it) }
 }
 
 compileKotlin {
