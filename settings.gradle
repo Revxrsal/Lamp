@@ -8,5 +8,4 @@ include "jda"
 include "velocity"
 include "sponge"
 include "brigadier"
-include 'paper-internal-dont-use'
 
