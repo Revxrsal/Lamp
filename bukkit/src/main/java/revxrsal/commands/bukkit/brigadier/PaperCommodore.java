@@ -116,28 +116,9 @@ final class PaperCommodore extends Commodore implements Listener {
             root.addChild((CommandNode) node);
         }
 
-        public LiteralCommandNode<?> node() {return node;}
-
-        public Predicate<? super Player> permissionTest() {return permissionTest;}
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj == null || obj.getClass() != this.getClass()) return false;
-            CommodoreCommand that = (CommodoreCommand) obj;
-            return Objects.equals(node, that.node) && Objects.equals(permissionTest, that.permissionTest);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(node, permissionTest);
-        }
-
         @Override
         public String toString() {
-            return "CommodoreCommand[" +
-                    "node=" + node + ", " +
-                    "permissionTest=" + permissionTest + ']';
+            return "CommodoreCommand[node=" + node + ", permissionTest=" + permissionTest + "]";
         }
 
     }
