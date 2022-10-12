@@ -35,14 +35,12 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -174,85 +172,10 @@ abstract class Commodore {
      * to all arguments within the node, so ASK_SERVER suggestions can continue
      * to function for the command.</p>
      *
-     * <p>Players will only be sent argument data if they pass the provided
-     * {@code permissionTest}.</p>
-     *
-     * @param command         the command to read aliases from
-     * @param argumentBuilder the argument data, in a builder form
-     * @param permissionTest  the predicate to check whether players should be sent argument data
-     */
-    public void register(Command command, LiteralArgumentBuilder<?> argumentBuilder, Predicate<? super Player> permissionTest) {
-        Objects.requireNonNull(command, "command");
-        Objects.requireNonNull(argumentBuilder, "argumentBuilder");
-        Objects.requireNonNull(permissionTest, "permissionTest");
-        register(command, argumentBuilder.build(), permissionTest);
-    }
-
-    /**
-     * Registers the provided argument data to the dispatcher, against all
-     * aliases defined for the {@code command}.
-     *
-     * <p>Additionally applies the CraftBukkit {@link SuggestionProvider}
-     * to all arguments within the node, so ASK_SERVER suggestions can continue
-     * to function for the command.</p>
-     *
-     * <p>Players will only be sent argument data if they pass the provided
-     * {@code permissionTest}.</p>
-     *
-     * @param command        the command to read aliases from
-     * @param node           the argument data
-     * @param permissionTest the predicate to check whether players should be sent argument data
-     */
-    abstract void register(Command command, LiteralCommandNode<?> node, Predicate<? super Player> permissionTest);
-
-    /**
-     * Registers the provided argument data to the dispatcher, against all
-     * aliases defined for the {@code command}.
-     *
-     * <p>Additionally applies the CraftBukkit {@link SuggestionProvider}
-     * to all arguments within the node, so ASK_SERVER suggestions can continue
-     * to function for the command.</p>
-     *
      * @param command the command to read aliases from
      * @param node    the argument data
      */
-    public void register(Command command, LiteralCommandNode<?> node) {
-        Objects.requireNonNull(command, "command");
-        Objects.requireNonNull(node, "node");
-        register(command, node, command::testPermissionSilent);
-    }
-
-    /**
-     * Registers the provided argument data to the dispatcher.
-     *
-     * <p>Equivalent to calling
-     * {@link CommandDispatcher#register(LiteralArgumentBuilder)}.</p>
-     *
-     * <p>Prefer using {@link #register(Command, LiteralArgumentBuilder)}.</p>
-     *
-     * @param argumentBuilder the argument data
-     */
-    public void register(LiteralArgumentBuilder<?> argumentBuilder) {
-        Objects.requireNonNull(argumentBuilder, "argumentBuilder");
-        register(argumentBuilder.build());
-    }
-
-    /**
-     * Registers the provided argument data to the dispatcher, against all
-     * aliases defined for the {@code command}.
-     *
-     * <p>Additionally applies the CraftBukkit {@link SuggestionProvider}
-     * to all arguments within the node, so ASK_SERVER suggestions can continue
-     * to function for the command.</p>
-     *
-     * @param command         the command to read aliases from
-     * @param argumentBuilder the argument data, in a builder form
-     */
-    public void register(Command command, LiteralArgumentBuilder<?> argumentBuilder) {
-        Objects.requireNonNull(command, "command");
-        Objects.requireNonNull(argumentBuilder, "argumentBuilder");
-        register(command, argumentBuilder.build());
-    }
+    abstract void register(Command command, LiteralCommandNode<?> node);
 
     /**
      * Registers the provided argument data to the dispatcher.
@@ -265,6 +188,5 @@ abstract class Commodore {
      * @param node the argument data
      */
     abstract void register(LiteralCommandNode<?> node);
-
 
 }

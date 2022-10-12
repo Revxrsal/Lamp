@@ -31,7 +31,6 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandSendEvent;
@@ -42,7 +41,6 @@ import org.bukkit.plugin.Plugin;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 final class ReflectionCommodore extends Commodore {
@@ -126,10 +124,9 @@ final class ReflectionCommodore extends Commodore {
     }
 
     @Override
-    public void register(Command command, LiteralCommandNode<?> node, Predicate<? super Player> permissionTest) {
+    public void register(Command command, LiteralCommandNode<?> node) {
         Objects.requireNonNull(command, "command");
         Objects.requireNonNull(node, "node");
-        Objects.requireNonNull(permissionTest, "permissionTest");
 
         Collection<String> aliases = getAliases(command);
         if (!aliases.contains(node.getLiteral())) {
@@ -143,7 +140,7 @@ final class ReflectionCommodore extends Commodore {
                 register(LiteralArgumentBuilder.literal(alias).redirect((LiteralCommandNode<Object>) node).build());
             }
         }
-        plugin.getServer().getPluginManager().registerEvents(new CommandDataSendListener(command, permissionTest), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new CommandDataSendListener(command), plugin);
     }
 
     /**
@@ -182,14 +179,11 @@ final class ReflectionCommodore extends Commodore {
      */
     private static final class CommandDataSendListener implements Listener {
 
-        private final Set<String> aliases;
         private final Set<String> minecraftPrefixedAliases;
-        private final Predicate<? super Player> permissionTest;
 
-        CommandDataSendListener(Command pluginCommand, Predicate<? super Player> permissionTest) {
-            aliases = new HashSet<>(getAliases(pluginCommand));
-            minecraftPrefixedAliases = aliases.stream().map(alias -> "minecraft:" + alias).collect(Collectors.toSet());
-            this.permissionTest = permissionTest;
+        CommandDataSendListener(Command pluginCommand) {
+            minecraftPrefixedAliases = getAliases(pluginCommand).stream()
+                    .map(alias -> "minecraft:" + alias).collect(Collectors.toSet());
         }
 
         @EventHandler
@@ -197,11 +191,6 @@ final class ReflectionCommodore extends Commodore {
             // always remove 'minecraft:' prefixed aliases added by craftbukkit.
             // this happens because bukkit thinks our injected commands are vanilla commands.
             e.getCommands().removeAll(minecraftPrefixedAliases);
-
-            // remove the actual aliases if the player doesn't pass the permission test
-            if (!permissionTest.test(e.getPlayer())) {
-                e.getCommands().removeAll(aliases);
-            }
         }
     }
 

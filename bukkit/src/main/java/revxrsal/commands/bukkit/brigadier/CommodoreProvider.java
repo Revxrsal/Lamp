@@ -49,7 +49,7 @@ public final class CommodoreProvider {
             return null;
         }
 
-        // try reflection impl
+        // try the reflection impl
         try {
             ReflectionCommodore.ensureSetup();
             return ReflectionCommodore::new;

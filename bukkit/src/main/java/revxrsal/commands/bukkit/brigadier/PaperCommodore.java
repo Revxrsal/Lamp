@@ -31,7 +31,6 @@ import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -44,7 +43,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
@@ -98,10 +96,9 @@ final class PaperCommodore extends Commodore implements Listener {
     }
 
     @Override
-    public void register(Command command, LiteralCommandNode<?> node, Predicate<? super Player> permissionTest) {
+    public void register(Command command, LiteralCommandNode<?> node) {
         Objects.requireNonNull(command, "command");
         Objects.requireNonNull(node, "node");
-        Objects.requireNonNull(permissionTest, "permissionTest");
 
         Collection<String> aliases = getAliases(command);
         if (!aliases.contains(node.getLiteral())) {
