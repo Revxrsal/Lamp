@@ -26,78 +26,75 @@
 package revxrsal.commands.bukkit.brigadier;
 
 import com.google.common.base.Suppliers;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import com.mojang.brigadier.tree.RootCommandNode;
 import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.plugin.Plugin;
+import revxrsal.commands.bukkit.core.BukkitCommandExecutor;
 import revxrsal.commands.core.reflect.MethodCaller;
-import revxrsal.commands.core.reflect.MethodCallerFactory;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static revxrsal.commands.core.reflect.MethodCallerFactory.defaultFactory;
+
 final class PaperCommodore extends Commodore implements Listener {
 
-    private static final Listener EMPTY_LISTENER = new Listener() {};
-
-    private static final Supplier<SendCommandEventReflection> ASYNC_SEND_COMMANDS_EVENT = Suppliers.memoize(() -> {
-        try {
-            Class<? extends Event> eventClass = Class.forName("com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent")
-                    .asSubclass(Event.class);
-            Method getCommandNode = eventClass.getDeclaredMethod("getCommandNode");
-            Method hasFiredAsync = eventClass.getDeclaredMethod("hasFiredAsync");
-            return new SendCommandEventReflection(
-                    eventClass,
-                    MethodCallerFactory.defaultFactory().createFor(getCommandNode),
-                    MethodCallerFactory.defaultFactory().createFor(hasFiredAsync)
-            );
-        } catch (Throwable e) {
-            throw new UnsupportedOperationException("Not running on modern Paper!", e);
-        }
-    });
-
-    static {
-        try {
-            Class.forName("com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent");
-        } catch (ClassNotFoundException e) {
-            throw new UnsupportedOperationException("Not running on modern Paper!", e);
-        }
-    }
-
-    private final List<CommodoreCommand> commands = new ArrayList<>();
+    private final Map<String, LiteralCommandNode<?>> commands = new HashMap<>();
 
     PaperCommodore(Plugin plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        SendCommandEventReflection ref = ASYNC_SEND_COMMANDS_EVENT.get();
+        registerListener(plugin);
+    }
+
+    private void registerListener(Plugin plugin) {
+        RegisterEventReflection ref = REGISTER_EVENT.get();
         Bukkit.getPluginManager().registerEvent(ref.eventClass, EMPTY_LISTENER, EventPriority.NORMAL, (listener, event) -> {
-            boolean hasFiredAsync = (boolean) ref.hasFiredAsync.call(event);
-            if (event.isAsynchronous() || !hasFiredAsync) {
-                RootCommandNode<?> node = (RootCommandNode<?>) ref.getCommandNode.call(event);
-                for (CommodoreCommand command : commands) {
-                    command.apply(((PlayerEvent) event).getPlayer(), node);
-                }
+            Command command = (Command) ref.getCommand.call(event);
+            if (!(command instanceof PluginCommand))
+                return;
+            if (!(((PluginCommand) command).getExecutor() instanceof BukkitCommandExecutor))
+                return;
+            String commandLabel = (String) ref.getCommandLabel.call(event);
+            LiteralCommandNode<?> node = commands.get(commandLabel);
+            if (node != null) {
+                ref.setLiteral.call(event, node);
             }
         }, plugin);
     }
 
+    // The below is kept as a reference to the above
+    //
+    //    @EventHandler
+    //    public void onCommandRegistered(CommandRegisteredEvent<BukkitBrigadierCommandSource> event) {
+    //        if (!(event.getCommand() instanceof PluginCommand command)) {
+    //            return;
+    //        }
+    //        if (!(command.getExecutor() instanceof BukkitCommandExecutor)) {
+    //            return;
+    //        }
+    //        LiteralCommandNode<?> node = commands.get(event.getCommandLabel());
+    //        if (node != null) {
+    //            event.setLiteral((LiteralCommandNode) node);
+    //        }
+    //    }
+
     @Override
     public void register(LiteralCommandNode<?> node) {
         Objects.requireNonNull(node, "node");
-        commands.add(new CommodoreCommand(node, null));
+        commands.put(node.getLiteral(), node);
     }
 
     @Override
@@ -113,49 +110,55 @@ final class PaperCommodore extends Commodore implements Listener {
 
         for (String alias : aliases) {
             if (node.getLiteral().equals(alias)) {
-                commands.add(new CommodoreCommand(node, permissionTest));
+                commands.put(node.getLiteral(), node);
             } else {
-                LiteralCommandNode<Object> redirectNode = LiteralArgumentBuilder.literal(alias)
+                LiteralCommandNode<Object> redirectNode = literal(alias)
                         .redirect((LiteralCommandNode<Object>) node)
                         .build();
-                commands.add(new CommodoreCommand(redirectNode, permissionTest));
+                commands.put(redirectNode.getLiteral(), redirectNode);
             }
         }
     }
 
-    private static final class CommodoreCommand {
-
-        private final LiteralCommandNode<?> node;
-        private final Predicate<? super Player> permissionTest;
-
-        private CommodoreCommand(LiteralCommandNode<?> node, Predicate<? super Player> permissionTest) {
-            this.node = node;
-            this.permissionTest = permissionTest;
-        }
-
-        @SuppressWarnings("rawtypes")
-        public void apply(Player player, RootCommandNode<?> root) {
-            if (permissionTest != null && !permissionTest.test(player)) {
-                return;
-            }
-            removeChild(root, node.getName());
-            root.addChild((CommandNode) node);
-        }
-
-        @Override
-        public String toString() {
-            return "CommodoreCommand[node=" + node + ", permissionTest=" + permissionTest + "]";
-        }
-    }
+    private static final Listener EMPTY_LISTENER = new Listener() {};
 
     static void ensureSetup() {
         // do nothing - this is only called to trigger the static initializer
     }
 
+    static {
+        try {
+            Class.forName("com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent");
+        } catch (ClassNotFoundException e) {
+            throw new UnsupportedOperationException("Not running on modern Paper!", e);
+        }
+    }
+
+    private static final Supplier<RegisterEventReflection> REGISTER_EVENT = Suppliers.memoize(() -> {
+        try {
+            Class<? extends Event> eventClass = Class
+                    .forName("com.destroystokyo.paper.event.brigadier.CommandRegisteredEvent")
+                    .asSubclass(Event.class);
+            Method getCommand = eventClass.getDeclaredMethod("getCommand");
+            Method getCommandLabel = eventClass.getDeclaredMethod("getCommandLabel");
+            Method setLiteral = eventClass.getDeclaredMethod("setLiteral", LiteralCommandNode.class);
+            return new RegisterEventReflection(
+                    eventClass,
+                    defaultFactory().createFor(getCommand),
+                    defaultFactory().createFor(getCommandLabel),
+                    defaultFactory().createFor(setLiteral)
+            );
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException("Not running on modern Paper!", e);
+        }
+    });
+
     @AllArgsConstructor
-    private static final class SendCommandEventReflection {
+    private static final class RegisterEventReflection {
 
         private final Class<? extends Event> eventClass;
-        private final MethodCaller getCommandNode, hasFiredAsync;
+        private final MethodCaller getCommand, getCommandLabel, setLiteral;
     }
+
+
 }

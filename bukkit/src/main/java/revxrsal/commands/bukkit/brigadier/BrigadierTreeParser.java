@@ -52,8 +52,6 @@ import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 @SuppressWarnings("rawtypes")
 public final class BrigadierTreeParser {
 
-    private static final Command NO_ACTION = context -> Command.SINGLE_SUCCESS;
-
     /**
      * Parses all the registered commands and categories in the given {@link CommandHandler}
      * and registers all root trees and their corresponding children components
@@ -121,13 +119,13 @@ public final class BrigadierTreeParser {
             if (parameter.isFlag()) break;
             ArgumentBuilder<?, ?> builder = getBuilder(brigadier, command, parameter);
             if (!isLast && sortedParameters.get(i + 1).isOptional())
-                builder.executes(NO_ACTION);
+                builder.executes(generateAction(brigadier, parameter));
             if (lastParameter == null) {
                 if (parameter.isOptional())
-                    into.executes(NO_ACTION);
-                into.then(lastParameter = builder.build());
+                    into.executes(generateAction(brigadier, parameter));
+                into.then(lastParameter = builder.executes(generateAction(brigadier, parameter)).build());
             } else {
-                lastParameter.addChild(lastParameter = builder.build());
+                lastParameter.addChild(lastParameter = builder.executes(generateAction(brigadier, parameter)).build());
             }
         }
         sortedParameters.removeIf(parameter -> !parameter.isFlag());
@@ -145,6 +143,22 @@ public final class BrigadierTreeParser {
         }
         into.requires(a -> command.hasPermission(brigadier.wrapSource(a)));
         return (LiteralArgumentBuilder<T>) into;
+    }
+
+    @NotNull private static Command generateAction(BukkitBrigadier brigadier, CommandParameter parameter) {
+        return a -> {
+            String input = a.getInput();
+            ArgumentStack args = parameter.getCommandHandler().parseArgumentsForCompletion(
+                    input.startsWith("/") ? input.substring(1) : input
+            );
+            CommandActor actor = brigadier.wrapSource(a.getSource());
+            try {
+                parameter.getCommandHandler().dispatch(actor, args);
+            } catch (Throwable t) {
+                parameter.getCommandHandler().getExceptionHandler().handleException(t, actor);
+            }
+            return Command.SINGLE_SUCCESS;
+        };
     }
 
     private static ArgumentBuilder getBuilder(BukkitBrigadier brigadier,

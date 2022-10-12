@@ -12,7 +12,7 @@ import revxrsal.commands.exception.ArgumentParseException;
 import java.util.Collections;
 import java.util.List;
 
-final class BukkitCommandExecutor implements TabExecutor {
+public final class BukkitCommandExecutor implements TabExecutor {
 
     private final BukkitHandler handler;
 
