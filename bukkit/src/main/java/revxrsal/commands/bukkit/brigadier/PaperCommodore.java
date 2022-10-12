@@ -25,24 +25,50 @@
 
 package revxrsal.commands.bukkit.brigadier;
 
-import com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent;
+import com.google.common.base.Suppliers;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
+import lombok.AllArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.plugin.Plugin;
+import revxrsal.commands.core.reflect.MethodCaller;
+import revxrsal.commands.core.reflect.MethodCallerFactory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 final class PaperCommodore extends Commodore implements Listener {
+
+    private static final Listener EMPTY_LISTENER = new Listener() {};
+
+    private static final Supplier<SendCommandEventReflection> ASYNC_SEND_COMMANDS_EVENT = Suppliers.memoize(() -> {
+        try {
+            Class<? extends Event> eventClass = Class.forName("com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent")
+                    .asSubclass(Event.class);
+            Method getCommandNode = eventClass.getDeclaredMethod("getCommandNode");
+            Method hasFiredAsync = eventClass.getDeclaredMethod("hasFiredAsync");
+            return new SendCommandEventReflection(
+                    eventClass,
+                    MethodCallerFactory.defaultFactory().createFor(getCommandNode),
+                    MethodCallerFactory.defaultFactory().createFor(hasFiredAsync)
+            );
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException("Not running on modern Paper!", e);
+        }
+    });
 
     static {
         try {
@@ -56,6 +82,18 @@ final class PaperCommodore extends Commodore implements Listener {
 
     PaperCommodore(Plugin plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        SendCommandEventReflection ref = ASYNC_SEND_COMMANDS_EVENT.get();
+        Bukkit.getPluginManager().registerEvent(ref.eventClass, EMPTY_LISTENER, EventPriority.NORMAL, (listener, event) -> {
+            boolean hasFiredAsync = (boolean) ref.hasFiredAsync.call(event);
+            if (event.isAsynchronous() || !hasFiredAsync) {
+                RootCommandNode<?> node = (RootCommandNode<?>) ref.getCommandNode.call(event);
+                for (CommodoreCommand command : commands) {
+                    CommandNode<?> admin = command.node.getChild("admin");
+                    if (admin != null) System.out.println(admin.getRequirement());
+                    command.apply(((PlayerEvent) event).getPlayer(), node);
+                }
+            }
+        }, plugin);
     }
 
     @Override
@@ -87,16 +125,6 @@ final class PaperCommodore extends Commodore implements Listener {
         }
     }
 
-    @EventHandler
-    @SuppressWarnings("deprecation") // draft API, ok...
-    public void onPlayerSendCommandsEvent(AsyncPlayerSendCommandsEvent<?> event) {
-        if (event.isAsynchronous() || !event.hasFiredAsync()) {
-            for (CommodoreCommand command : commands) {
-                command.apply(event.getPlayer(), event.getCommandNode());
-            }
-        }
-    }
-
     private static final class CommodoreCommand {
 
         private final LiteralCommandNode<?> node;
@@ -120,7 +148,16 @@ final class PaperCommodore extends Commodore implements Listener {
         public String toString() {
             return "CommodoreCommand[node=" + node + ", permissionTest=" + permissionTest + "]";
         }
-
     }
 
+    static void ensureSetup() {
+        // do nothing - this is only called to trigger the static initializer
+    }
+
+    @AllArgsConstructor
+    private static final class SendCommandEventReflection {
+
+        private final Class<? extends Event> eventClass;
+        private final MethodCaller getCommandNode, hasFiredAsync;
+    }
 }

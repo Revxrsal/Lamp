@@ -27,8 +27,6 @@ package revxrsal.commands.bukkit.brigadier;
 
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -61,18 +59,8 @@ public final class CommodoreProvider {
 
         // try the paper impl
         try {
-            Constructor<? extends Commodore> ctr = Class.forName("revxrsal.commands.bukkit.brigadier.PaperCommodore")
-                    .asSubclass(Commodore.class)
-                    .getDeclaredConstructor(Plugin.class);
-            if (!ctr.isAccessible())
-                ctr.setAccessible(true);
-            return plugin -> {
-                try {
-                    return ctr.newInstance(plugin);
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-            };
+            PaperCommodore.ensureSetup();
+            return PaperCommodore::new;
         } catch (Throwable e) {
             printDebugInfo(e);
         }

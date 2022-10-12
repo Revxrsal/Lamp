@@ -6,7 +6,6 @@ repositories {
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     maven { url = "https://hub.spigotmc.org/nexus/content/groups/public/" }
     maven { url = "https://libraries.minecraft.net" }
-    maven { url = "https://repo.papermc.io/repository/maven-public/" }
 }
 
 configurations {
@@ -27,13 +26,6 @@ dependencies {
 
     /* For Kotlin extensions */
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
-
-    /* For Paper brigadier support */
-    compileOnly("io.papermc.paper:paper-mojangapi:1.19.1-R0.1-SNAPSHOT")
-}
-
-java {
-    disableAutoTargetJvm()
 }
 
 compileJava {
