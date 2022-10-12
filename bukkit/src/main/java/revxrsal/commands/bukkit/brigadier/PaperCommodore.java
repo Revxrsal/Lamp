@@ -88,8 +88,6 @@ final class PaperCommodore extends Commodore implements Listener {
             if (event.isAsynchronous() || !hasFiredAsync) {
                 RootCommandNode<?> node = (RootCommandNode<?>) ref.getCommandNode.call(event);
                 for (CommodoreCommand command : commands) {
-                    CommandNode<?> admin = command.node.getChild("admin");
-                    if (admin != null) System.out.println(admin.getRequirement());
                     command.apply(((PlayerEvent) event).getPlayer(), node);
                 }
             }
