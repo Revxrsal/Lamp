@@ -48,6 +48,9 @@ public interface SuggestionProvider {
     @Contract("null -> this; !null -> new")
     default SuggestionProvider compose(@Nullable SuggestionProvider other) {
         if (other == null) return this;
+        if (this == EMPTY && other == EMPTY) return EMPTY;
+        if (other == EMPTY) return this;
+        if (this == EMPTY) return other;
         return (args, sender, command) -> {
             Set<String> completions = new HashSet<>(other.getSuggestions(args, sender, command));
             completions.addAll(getSuggestions(args, sender, command));
