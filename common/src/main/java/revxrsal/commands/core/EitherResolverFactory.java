@@ -76,8 +76,6 @@ enum EitherResolverFactory implements ValueResolverFactory {
                 return Either.first(first.resolver.resolve(context));
             } catch (Throwable t) {
                 ((ValueContextR) context).argumentStack = original;
-                System.out.println("Testing for the 2nd argument type");
-                System.out.println(context.arguments());
                 return Either.second(second.resolver.resolve(context));
             }
         };
