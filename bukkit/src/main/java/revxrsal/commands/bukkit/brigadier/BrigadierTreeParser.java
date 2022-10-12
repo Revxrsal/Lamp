@@ -168,10 +168,11 @@ public final class BrigadierTreeParser {
             return literal(parameter.getCommandHandler().getSwitchPrefix() + parameter.getSwitchName());
         }
         ArgumentType<?> argumentType = brigadier.getArgumentType(parameter);
-
+        boolean isLast = parameter.getCommandIndex() == command.getValueParameters().size() - 1;
         return argument(parameter.getName(), argumentType)
                 .requires(a -> parameter.hasPermission(brigadier.wrapSource(a)))
-                .suggests(createSuggestionProvider(brigadier, command, parameter));
+                .suggests(createSuggestionProvider(brigadier, command, parameter))
+                .executes(isLast ? generateAction(brigadier, parameter) : null);
     }
 
     private static SuggestionProvider<Object> createSuggestionProvider(
