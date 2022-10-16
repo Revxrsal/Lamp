@@ -88,4 +88,12 @@ public interface BukkitBrigadier {
      */
     void register();
 
+    /**
+     * Returns the command handler that instantiated this Brigadier
+     * instance.
+     *
+     * @return The command handler
+     */
+    @NotNull BukkitCommandHandler getCommandHandler();
+
 }

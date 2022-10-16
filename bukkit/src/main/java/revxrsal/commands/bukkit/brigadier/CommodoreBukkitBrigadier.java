@@ -38,8 +38,8 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.util.ClassMap;
 
-import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.*;
 import static revxrsal.commands.bukkit.brigadier.CommodoreProvider.isSupported;
+import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.*;
 import static revxrsal.commands.util.Preconditions.notNull;
 
 public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
@@ -101,7 +101,11 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
     @Override public void register() {
         if (!isSupported()) return;
-        BrigadierTreeParser.parse(this, handler).forEach(n -> register(n.build()));
+        BukkitBrigadierTreeParser.parse(this, handler).forEach(n -> register(n.build()));
+    }
+
+    @Override public @NotNull BukkitCommandHandler getCommandHandler() {
+        return handler;
     }
 
     private void register(@NotNull LiteralCommandNode<?> node) {

@@ -45,12 +45,13 @@ import java.util.stream.Collectors;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
+import static revxrsal.commands.autocomplete.SuggestionProvider.EMPTY;
 
 /**
  * A utility class for parsing Lamp's components into Brigadier's.
  */
 @SuppressWarnings("rawtypes")
-public final class BrigadierTreeParser {
+public final class BukkitBrigadierTreeParser {
 
     /**
      * Parses all the registered commands and categories in the given {@link CommandHandler}
@@ -119,13 +120,13 @@ public final class BrigadierTreeParser {
             if (parameter.isFlag()) break;
             ArgumentBuilder<?, ?> builder = getBuilder(brigadier, command, parameter);
             if (!isLast && sortedParameters.get(i + 1).isOptional())
-                builder.executes(generateAction(brigadier, parameter));
+                builder.executes(generateAction(brigadier));
             if (lastParameter == null) {
                 if (parameter.isOptional())
-                    into.executes(generateAction(brigadier, parameter));
-                into.then(lastParameter = builder.executes(generateAction(brigadier, parameter)).build());
+                    into.executes(generateAction(brigadier));
+                into.then(lastParameter = builder.executes(generateAction(brigadier)).build());
             } else {
-                lastParameter.addChild(lastParameter = builder.executes(generateAction(brigadier, parameter)).build());
+                lastParameter.addChild(lastParameter = builder.executes(generateAction(brigadier)).build());
             }
         }
         sortedParameters.removeIf(parameter -> !parameter.isFlag());
@@ -142,20 +143,22 @@ public final class BrigadierTreeParser {
             next.addChild(next = getBuilder(brigadier, command, parameter).build());
         }
         into.requires(a -> command.hasPermission(brigadier.wrapSource(a)));
+        if (command.getValueParameters().size() == 0)
+            into.executes(generateAction(brigadier));
         return (LiteralArgumentBuilder<T>) into;
     }
 
-    @NotNull private static Command generateAction(BukkitBrigadier brigadier, CommandParameter parameter) {
+    @NotNull private static Command generateAction(BukkitBrigadier brigadier) {
         return a -> {
             String input = a.getInput();
-            ArgumentStack args = parameter.getCommandHandler().parseArgumentsForCompletion(
+            ArgumentStack args = brigadier.getCommandHandler().parseArgumentsForCompletion(
                     input.startsWith("/") ? input.substring(1) : input
             );
             CommandActor actor = brigadier.wrapSource(a.getSource());
             try {
-                parameter.getCommandHandler().dispatch(actor, args);
+                brigadier.getCommandHandler().dispatch(actor, args);
             } catch (Throwable t) {
-                parameter.getCommandHandler().getExceptionHandler().handleException(t, actor);
+                brigadier.getCommandHandler().getExceptionHandler().handleException(t, actor);
             }
             return Command.SINGLE_SUCCESS;
         };
@@ -172,7 +175,7 @@ public final class BrigadierTreeParser {
         return argument(parameter.getName(), argumentType)
                 .requires(a -> parameter.hasPermission(brigadier.wrapSource(a)))
                 .suggests(createSuggestionProvider(brigadier, command, parameter))
-                .executes(isLast ? generateAction(brigadier, parameter) : null);
+                .executes(isLast ? generateAction(brigadier) : null);
     }
 
     private static SuggestionProvider<Object> createSuggestionProvider(
@@ -180,7 +183,7 @@ public final class BrigadierTreeParser {
             ExecutableCommand command,
             CommandParameter parameter
     ) {
-        if (parameter.getSuggestionProvider() == revxrsal.commands.autocomplete.SuggestionProvider.EMPTY)
+        if (parameter.getSuggestionProvider() == EMPTY)
             return null;
         if (parameter.getSuggestionProvider() == BukkitHandler.playerSuggestionProvider)
             return null;
