@@ -30,6 +30,7 @@ final class BaseAutoCompleter implements AutoCompleter {
         registerSuggestion("empty", SuggestionProvider.EMPTY);
         registerParameterSuggestions(boolean.class, SuggestionProvider.of("true", "false"));
         registerSuggestionFactory(new AutoCompleterAnnotationFactory(suggestionKeys));
+        registerSuggestionFactory(EitherSuggestionProviderFactory.INSTANCE);
     }
 
     @Override public AutoCompleter registerSuggestion(@NotNull String providerID, @NotNull SuggestionProvider provider) {

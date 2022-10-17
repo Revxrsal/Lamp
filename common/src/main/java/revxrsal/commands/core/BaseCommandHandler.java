@@ -69,7 +69,7 @@ public class BaseCommandHandler implements CommandHandler {
     public BaseCommandHandler() {
         registerContextResolverFactory(new SenderContextResolverFactory(senderResolvers));
         registerContextResolverFactory(DependencyResolverFactory.INSTANCE);
-        registerValueResolverFactory(EitherResolverFactory.INSTANCE);
+        registerValueResolverFactory(EitherValueResolverFactory.INSTANCE);
         registerValueResolver(int.class, ValueResolverContext::popInt);
         registerValueResolver(double.class, ValueResolverContext::popDouble);
         registerValueResolver(short.class, ValueResolverContext::popShort);
