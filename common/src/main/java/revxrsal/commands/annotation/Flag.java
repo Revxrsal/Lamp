@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * An annotation to mark a parameter as a flag.
  * <p>
- * Flags are pretty similar to normal parameters, however they do not need to
+ * Flags are similar to normal parameters, however they do not need to
  * come in a specific order, and are explicitly named with a special prefix when the
  * command is invoked.
  * <p>
