@@ -26,13 +26,18 @@ package revxrsal.commands.core;
 import lombok.Setter;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.process.ParameterResolver;
+import revxrsal.commands.process.ParameterValidator;
 import revxrsal.commands.util.Primitives;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Setter
 @ApiStatus.Internal
@@ -41,11 +46,14 @@ public final class EitherParameter extends ForwardingCommandParameter {
     private final CommandParameter delegate;
     private final Type type;
     private final Class<?> rawType;
+    private final List<ParameterValidator<Object>> validators;
 
     public EitherParameter(CommandParameter delegate, Type type) {
         this.delegate = delegate;
         this.type = type;
         rawType = Primitives.getRawType(type);
+        suggestionProvider = ((BaseAutoCompleter) delegate.getCommandHandler().getAutoCompleter()).getProvider(this);
+        validators = new ArrayList<>(((BaseCommandHandler) delegate.getCommandHandler()).validators.getFlexibleOrDefault(rawType, Collections.emptyList()));
     }
 
     private ParameterResolver<Object> resolver;
@@ -69,6 +77,10 @@ public final class EitherParameter extends ForwardingCommandParameter {
 
     @Override public @NotNull SuggestionProvider getSuggestionProvider() {
         return suggestionProvider;
+    }
+
+    @Override public @NotNull @Unmodifiable List<ParameterValidator<Object>> getValidators() {
+        return validators;
     }
 
     public static Type[] getTypes(CommandParameter parameter) {

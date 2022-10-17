@@ -32,7 +32,7 @@ import revxrsal.commands.util.Either;
 
 import java.lang.reflect.Type;
 
-enum EitherSuggestionProviderFactory implements SuggestionProviderFactory {
+public enum EitherSuggestionProviderFactory implements SuggestionProviderFactory {
     INSTANCE;
 
     @Override public @Nullable SuggestionProvider createSuggestionProvider(@NotNull CommandParameter parameter) {
@@ -41,17 +41,9 @@ enum EitherSuggestionProviderFactory implements SuggestionProviderFactory {
 
         Type[] types = EitherParameter.getTypes(parameter);
 
-        EitherParameter first = generate(parameter, types[0]);
-        EitherParameter second = generate(parameter, types[1]);
+        EitherParameter first = new EitherParameter(parameter, types[0]);
+        EitherParameter second = new EitherParameter(parameter, types[1]);
 
         return first.getSuggestionProvider().compose(second.getSuggestionProvider());
-    }
-
-    private static EitherParameter generate(CommandParameter parameter, Type type) {
-        EitherParameter either = new EitherParameter(parameter, type);
-        SuggestionProvider provider = ((BaseAutoCompleter) parameter.getCommandHandler().getAutoCompleter())
-                .getProvider(either);
-        either.setSuggestionProvider(provider);
-        return either;
     }
 }
