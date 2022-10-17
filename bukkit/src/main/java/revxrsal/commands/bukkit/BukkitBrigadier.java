@@ -32,9 +32,30 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 
 /**
- * Represents the brigadier hook for Bukkit
+ * Represents the Brigadier hook for Bukkit
  */
 public interface BukkitBrigadier {
+
+    /**
+     * Registers a custom {@link ArgumentTypeResolver} that constructs {@link ArgumentType}s
+     * for parameters. This has access to information about the parameter being resolved,
+     * such as type or annotations.
+     *
+     * @param resolver Resolver to register.
+     */
+    void registerArgumentTypeResolver(@NotNull ArgumentTypeResolver resolver);
+
+    /**
+     * Registers a custom {@link ArgumentTypeResolver} that constructs {@link ArgumentType}s
+     * for parameters. This has access to information about the parameter being resolved,
+     * such as type or annotations.
+     *
+     * @param priority Priority to register the resolver the in. The lower the value, the
+     *                 higher the priority. Can be used to override default behavior in
+     *                 certain argument types.
+     * @param resolver Resolver to register.
+     */
+    void registerArgumentTypeResolver(int priority, @NotNull ArgumentTypeResolver resolver);
 
     /**
      * Registers an argument type resolver for the given class. This

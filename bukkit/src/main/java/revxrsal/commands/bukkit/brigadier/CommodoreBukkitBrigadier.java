@@ -36,8 +36,11 @@ import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.bukkit.core.BukkitActor;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
-import revxrsal.commands.util.ClassMap;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static revxrsal.commands.bukkit.brigadier.ArgumentTypeResolver.forType;
 import static revxrsal.commands.bukkit.brigadier.CommodoreProvider.isSupported;
 import static revxrsal.commands.bukkit.brigadier.DefaultArgTypeResolvers.*;
 import static revxrsal.commands.util.Preconditions.notNull;
@@ -47,7 +50,7 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
     private final BukkitCommandHandler handler;
 
     private final Commodore commodore;
-    private final ClassMap<ArgumentTypeResolver> argumentTypes = new ClassMap<>();
+    private final List<ArgumentTypeResolver> resolvers = new ArrayList<>();
 
     public CommodoreBukkitBrigadier(BukkitCommandHandler handler) {
         this.handler = handler;
@@ -61,27 +64,36 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
         }
     }
 
+    @Override public void registerArgumentTypeResolver(@NotNull ArgumentTypeResolver resolver) {
+        notNull(resolver, "resolver");
+        resolvers.add(resolver);
+    }
+
+    @Override public void registerArgumentTypeResolver(int priority, @NotNull ArgumentTypeResolver resolver) {
+        notNull(resolver, "resolver");
+        resolvers.add(priority, resolver);
+    }
+
     @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentTypeResolver resolver) {
         notNull(type, "type");
         notNull(resolver, "resolver");
-        argumentTypes.add(type, resolver);
+        resolvers.add(resolver);
     }
 
     @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentType<?> argumentType) {
         notNull(type, "type");
         notNull(argumentType, "argument type");
-        argumentTypes.add(type, parameter -> argumentType);
+        resolvers.add(forType(type, argumentType));
     }
 
     @Override public void bind(@NotNull Class<?> type, @NotNull MinecraftArgumentType argumentType) {
         notNull(type, "type");
         notNull(argumentType, "argument type");
-        argumentType.getIfPresent().ifPresent(c -> argumentTypes.add(type, parameter -> c));
+        argumentType.getIfPresent().ifPresent(c -> resolvers.add(forType(type, c)));
     }
 
     public @NotNull ArgumentType<?> getArgumentType(@NotNull CommandParameter parameter) {
-        ArgumentTypeResolver resolver = argumentTypes.getFlexible(parameter.getType());
-        if (resolver != null) {
+        for (ArgumentTypeResolver resolver : resolvers) {
             ArgumentType<?> type = resolver.getArgumentType(parameter);
             if (type != null)
                 return type;
@@ -101,7 +113,8 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
     @Override public void register() {
         if (!isSupported()) return;
-        BukkitBrigadierTreeParser.parse(this, handler).forEach(n -> register(n.build()));
+        NodeParser parser = new NodeParser(this);
+        parser.parse(handler).forEach(n -> register(n.getNode()));
     }
 
     @Override public @NotNull BukkitCommandHandler getCommandHandler() {
