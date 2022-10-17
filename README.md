@@ -23,7 +23,7 @@ Through annotations, parameter resolvers, command conditions, permissions, argum
 
 ## There are many commands frameworks out there, why should I use Lamp?
 Glad you asked!
-- **Lamp is small**: The overall size of Lamp will not exceed 150 KB. Built to be lightweight, Lamp is convenient to package and ship.
+- **Lamp is small**: The overall size of Lamp does not exceed 300 KB. Built to be lightweight and dependency-less, Lamp is convenient to package and ship.
 - **Lamp is extendable**: Lamp has been built thoroughly with this in mind. You can create custom annotations for commands, parameters, permissions and resolvers, with their very own functionality. This gives so much space for your own extendability, and also helps make sure the code you write is minimal.
 - **Lamp is portable**: Created with a high-level command API and an extendable codebase, Lamp has been produced to provide first-class support to as many platforms as possible. As of now, Lamp supports the following platforms:
     - [Bukkit / Spigot](bukkit)
