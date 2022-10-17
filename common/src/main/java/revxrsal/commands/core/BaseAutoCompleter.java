@@ -22,7 +22,7 @@ final class BaseAutoCompleter implements AutoCompleter {
 
     private final BaseCommandHandler handler;
     final Map<String, SuggestionProvider> suggestionKeys = new HashMap<>();
-    final LinkedList<SuggestionProviderFactory> factories = new LinkedList<>();
+    final List<SuggestionProviderFactory> factories = new ArrayList<>();
 
     public BaseAutoCompleter(BaseCommandHandler handler) {
         this.handler = handler;

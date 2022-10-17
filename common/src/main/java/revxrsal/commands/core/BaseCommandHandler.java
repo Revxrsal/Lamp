@@ -48,7 +48,7 @@ public class BaseCommandHandler implements CommandHandler {
     protected final Map<CommandPath, BaseCommandCategory> categories = new HashMap<>();
     private final BaseCommandDispatcher dispatcher = new BaseCommandDispatcher(this);
 
-    final LinkedList<ResolverFactory> factories = new LinkedList<>();
+    final List<ResolverFactory> factories = new ArrayList<>();
     final BaseAutoCompleter autoCompleter = new BaseAutoCompleter(this);
     final ClassMap<List<ParameterValidator<Object>>> validators = new ClassMap<>();
     final ClassMap<ResponseHandler<?>> responseHandlers = new ClassMap<>();
