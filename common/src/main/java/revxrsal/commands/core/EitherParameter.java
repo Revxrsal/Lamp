@@ -27,6 +27,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import revxrsal.commands.annotation.WithNames;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.process.ParameterResolver;
@@ -47,10 +48,12 @@ public final class EitherParameter extends ForwardingCommandParameter {
     private final Type type;
     private final Class<?> rawType;
     private final List<ParameterValidator<Object>> validators;
+    private String name;
 
     public EitherParameter(CommandParameter delegate, Type type) {
         this.delegate = delegate;
         this.type = type;
+        name = delegate.getName();
         rawType = Primitives.getRawType(type);
         suggestionProvider = ((BaseAutoCompleter) delegate.getCommandHandler().getAutoCompleter()).getProvider(this);
         validators = new ArrayList<>(((BaseCommandHandler) delegate.getCommandHandler()).validators.getFlexibleOrDefault(rawType, Collections.emptyList()));
@@ -61,6 +64,10 @@ public final class EitherParameter extends ForwardingCommandParameter {
 
     @Override public @NotNull CommandParameter delegate() {
         return delegate;
+    }
+
+    @Override public @NotNull String getName() {
+        return name;
     }
 
     @Override @NotNull public Class<?> getType() {
@@ -92,9 +99,21 @@ public final class EitherParameter extends ForwardingCommandParameter {
 
     public static EitherParameter[] create(CommandParameter parameter) {
         Type[] types = getTypes(parameter);
-        return new EitherParameter[]{
+        EitherParameter[] parameters = {
                 new EitherParameter(parameter, types[0]),
                 new EitherParameter(parameter, types[1])
         };
+        if (parameter.hasAnnotation(WithNames.class)) {
+            String[] values = parameter.getAnnotation(WithNames.class).value();
+            if (values.length != 2)
+                throw new IllegalArgumentException("@WithNames() must have exactly two values when used with Either!");
+            parameters[0].name = values[0];
+            parameters[1].name = values[1];
+        } else {
+            parameters[0].name = parameter.getName() + " as " + parameters[0].getType().getSimpleName().toLowerCase();
+            parameters[1].name = parameter.getName() + " as " + parameters[1].getType().getSimpleName().toLowerCase();
+        }
+
+        return parameters;
     }
 }

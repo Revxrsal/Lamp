@@ -62,9 +62,9 @@ enum EitherValueResolverFactory implements ValueResolverFactory {
         EitherParameter either = new EitherParameter(parameter, type);
         ParameterResolver<Object> resolver = ((BaseCommandHandler) parameter.getCommandHandler()).getResolver(either);
         if (resolver == null)
-            throw new IllegalStateException("Unable to find a resolver for parameter type " + parameter.getType());
+            throw new IllegalStateException("Unable to find a resolver for parameter type " + either.getType());
         if (!resolver.mutatesArguments())
-            throw new IllegalStateException("Only value-based arguments are allowed in the Either type (found " + parameter.getType() + ")");
+            throw new IllegalStateException("Only value-based arguments are allowed in the Either type (found " + either.getType() + ")");
         either.setResolver(resolver);
         return either;
     }
