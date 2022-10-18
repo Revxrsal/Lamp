@@ -98,7 +98,7 @@ dependencies {
     implementation 'com.github.Revxrsal.Lamp:common:[version]'
 
     // For the bukkit module
-    implementation 'com.github.Revxrsal.Lamp:bukkit:[verison]'
+    implementation 'com.github.Revxrsal.Lamp:bukkit:[version]'
 }
 
 compileJava { // Preserve parameter names in the bytecode
