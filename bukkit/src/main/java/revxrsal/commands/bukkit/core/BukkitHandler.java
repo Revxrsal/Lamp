@@ -1,5 +1,7 @@
 package revxrsal.commands.bukkit.core;
 
+import static revxrsal.commands.util.Preconditions.notNull;
+
 import dev.demeng.pluginbase.lib.adventure.platform.bukkit.BukkitAudiences;
 import dev.demeng.pluginbase.lib.adventure.text.ComponentLike;
 import dev.demeng.pluginbase.plugin.BaseManager;
@@ -27,6 +29,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
@@ -49,9 +52,9 @@ import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.exception.EnumNotFoundException;
-import revxrsal.commands.util.Preconditions;
 import revxrsal.commands.util.Primitives;
 
+@Internal
 public final class BukkitHandler extends BaseCommandHandler implements BukkitCommandHandler {
 
   public static final SuggestionProvider playerSuggestionProvider = (args, sender, command) -> Bukkit.getOnlinePlayers()
@@ -68,7 +71,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
   @SuppressWarnings("rawtypes")
   public BukkitHandler(@NotNull Plugin plugin) {
     super();
-    this.plugin = Preconditions.notNull(plugin, "plugin");
+    this.plugin = notNull(plugin, "plugin");
     try {
       brigadier = Optional.of(new CommodoreBukkitBrigadier(this));
     } catch (NoClassDefFoundError e) {
@@ -202,7 +205,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
   }
 
   private void enableAdventure(@NotNull BukkitAudiences audiences) {
-    Preconditions.notNull(audiences, "audiences");
+    notNull(audiences, "audiences");
     bukkitAudiences = audiences;
     registerSenderResolver(new AudienceSenderResolver(audiences::sender));
     registerResponseHandler(ComponentLike.class, new ComponentResponseHandler(audiences::sender));

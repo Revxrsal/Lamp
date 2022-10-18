@@ -1,11 +1,11 @@
 package revxrsal.commands.annotation;
 
-import revxrsal.commands.autocomplete.AutoCompleter;
-import revxrsal.commands.autocomplete.SuggestionProvider;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import revxrsal.commands.autocomplete.AutoCompleter;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 
 /**
  * Adds tab completion for the command.

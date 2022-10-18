@@ -1,5 +1,16 @@
 package revxrsal.commands;
 
+import dev.demeng.pluginbase.locale.Translator;
+import java.lang.annotation.Annotation;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.annotation.Flag;
 import revxrsal.commands.annotation.Switch;
@@ -28,17 +39,6 @@ import revxrsal.commands.process.ResponseHandler;
 import revxrsal.commands.process.SenderResolver;
 import revxrsal.commands.process.ValueResolver;
 import revxrsal.commands.process.ValueResolverFactory;
-import dev.demeng.pluginbase.locale.Translator;
-import java.lang.annotation.Annotation;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * The main handler for registering commands, resolvers, interceptors, handlers, tab completions and

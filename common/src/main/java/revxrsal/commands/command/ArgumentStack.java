@@ -71,6 +71,13 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
   @NotNull @Unmodifiable List<String> asImmutableCopy();
 
   /**
+   * Returns an independent copy of this argument stack.
+   *
+   * @return A copy of this argument stack
+   */
+  @NotNull ArgumentStack copy();
+
+  /**
    * Returns a new {@link ArgumentStack} with the specified arguments, without doing any
    * modification to the input.
    *

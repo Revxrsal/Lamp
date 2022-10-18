@@ -390,7 +390,7 @@ public enum MinecraftArgumentType {
       } else {
         String stripped;
         if (name.lastIndexOf('.') != -1) {
-          stripped = name.substring(name.lastIndexOf('.'));
+          stripped = name.substring(name.lastIndexOf('.') + 1);
         } else {
           stripped = name;
         }

@@ -57,4 +57,9 @@ public final class LinkedArgumentStack extends LinkedList<String> implements Arg
   public @NotNull @Unmodifiable List<String> asImmutableCopy() {
     return Collections.unmodifiableList(new ArrayList<>(this));
   }
+
+  @Override
+  public @NotNull ArgumentStack copy() {
+    return new LinkedArgumentStack(this);
+  }
 }

@@ -11,7 +11,7 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.exception.ArgumentParseException;
 
-final class BukkitCommandExecutor implements TabExecutor {
+public final class BukkitCommandExecutor implements TabExecutor {
 
   private final BukkitHandler handler;
 

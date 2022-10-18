@@ -1,7 +1,7 @@
 package revxrsal.commands.autocomplete;
 
-import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.ExecutableCommand;
+import static revxrsal.commands.util.Collections.listOf;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.ExecutableCommand;
 
 /**
  * A provider for tab completions.
@@ -51,6 +53,15 @@ public interface SuggestionProvider {
     if (other == null) {
       return this;
     }
+    if (this == EMPTY && other == EMPTY) {
+      return EMPTY;
+    }
+    if (other == EMPTY) {
+      return this;
+    }
+    if (this == EMPTY) {
+      return other;
+    }
     return (args, sender, command) -> {
       Set<String> completions = new HashSet<>(other.getSuggestions(args, sender, command));
       completions.addAll(getSuggestions(args, sender, command));
@@ -81,7 +92,7 @@ public interface SuggestionProvider {
     if (suggestions == null) {
       return EMPTY;
     }
-    List<String> values = revxrsal.commands.util.Collections.listOf(suggestions);
+    List<String> values = listOf(suggestions);
     return (args, sender, command) -> values;
   }
 

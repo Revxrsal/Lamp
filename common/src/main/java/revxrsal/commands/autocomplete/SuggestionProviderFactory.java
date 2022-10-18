@@ -23,9 +23,9 @@
  */
 package revxrsal.commands.autocomplete;
 
-import revxrsal.commands.command.CommandParameter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.command.CommandParameter;
 
 /**
  * Creates a {@link SuggestionProvider} for the given type of parameter. These are most useful in

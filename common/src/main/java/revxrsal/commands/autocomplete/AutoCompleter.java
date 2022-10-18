@@ -1,12 +1,12 @@
 package revxrsal.commands.autocomplete;
 
+import java.util.Collection;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.annotation.AutoComplete;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
-import java.util.Collection;
-import java.util.List;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the handler for registering and providing auto-completion suggestions.

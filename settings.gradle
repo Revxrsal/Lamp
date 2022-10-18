@@ -2,4 +2,3 @@ rootProject.name = "Lamp"
 
 include "common"
 include "bukkit"
-include 'paper-internal-dont-use'

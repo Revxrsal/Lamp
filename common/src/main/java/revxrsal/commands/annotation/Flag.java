@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * An annotation to mark a parameter as a flag.
  * <p>
- * Flags are pretty similar to normal parameters, however they do not need to come in a specific
- * order, and are explicitly named with a special prefix when the command is invoked.
+ * Flags are similar to normal parameters, however they do not need to come in a specific order, and
+ * are explicitly named with a special prefix when the command is invoked.
  * <p>
  * For example, <code>/test (parameters) -name "hello there"</code>, in which <em>name</em> would be
  * a flag parameter.

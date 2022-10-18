@@ -5,7 +5,6 @@ repositories {
 }
 
 configurations {
-    create("shadeBlindly")
     create("testing")
     implementation.extendsFrom(testing)
 }
@@ -17,12 +16,6 @@ dependencies {
 
     /* For Brigadier on 1.13+ */
     compileOnly("com.mojang:brigadier:1.0.18")
-
-    /*
-     * We shade paper-internal without adding it as a dependency
-     * because it requires Java 17. We have to access it reflectively though :(
-     */
-    shadeBlindly(project(":paper-internal-dont-use"))
 }
 
 compileJava {
@@ -34,5 +27,4 @@ compileJava {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from configurations.testing.asFileTree.files.collect { zipTree(it) }
-    from configurations.shadeBlindly.asFileTree.files.collect { zipTree(it) }
 }

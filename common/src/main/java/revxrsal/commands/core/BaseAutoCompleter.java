@@ -1,13 +1,15 @@
 package revxrsal.commands.core;
 
 import static java.util.Collections.emptyList;
+import static revxrsal.commands.util.Collections.listOf;
+import static revxrsal.commands.util.Preconditions.coerceIn;
+import static revxrsal.commands.util.Preconditions.notNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,14 +27,13 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.util.Preconditions;
 import revxrsal.commands.util.Primitives;
 
 final class BaseAutoCompleter implements AutoCompleter {
 
   private final BaseCommandHandler handler;
   final Map<String, SuggestionProvider> suggestionKeys = new HashMap<>();
-  final LinkedList<SuggestionProviderFactory> factories = new LinkedList<>();
+  final List<SuggestionProviderFactory> factories = new ArrayList<>();
 
   public BaseAutoCompleter(BaseCommandHandler handler) {
     this.handler = handler;
@@ -40,13 +41,14 @@ final class BaseAutoCompleter implements AutoCompleter {
     registerSuggestion("empty", SuggestionProvider.EMPTY);
     registerParameterSuggestions(boolean.class, SuggestionProvider.of("true", "false"));
     registerSuggestionFactory(new AutoCompleterAnnotationFactory(suggestionKeys));
+    registerSuggestionFactory(EitherSuggestionProviderFactory.INSTANCE);
   }
 
   @Override
   public AutoCompleter registerSuggestion(@NotNull String providerID,
       @NotNull SuggestionProvider provider) {
-    Preconditions.notNull(provider, "provider ID");
-    Preconditions.notNull(provider, "tab suggestion provider");
+    notNull(provider, "provider ID");
+    notNull(provider, "tab suggestion provider");
     suggestionKeys.put(providerID, provider);
     return this;
   }
@@ -54,8 +56,8 @@ final class BaseAutoCompleter implements AutoCompleter {
   @Override
   public AutoCompleter registerSuggestion(@NotNull String providerID,
       @NotNull Collection<String> completions) {
-    Preconditions.notNull(providerID, "provider ID");
-    Preconditions.notNull(completions, "completions");
+    notNull(providerID, "provider ID");
+    notNull(completions, "completions");
     suggestionKeys.put(providerID, (args, sender, command) -> completions);
     return this;
   }
@@ -63,16 +65,15 @@ final class BaseAutoCompleter implements AutoCompleter {
   @Override
   public AutoCompleter registerSuggestion(@NotNull String providerID,
       @NotNull String... completions) {
-    registerSuggestion(providerID,
-        revxrsal.commands.util.Collections.listOf(completions));
+    registerSuggestion(providerID, listOf(completions));
     return this;
   }
 
   @Override
   public AutoCompleter registerParameterSuggestions(@NotNull Class<?> parameterType,
       @NotNull SuggestionProvider provider) {
-    Preconditions.notNull(parameterType, "parameter type");
-    Preconditions.notNull(provider, "provider");
+    notNull(parameterType, "parameter type");
+    notNull(provider, "provider");
     registerSuggestionFactory(SuggestionProviderFactory.forType(parameterType, provider));
     Class<?> wrapped = Primitives.wrap(parameterType);
     if (wrapped != parameterType) {
@@ -84,8 +85,8 @@ final class BaseAutoCompleter implements AutoCompleter {
   @Override
   public AutoCompleter registerParameterSuggestions(@NotNull Class<?> parameterType,
       @NotNull String providerID) {
-    Preconditions.notNull(parameterType, "parameter type");
-    Preconditions.notNull(providerID, "provider ID");
+    notNull(parameterType, "parameter type");
+    notNull(providerID, "provider ID");
     SuggestionProvider provider = suggestionKeys.get(providerID);
     if (provider == null) {
       throw new IllegalArgumentException(
@@ -97,7 +98,7 @@ final class BaseAutoCompleter implements AutoCompleter {
 
   @Override
   public AutoCompleter registerSuggestionFactory(@NotNull SuggestionProviderFactory factory) {
-    Preconditions.notNull(factory, "suggestion provider factory cannot be null!");
+    notNull(factory, "suggestion provider factory cannot be null!");
     factories.add(factory);
     return this;
   }
@@ -105,8 +106,8 @@ final class BaseAutoCompleter implements AutoCompleter {
   @Override
   public AutoCompleter registerSuggestionFactory(int priority,
       @NotNull SuggestionProviderFactory factory) {
-    Preconditions.notNull(factory, "suggestion provider factory cannot be null!");
-    factories.add(Preconditions.coerceIn(priority, 0, factories.size()), factory);
+    notNull(factory, "suggestion provider factory cannot be null!");
+    factories.add(coerceIn(priority, 0, factories.size()), factory);
     return this;
   }
 
@@ -210,7 +211,7 @@ final class BaseAutoCompleter implements AutoCompleter {
               return emptyList();
             }
             SuggestionProvider provider = parameter.getSuggestionProvider();
-            Preconditions.notNull(provider, "provider must not be null!");
+            notNull(provider, "provider must not be null!");
             return getParamCompletions(provider.getSuggestions(args, actor, command), args);
           }
         } catch (Throwable ignored) {
@@ -231,8 +232,7 @@ final class BaseAutoCompleter implements AutoCompleter {
       for (CommandParameter flag : parameters) {
         int index = args.indexOf(handler.getFlagPrefix() + flag.getFlagName());
         if (index == -1) {
-          return revxrsal.commands.util.Collections.listOf(
-              handler.getFlagPrefix() + flag.getFlagName());
+          return listOf(handler.getFlagPrefix() + flag.getFlagName());
         } else if (index == args.size() - 2) {
           return getParamCompletions(
               flag.getSuggestionProvider().getSuggestions(args, actor, command), args);

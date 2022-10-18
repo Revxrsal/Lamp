@@ -1,6 +1,9 @@
 package revxrsal.commands.bukkit.core;
 
+import static revxrsal.commands.util.Preconditions.notNull;
+
 import dev.demeng.pluginbase.lib.adventure.audience.Audience;
+import dev.demeng.pluginbase.lib.adventure.platform.bukkit.BukkitAudiences;
 import dev.demeng.pluginbase.lib.adventure.text.ComponentLike;
 import dev.demeng.pluginbase.plugin.BaseManager;
 import dev.demeng.pluginbase.text.Text;
@@ -30,8 +33,8 @@ public final class BukkitActor implements BukkitCommandActor {
   private final BukkitHandler handler;
 
   public BukkitActor(CommandSender sender, CommandHandler handler) {
-    this.sender = Preconditions.notNull(sender, "sender");
-    this.handler = (BukkitHandler) Preconditions.notNull(handler, "handler");
+    this.sender = notNull(sender, "sender");
+    this.handler = (BukkitHandler) notNull(handler, "handler");
   }
 
   @Override
@@ -75,7 +78,12 @@ public final class BukkitActor implements BukkitCommandActor {
     if (sender instanceof Audience) {
       return (Audience) sender;
     }
-    return handler.bukkitAudiences.sender(getSender());
+    BukkitAudiences audiences = (BukkitAudiences) handler.bukkitAudiences;
+    if (audiences == null) {
+      throw new IllegalStateException(
+          "You must call BukkitCommandHandler.enableAdventure() to access this method!");
+    }
+    return audiences.sender(getSender());
   }
 
   @Override
