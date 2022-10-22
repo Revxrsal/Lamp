@@ -13,6 +13,7 @@ import java.lang.annotation.Target;
  * Subcommand annotations are also replaceable by {@link Command} ones, however
  * when {@link Command} is used, it should include the entire command path.
  */
+@DistributeOnMethods
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Subcommand {
