@@ -1,5 +1,6 @@
 package revxrsal.commands.bukkit.core;
 
+import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -24,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.util.Strings.colorize;
