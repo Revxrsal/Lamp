@@ -49,16 +49,25 @@ final class DefaultArgTypeResolvers {
     private DefaultArgTypeResolvers() {}
 
     public static final ArgumentTypeResolver STRING = parameter -> {
+        if (parameter.getType() != String.class)
+            return null;
         if (parameter.consumesAllString())
             return greedyString();
         return string();
     };
 
-    public static final ArgumentTypeResolver BOOLEAN = parameter -> BoolArgumentType.bool();
+    public static final ArgumentTypeResolver BOOLEAN = parameter -> {
+        Class<?> type = Primitives.wrap(parameter.getType());
+        if (type != Boolean.class)
+            return null;
+        return BoolArgumentType.bool();
+    };
 
     public static final ArgumentTypeResolver NUMBER = parameter -> {
-        @Nullable Range range = parameter.getAnnotation(Range.class);
         Class<?> type = Primitives.wrap(parameter.getType());
+        if (type == null || !Number.class.isAssignableFrom(type))
+            return null;
+        @Nullable Range range = parameter.getAnnotation(Range.class);
         if (type == Integer.class) {
             if (range == null)
                 return integer();
@@ -91,9 +100,15 @@ final class DefaultArgTypeResolvers {
     private static final ArgumentType<?> MULTI_PLAYER = entity(false, true);
     private static final ArgumentType<?> MULTI_ENTITY = entity(false, false);
 
-    public static final ArgumentTypeResolver PLAYER = parameter -> SINGLE_PLAYER;
+    public static final ArgumentTypeResolver PLAYER = parameter -> {
+        if (!Player.class.isAssignableFrom(parameter.getType()))
+            return null;
+        return SINGLE_PLAYER;
+    };
 
     public static final ArgumentTypeResolver ENTITY_SELECTOR = parameter -> {
+        if (!Entity.class.isAssignableFrom(parameter.getType()))
+            return null;
         Class<? extends Entity> type = BukkitHandler.getSelectedEntity(parameter.getFullType());
         if (Player.class.isAssignableFrom(type)) // EntitySelector<Player>
             return MULTI_PLAYER;
