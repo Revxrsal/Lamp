@@ -77,7 +77,7 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
     @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentTypeResolver resolver) {
         notNull(type, "type");
         notNull(resolver, "resolver");
-        resolvers.add(resolver);
+        resolvers.add(parameter -> parameter.getType() == type ? resolver.getArgumentType(parameter) : null);
     }
 
     @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentType<?> argumentType) {
