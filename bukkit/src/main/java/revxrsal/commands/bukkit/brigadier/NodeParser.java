@@ -37,7 +37,6 @@ import revxrsal.commands.exception.ArgumentParseException;
 import revxrsal.commands.util.Either;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -48,6 +47,7 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 import static java.util.Collections.singletonList;
 import static revxrsal.commands.autocomplete.SuggestionProvider.EMPTY;
+import static revxrsal.commands.util.Collections.*;
 
 final class NodeParser {
 
@@ -133,7 +133,7 @@ final class NodeParser {
     }
 
     private void addParameterNodes(ExecutableCommand command, Node targetNode) {
-        List<Node> lastNodes = Collections.singletonList(targetNode);
+        ArrayList<Node> lastNodes = (ArrayList<Node>) listOf(targetNode);
 
         List<CommandParameter> parameters = new ArrayList<>(command.getValueParameters().values());
 
@@ -152,7 +152,7 @@ final class NodeParser {
         }
     }
 
-    private void addFlagParameter(CommandParameter parameter, List<Node> lastNodes) {
+    private void addFlagParameter(CommandParameter parameter, ArrayList<Node> lastNodes) {
         Node flagLiteral = new Node(literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()));
         flagLiteral.require(generateRequirement(parameter));
 
