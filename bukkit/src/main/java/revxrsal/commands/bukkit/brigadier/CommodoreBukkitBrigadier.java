@@ -48,7 +48,7 @@ import static revxrsal.commands.util.Preconditions.notNull;
 public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
     private final BukkitCommandHandler handler;
-    private boolean nativePlayerCompletions = false;
+    private boolean nativePlayerCompletions = true;
     private final Commodore commodore;
     private final List<ArgumentTypeResolver> resolvers = new ArrayList<>();
 
@@ -111,8 +111,8 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
         return new BukkitActor(commodore.getBukkitSender(commandSource), handler);
     }
 
-    @Override public void enableNativePlayerCompletion() {
-        nativePlayerCompletions = true;
+    @Override public void disableNativePlayerCompletion() {
+        nativePlayerCompletions = false;
     }
 
     @Override public boolean isNativePlayerCompletionEnabled() {
