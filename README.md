@@ -142,6 +142,100 @@ compileKotlin { // optional: if you're using Kotlin
 ```
 </details>
 
+## Examples
+
+**`/epicbans ban <player> <days> <reason>`**
+
+Add `-silent` to make the ban silent
+```java
+    @Command("epicbans ban")
+    public void banPlayer(
+            Player sender,
+            @Range(min = 1) long days,
+            Player toBan,
+            String reason,
+            @Switch("silent") boolean silent
+    ) {
+        if (!silent)
+            Bukkit.broadcastMessage(colorize("Player &6" + toBan.getName() + " &fhas been banned!"));
+        Date expires = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(days));
+        Bukkit.getBanList(Type.NAME).addBan(toBan.getName(), reason, expires, sender.getName());
+    }
+```
+
+**Commands to switch game-modes**
+```java
+    @Command({"gmc", "gamemode creative"})
+    public void creative(@NotSender @Default("me") Player sender) {
+        sender.setGameMode(GameMode.CREATIVE);
+    }
+
+    @Command({"gms", "gamemode survival"})
+    public void survival(@NotSender @Default("me") Player sender) {
+        sender.setGameMode(GameMode.SURVIVAL);
+    }
+
+    @Command({"gma", "gamemode adventure"})
+    public void adventure(@NotSender @Default("me") Player sender) {
+        sender.setGameMode(GameMode.ADVENTURE);
+    }
+
+    @Command({"gmsp", "gamemode spectator"})
+    public void spectator(@NotSender @Default("me") Player sender) {
+        sender.setGameMode(GameMode.SPECTATOR);
+    }
+```
+
+**Commands to ping online operators, with 10 minutes delay**
+
+```java  
+    @Command({"opassist", "opa", "helpop"})
+    @Cooldown(value = 10, unit = TimeUnit.MINUTES)
+    public void requestAssist(Player sender, String query) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.isOp()) {
+                player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1f, 1f);
+                player.sendMessage(colorize("&a" + sender.getName() + " &fneeds help: &b" + query));
+            }
+        }
+    }
+```
+
+**Terminate all nearby entities command**
+
+```java
+    @Command("killall")
+    public void terminate(BukkitCommandActor sender, @Range(min = 1) int radius) {
+        int killCount = 0;
+        for (Entity target : sender.requirePlayer().getNearbyEntities(radius, radius, radius)) {
+            if (target instanceof LivingEntity) {
+                ((LivingEntity) target).setHealth(0);
+                killCount++;
+            }
+        }
+        sender.reply("&aSuccessfully killed &e" + killCount +" &aplayers!");
+    }
+```
+
+With Brigadier:
+
+![Radius accepted as it is within range](https://i.imgur.com/VnmCiDy.png)
+
+![Radius not accepted](https://i.imgur.com/3N4xW19.png)
+
+**Message players with player selectors**
+
+```java
+    @Command("pm")
+    public void message(Player sender, EntitySelector<Player> players, String message) {
+        for (Player player : players) {
+            player.sendMessage(sender.getName() + " -> You: " + ChatColor.GOLD + message);
+        }
+    }
+```
+
+![Example selector](https://i.imgur.com/JK0373h.png)
+
 ## Documentation
 - **Overview**: [Lamp/wiki](https://github.com/Revxrsal/Lamp/wiki)
 - **Examples**: [wiki/examples](https://github.com/Revxrsal/Lamp/wiki/Building-commands)
