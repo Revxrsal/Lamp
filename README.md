@@ -236,6 +236,8 @@ With Brigadier:
 
 ![Example selector](https://i.imgur.com/JK0373h.png)
 
+**More examples available [here](https://github.com/Revxrsal/Lamp/wiki/Building-commands)**
+
 ## Documentation
 - **Overview**: [Lamp/wiki](https://github.com/Revxrsal/Lamp/wiki)
 - **Examples**: [wiki/examples](https://github.com/Revxrsal/Lamp/wiki/Building-commands)
