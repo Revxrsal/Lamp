@@ -105,6 +105,23 @@ public interface BukkitBrigadier {
     @NotNull CommandActor wrapSource(@NotNull Object commandSource);
 
     /**
+     * Enables the native player completion. This means player completions
+     * that are identical to vanilla Minecraft commands, prompt selectors
+     * such as {@code @e[player=...]} and client-side error validation.
+     * <p>
+     * This feature is disabled by default.
+     */
+    void enableNativePlayerCompletion();
+
+    /**
+     * Tests whether native player completions are enabled or not.
+     *
+     * @return If native player completion is enabled or not.
+     * @see #enableNativePlayerCompletion()
+     */
+    boolean isNativePlayerCompletionEnabled();
+
+    /**
      * Registers the command handler's brigadier
      */
     void register();
@@ -116,5 +133,4 @@ public interface BukkitBrigadier {
      * @return The command handler
      */
     @NotNull BukkitCommandHandler getCommandHandler();
-
 }
