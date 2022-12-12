@@ -109,7 +109,8 @@ public interface BukkitBrigadier {
      * that are identical to vanilla Minecraft commands, prompt selectors
      * such as {@code @e[player=...]} and client-side error validation.
      * <p>
-     * This feature is disabled by default.
+     * This feature is disabled by default. It must be called <em>before</em>
+     * registering.
      */
     void enableNativePlayerCompletion();
 
