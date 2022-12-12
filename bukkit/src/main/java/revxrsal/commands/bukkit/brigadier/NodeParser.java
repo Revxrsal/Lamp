@@ -42,12 +42,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 import static java.util.Collections.singletonList;
 import static revxrsal.commands.autocomplete.SuggestionProvider.EMPTY;
-import static revxrsal.commands.util.Collections.*;
+import static revxrsal.commands.util.Collections.listOf;
 
 final class NodeParser {
 
@@ -148,7 +147,9 @@ final class NodeParser {
             List<Node> paramNodes = createNodes(parameter);
             if (paramNodes == null || paramNodes.isEmpty()) continue;
             lastNodes.forEach(lastNode -> lastNode.addChildren(paramNodes));
-            lastNodes = new ArrayList<>(paramNodes);
+
+            lastNodes.clear();
+            lastNodes.addAll(paramNodes);
         }
     }
 
@@ -159,13 +160,13 @@ final class NodeParser {
         if (parameter.isOptional())
             lastNodes.forEach(lastNode -> lastNode.canBeExecuted(brigadier));
 
-        Node flagValue = new Node(argument(parameter.getName(), integer()));
-        flagLiteral.addChild(flagValue);
+        List<Node> flagNodes = createNodes(parameter);
+        flagLiteral.addChildren(flagNodes);
 
         lastNodes.forEach(lastNode -> lastNode.addChild(flagLiteral));
         lastNodes.clear();
 
-        lastNodes.add(flagValue);
+        lastNodes.addAll(flagNodes);
     }
 
     private static SuggestionProvider<Object> createSuggestionProvider(
@@ -174,7 +175,8 @@ final class NodeParser {
     ) {
         if (parameter.getSuggestionProvider() == EMPTY)
             return null;
-        if (parameter.getSuggestionProvider() == BukkitHandler.playerSuggestionProvider)
+        if (brigadier.isNativePlayerCompletionEnabled() &&
+                parameter.getSuggestionProvider() == BukkitHandler.playerSuggestionProvider)
             return null;
         return (context, builder) -> {
             try {
