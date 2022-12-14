@@ -23,18 +23,17 @@
  */
 package revxrsal.commands.bukkit.brigadier;
 
-import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 import static java.util.Collections.singletonList;
 import static revxrsal.commands.autocomplete.SuggestionProvider.EMPTY;
+import static revxrsal.commands.util.Collections.listOf;
 
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -143,7 +142,7 @@ final class NodeParser {
   }
 
   private void addParameterNodes(ExecutableCommand command, Node targetNode) {
-    List<Node> lastNodes = Collections.singletonList(targetNode);
+    ArrayList<Node> lastNodes = (ArrayList<Node>) listOf(targetNode);
 
     List<CommandParameter> parameters = new ArrayList<>(command.getValueParameters().values());
 
@@ -161,11 +160,13 @@ final class NodeParser {
         continue;
       }
       lastNodes.forEach(lastNode -> lastNode.addChildren(paramNodes));
-      lastNodes = new ArrayList<>(paramNodes);
+
+      lastNodes.clear();
+      lastNodes.addAll(paramNodes);
     }
   }
 
-  private void addFlagParameter(CommandParameter parameter, List<Node> lastNodes) {
+  private void addFlagParameter(CommandParameter parameter, ArrayList<Node> lastNodes) {
     Node flagLiteral = new Node(
         literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()));
     flagLiteral.require(generateRequirement(parameter));
@@ -174,13 +175,13 @@ final class NodeParser {
       lastNodes.forEach(lastNode -> lastNode.canBeExecuted(brigadier));
     }
 
-    Node flagValue = new Node(argument(parameter.getName(), integer()));
-    flagLiteral.addChild(flagValue);
+    List<Node> flagNodes = createNodes(parameter);
+    flagLiteral.addChildren(flagNodes);
 
     lastNodes.forEach(lastNode -> lastNode.addChild(flagLiteral));
     lastNodes.clear();
 
-    lastNodes.add(flagValue);
+    lastNodes.addAll(flagNodes);
   }
 
   private static SuggestionProvider<Object> createSuggestionProvider(
@@ -190,7 +191,8 @@ final class NodeParser {
     if (parameter.getSuggestionProvider() == EMPTY) {
       return null;
     }
-    if (parameter.getSuggestionProvider() == BukkitHandler.playerSuggestionProvider) {
+    if (brigadier.isNativePlayerCompletionEnabled() &&
+        parameter.getSuggestionProvider() == BukkitHandler.playerSuggestionProvider) {
       return null;
     }
     return (context, builder) -> {
