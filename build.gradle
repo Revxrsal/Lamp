@@ -10,10 +10,8 @@ subprojects {
     group = "dev.demeng"
     version = "3.1.0"
 
-    if (name != "paper-internal-dont-use") {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
-    }
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     publishing {
         publications {
@@ -25,11 +23,11 @@ subprojects {
 
     repositories {
         mavenCentral()
-        mavenLocal()
+        maven { url 'https://jitpack.io' }
     }
 
     dependencies {
-        compileOnly("dev.demeng:pluginbase-core:1.32.0-SNAPSHOT")
+        compileOnly("com.github.Demeng7215.PluginBase:pluginbase-core:f795c70c69")
         compileOnly("org.jetbrains:annotations:22.0.0")
         compileOnly("org.projectlombok:lombok:1.18.20")
         annotationProcessor("org.projectlombok:lombok:1.18.20")
