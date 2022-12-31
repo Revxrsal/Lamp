@@ -178,6 +178,11 @@ public class BaseCommandHandler implements CommandHandler {
       }
     });
     registerCondition((actor, command, arguments) -> command.checkPermission(actor));
+    registerResponseHandler(String.class, (response, actor, command) -> {
+      if (response != null) {
+        actor.reply(response);
+      }
+    });
     registerAnnotationReplacer(Description.class, new LocalesAnnotationReplacer(this));
   }
 
