@@ -71,7 +71,9 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         if (!state.hasMore()) {
             return;
         }
-        while (state.hasMore() && Character.isWhitespace(state.peek())) {
+        /* To make it skip ALL additional whitespace, replace if with while */
+//        while (state.hasMore() && Character.isWhitespace(state.peek())) {
+        if (Character.isWhitespace(state.peek())) {
             state.next();
         }
     }
@@ -162,10 +164,6 @@ public final class QuotedStringTokenizer implements ArgumentParser {
 
         public ArgumentParseException createException(String message) {
             return new ArgumentParseException(message, buffer, index);
-        }
-
-        public int getIndex() {
-            return index;
         }
     }
 }
