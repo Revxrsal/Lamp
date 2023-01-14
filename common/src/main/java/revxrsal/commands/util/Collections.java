@@ -27,17 +27,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-@SuppressWarnings("unchecked")
 public final class Collections {
 
     private Collections() {}
 
+    @SafeVarargs
     public static <T> LinkedList<T> linkedListOf(T... elements) {
         LinkedList<T> list = new LinkedList<>();
         java.util.Collections.addAll(list, elements);
         return list;
     }
 
+    @SafeVarargs
     public static <T> List<T> listOf(T... elements) {
         List<T> list = new ArrayList<>();
         java.util.Collections.addAll(list, elements);
