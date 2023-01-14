@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package revxrsal.commands.util.tokenize;
+package revxrsal.commands.util;
 
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.ArgumentParser;

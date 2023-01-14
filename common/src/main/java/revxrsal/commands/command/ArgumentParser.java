@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.exception.ArgumentParseException;
 import revxrsal.commands.util.Strings;
-import revxrsal.commands.util.tokenize.QuotedStringTokenizer;
+import revxrsal.commands.util.QuotedStringTokenizer;
 
 /**
  * Represents a parser that receives strings and converts them into

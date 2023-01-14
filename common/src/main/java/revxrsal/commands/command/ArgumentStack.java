@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.core.LinkedArgumentStack;
-import revxrsal.commands.util.tokenize.QuotedStringTokenizer;
+import revxrsal.commands.util.QuotedStringTokenizer;
 
 import java.util.Collection;
 import java.util.Deque;
