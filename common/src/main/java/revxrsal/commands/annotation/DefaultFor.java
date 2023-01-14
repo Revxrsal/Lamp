@@ -29,7 +29,8 @@ import java.lang.annotation.Target;
 public @interface DefaultFor {
 
     /**
-     * The paths to become the default for.
+     * The paths to become the default for. Note that this path is absolute,
+     * it is not relative to the parent command or method.
      *
      * @return The command paths which this method will become the default
      * action for.
