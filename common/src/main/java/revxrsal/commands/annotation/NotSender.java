@@ -35,4 +35,17 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NotSender {}
+@NotSender.ImpliesNotSender
+public @interface NotSender {
+
+    /**
+     * A marker annotation that is added to other annotations whose presence implies that
+     * the parameter they are annotating is definitely not a sender parameter, for example
+     * a {@link Switch}.
+     */
+    @Target(ElementType.ANNOTATION_TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface ImpliesNotSender {
+    }
+
+}

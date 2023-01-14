@@ -30,6 +30,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 /**
  * Marker annotation to mark that a parameter should NOT be concatenated with the rest
  * of the command arguments.
@@ -38,4 +39,5 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@NotSender.ImpliesNotSender
 public @interface Single {}

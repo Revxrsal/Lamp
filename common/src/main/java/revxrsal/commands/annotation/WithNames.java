@@ -36,6 +36,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
+@NotSender.ImpliesNotSender
 public @interface WithNames {
 
     /**

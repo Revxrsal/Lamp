@@ -43,6 +43,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@NotSender.ImpliesNotSender
 public @interface Flag {
 
     /**
