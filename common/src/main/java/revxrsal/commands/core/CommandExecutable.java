@@ -28,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.CommandHandler;
-import revxrsal.commands.annotation.Default;
 import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.CommandPermission;
@@ -117,9 +116,9 @@ class CommandExecutable implements ExecutableCommand {
         return reader.contains(annotation);
     }
 
-    public void parent(BaseCommandCategory cat) {
+    public void parent(BaseCommandCategory cat, boolean isDefault) {
         parent = cat;
-        if (hasAnnotation(Default.class) && cat != null)
+        if (isDefault)
             cat.defaultAction = this;
         else {
             if (cat != null)

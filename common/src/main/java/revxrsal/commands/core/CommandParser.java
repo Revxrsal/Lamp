@@ -35,6 +35,7 @@ import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.reflect.MethodCaller.BoundMethodCaller;
 import revxrsal.commands.orphan.OrphanCommand;
 import revxrsal.commands.orphan.OrphanRegistry;
+import revxrsal.commands.orphan.Orphans;
 import revxrsal.commands.process.ParameterResolver;
 import revxrsal.commands.process.ParameterValidator;
 import revxrsal.commands.process.PermissionReader;
@@ -51,20 +52,40 @@ import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.addAll;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 import static revxrsal.commands.util.Collections.listOf;
 import static revxrsal.commands.util.Strings.getName;
 import static revxrsal.commands.util.Strings.splitBySpace;
 
+/**
+ * Handles the parsing logic for commands
+ */
 final class CommandParser {
 
-    static final ResponseHandler<?> VOID_HANDLER = (response, actor, command) -> {};
+    /**
+     * Handles the response returned by (void) methods
+     */
+    static final ResponseHandler<?> VOID_HANDLER = (response, actor, command) -> {
+    };
+
+    /**
+     * A counter for commands IDs
+     */
     private static final AtomicInteger COMMAND_ID = new AtomicInteger();
 
-    private CommandParser() {}
+    private CommandParser() {
+    }
 
+    /**
+     * Parses classes that implement {@link OrphanCommand}. This will
+     *
+     * @param handler The command handler
+     * @param orphan  The orphan constructed from {@link Orphans}
+     */
     public static void parse(@NotNull BaseCommandHandler handler, @NotNull OrphanRegistry orphan) {
         OrphanCommand instance = orphan.getHandler();
         Class<?> type = instance.getClass();
@@ -73,6 +94,13 @@ final class CommandParser {
         parse(handler, type, orphan);
     }
 
+    /**
+     * Parses the commands in a bound target. A bound target accepts a class (i.e. {@code MyClass.class}),
+     * and accepts an instance (i.e. {@code new MyClass()});
+     *
+     * @param handler     The command handler
+     * @param boundTarget The instance to rgeister for
+     */
     public static void parse(@NotNull BaseCommandHandler handler, @NotNull Object boundTarget) {
         Class<?> type = boundTarget instanceof Class ? (Class<?>) boundTarget : boundTarget.getClass();
         parse(handler, type, boundTarget);
@@ -83,48 +111,73 @@ final class CommandParser {
         Map<CommandPath, BaseCommandCategory> categories = handler.categories;
         Map<CommandPath, CommandExecutable> subactions = new HashMap<>();
         for (Method method : getAllMethods(container)) {
+            /* Parse annotations on a method */
             AnnotationReader reader = AnnotationReader.create(handler, method);
+
+            /* How we should invoke methods. This varies between normal commands and orphan commands */
             Object invokeTarget = boundTarget;
+
+            /* Not a command method (i.e. does not contain any annotation that indicates a command) */
             if (reader.shouldDismiss()) continue;
+
+            /* We synthesize a @Command(...) for methods in orphan commands classes */
             if (boundTarget instanceof OrphanRegistry) {
                 insertCommandPath((OrphanRegistry) boundTarget, reader);
                 invokeTarget = ((OrphanRegistry) invokeTarget).getHandler();
             }
+
+            /* Distribute and replace annotations */
             reader.distributeAnnotations();
             reader.replaceAnnotations(handler);
+
+            /* Generates the command path for the given method. This will take into account
+             * the parent class annotations */
             List<CommandPath> paths = getCommandPath(container, method, reader);
             BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(invokeTarget);
+
+            /* Generate command ID */
             int id = COMMAND_ID.getAndIncrement();
-            boolean isDefault = reader.contains(Default.class);
+
+            /* Check if the command is default, and if so, generate a path for it */
+            boolean isDefault = reader.contains(Default.class) || reader.contains(DefaultFor.class);
+            String[] defPath = reader.get(DefaultFor.class, DefaultFor::value);
+            List<CommandPath> defaultPaths = defPath == null ? emptyList() : Arrays.stream(defPath)
+                    .map(CommandPath::parse).collect(Collectors.toList());
             paths.forEach(path -> {
-                for (BaseCommandCategory category : getCategories(handler, isDefault, path)) {
+                for (BaseCommandCategory category : generateCategories(handler, isDefault, path)) {
                     categories.putIfAbsent(category.path, category);
                 }
-                CommandExecutable executable = new CommandExecutable();
-                if (!isDefault) categories.remove(path); // prevent duplication.
-                executable.name = path.getLast();
-                executable.id = id;
-                executable.handler = handler;
-                executable.description = reader.get(Description.class, Description::value);
-                executable.path = path;
-                executable.method = method;
-                executable.reader = reader;
-                executable.secret = reader.contains(SecretCommand.class);
-                executable.methodCaller = caller;
-                if (isDefault)
-                    executable.parent(categories.get(path));
-                else
-                    executable.parent(categories.get(path.getCategoryPath()));
-                executable.responseHandler = getResponseHandler(handler, method.getGenericReturnType());
-                executable.parameters = getParameters(handler, method, executable);
-                executable.resolveableParameters = executable.parameters.stream()
-                        .filter(c -> c.getCommandIndex() != -1)
-                        .collect(toMap(CommandParameter::getCommandIndex, c -> c));
-                executable.usage = reader.get(Usage.class, Usage::value, () -> generateUsage(executable));
-                if (reader.contains(Default.class))
-                    subactions.put(path, executable);
-                else
-                    putOrError(handler.executables, path, executable, "A command with path '" + path.toRealString() + "' already exists!");
+                List<CommandPath> defaultPathAndNormalPath = new ArrayList<>();
+                defaultPathAndNormalPath.add(path);
+                defaultPathAndNormalPath.addAll(defaultPaths);
+                for (CommandPath p : defaultPathAndNormalPath) {
+                    boolean registerAsDefault = defaultPaths.contains(p);
+                    CommandExecutable executable = new CommandExecutable();
+                    if (!registerAsDefault) categories.remove(p); // prevent duplication.
+                    executable.name = p.getLast();
+                    executable.id = id;
+                    executable.handler = handler;
+                    executable.description = reader.get(Description.class, Description::value);
+                    executable.path = p;
+                    executable.method = method;
+                    executable.reader = reader;
+                    executable.secret = reader.contains(SecretCommand.class);
+                    executable.methodCaller = caller;
+                    if (registerAsDefault)
+                        executable.parent(categories.get(p), true);
+                    else
+                        executable.parent(categories.get(p.getCategoryPath()), false);
+                    executable.responseHandler = getResponseHandler(handler, method.getGenericReturnType());
+                    executable.parameters = getParameters(handler, method, executable);
+                    executable.resolveableParameters = executable.parameters.stream()
+                            .filter(c -> c.getCommandIndex() != -1)
+                            .collect(toMap(CommandParameter::getCommandIndex, c -> c));
+                    executable.usage = reader.get(Usage.class, Usage::value, () -> generateUsage(executable));
+                    if (registerAsDefault)
+                        subactions.put(p, executable);
+                    else
+                        putOrError(handler.executables, p, executable, "A command with path '" + p.toRealString() + "' already exists!");
+                }
             });
         }
 
@@ -140,9 +193,15 @@ final class CommandParser {
         List<CommandPath> paths = boundTarget.getParentPaths();
         String[] pathsArray = paths.stream().map(CommandPath::toRealString).toArray(String[]::new);
         reader.add(new Command() {
-            @Override public Class<? extends Annotation> annotationType() {return Command.class;}
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Command.class;
+            }
 
-            @Override public String[] value() {return pathsArray;}
+            @Override
+            public String[] value() {
+                return pathsArray;
+            }
         });
     }
 
@@ -201,7 +260,11 @@ final class CommandParser {
         }
     }
 
-    private static Set<BaseCommandCategory> getCategories(CommandHandler handler, boolean respectDefault, @NotNull CommandPath path) {
+    private static Set<BaseCommandCategory> generateCategories(
+            CommandHandler handler,
+            boolean respectDefault,
+            @NotNull CommandPath path
+    ) {
         if (path.size() == 1 && !respectDefault) return Collections.emptySet();
         String parent = path.getParent();
         Set<BaseCommandCategory> categories = new HashSet<>();
@@ -237,14 +300,18 @@ final class CommandParser {
             Parameter parameter = methodParameters[i];
             AnnotationReader paramAnns = AnnotationReader.create(handler, parameter);
             List<ParameterValidator<Object>> validators = new ArrayList<>(
-                    handler.validators.getFlexibleOrDefault(parameter.getType(), Collections.emptyList())
+                    handler.validators.getFlexibleOrDefault(parameter.getType(), emptyList())
             );
+
             String[] defaultValue = paramAnns.get(Default.class, Default::value);
+            if (defaultValue == null || defaultValue.length == 0 && paramAnns.contains(Optional.class))
+                defaultValue = paramAnns.get(Optional.class, Optional::def);
+
             BaseCommandParameter param = new BaseCommandParameter(
                     getName(parameter),
                     paramAnns.get(Description.class, Description::value),
                     i,
-                    defaultValue == null ? Collections.emptyList() : Collections.unmodifiableList(Arrays.asList(defaultValue)),
+                    defaultValue == null ? emptyList() : Collections.unmodifiableList(Arrays.asList(defaultValue)),
                     i == methodParameters.length - 1 && !paramAnns.contains(Single.class),
                     paramAnns.contains(Optional.class) || paramAnns.contains(Default.class),
                     parent,
@@ -322,7 +389,7 @@ final class CommandParser {
                     paths.add(CommandPath.get(path));
                 }
             } else {
-                paths.add(CommandPath.get(splitBySpace(command)));
+                paths.add(CommandPath.parse(command));
             }
         }
         return paths;

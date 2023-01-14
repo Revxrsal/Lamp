@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.annotation;
 
+import org.jetbrains.annotations.ApiStatus;
 import revxrsal.commands.command.CommandParameter;
 
 import java.lang.annotation.ElementType;
@@ -46,9 +47,20 @@ import java.lang.annotation.Target;
  * that should be invoked when an invalid command is inputted in the command
  * tree. Methods annotated with {@link Default} can have parameters just like any
  * other command methods.
+ *
+ * @deprecated The usage of this annotation causes confusion, and may lead
+ * to unpredictable or unclear behavior. Therefore, this annotation has been split into
+ * two others, to make the functionality clear and exclusive:
+ * <ol>
+ *     <li>Default(value) has been replaced with {@link Optional} {@code @Optional(def = "default value")}</li>
+ *     <li>Default for creating 'default' command logic has been replaced with {@link DefaultFor} {@code @DefaultFor("command to be the default for")}</li>
+ * </ol>
  */
 @Target({ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
+@ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
+@NotSender.ImpliesNotSender
 public @interface Default {
 
     /**

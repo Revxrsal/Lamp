@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 import static revxrsal.commands.util.Collections.linkedListOf;
+import static revxrsal.commands.util.Strings.splitBySpace;
 
 /**
  * Represents the full, qualified, case-insensitive path of a command.
@@ -41,6 +42,18 @@ import static revxrsal.commands.util.Collections.linkedListOf;
  * as a key for maps that use hashing.
  */
 public class CommandPath implements Iterable<String>, Comparable<CommandPath> {
+
+    /**
+     * Returns the corresponding {@link CommandPath} to the given path. This will
+     * respect spaces
+     *
+     * @param path Path to wrap
+     * @return The command path
+     */
+    public static @NotNull CommandPath parse(@NotNull String path) {
+        Preconditions.notEmpty(path, "Path cannot be empty!");
+        return get(splitBySpace(path));
+    }
 
     /**
      * Returns the corresponding {@link CommandPath} to the given path
@@ -219,12 +232,12 @@ public class CommandPath implements Iterable<String>, Comparable<CommandPath> {
      * @return True if this is a child of it, false if otherwise.
      */
     public boolean isChildOf(CommandPath other) {
-          if (path.size() < other.size()) return false;
-          for (int i = 0; i < path.size(); i++) {
-               if (other.path.size() <= i) return true; // means that all previous arguments matched
-               if (!other.path.get(i).equals(path.get(i))) return false;
-          }
-          return true;
+        if (path.size() < other.size()) return false;
+        for (int i = 0; i < path.size(); i++) {
+            if (other.path.size() <= i) return true; // means that all previous arguments matched
+            if (!other.path.get(i).equals(path.get(i))) return false;
+        }
+        return true;
     }
 
     /**
@@ -237,22 +250,27 @@ public class CommandPath implements Iterable<String>, Comparable<CommandPath> {
         return other.isChildOf(this);
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CommandPath)) return false;
         CommandPath that = (CommandPath) o;
         return Objects.equals(path, that.path);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return path.hashCode();
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "CommandPath{" + toRealString() + '}';
     }
 
-    @NotNull @Override public Iterator<String> iterator() {
+    @NotNull
+    @Override
+    public Iterator<String> iterator() {
         return new PathIterator<>(path.iterator());
     }
 
@@ -285,7 +303,8 @@ public class CommandPath implements Iterable<String>, Comparable<CommandPath> {
 
     }
 
-    @Override public int compareTo(@NotNull CommandPath o) {
+    @Override
+    public int compareTo(@NotNull CommandPath o) {
         if (isParentOf(o))
             return -1;
         else if (isChildOf(o))

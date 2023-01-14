@@ -143,7 +143,7 @@ public final class BaseCommandDispatcher {
                     }
                     values[parameter.getMethodIndex()] = value;
                 } else {
-                    if (!addDefaultValues(args, parameter, actor, values)) {
+                    if (!addDefaultValues(args, parameter, values)) {
                         parameter.checkPermission(actor);
                         ValueContextR cxt = new ValueContextR(input, actor, parameter, values, args);
                         Object value = resolver.resolve(cxt);
@@ -160,10 +160,9 @@ public final class BaseCommandDispatcher {
 
     private boolean addDefaultValues(ArgumentStack args,
                                      CommandParameter parameter,
-                                     CommandActor actor,
                                      Object[] values) {
         if (args.isEmpty()) {
-            if (parameter.getDefaultValue().isEmpty() && parameter.isOptional()) {
+            if (parameter.getDefaultValue().contains("<?null>")) {
                 values[parameter.getMethodIndex()] = null;
                 return true;
             } else {

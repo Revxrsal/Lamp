@@ -26,10 +26,7 @@ package revxrsal.commands.core;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.annotation.Command;
-import revxrsal.commands.annotation.Default;
-import revxrsal.commands.annotation.DistributeOnMethods;
-import revxrsal.commands.annotation.Subcommand;
+import revxrsal.commands.annotation.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -48,7 +45,8 @@ import java.util.stream.Stream;
     private static final List<Class<? extends Annotation>> COMMAND_ANNOTATIONS = Stream.of(
             Command.class,
             Subcommand.class,
-            Default.class
+            Default.class,
+            DefaultFor.class
     ).collect(Collectors.toList());
 
     public static AnnotationReader create(@NotNull BaseCommandHandler handler,
