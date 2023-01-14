@@ -23,10 +23,13 @@
  */
 package revxrsal.commands.command;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
+import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.core.LinkedArgumentStack;
+import revxrsal.commands.util.tokenize.QuotedStringTokenizer;
 
 import java.util.Collection;
 import java.util.Deque;
@@ -104,15 +107,57 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
     @NotNull ArgumentStack copy();
 
     /**
-     * Returns a new {@link ArgumentStack} with the specified arguments, without
-     * doing any modification to the input.
+     * Parses the given input and returns a new {@link ArgumentStack} with
+     * the specified arguments. This will respect quotes, backslashes, and
+     * other quote-specific grammar.
      *
      * @param arguments Arguments to clone from
      * @return The newly created argument stack.
      */
-    static @NotNull ArgumentStack copy(@NotNull Collection<String> arguments) {
+    static @NotNull ArgumentStack parse(@NotNull String... arguments) {
+        if (arguments.length == 0) return empty();
+        return new LinkedArgumentStack(QuotedStringTokenizer.INSTANCE.parse(String.join(" ", arguments)));
+    }
+
+    /**
+     * Parses the given input and returns a new {@link ArgumentStack} with
+     * the specified arguments. This will respect quotes, backslashes, and
+     * other quote-specific grammar.
+     *
+     * @param arguments Arguments to clone from
+     * @return The newly created argument stack.
+     */
+    static @NotNull ArgumentStack parse(@NotNull Collection<String> arguments) {
         if (arguments.size() == 0) return empty();
-        return new LinkedArgumentStack(arguments);
+        return new LinkedArgumentStack(QuotedStringTokenizer.INSTANCE.parse(String.join(" ", arguments)));
+    }
+
+    /**
+     * Returns a new {@link ArgumentStack} with the specified arguments. This
+     * will not remove trailing space, and is dedicated only for usage in
+     * tab completions.
+     * <p>
+     * This should only be used with {@link AutoCompleter#complete(CommandActor, ArgumentStack)}.
+     *
+     * @param arguments Arguments to clone from
+     * @return The newly created argument stack.
+     */
+    static @NotNull ArgumentStack parseForAutoCompletion(@NotNull String... arguments) {
+        return new LinkedArgumentStack(QuotedStringTokenizer.INSTANCE.parseForAutoCompletion(String.join(" ", arguments)));
+    }
+
+    /**
+     * Returns a new {@link ArgumentStack} with the specified arguments. This
+     * will not remove trailing space, and is dedicated only for usage in
+     * tab completions.
+     * <p>
+     * This should only be used with {@link AutoCompleter#complete(CommandActor, ArgumentStack)}.
+     *
+     * @param arguments Arguments to clone from
+     * @return The newly created argument stack.
+     */
+    static @NotNull ArgumentStack parseForAutoCompletion(@NotNull Collection<String> arguments) {
+        return new LinkedArgumentStack(QuotedStringTokenizer.INSTANCE.parseForAutoCompletion(String.join(" ", arguments)));
     }
 
     /**
@@ -121,9 +166,49 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      *
      * @param arguments Arguments to clone from
      * @return The newly created argument stack.
+     * @deprecated Misleading. Use {@link #copyExact} instead
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
     static @NotNull ArgumentStack copy(@NotNull String... arguments) {
+        return copyExact(arguments);
+    }
+
+    /**
+     * Returns a new {@link ArgumentStack} with the specified arguments, without
+     * doing any modification to the input.
+     *
+     * @param arguments Arguments to clone from
+     * @deprecated Misleading. Use {@link #copyExact} instead
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
+    static @NotNull ArgumentStack copy(@NotNull Collection<String> arguments) {
+        if (arguments.size() == 0) return empty();
+        return new LinkedArgumentStack(arguments);
+    }
+
+    /**
+     * Returns a new {@link ArgumentStack} with the specified arguments, without
+     * doing any modification to the input. This will not respect quotes or backslashes
+     *
+     * @param arguments Arguments to clone from
+     * @return The newly created argument stack.
+     */
+    static @NotNull ArgumentStack copyExact(@NotNull String... arguments) {
         if (arguments.length == 0) return empty();
+        return new LinkedArgumentStack(arguments);
+    }
+
+    /**
+     * Returns a new {@link ArgumentStack} with the specified arguments, without
+     * doing any modification to the input. This will not respect quotes or backslashes
+     *
+     * @param arguments Arguments to clone from
+     * @return The newly created argument stack.
+     */
+    static @NotNull ArgumentStack copyExact(@NotNull List<String> arguments) {
+        if (arguments.size() == 0) return empty();
         return new LinkedArgumentStack(arguments);
     }
 
