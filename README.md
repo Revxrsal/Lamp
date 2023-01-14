@@ -47,16 +47,12 @@ Glad you asked!
    - **[Built-in command cooldown handler](common/src/main/java/revxrsal/commands/annotation/Cooldown.java)**
 
 ## Getting Started
-Now, for the good part.
 
-First, you'll need to add the JitPack repository, and then you're going to select which part of Lamp you're going to use.
-
-If you for some reason want to use the whole project as dependency, you can use "com.github.Revxrsal" as the groupId (or group on Gradle), and only the name "Lamp" as the artifactId (or name on Gradle).
-But if you chose to use only one module or two, you have to use "com.github.Revxrsal.Lamp" as the groupId and "[the module that you want]" as the artifactId. Bellow, there are examples about Maven and Gradle that will help you get started.
+See available versions and modules below.
 
 ### Maven
-<details>
-  <summary>pom.xml</summary>
+
+**pom.xml**
   
   ``` xml
   <repositories>
@@ -67,38 +63,37 @@ But if you chose to use only one module or two, you have to use "com.github.Revx
   </repositories>
 
   <dependencies>
-      <!-- For the common module -->
+      <!-- Required for all platforms -->
       <dependency>
           <groupId>com.github.Revxrsal.Lamp</groupId>
           <artifactId>common</artifactId> 
           <version>[version]</version>
       </dependency>
 
-      <!-- For the bukkit module -->
+      <!-- Add your specific platform module here -->
       <dependency>
           <groupId>com.github.Revxrsal.Lamp</groupId>
-          <artifactId>bukkit</artifactId>
+          <artifactId>[module]</artifactId>
           <version>[version]</version>
       </dependency>  
   </dependencies>
   ```
- </details>
 
 ### Gradle
-<details>
-  <summary>build.gradle (Groovy)</summary>
-  
+
+**build.gradle (Groovy)**
+
 ```groovy
 repositories {
     maven { url = 'https://jitpack.io' }
 }
 
 dependencies {
-    // For the common module
+    // Required for all platforms
     implementation 'com.github.Revxrsal.Lamp:common:[version]'
 
-    // For the bukkit module
-    implementation 'com.github.Revxrsal.Lamp:bukkit:[version]'
+    // Add your specific platform module here
+    implementation 'com.github.Revxrsal.Lamp:[module]:[version]'
 }
 
 compileJava { // Preserve parameter names in the bytecode
@@ -111,11 +106,8 @@ compileKotlin { // optional: if you're using Kotlin
     kotlinOptions.javaParameters = true
 }
 ```
-</details>
 
-
-<details>
-  <summary>build.gradle.kts (Kotlin DSL)</summary>
+**build.gradle.kts (Kotlin DSL)**
 
 ```kotlin
 repositories {
@@ -123,11 +115,11 @@ repositories {
 }
 
 dependencies {
-    // For the common project
+    // Required for all platforms
     implementation("com.github.Revxrsal.Lamp:common:[version]")
 
-    // For the bukkit module
-    implementation("com.github.Revxrsal.Lamp:bukkit:[verison]")
+    // Add your specific platform module here
+    implementation("com.github.Revxrsal.Lamp:[module]:[verison]")
 }
 
 compileJava { // Preserve parameter names in the bytecode
@@ -141,6 +133,115 @@ compileKotlin { // optional: if you're using Kotlin
 }
 ```
 </details>
+
+**Latest stable version**
+
+[![JitPack](https://jitpack.io/v/Revxrsal/Lamp.svg)](https://jitpack.io/#Revxrsal/Lamp)
+
+**Available modules**:
+- `bukkit` for Bukkit/Spigot/Paper
+- `velocity` for [VelocityPowered](https://velocitypowered.com/)
+- `sponge` for [SpongePowered](https://spongepowered.org/)
+- `bungee` for [BungeeCord](https://www.spigotmc.org/wiki/bungeecord/)
+- `jda` for [Java Discord API (JDA)](https://github.com/DV8FromTheWorld/JDA)
+- `brigadier` for [Mojang Brigadier](https://github.com/Mojang/brigadier)
+- `cli` for building console applications
+
+## Examples
+
+**`/epicbans ban <player> <days> <reason>`**
+
+Add `-silent` to make the ban silent
+```java
+    @Command("epicbans ban")
+    public void banPlayer(
+            Player sender,
+            @Range(min = 1) long days,
+            Player toBan,
+            String reason,
+            @Switch("silent") boolean silent
+    ) {
+        if (!silent)
+            Bukkit.broadcastMessage(colorize("Player &6" + toBan.getName() + " &fhas been banned!"));
+        Date expires = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(days));
+        Bukkit.getBanList(Type.NAME).addBan(toBan.getName(), reason, expires, sender.getName());
+    }
+```
+
+**Commands to switch game-modes**
+```java
+    @Command({"gmc", "gamemode creative"})
+    public void creative(@NotSender @Default("me") Player sender) {
+        sender.setGameMode(GameMode.CREATIVE);
+    }
+
+    @Command({"gms", "gamemode survival"})
+    public void survival(@NotSender @Default("me") Player sender) {
+        sender.setGameMode(GameMode.SURVIVAL);
+    }
+
+    @Command({"gma", "gamemode adventure"})
+    public void adventure(@NotSender @Default("me") Player sender) {
+        sender.setGameMode(GameMode.ADVENTURE);
+    }
+
+    @Command({"gmsp", "gamemode spectator"})
+    public void spectator(@NotSender @Default("me") Player sender) {
+        sender.setGameMode(GameMode.SPECTATOR);
+    }
+```
+
+**Commands to ping online operators, with 10 minutes delay**
+
+```java  
+    @Command({"opassist", "opa", "helpop"})
+    @Cooldown(value = 10, unit = TimeUnit.MINUTES)
+    public void requestAssist(Player sender, String query) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.isOp()) {
+                player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1f, 1f);
+                player.sendMessage(colorize("&a" + sender.getName() + " &fneeds help: &b" + query));
+            }
+        }
+    }
+```
+
+**Terminate all nearby entities command**
+
+```java
+    @Command("terminate")
+    public void terminate(BukkitCommandActor sender, @Range(min = 1) int radius) {
+        int killCount = 0;
+        for (Entity target : sender.requirePlayer().getNearbyEntities(radius, radius, radius)) {
+            if (target instanceof LivingEntity) {
+                ((LivingEntity) target).setHealth(0);
+                killCount++;
+            }
+        }
+        sender.reply("&aSuccessfully killed &e" + killCount +" &aplayers!");
+    }
+```
+
+With Brigadier:
+
+![Radius accepted as it is within range](https://i.imgur.com/VnmCiDy.png)
+
+![Radius not accepted](https://i.imgur.com/3N4xW19.png)
+
+**Message players with player selectors**
+
+```java
+    @Command("pm")
+    public void message(Player sender, EntitySelector<Player> players, String message) {
+        for (Player player : players) {
+            player.sendMessage(sender.getName() + " -> You: " + ChatColor.GOLD + message);
+        }
+    }
+```
+
+![Example selector](https://i.imgur.com/JK0373h.png)
+
+**More examples available [here](https://github.com/Revxrsal/Lamp/wiki/Building-commands)**
 
 ## Documentation
 - **Overview**: [Lamp/wiki](https://github.com/Revxrsal/Lamp/wiki)
