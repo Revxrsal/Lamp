@@ -29,6 +29,9 @@ import revxrsal.commands.command.ArgumentParser;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.exception.ArgumentParseException;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Parser for converting a quoted string into a list of arguments.
  *
@@ -44,6 +47,7 @@ import revxrsal.commands.exception.ArgumentParseException;
  * ARGS := ((UNQUOTED_ARG | QUOTED_ARG) WHITESPACE+)+</pre></blockquote>
  */
 public final class QuotedStringTokenizer implements ArgumentParser {
+    private static final Collection<String> EMPTY_TEXT = Collections.singletonList("");
 
     public static final QuotedStringTokenizer INSTANCE = new QuotedStringTokenizer();
 
@@ -65,6 +69,13 @@ public final class QuotedStringTokenizer implements ArgumentParser {
             returnedArgs.add(arg);
         }
         return returnedArgs;
+    }
+
+    public ArgumentStack parseForAutoCompletion(@NotNull String arguments) {
+        String args = String.join(" ", arguments);
+        if (args.isEmpty())
+            return ArgumentStack.copy(EMPTY_TEXT);
+        return parse(args);
     }
 
     private void skipWhiteSpace(TokenizerState state) throws ArgumentParseException {

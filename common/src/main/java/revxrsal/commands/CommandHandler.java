@@ -23,6 +23,7 @@
  */
 package revxrsal.commands;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -44,10 +45,7 @@ import revxrsal.commands.locales.Translator;
 import revxrsal.commands.process.*;
 
 import java.lang.annotation.Annotation;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -106,6 +104,8 @@ public interface CommandHandler {
      *
      * @return The argument parser.
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
     @NotNull ArgumentParser getArgumentParser();
 
     /**
@@ -117,7 +117,10 @@ public interface CommandHandler {
      * @param arguments Strings to parse. These will get joined
      *                  to a string separated by spaces.
      * @return The argument stack.
+     * @deprecated Use {@link ArgumentStack#parseForAutoCompletion}
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
     ArgumentStack parseArgumentsForCompletion(String... arguments) throws ArgumentParseException;
 
     /**
@@ -127,7 +130,10 @@ public interface CommandHandler {
      *                  with spaces.
      * @return The argument stack.
      * @see ArgumentParser#parse(String).
+     * @deprecated Use {@link ArgumentStack#parse}
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
     ArgumentStack parseArguments(String... arguments) throws ArgumentParseException;
 
     /**
@@ -136,6 +142,8 @@ public interface CommandHandler {
      *
      * @param parser The argument parser to use.
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
     CommandHandler setArgumentParser(@NotNull ArgumentParser parser);
 
     /**

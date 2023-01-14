@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.command;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.exception.ArgumentParseException;
@@ -37,20 +38,28 @@ import revxrsal.commands.util.tokenize.QuotedStringTokenizer;
  * such as allowing quotes, skipping extra whitespace, etc.
  * <p>
  * Set with {@link CommandHandler#setArgumentParser(ArgumentParser)}
+ *
+ * @deprecated Causes bugs with Brigadier, and has no real-world use-cases.
  */
 @FunctionalInterface
+@Deprecated
+@ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
 public interface ArgumentParser {
 
     /**
      * An argument parser that parses strings by quotes and skips
      * extra whitespace.
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
     ArgumentParser QUOTES = QuotedStringTokenizer.INSTANCE;
 
     /**
      * An argument parser that only parses strings by spaces,
      * and does not respect quotes.
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
     ArgumentParser NO_QUOTES = arguments -> ArgumentStack.copy(Strings.SPACE.split(arguments));
 
     /**
