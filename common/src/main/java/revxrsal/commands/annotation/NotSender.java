@@ -29,11 +29,23 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a parameter that comes at the very beginning of a command method that it should not be
- * evaluated as a sender, and should be treated as if it were a standard command parameter,
+ * Marks a parameter that comes at the very beginning of a command method
+ * that it should not be evaluated as a sender, and should be treated
+ * as if it were a standard command parameter,
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@NotSender.ImpliesNotSender
 public @interface NotSender {
+
+    /**
+     * A marker annotation that is added to other annotations whose presence implies that
+     * the parameter they are annotating is definitely not a sender parameter, for example
+     * a {@link Switch}.
+     */
+    @Target(ElementType.ANNOTATION_TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface ImpliesNotSender {
+    }
 
 }

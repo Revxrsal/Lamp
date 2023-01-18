@@ -36,6 +36,7 @@ import revxrsal.commands.exception.NumberNotInRangeException;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@NotSender.ImpliesNotSender
 public @interface Range {
 
   /**

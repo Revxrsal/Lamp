@@ -35,6 +35,7 @@ import revxrsal.commands.util.Either;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
+@NotSender.ImpliesNotSender
 public @interface WithNames {
 
   /**

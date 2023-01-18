@@ -23,40 +23,56 @@
  */
 package revxrsal.commands.annotation;
 
+import org.jetbrains.annotations.ApiStatus;
+import revxrsal.commands.command.CommandParameter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import revxrsal.commands.command.CommandParameter;
 
 /**
  * Adds a default value for a parameter when it is not supplied.
  * <p>
- * Due to limitations and simply the lots of "edge cases", this parameter only works if there are no
- * parameters after it, or if all following parameters are also marked with {@link Default}.
+ * Due to limitations and simply the lots of "edge cases", this parameter only works if
+ * there are no parameters after it, or if all following parameters are also
+ * marked with {@link Default}.
  * <p>
- * Note that if any parameter is annotated with {@link Default}, it will automatically be marked as
- * optional.
+ * Note that if any parameter is annotated with {@link Default}, it will
+ * automatically be marked as optional.
  * <p>
  * Accessible with {@link CommandParameter#getDefaultValue()}.
  * <p>
- * Aside from being used on parameters, this annotation can also be used on methods that should be
- * invoked when an invalid command is inputted in the command tree. Methods annotated with
- * {@link Default} can have parameters just like any other command methods.
+ * Aside from being used on parameters, this annotation can also be used on methods
+ * that should be invoked when an invalid command is inputted in the command
+ * tree. Methods annotated with {@link Default} can have parameters just like any
+ * other command methods.
+ *
+ * @deprecated The usage of this annotation causes confusion, and may lead
+ * to unpredictable or unclear behavior. Therefore, this annotation has been split into
+ * two others, to make the functionality clear and exclusive:
+ * <ol>
+ *     <li>Default(value) has been replaced with {@link Optional} {@code @Optional(def = "default value")}</li>
+ *     <li>Default for creating 'default' command logic has been replaced with {@link DefaultFor} {@code @DefaultFor("command to be the default for")}</li>
+ * </ol>
  */
 @Target({ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
+@ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
+@NotSender.ImpliesNotSender
 public @interface Default {
 
-  /**
-   * The default value. This will be passed to resolvers just as if the user inputted it.
-   * <p>
-   * If none is specified, and the argument is not present, {@code null} will be passed to the
-   * command.
-   *
-   * @return The parameter's default value. Multiple strings indicate more than 1 argument.
-   * Supplying an empty array will be ignored
-   */
-  String[] value() default {};
+    /**
+     * The default value. This will be passed to resolvers just as if the user inputted it.
+     * <p>
+     * If none is specified, and the argument is not present, {@code null}
+     * will be passed to the command.
+     *
+     * @return The parameter's default value. Multiple strings
+     * indicate more than 1 argument. Supplying an empty array will
+     * be ignored
+     */
+    String[] value() default {};
 
 }

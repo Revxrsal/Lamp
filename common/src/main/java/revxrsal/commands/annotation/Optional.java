@@ -23,19 +23,31 @@
  */
 package revxrsal.commands.annotation;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a parameter as optional and does not need to be explicitly specified by the sender.
+ * Marks a parameter as optional and does not need to be explicitly specified by
+ * the sender.
  * <p>
- * Note that if the parameter has {@link Default} on it, it will automatically be marked as
- * optional.
+ * Note that if the parameter has {@link Default} on it, it will automatically be marked
+ * as optional.
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@NotSender.ImpliesNotSender
 public @interface Optional {
+
+    /**
+     * The default value of the parameter. When not specified, the parameter
+     * will be marked as null.
+     *
+     * @return The default value of the parameter
+     */
+    @NotNull String[] def() default "<?null>";
 
 }
