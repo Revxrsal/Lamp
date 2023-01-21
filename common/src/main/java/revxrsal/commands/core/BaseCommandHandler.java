@@ -30,6 +30,7 @@ import static revxrsal.commands.util.Primitives.getType;
 import static revxrsal.commands.util.Strings.splitBySpace;
 
 import dev.demeng.pluginbase.locale.Translator;
+import dev.demeng.pluginbase.plugin.BaseManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -123,7 +124,7 @@ public class BaseCommandHandler implements CommandHandler {
   CommandHelpWriter<?> helpWriter;
   boolean failOnExtra = false;
   final List<CommandCondition> conditions = new ArrayList<>();
-  private final Translator translator = Translator.create();
+  private final Translator translator = BaseManager.getTranslator();
 
   public BaseCommandHandler() {
     registerContextResolverFactory(new SenderContextResolverFactory(senderResolvers));
