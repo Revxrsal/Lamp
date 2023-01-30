@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  * @Command({"test", "testing"})
  * public class TestCommand {
  *
- *     @DefaultFor("test") // <--- Becomes the default action for '/test [page]' AND '/tester [page]'
+ *     @DefaultFor("test") // <--- Becomes the default action for '/test [page]' AND '/testing [page]'
  *     @Subcommand("help") // <--- Also adds '/test help [page]'
  *     public void help(@Optional(def = "1") int page) {
  *         ...
