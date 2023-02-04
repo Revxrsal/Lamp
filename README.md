@@ -171,22 +171,22 @@ Add `-silent` to make the ban silent
 **Commands to switch game-modes**
 ```java
     @Command({"gmc", "gamemode creative"})
-    public void creative(@NotSender @Default("me") Player sender) {
+    public void creative(@Default("me") Player sender) {
         sender.setGameMode(GameMode.CREATIVE);
     }
 
     @Command({"gms", "gamemode survival"})
-    public void survival(@NotSender @Default("me") Player sender) {
+    public void survival(@Default("me") Player sender) {
         sender.setGameMode(GameMode.SURVIVAL);
     }
 
     @Command({"gma", "gamemode adventure"})
-    public void adventure(@NotSender @Default("me") Player sender) {
+    public void adventure(@Default("me") Player sender) {
         sender.setGameMode(GameMode.ADVENTURE);
     }
 
     @Command({"gmsp", "gamemode spectator"})
-    public void spectator(@NotSender @Default("me") Player sender) {
+    public void spectator(@Default("me") Player sender) {
         sender.setGameMode(GameMode.SPECTATOR);
     }
 ```
