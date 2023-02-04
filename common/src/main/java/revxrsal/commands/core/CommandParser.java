@@ -140,20 +140,33 @@ final class CommandParser {
 
             /* Check if the command is default, and if so, generate a path for it */
             boolean isDefault = reader.contains(Default.class) || reader.contains(DefaultFor.class);
-            String[] defPath = reader.get(DefaultFor.class, DefaultFor::value);
-            List<CommandPath> defaultPaths = defPath == null ? emptyList() : Arrays.stream(defPath)
-                    .map(CommandPath::parse).collect(Collectors.toList());
-            paths.forEach(path -> {
-                for (BaseCommandCategory category : generateCategories(handler, isDefault, path)) {
+            String[] defPaths = reader.get(DefaultFor.class, DefaultFor::value);
+            List<CommandPath> defaultPaths = defPaths == null ? emptyList() : Arrays.stream(defPaths)
+                    .map(CommandPath::parse)
+                    .collect(Collectors.toList());
+
+            /* Generate categories for default paths if not created already */
+            for (CommandPath defaultPath : defaultPaths) {
+                for (BaseCommandCategory category : generateCategoriesForPath(handler, true, defaultPath)) {
                     categories.putIfAbsent(category.path, category);
                 }
-                List<CommandPath> defaultPathAndNormalPath = new ArrayList<>();
-                defaultPathAndNormalPath.add(path);
-                defaultPathAndNormalPath.addAll(defaultPaths);
-                for (CommandPath p : defaultPathAndNormalPath) {
+            }
+
+            paths.forEach(path -> {
+
+                /* Create categories beforehand, so we can insert commands into them with no problems */
+                for (BaseCommandCategory category : generateCategoriesForPath(handler, isDefault, path)) {
+                    categories.putIfAbsent(category.path, category);
+                }
+
+                List<CommandPath> defaultPathsAndNormalPath = new ArrayList<>();
+                defaultPathsAndNormalPath.add(path);
+                defaultPathsAndNormalPath.addAll(defaultPaths);
+                for (CommandPath p : defaultPathsAndNormalPath) {
                     boolean registerAsDefault = defaultPaths.contains(p);
                     CommandExecutable executable = new CommandExecutable();
-                    if (!registerAsDefault) categories.remove(p); // prevent duplication.
+                    if (!registerAsDefault)
+                        categories.remove(p); // prevent having a category and command with the same path
                     executable.name = p.getLast();
                     executable.id = id;
                     executable.handler = handler;
@@ -189,6 +202,13 @@ final class CommandParser {
         });
     }
 
+    /**
+     * Synthesizes a {@link Command} annotation for orphan commands that contains information
+     * generated at runtime
+     *
+     * @param boundTarget Target to inject for
+     * @param reader      Reader to add
+     */
     private static void insertCommandPath(OrphanRegistry boundTarget, AnnotationReader reader) {
         List<CommandPath> paths = boundTarget.getParentPaths();
         String[] pathsArray = paths.stream().map(CommandPath::toRealString).toArray(String[]::new);
@@ -205,6 +225,13 @@ final class CommandParser {
         });
     }
 
+    /**
+     * Finds all {@link Method}s defined by a class, including private ones
+     * and ones that are inherited from classes.
+     *
+     * @param c Class to get for
+     * @return A list of all methods
+     */
     private static Set<Method> getAllMethods(Class<?> c) {
         Set<Method> methods = new HashSet<>();
         Class<?> current = c;
@@ -215,6 +242,14 @@ final class CommandParser {
         return methods;
     }
 
+    /**
+     * Generates usage syntax for the command. This will wrap optional parameters
+     * with squared brackets, and required parameters with angled brackets, as well
+     * as flags and switches
+     *
+     * @param command Command to generate for
+     * @return The usage
+     */
     private static String generateUsage(@NotNull ExecutableCommand command) {
         StringJoiner joiner = new StringJoiner(" ");
         CommandHandler handler = command.getCommandHandler();
@@ -234,8 +269,17 @@ final class CommandParser {
         return joiner.toString();
     }
 
+    /**
+     * Recursively finds the best response handler for the given command. This will
+     * respect {@link CompletionStage}s, {@link Supplier}s, and {@link Optional}s,
+     * as well as the generics they have.
+     *
+     * @param handler     Command handler to find response handlers from
+     * @param genericType The return type of the method to find a response handler for
+     * @return The response handler
+     */
     @SuppressWarnings("rawtypes")
-    private static ResponseHandler<?> getResponseHandler(BaseCommandHandler handler, Type genericType) {
+    private static @NotNull ResponseHandler<?> getResponseHandler(BaseCommandHandler handler, Type genericType) {
         Class<?> rawType = Primitives.getRawType(genericType);
         if (CompletionStage.class.isAssignableFrom(rawType)) {
             ResponseHandler delegateHandler = getResponseHandler(handler, getInsideGeneric(genericType));
@@ -252,6 +296,13 @@ final class CommandParser {
         return handler.responseHandlers.getFlexibleOrDefault(rawType, VOID_HANDLER);
     }
 
+    /**
+     * Returns the 1st type inside the generic. This assumer that the type only defines 1
+     * generic type (such as {@link Optional} or {@link Supplier})
+     *
+     * @param genericType The generic type to find from, for example {@code Optional<String>}
+     * @return The type inside, for example {@code String}.
+     */
     private static Type getInsideGeneric(Type genericType) {
         try {
             return ((ParameterizedType) genericType).getActualTypeArguments()[0];
@@ -260,12 +311,23 @@ final class CommandParser {
         }
     }
 
-    private static Set<BaseCommandCategory> generateCategories(
+    /**
+     * Generates all categories for a path. This will walk through all
+     * strings inside the path and create categories as needed.
+     *
+     * @param handler   Command handler to assign to categories
+     * @param isDefault Whether is the given path a default command
+     * @param path      The path to generate for
+     * @return A set of all categories from the path
+     */
+    private static Set<BaseCommandCategory> generateCategoriesForPath(
             CommandHandler handler,
-            boolean respectDefault,
+            boolean isDefault,
             @NotNull CommandPath path
     ) {
-        if (path.size() == 1 && !respectDefault) return Collections.emptySet();
+        // must be an actual command, so don't generate any categories
+        if (path.size() == 1 && !isDefault)
+            return Collections.emptySet();
         String parent = path.getParent();
         Set<BaseCommandCategory> categories = new HashSet<>();
 
@@ -286,13 +348,20 @@ final class CommandParser {
             cat.name = cat.path.getName();
             categories.add(cat);
         }
-
         return categories;
     }
 
+    /**
+     * Generates parameters for the given command, and checks their validity
+     *
+     * @param handler Handler to assign to parameters
+     * @param method  Method to parse for
+     * @param command The command to parse parameters for
+     * @return A list of all command parameters
+     */
     private static List<CommandParameter> getParameters(@NotNull BaseCommandHandler handler,
                                                         @NotNull Method method,
-                                                        @NotNull CommandExecutable parent) {
+                                                        @NotNull CommandExecutable command) {
         List<CommandParameter> parameters = new ArrayList<>();
         Parameter[] methodParameters = method.getParameters();
         int cIndex = 0;
@@ -314,7 +383,7 @@ final class CommandParser {
                     defaultValue == null ? emptyList() : Collections.unmodifiableList(Arrays.asList(defaultValue)),
                     i == methodParameters.length - 1 && !paramAnns.contains(Single.class),
                     paramAnns.contains(Optional.class) || paramAnns.contains(Default.class),
-                    parent,
+                    command,
                     parameter,
                     paramAnns.get(Switch.class),
                     paramAnns.get(Flag.class),
@@ -329,8 +398,12 @@ final class CommandParser {
                 }
             }
 
+            /* Optional parmeters may be null, so make sure it isn't primitive as primitives cannot
+               hold null values */
             if (param.getType().isPrimitive() && param.isOptional() && param.getDefaultValue().isEmpty() && !param.isSwitch())
                 throw new IllegalStateException("Optional parameter " + parameter + " at " + method + " cannot be a prmitive!");
+
+            /* Switches must only be booleans */
             if (param.isSwitch()) {
                 if (Primitives.wrap(param.getType()) != Boolean.class)
                     throw new IllegalStateException("Switch parameter " + parameter + " at " + method + " must be of boolean type!");
@@ -353,6 +426,16 @@ final class CommandParser {
         return Collections.unmodifiableList(parameters);
     }
 
+    /**
+     * Concatenates all the paths for a command by merging those
+     * defined by {@link Command}, {@link Subcommand}, and those
+     * defined in the parent class, and any other parent classes
+     *
+     * @param container The class containing the commands
+     * @param method    The method that contains annotations
+     * @param reader    The annotation reader to read from
+     * @return A list of all command paths that lead to this command
+     */
     private static List<CommandPath> getCommandPath(@NotNull Class<?> container,
                                                     @NotNull Method method,
                                                     @NotNull AnnotationReader reader) {
@@ -395,6 +478,13 @@ final class CommandParser {
         return paths;
     }
 
+    /**
+     * Returns a hierarchy of classes that are contained by the given class. The
+     * order of the list matters, as it starts from the parent and ends at the child
+     *
+     * @param c Class to find for
+     * @return A list of all classes containing each other
+     */
     private static List<Class<?>> getTopClasses(Class<?> c) {
         List<Class<?>> classes = listOf(c);
         Class<?> enclosingClass = c.getEnclosingClass();
