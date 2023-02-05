@@ -13,10 +13,10 @@ import java.lang.annotation.Target;
  * <p>
  * This example shows a common use case for this annotation:
  * <pre>{@code
- * @Command("test")
+ * @Command({"test", "testing"})
  * public class TestCommand {
  *
- *     @DefaultFor("test") // <--- Becomes the default action when running '/test [page]'
+ *     @DefaultFor({"test", "testing"}) // <--- Becomes the default action when running '/test [page]' AND '/testing [page]'; Both aliases are required in order to work
  *     @Subcommand("help") // <--- Also executes in '/test help [page]'
  *     public void help(@Optional(def = "1") int page) {
  *         ...
