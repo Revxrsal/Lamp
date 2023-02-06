@@ -109,7 +109,6 @@ final class CommandParser {
     @SneakyThrows
     public static void parse(@NotNull BaseCommandHandler handler, @NotNull Class<?> container, @NotNull Object boundTarget) {
         Map<CommandPath, BaseCommandCategory> categories = handler.categories;
-        Map<CommandPath, CommandExecutable> subactions = new HashMap<>();
         for (Method method : getAllMethods(container)) {
             /* Parse annotations on a method */
             AnnotationReader reader = AnnotationReader.create(handler, method);
@@ -139,11 +138,11 @@ final class CommandParser {
             int id = COMMAND_ID.getAndIncrement();
 
             /* Check if the command is default, and if so, generate a path for it */
-            boolean isDefault = reader.contains(Default.class) || reader.contains(DefaultFor.class);
             String[] defPaths = reader.get(DefaultFor.class, DefaultFor::value);
             List<CommandPath> defaultPaths = defPaths == null ? emptyList() : Arrays.stream(defPaths)
                     .map(CommandPath::parse)
                     .collect(Collectors.toList());
+            boolean isDefault = reader.contains(Default.class) || !defaultPaths.isEmpty();
 
             /* Generate categories for default paths if not created already */
             for (CommandPath defaultPath : defaultPaths) {
@@ -159,7 +158,7 @@ final class CommandParser {
                     categories.putIfAbsent(category.path, category);
                 }
 
-                List<CommandPath> defaultPathsAndNormalPath = new ArrayList<>();
+                Set<CommandPath> defaultPathsAndNormalPath = new HashSet<>();
                 defaultPathsAndNormalPath.add(path);
                 defaultPathsAndNormalPath.addAll(defaultPaths);
                 for (CommandPath p : defaultPathsAndNormalPath) {
@@ -186,20 +185,12 @@ final class CommandParser {
                             .filter(c -> c.getCommandIndex() != -1)
                             .collect(toMap(CommandParameter::getCommandIndex, c -> c));
                     executable.usage = reader.get(Usage.class, Usage::value, () -> generateUsage(executable));
-                    if (registerAsDefault)
-                        subactions.put(p, executable);
-                    else
+                    if (!registerAsDefault) {
                         putOrError(handler.executables, p, executable, "A command with path '" + p.toRealString() + "' already exists!");
+                    }
                 }
             });
         }
-
-        subactions.forEach((path, subaction) -> {
-            BaseCommandCategory cat = categories.get(path);
-            if (cat != null) { // should never be null but let's just do that
-                cat.defaultAction = subaction;
-            }
-        });
     }
 
     /**
@@ -440,6 +431,12 @@ final class CommandParser {
                                                     @NotNull Method method,
                                                     @NotNull AnnotationReader reader) {
         List<CommandPath> paths = new ArrayList<>();
+
+        DefaultFor defaultFor = reader.get(DefaultFor.class);
+        if (defaultFor != null) {
+            return Arrays.stream(defaultFor.value()).map(CommandPath::parse)
+                    .collect(Collectors.toList());
+        }
 
         List<String> commands = new ArrayList<>();
         List<String> subcommands = new ArrayList<>();
