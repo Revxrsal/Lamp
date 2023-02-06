@@ -28,15 +28,15 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.CommandHandler;
-import revxrsal.commands.command.CommandCategory;
-import revxrsal.commands.command.CommandParameter;
-import revxrsal.commands.command.CommandPermission;
-import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.command.*;
 import revxrsal.commands.core.reflect.MethodCaller.BoundMethodCaller;
 import revxrsal.commands.process.ResponseHandler;
+import revxrsal.commands.util.Preconditions;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -55,73 +55,109 @@ class CommandExecutable implements ExecutableCommand {
     boolean secret;
     BoundMethodCaller methodCaller;
     BaseCommandCategory parent;
-    @SuppressWarnings("rawtypes") ResponseHandler responseHandler = CommandParser.VOID_HANDLER;
+    @SuppressWarnings("rawtypes")
+    ResponseHandler responseHandler = CommandParser.VOID_HANDLER;
     private CommandPermission permission = CommandPermission.ALWAYS_TRUE;
     @Unmodifiable List<CommandParameter> parameters;
     @Unmodifiable Map<Integer, CommandParameter> resolveableParameters;
 
-    @Override public @NotNull String getName() {
+    @Override
+    public @NotNull String getName() {
         return name;
     }
 
-    @Override public @Range(from = 0, to = Long.MAX_VALUE) int getId() {
+    @Override
+    public @Range(from = 0, to = Long.MAX_VALUE) int getId() {
         return id;
     }
 
-    @Override public @NotNull String getUsage() {
+    @Override
+    public @NotNull String getUsage() {
         return usage;
     }
 
-    @Override public @Nullable String getDescription() {
+    @Override
+    public @Nullable String getDescription() {
         return description;
     }
 
-    @Override public @NotNull CommandPath getPath() {
+    @Override
+    public @NotNull CommandPath getPath() {
         return path;
     }
 
-    @Override public @Nullable CommandCategory getParent() {
+    @Override
+    public @Nullable CommandCategory getParent() {
         return parent;
     }
 
-    @Override public @NotNull @Unmodifiable List<CommandParameter> getParameters() {
+    @Override
+    public @NotNull @Unmodifiable List<CommandParameter> getParameters() {
         return parameters;
     }
 
-    @Override public @NotNull @Unmodifiable Map<Integer, CommandParameter> getValueParameters() {
+    @Override
+    public @NotNull @Unmodifiable Map<Integer, CommandParameter> getValueParameters() {
         return resolveableParameters;
     }
 
-    @Override public @NotNull CommandPermission getPermission() {
+    @Override
+    public @NotNull CommandPermission getPermission() {
         return permission;
     }
 
-    @Override public @NotNull CommandHandler getCommandHandler() {
+    @Override
+    public @NotNull CommandHandler getCommandHandler() {
         return handler;
     }
 
-    @Override public @NotNull <T> ResponseHandler<T> getResponseHandler() {
+    @Override
+    public @NotNull <T> ResponseHandler<T> getResponseHandler() {
         return responseHandler;
     }
 
-    @Override public boolean isSecret() {
+    @Override
+    public void execute(@NotNull CommandActor actor, @Nullable Collection<String> input) {
+        Preconditions.notNull(actor, "actor");
+        ArgumentStack arguments = ArgumentStack.copyExact(path.path);
+        if (input != null)
+            arguments.addAll(input);
+        getCommandHandler().dispatch(actor, arguments);
+    }
+
+    @Override
+    public void execute(@NotNull CommandActor actor, @Nullable String... input) {
+        Preconditions.notNull(actor, "actor");
+        ArgumentStack arguments = ArgumentStack.copyExact(path.path);
+        if (input != null)
+            Collections.addAll(arguments, input);
+        getCommandHandler().dispatch(actor, arguments);
+    }
+
+    @Override
+    public boolean isSecret() {
         return secret;
     }
 
-    @Override public <A extends Annotation> A getAnnotation(@NotNull Class<A> annotation) {
+    @Override
+    public <A extends Annotation> A getAnnotation(@NotNull Class<A> annotation) {
         return reader.get(annotation);
     }
 
-    @Override public boolean hasAnnotation(@NotNull Class<? extends Annotation> annotation) {
+    @Override
+    public boolean hasAnnotation(@NotNull Class<? extends Annotation> annotation) {
         return reader.contains(annotation);
     }
 
     public void parent(BaseCommandCategory cat, boolean isDefault) {
         parent = cat;
-        if (isDefault)
-            cat.defaultAction = this;
-        else {
-            if (cat != null)
+        if (cat != null) {
+            if (isDefault) {
+                if (cat.defaultAction != null && cat.defaultAction.method != method)
+                    throw new IllegalArgumentException("Category '" + cat.getPath().toRealString() + "' has more than one default" +
+                            " action! (" + cat.defaultAction.method.toGenericString() + " and " + method.toGenericString() + ")");
+                cat.defaultAction = this;
+            } else
                 cat.commands.put(path, this);
         }
     }

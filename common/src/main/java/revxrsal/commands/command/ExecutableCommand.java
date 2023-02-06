@@ -36,6 +36,7 @@ import revxrsal.commands.command.trait.PermissionHolder;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.process.ResponseHandler;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -136,6 +137,22 @@ public interface ExecutableCommand extends CommandAnnotationHolder, PermissionHo
      * @return The command's response handler
      */
     @NotNull <T> ResponseHandler<T> getResponseHandler();
+
+    /**
+     * Executes the command on the behalf of the given sender
+     *
+     * @param actor Actor to execute as
+     * @param input The command input
+     */
+    void execute(@NotNull CommandActor actor, @Nullable Collection<String> input);
+
+    /**
+     * Executes the command on the behalf of the given sender
+     *
+     * @param actor Actor to execute as
+     * @param input The command input
+     */
+    void execute(@NotNull CommandActor actor, @Nullable String... input);
 
     /**
      * Returns whether is this command marked as secret or not
