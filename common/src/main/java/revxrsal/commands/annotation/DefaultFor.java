@@ -16,8 +16,8 @@ import java.lang.annotation.Target;
  * @Command("test")
  * public class TestCommand {
  *
- *     @DefaultFor("test") // <--- Becomes the default action for '/test [page]'
- *     @Subcommand("help") // <--- Also adds '/test help [page]'
+ *     @DefaultFor("test") // <--- Becomes the default action when running '/test [page]'
+ *     @Subcommand("help") // <--- Also executes in '/test help [page]'
  *     public void help(@Optional(def = "1") int page) {
  *         ...
  *     }
@@ -29,8 +29,11 @@ import java.lang.annotation.Target;
 public @interface DefaultFor {
 
     /**
-     * The paths to become the default for. Note that this path is absolute,
-     * it is not relative to the parent command or method.
+     * The paths to become the default for.
+     * <p>
+     * Note that, unlike {@link Command} and {@link Subcommand}, this path is absolute,
+     * and is not relative to the parent command or method. This means the full path should be
+     * inputted, and paths declared in the containing class or method will be ignored.
      *
      * @return The command paths which this method will become the default
      * action for.
