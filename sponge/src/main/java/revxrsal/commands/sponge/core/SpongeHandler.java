@@ -1,5 +1,6 @@
 package revxrsal.commands.sponge.core;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Platform;
@@ -23,6 +24,7 @@ import revxrsal.commands.sponge.exception.SpongeExceptionAdapter;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
+@ApiStatus.Internal
 public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHandler {
 
     private final Object plugin;

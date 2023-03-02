@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.jda.JDAActor;
@@ -18,6 +19,7 @@ import static revxrsal.commands.jda.core.SnowflakeResolvers.*;
 import static revxrsal.commands.jda.core.SnowflakeResolvers.UserResolver.USER;
 import static revxrsal.commands.util.Preconditions.notNull;
 
+@ApiStatus.Internal
 public final class JDAHandler extends BaseCommandHandler implements JDACommandHandler {
 
     private final JDA jda;

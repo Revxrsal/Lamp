@@ -1,5 +1,6 @@
 package revxrsal.commands.cli.core;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.cli.ConsoleActor;
 import revxrsal.commands.cli.ConsoleCommandHandler;
@@ -11,6 +12,7 @@ import java.util.Scanner;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
+@ApiStatus.Internal
 public final class CLIHandler extends BaseCommandHandler implements ConsoleCommandHandler {
 
     final InputStream inputStream;

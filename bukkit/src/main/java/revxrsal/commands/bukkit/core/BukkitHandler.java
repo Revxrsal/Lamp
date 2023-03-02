@@ -15,7 +15,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
-@Internal
+@ApiStatus.Internal
 public final class BukkitHandler extends BaseCommandHandler implements BukkitCommandHandler {
 
     public static final SuggestionProvider playerSuggestionProvider = (args, sender, command) -> Bukkit.getOnlinePlayers()

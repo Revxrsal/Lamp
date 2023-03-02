@@ -5,6 +5,7 @@ import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
+@ApiStatus.Internal
 public final class VelocityHandler extends BaseCommandHandler implements VelocityCommandHandler {
 
     private final ProxyServer server;

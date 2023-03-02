@@ -5,6 +5,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.autocomplete.SuggestionProvider;
@@ -22,6 +23,7 @@ import java.util.logging.Logger;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
+@ApiStatus.Internal
 public final class BungeeHandler extends BaseCommandHandler implements BungeeCommandHandler {
 
     private final Plugin plugin;
