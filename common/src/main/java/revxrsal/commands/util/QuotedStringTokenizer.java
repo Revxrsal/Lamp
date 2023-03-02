@@ -25,12 +25,11 @@
 package revxrsal.commands.util;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.ArgumentParser;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.exception.ArgumentParseException;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Parser for converting a quoted string into a list of arguments.
@@ -46,18 +45,17 @@ import java.util.Collections;
  * QUOTED_ARG := QUOTE (CHAR | ESCAPE)+ QUOTE
  * ARGS := ((UNQUOTED_ARG | QUOTED_ARG) WHITESPACE+)+</pre></blockquote>
  */
-public final class QuotedStringTokenizer implements ArgumentParser {
-    private static final Collection<String> EMPTY_TEXT = Collections.singletonList("");
+public final class QuotedStringTokenizer {
+    private static final List<String> EMPTY_TEXT = Collections.singletonList("");
 
-    public static final QuotedStringTokenizer INSTANCE = new QuotedStringTokenizer();
-
-    private QuotedStringTokenizer() {}
+    private QuotedStringTokenizer() {
+    }
 
     private static final int CHAR_BACKSLASH = '\\';
     private static final int CHAR_SINGLE_QUOTE = '\'';
     private static final int CHAR_DOUBLE_QUOTE = '"';
 
-    @Override public ArgumentStack parse(@NotNull String arguments) throws ArgumentParseException {
+    public static ArgumentStack parse(@NotNull String arguments) throws ArgumentParseException {
         if (arguments.length() == 0) {
             return ArgumentStack.empty();
         }
@@ -71,14 +69,13 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         return returnedArgs;
     }
 
-    public ArgumentStack parseForAutoCompletion(@NotNull String arguments) {
-        String args = String.join(" ", arguments);
+    public static ArgumentStack parseForAutoCompletion(@NotNull String args) {
         if (args.isEmpty())
-            return ArgumentStack.copy(EMPTY_TEXT);
+            return ArgumentStack.copyExact(EMPTY_TEXT);
         return parse(args);
     }
 
-    private void skipWhiteSpace(TokenizerState state) throws ArgumentParseException {
+    private static void skipWhiteSpace(TokenizerState state) throws ArgumentParseException {
         if (!state.hasMore()) {
             return;
         }
@@ -89,7 +86,7 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         }
     }
 
-    private String nextArg(TokenizerState state) throws ArgumentParseException {
+    private static String nextArg(TokenizerState state) throws ArgumentParseException {
         StringBuilder argBuilder = new StringBuilder();
         if (state.hasMore()) {
             int codePoint = state.peek();
@@ -103,7 +100,7 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         return argBuilder.toString();
     }
 
-    private void parseQuotedString(TokenizerState state, int startQuotation, StringBuilder builder) throws ArgumentParseException {
+    private static void parseQuotedString(TokenizerState state, int startQuotation, StringBuilder builder) throws ArgumentParseException {
         // Consume the start quotation character
         int nextCodePoint = state.next();
         if (nextCodePoint != startQuotation) {
@@ -127,7 +124,7 @@ public final class QuotedStringTokenizer implements ArgumentParser {
         }
     }
 
-    private void parseUnquotedString(TokenizerState state, StringBuilder builder) throws ArgumentParseException {
+    private static void parseUnquotedString(TokenizerState state, StringBuilder builder) throws ArgumentParseException {
         while (state.hasMore()) {
             int nextCodePoint = state.peek();
             if (Character.isWhitespace(nextCodePoint)) {

@@ -23,7 +23,6 @@
  */
 package revxrsal.commands.command;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -40,11 +39,6 @@ import java.util.List;
  * <p>
  * This class holds extremely similar functionality to a LinkedList, and in
  * most contexts should be safely castable to one.
- * <p>
- * Command handlers may specify how argument stacks are parsed.
- * See {@link ArgumentParser} for more information.
- *
- * @see ArgumentParser
  */
 public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
 
@@ -116,7 +110,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      */
     static @NotNull ArgumentStack parse(@NotNull String... arguments) {
         if (arguments.length == 0) return empty();
-        return new LinkedArgumentStack(QuotedStringTokenizer.INSTANCE.parse(String.join(" ", arguments)));
+        return new LinkedArgumentStack(QuotedStringTokenizer.parse(String.join(" ", arguments)));
     }
 
     /**
@@ -129,7 +123,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      */
     static @NotNull ArgumentStack parse(@NotNull Collection<String> arguments) {
         if (arguments.size() == 0) return empty();
-        return new LinkedArgumentStack(QuotedStringTokenizer.INSTANCE.parse(String.join(" ", arguments)));
+        return new LinkedArgumentStack(QuotedStringTokenizer.parse(String.join(" ", arguments)));
     }
 
     /**
@@ -143,7 +137,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      * @return The newly created argument stack.
      */
     static @NotNull ArgumentStack parseForAutoCompletion(@NotNull String... arguments) {
-        return new LinkedArgumentStack(QuotedStringTokenizer.INSTANCE.parseForAutoCompletion(String.join(" ", arguments)));
+        return new LinkedArgumentStack(QuotedStringTokenizer.parseForAutoCompletion(String.join(" ", arguments)));
     }
 
     /**
@@ -157,35 +151,7 @@ public interface ArgumentStack extends Deque<String>, List<String>, Cloneable {
      * @return The newly created argument stack.
      */
     static @NotNull ArgumentStack parseForAutoCompletion(@NotNull Collection<String> arguments) {
-        return new LinkedArgumentStack(QuotedStringTokenizer.INSTANCE.parseForAutoCompletion(String.join(" ", arguments)));
-    }
-
-    /**
-     * Returns a new {@link ArgumentStack} with the specified arguments, without
-     * doing any modification to the input.
-     *
-     * @param arguments Arguments to clone from
-     * @return The newly created argument stack.
-     * @deprecated Misleading. Use {@link #copyExact} instead
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
-    static @NotNull ArgumentStack copy(@NotNull String... arguments) {
-        return copyExact(arguments);
-    }
-
-    /**
-     * Returns a new {@link ArgumentStack} with the specified arguments, without
-     * doing any modification to the input.
-     *
-     * @param arguments Arguments to clone from
-     * @deprecated Misleading. Use {@link #copyExact} instead
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
-    static @NotNull ArgumentStack copy(@NotNull Collection<String> arguments) {
-        if (arguments.size() == 0) return empty();
-        return new LinkedArgumentStack(arguments);
+        return new LinkedArgumentStack(QuotedStringTokenizer.parseForAutoCompletion(String.join(" ", arguments)));
     }
 
     /**

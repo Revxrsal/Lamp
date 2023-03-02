@@ -99,54 +99,6 @@ public interface CommandHandler {
     @NotNull CommandHandler setMethodCallerFactory(@NotNull MethodCallerFactory factory);
 
     /**
-     * Returns the {@link ArgumentParser} responsible for controlling
-     * the logic of parsing strings.
-     *
-     * @return The argument parser.
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
-    @NotNull ArgumentParser getArgumentParser();
-
-    /**
-     * Parses the string and returns an {@link ArgumentStack} for it. This
-     * method behaves exactly like {@link #parseArguments(String[])}, however
-     * it returns a singleton list of an empty string when the text is empty,
-     * suitable for auto-completion.
-     *
-     * @param arguments Strings to parse. These will get joined
-     *                  to a string separated by spaces.
-     * @return The argument stack.
-     * @deprecated Use {@link ArgumentStack#parseForAutoCompletion}
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
-    ArgumentStack parseArgumentsForCompletion(String... arguments) throws ArgumentParseException;
-
-    /**
-     * Parses the string array and returns an {@link ArgumentStack} for it.
-     *
-     * @param arguments String array to parse. This will be joined as a single string
-     *                  with spaces.
-     * @return The argument stack.
-     * @see ArgumentParser#parse(String).
-     * @deprecated Use {@link ArgumentStack#parse}
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
-    ArgumentStack parseArguments(String... arguments) throws ArgumentParseException;
-
-    /**
-     * Sets the {@link ArgumentParser} responsible for controlling
-     * the logic of parsing strings.
-     *
-     * @param parser The argument parser to use.
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.4")
-    CommandHandler setArgumentParser(@NotNull ArgumentParser parser);
-
-    /**
      * Sets the {@link CommandExceptionHandler} to use for handling any exceptions
      * that are thrown from the command.
      * <p>

@@ -145,7 +145,7 @@ final class BaseAutoCompleter implements AutoCompleter {
     }
 
     @Override public List<String> complete(@NotNull CommandActor actor, @NotNull String buffer) {
-        return complete(actor, handler.parseArgumentsForCompletion(buffer));
+        return complete(actor, ArgumentStack.parseForAutoCompletion(buffer));
     }
 
     private ExecutableCommand searchForCommand(CommandPath path, CommandActor actor) {

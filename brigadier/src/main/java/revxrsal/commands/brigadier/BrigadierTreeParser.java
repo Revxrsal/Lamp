@@ -216,7 +216,7 @@ public final class BrigadierTreeParser {
                 Message tooltip = new LiteralMessage(tooltipMessage);
                 String input = context.getInput();
                 try {
-                    ArgumentStack args = parameter.getCommandHandler().parseArgumentsForCompletion(
+                    ArgumentStack args = ArgumentStack.parseForAutoCompletion(
                             input.startsWith("/") ? input.substring(1) : input
                     );
                     parameter.getSuggestionProvider().getSuggestions(args, actor, command)

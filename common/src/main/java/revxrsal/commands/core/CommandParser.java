@@ -401,7 +401,7 @@ final class CommandParser {
             }
             ParameterResolver<?> resolver;
             if (param.getType() == ArgumentStack.class) {
-                resolver = new Resolver(context -> ArgumentStack.copy(context.input()), null);
+                resolver = new Resolver(context -> ArgumentStack.copyExact(context.input()), null);
             } else
                 resolver = handler.getResolver(param);
 

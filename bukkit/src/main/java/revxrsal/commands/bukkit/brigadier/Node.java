@@ -73,7 +73,7 @@ import static revxrsal.commands.util.Preconditions.notNull;
     public void canBeExecuted(BukkitBrigadier brigadier) {
         action(a -> {
             String input = a.getInput();
-            ArgumentStack args = brigadier.getCommandHandler().parseArgumentsForCompletion(
+            ArgumentStack args = ArgumentStack.parseForAutoCompletion(
                     input.startsWith("/") ? input.substring(1) : input
             );
             CommandActor actor = brigadier.wrapSource(a.getSource());

@@ -196,7 +196,7 @@ public final class BaseCommandDispatcher {
                     args.addAll(parameter.getDefaultValue());
                     index = args.indexOf(lookup);
                     args.remove(index); // remove the flag prefix + flag name
-                    flagArguments = handler.parseArguments(args.remove(index)); // put the actual value in a separate argument stack
+                    flagArguments = ArgumentStack.parse(args.remove(index)); // put the actual value in a separate argument stack
                 } else {
                     for (ParameterValidator<Object> v : parameter.getValidators()) {
                         v.validate(null, parameter, actor);
@@ -211,7 +211,7 @@ public final class BaseCommandDispatcher {
             args.remove(index); // remove the flag prefix + flag name
             if (index >= args.size())
                 throw new MissingArgumentException(parameter);
-            flagArguments = handler.parseArguments(args.remove(index)); // put the actual value in a separate argument stack
+            flagArguments = ArgumentStack.parse(args.remove(index)); // put the actual value in a separate argument stack
         }
         ValueContextR contextR = new ValueContextR(input, actor, parameter, values, flagArguments);
         Object value = parameter.getResolver().resolve(contextR);

@@ -11,4 +11,3 @@ dependencies {
 //noinspection GroovyUnusedAssignment
 def generateTemplates = tasks.register("generateTemplates", Copy) { task ->
 }
-
