@@ -45,6 +45,8 @@ public @interface Optional {
     /**
      * The default value of the parameter. When not specified, the parameter
      * will be marked as null.
+     * <p>
+     * Note that this may be compacted using {@link Default @Default("...")}
      *
      * @return The default value of the parameter
      */
