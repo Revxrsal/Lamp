@@ -45,7 +45,6 @@ import java.util.stream.Stream;
     private static final List<Class<? extends Annotation>> COMMAND_ANNOTATIONS = Stream.of(
             Command.class,
             Subcommand.class,
-            Default.class,
             DefaultFor.class
     ).collect(Collectors.toList());
 

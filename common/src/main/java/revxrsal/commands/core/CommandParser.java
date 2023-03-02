@@ -142,7 +142,7 @@ final class CommandParser {
             List<CommandPath> defaultPaths = defPaths == null ? emptyList() : Arrays.stream(defPaths)
                     .map(CommandPath::parse)
                     .collect(Collectors.toList());
-            boolean isDefault = reader.contains(Default.class) || !defaultPaths.isEmpty();
+            boolean isDefault = !defaultPaths.isEmpty();
 
             /* Generate categories for default paths if not created already */
             for (CommandPath defaultPath : defaultPaths) {
