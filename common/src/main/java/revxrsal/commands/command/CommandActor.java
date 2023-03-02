@@ -24,11 +24,13 @@
 package revxrsal.commands.command;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.locales.Translator;
 
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -131,6 +133,28 @@ public interface CommandActor {
     }
 
     /**
+     * Evaluates the command from the given arguments
+     *
+     * @param input Input to invoke
+     * @return The result returned from invoking the command method. The
+     * optional value may be null if an exception was thrown.
+     */
+    default <T> Optional<@Nullable T> dispatch(@NotNull String input) {
+        return getCommandHandler().dispatch(this, input);
+    }
+
+    /**
+     * Evaluates the command from the given arguments
+     *
+     * @param input Input to invoke
+     * @return The result returned from invoking the command method. The
+     * optional value may be null if an exception was thrown.
+     */
+    default <T> Optional<@Nullable T> dispatch(@NotNull ArgumentStack input) {
+        return getCommandHandler().dispatch(this, input);
+    }
+
+    /**
      * Returns this actor as the specified type. This is effectively
      * casting this actor to the given type.
      *
@@ -138,6 +162,8 @@ public interface CommandActor {
      * @param <T>  The actor type
      * @return This actor but casted.
      */
-    default <T extends CommandActor> T as(@NotNull Class<T> type) {return type.cast(this);}
+    default <T extends CommandActor> T as(@NotNull Class<T> type) {
+        return type.cast(this);
+    }
 
 }
