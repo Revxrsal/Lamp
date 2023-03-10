@@ -41,6 +41,7 @@ public final class CommodoreProvider {
 
     private static final Function<Plugin, Commodore> PROVIDER = checkSupported();
 
+    @SuppressWarnings("Convert2MethodRef")
     private static Function<Plugin, Commodore> checkSupported() {
         try {
             Class.forName("com.mojang.brigadier.CommandDispatcher");
@@ -52,7 +53,7 @@ public final class CommodoreProvider {
         // try the reflection impl
         try {
             ReflectionCommodore.ensureSetup();
-            return ReflectionCommodore::new;
+            return plugin -> new ReflectionCommodore(plugin);
         } catch (Throwable e) {
             printDebugInfo(e);
         }
@@ -60,7 +61,7 @@ public final class CommodoreProvider {
         // try the paper impl
         try {
             PaperCommodore.ensureSetup();
-            return PaperCommodore::new;
+            return plugin -> new PaperCommodore(plugin);
         } catch (Throwable e) {
             printDebugInfo(e);
         }
