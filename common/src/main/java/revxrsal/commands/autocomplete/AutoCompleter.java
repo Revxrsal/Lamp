@@ -144,6 +144,17 @@ public interface AutoCompleter {
     List<String> complete(@NotNull CommandActor actor, @NotNull String buffer);
 
     /**
+     * Sets whether should this auto-completer filter suggestions
+     * to include only the closest suggestions to the user input.
+     * <p>
+     * By default, this is true.
+     *
+     * @param filterToClosestInput Whether should suggestions be
+     *                             filtered to the closest input
+     */
+    void filterToClosestInput(boolean filterToClosestInput);
+
+    /**
      * Returns the containing {@link CommandHandler} of this auto completer.
      * This will allow for writing fluent and readable code.
      *

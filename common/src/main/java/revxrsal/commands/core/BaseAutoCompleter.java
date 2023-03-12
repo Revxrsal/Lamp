@@ -46,6 +46,7 @@ final class BaseAutoCompleter implements AutoCompleter {
     private final BaseCommandHandler handler;
     final Map<String, SuggestionProvider> suggestionKeys = new HashMap<>();
     final List<SuggestionProviderFactory> factories = new ArrayList<>();
+    private boolean filterToClosestInput = true;
 
     public BaseAutoCompleter(BaseCommandHandler handler) {
         this.handler = handler;
@@ -148,6 +149,11 @@ final class BaseAutoCompleter implements AutoCompleter {
         return complete(actor, ArgumentStack.parseForAutoCompletion(buffer));
     }
 
+    @Override
+    public void filterToClosestInput(boolean filterToClosestInput) {
+        this.filterToClosestInput = filterToClosestInput;
+    }
+
     private ExecutableCommand searchForCommand(CommandPath path, CommandActor actor) {
         ExecutableCommand found = handler.getCommand(path);
         if (found != null && !found.isSecret() && found.getPermission().canExecute(actor)) return found;
@@ -223,7 +229,7 @@ final class BaseAutoCompleter implements AutoCompleter {
     @NotNull private List<String> getParamCompletions(Collection<String> provider, ArgumentStack args) {
         return provider
                 .stream()
-                .filter(c -> c.toLowerCase().startsWith(args.getLast().toLowerCase()))
+                .filter(c -> !filterToClosestInput || c.toLowerCase().startsWith(args.getLast().toLowerCase()))
                 .sorted(String.CASE_INSENSITIVE_ORDER)
                 .distinct()
                 .collect(Collectors.toList());
