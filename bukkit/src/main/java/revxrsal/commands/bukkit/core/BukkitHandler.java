@@ -191,13 +191,18 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
     }
 
     private @SneakyThrows void createPluginCommand(String name, @Nullable String description, @Nullable String usage) {
-        PluginCommand cmd = COMMAND_CONSTRUCTOR.newInstance(name, plugin);
-        COMMAND_MAP.register(plugin.getName(), cmd);
+        PluginCommand cmd = ((JavaPlugin) plugin).getCommand(name);
+        if (cmd == null) {
+            cmd = COMMAND_CONSTRUCTOR.newInstance(name, plugin);
+            COMMAND_MAP.register(plugin.getName(), cmd);
+        }
         BukkitCommandExecutor executor = new BukkitCommandExecutor(this);
         cmd.setExecutor(executor);
         cmd.setTabCompleter(executor);
-        cmd.setDescription(description == null ? "" : description);
-        if (usage != null)
+
+        if (cmd.getDescription().isEmpty() && description != null)
+            cmd.setDescription(description);
+        if (cmd.getUsage().isEmpty() && usage != null)
             cmd.setUsage(usage);
     }
 
