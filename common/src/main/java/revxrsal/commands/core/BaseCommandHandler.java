@@ -99,6 +99,7 @@ public abstract class BaseCommandHandler implements CommandHandler {
     private StackTraceSanitizer sanitizer = StackTraceSanitizer.defaultSanitizer();
     String flagPrefix = "-", switchPrefix = "-", messagePrefix = "";
     CommandHelpWriter<?> helpWriter;
+    ParameterNamingStrategy parameterNamingStrategy = ParameterNamingStrategy.lowerCaseWithSpace();
     boolean failOnExtra = false;
     final List<CommandCondition> conditions = new ArrayList<>();
     private final Translator translator = Translator.create();
@@ -154,6 +155,18 @@ public abstract class BaseCommandHandler implements CommandHandler {
         });
         registerCondition((actor, command, arguments) -> command.checkPermission(actor));
         registerAnnotationReplacer(Description.class, new LocalesAnnotationReplacer(this));
+    }
+
+    @Override
+    public @NotNull CommandHandler setParameterNamingStrategy(@NotNull ParameterNamingStrategy strategy) {
+        notNull(strategy, "parameter naming strategy");
+        parameterNamingStrategy = strategy;
+        return this;
+    }
+
+    @Override
+    public @NotNull ParameterNamingStrategy getParameterNamingStrategy() {
+        return parameterNamingStrategy;
     }
 
     @Override

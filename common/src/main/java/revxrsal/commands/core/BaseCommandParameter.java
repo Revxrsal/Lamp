@@ -44,7 +44,7 @@ import java.util.List;
 
 @RequiredArgsConstructor final class BaseCommandParameter implements CommandParameter {
 
-    private final String name;
+    String name;
     private final @Nullable String description;
     private final int index;
     private final @Unmodifiable List<String> def;

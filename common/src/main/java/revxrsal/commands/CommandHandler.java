@@ -23,7 +23,6 @@
  */
 package revxrsal.commands;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -36,7 +35,6 @@ import revxrsal.commands.autocomplete.AutoCompleter;
 import revxrsal.commands.command.*;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.core.reflect.MethodCallerFactory;
-import revxrsal.commands.exception.ArgumentParseException;
 import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.exception.TooManyArgumentsException;
 import revxrsal.commands.help.CommandHelp;
@@ -45,7 +43,10 @@ import revxrsal.commands.locales.Translator;
 import revxrsal.commands.process.*;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -164,6 +165,23 @@ public interface CommandHandler {
      * @see CommandHelp
      */
     @NotNull <T> CommandHandler setHelpWriter(@NotNull CommandHelpWriter<T> helpWriter);
+
+    /**
+     * Sets the parameter naming strategy. By default, this
+     * is {@link ParameterNamingStrategy#lowerCaseWithSpace()}
+     *
+     * @param strategy Strategy to use
+     * @return This command handler
+     * @see ParameterNamingStrategy
+     */
+    @NotNull CommandHandler setParameterNamingStrategy(@NotNull ParameterNamingStrategy strategy);
+
+    /**
+     * Returns the parameter naming strategy
+     *
+     * @return The current parameter naming strategy
+     */
+    @NotNull ParameterNamingStrategy getParameterNamingStrategy();
 
     /**
      * Disables stacktrace sanitization.

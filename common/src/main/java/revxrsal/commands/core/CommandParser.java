@@ -58,7 +58,7 @@ import static java.util.Collections.addAll;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 import static revxrsal.commands.util.Collections.listOf;
-import static revxrsal.commands.util.Strings.getName;
+import static revxrsal.commands.util.Strings.getOverriddenName;
 import static revxrsal.commands.util.Strings.splitBySpace;
 
 /**
@@ -357,10 +357,10 @@ final class CommandParser {
         Parameter[] methodParameters = method.getParameters();
         int cIndex = 0;
         for (int i = 0; i < methodParameters.length; i++) {
-            Parameter parameter = methodParameters[i];
-            AnnotationReader paramAnns = AnnotationReader.create(handler, parameter);
+            Parameter javaParameter = methodParameters[i];
+            AnnotationReader paramAnns = AnnotationReader.create(handler, javaParameter);
             List<ParameterValidator<Object>> validators = new ArrayList<>(
-                    handler.validators.getFlexibleOrDefault(parameter.getType(), emptyList())
+                    handler.validators.getFlexibleOrDefault(javaParameter.getType(), emptyList())
             );
 
             String[] defaultValue = paramAnns.get(Default.class, Default::value);
@@ -368,18 +368,30 @@ final class CommandParser {
                 defaultValue = paramAnns.get(Optional.class, Optional::def);
 
             BaseCommandParameter param = new BaseCommandParameter(
-                    getName(parameter),
                     paramAnns.get(Description.class, Description::value),
                     i,
                     defaultValue == null ? emptyList() : Collections.unmodifiableList(Arrays.asList(defaultValue)),
                     i == methodParameters.length - 1 && !paramAnns.contains(Single.class),
                     paramAnns.contains(Optional.class) || paramAnns.contains(Default.class),
                     command,
-                    parameter,
+                    javaParameter,
                     paramAnns.get(Switch.class),
                     paramAnns.get(Flag.class),
                     Collections.unmodifiableList(validators)
             );
+
+            /* The name overridden by @Named, @Switch, or @Flag */
+            String overriddenName = getOverriddenName(javaParameter);
+            param.name = overriddenName == null ? javaParameter.getName() : overriddenName;
+
+            /* No name specified, use the naming strategy instead */
+            if (overriddenName == null) {
+                overriddenName = handler.parameterNamingStrategy.getName(param);
+                Objects.requireNonNull(overriddenName, "ParameterNamingStrategy.getName() returned null for parameter '" +
+                        javaParameter.getName() + "' in '" + method + "'!");
+            }
+
+            param.name = overriddenName;
 
             for (PermissionReader reader : handler.getPermissionReaders()) {
                 CommandPermission permission = reader.getPermission(param);
@@ -392,12 +404,12 @@ final class CommandParser {
             /* Optional parmeters may be null, so make sure it isn't primitive as primitives cannot
                hold null values */
             if (param.getType().isPrimitive() && param.isOptional() && param.getDefaultValue().isEmpty() && !param.isSwitch())
-                throw new IllegalStateException("Optional parameter " + parameter + " at " + method + " cannot be a prmitive!");
+                throw new IllegalStateException("Optional parameter " + javaParameter + " at " + method + " cannot be a prmitive!");
 
             /* Switches must only be booleans */
             if (param.isSwitch()) {
                 if (Primitives.wrap(param.getType()) != Boolean.class)
-                    throw new IllegalStateException("Switch parameter " + parameter + " at " + method + " must be of boolean type!");
+                    throw new IllegalStateException("Switch parameter " + javaParameter + " at " + method + " must be of boolean type!");
             }
             ParameterResolver<?> resolver;
             if (param.getType() == ArgumentStack.class) {
@@ -406,7 +418,7 @@ final class CommandParser {
                 resolver = handler.getResolver(param);
 
             if (resolver == null) {
-                throw new IllegalStateException("Unable to find a resolver for parameter type " + parameter.getType());
+                throw new IllegalStateException("Unable to find a resolver for parameter type " + javaParameter.getType());
             }
             param.resolver = resolver;
             if (resolver.mutatesArguments())

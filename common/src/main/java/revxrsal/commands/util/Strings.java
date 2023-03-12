@@ -75,7 +75,7 @@ public final class Strings {
         return null;
     }
 
-    public static String getName(@NotNull Parameter parameter) {
+    public static @Nullable String getOverriddenName(@NotNull Parameter parameter) {
         Named named = parameter.getAnnotation(Named.class);
         if (named != null) {
             return named.value();
@@ -88,7 +88,7 @@ public final class Strings {
         if (flag != null) {
             return flag.value().isEmpty() ? parameter.getName() : flag.value();
         }
-        return parameter.getName();
+        return null;
     }
 
     public static String repeat(String string, int count) {
