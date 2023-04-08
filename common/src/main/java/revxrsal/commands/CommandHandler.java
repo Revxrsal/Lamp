@@ -26,6 +26,7 @@ package revxrsal.commands;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import revxrsal.commands.annotation.DefaultFor;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.annotation.Flag;
 import revxrsal.commands.annotation.Switch;
@@ -154,6 +155,18 @@ public interface CommandHandler {
      * @return This command handler
      */
     @NotNull CommandHandler setMessagePrefix(@NotNull String prefix);
+
+    /**
+     * Sets the prefix that all method annotated with {@link DefaultFor}
+     * for using parent path. If not set, <blockquote>~</blockquote> will be used.
+     * <p>
+     * This is useful for Orphan commands.
+     *
+     * @param prefix New prefix to set
+     * @return This command handler
+     * @throws IllegalArgumentException if the prefix is empty
+     */
+    @NotNull CommandHandler setParentPathPrefix(@NotNull String prefix);
 
     /**
      * Sets the {@link CommandHelpWriter} responsible for generating help pages
@@ -559,6 +572,14 @@ public interface CommandHandler {
      * @return The message prefix
      */
     @NotNull String getMessagePrefix();
+
+    /**
+     * Returns the prefix that comes for {@link DefaultFor}
+     * when defining parent path.
+     *
+     * @return The parent path prefix
+     */
+    @NotNull String getParentPathPrefix();
 
     /**
      * Returns the dependency registered for the given type

@@ -97,7 +97,7 @@ public abstract class BaseCommandHandler implements CommandHandler {
     private MethodCallerFactory methodCallerFactory = MethodCallerFactory.defaultFactory();
     private final WrappedExceptionHandler exceptionHandler = new WrappedExceptionHandler(DefaultExceptionHandler.INSTANCE);
     private StackTraceSanitizer sanitizer = StackTraceSanitizer.defaultSanitizer();
-    String flagPrefix = "-", switchPrefix = "-", messagePrefix = "";
+    String flagPrefix = "-", switchPrefix = "-", messagePrefix = "", parentPathPrefix = "~";
     CommandHelpWriter<?> helpWriter;
     ParameterNamingStrategy parameterNamingStrategy = ParameterNamingStrategy.lowerCaseWithSpace();
     boolean failOnExtra = false;
@@ -266,6 +266,13 @@ public abstract class BaseCommandHandler implements CommandHandler {
     @Override public @NotNull CommandHandler setMessagePrefix(@NotNull String prefix) {
         notNull(prefix, "prefix");
         messagePrefix = prefix;
+        return this;
+    }
+
+    @Override
+    public @NotNull CommandHandler setParentPathPrefix(@NotNull String prefix) {
+        notNull(prefix, "parentPath");
+        parentPathPrefix = prefix;
         return this;
     }
 
@@ -534,6 +541,10 @@ public abstract class BaseCommandHandler implements CommandHandler {
 
     @Override public @NotNull String getMessagePrefix() {
         return messagePrefix;
+    }
+
+    @Override public @NotNull String getParentPathPrefix() {
+        return parentPathPrefix;
     }
 
     @Override public <T> @NotNull Optional<@Nullable T> dispatch(@NotNull CommandActor actor, @NotNull ArgumentStack arguments) {
