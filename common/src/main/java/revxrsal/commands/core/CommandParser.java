@@ -131,7 +131,7 @@ final class CommandParser {
 
             /* Generates the command path for the given method. This will take into account
              * the parent class annotations */
-            List<CommandPath> paths = getCommandPath(container, method, reader);
+            List<CommandPath> paths = getCommandPath(container, method, reader, handler.parentPathPrefix);
             BoundMethodCaller caller = handler.getMethodCallerFactory().createFor(method).bindTo(invokeTarget);
 
             /* Generate command ID */
@@ -139,9 +139,7 @@ final class CommandParser {
 
             /* Check if the command is default, and if so, generate a path for it */
             String[] defPaths = reader.get(DefaultFor.class, DefaultFor::value);
-            List<CommandPath> defaultPaths = defPaths == null ? emptyList() : Arrays.stream(defPaths)
-                    .map(CommandPath::parse)
-                    .collect(Collectors.toList());
+            List<CommandPath> defaultPaths = defPaths == null ? emptyList() : paths;
             boolean isDefault = !defaultPaths.isEmpty();
 
             /* Generate categories for default paths if not created already */
@@ -434,18 +432,19 @@ final class CommandParser {
      * defined by {@link Command}, {@link Subcommand}, and those
      * defined in the parent class, and any other parent classes
      *
-     * @param container The class containing the commands
-     * @param method    The method that contains annotations
-     * @param reader    The annotation reader to read from
+     * @param container        The class containing the commands
+     * @param method           The method that contains annotations
+     * @param reader           The annotation reader to read from
+     * @param parentPathPrefix The parent path prefix
      * @return A list of all command paths that lead to this command
      */
     private static List<CommandPath> getCommandPath(@NotNull Class<?> container,
                                                     @NotNull Method method,
-                                                    @NotNull AnnotationReader reader) {
+                                                    @NotNull AnnotationReader reader, @NotNull String parentPathPrefix) {
         List<CommandPath> paths = new ArrayList<>();
 
         DefaultFor defaultFor = reader.get(DefaultFor.class);
-        if (defaultFor != null) {
+        if (defaultFor != null && !Arrays.asList(defaultFor.value()).contains(parentPathPrefix)) {
             return Arrays.stream(defaultFor.value()).map(CommandPath::parse)
                     .collect(Collectors.toList());
         }
@@ -480,6 +479,16 @@ final class CommandParser {
                     path.addAll(splitBySpace(subcommand));
                     paths.add(CommandPath.get(path));
                 }
+            } else if (defaultFor != null) {
+                List<String> parentPath = new ArrayList<>(splitBySpace(command));
+                parentSubcommandAliases.forEach(subcommandAlias -> parentPath.addAll(splitBySpace(subcommandAlias)));
+
+                List<String> processedPath = Arrays.stream(defaultFor.value()).map(defaultForPath -> {
+                    if (!defaultForPath.equals(parentPathPrefix))
+                        return Collections.singletonList(defaultForPath);
+                    return parentPath;
+                }).flatMap(Collection::stream).collect(Collectors.toList());
+                paths.add(CommandPath.get(processedPath));
             } else {
                 paths.add(CommandPath.parse(command));
             }
