@@ -191,7 +191,7 @@ public final class BaseCommandDispatcher {
         ArgumentStack flagArguments;
         if (index == -1) { // flag isn't specified, use default value or throw an MPE.
             if (parameter.isOptional()) {
-                if (!parameter.getDefaultValue().isEmpty()) {
+                if (!parameter.getDefaultValue().contains("<?null>")) {
                     args.add(lookup);
                     args.addAll(parameter.getDefaultValue());
                     index = args.indexOf(lookup);
