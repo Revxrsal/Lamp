@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.annotation;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -49,7 +50,10 @@ public @interface Optional {
      * Note that this may be compacted using {@link Default @Default("...")}
      *
      * @return The default value of the parameter
+     * @deprecated Use {@link Default} instead.
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.1.7")
     @NotNull String[] def() default "<?null>";
 
 }
