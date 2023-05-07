@@ -14,39 +14,39 @@ import revxrsal.commands.jda.annotation.UserPermission;
 @Getter
 public final class JDAPermission implements CommandPermission {
 
-    private final @Nullable RolePermission rp;
-    private final @Nullable GuildPermission gp;
-    private final @Nullable UserPermission up;
+    private final @Nullable RolePermission roles;
+    private final @Nullable GuildPermission permissions;
+    private final @Nullable UserPermission users;
 
     public JDAPermission(CommandAnnotationHolder command) {
-        rp = command.getAnnotation(RolePermission.class);
-        gp = command.getAnnotation(GuildPermission.class);
-        up = command.getAnnotation(UserPermission.class);
+        roles = command.getAnnotation(RolePermission.class);
+        permissions = command.getAnnotation(GuildPermission.class);
+        users = command.getAnnotation(UserPermission.class);
     }
 
     @Override public boolean canExecute(@NotNull CommandActor actor) {
-        if (rp == null && gp == null && up == null)
+        if (roles == null && permissions == null && users == null)
             return true;
         JDAActor jActor = (JDAActor) actor;
         if (jActor.isGuildEvent()) {
             if (jActor.getMember().isOwner())
                 return true;
-            if (rp != null) { // check roles
-                for (String name : rp.names())
+            if (roles != null) { // check roles
+                for (String name : roles.names())
                     if (jActor.getMember().getRoles().stream().anyMatch(c -> c.getName().equalsIgnoreCase(name)))
                         return true;
-                for (long id : rp.ids())
+                for (long id : roles.ids())
                     if (jActor.getMember().getRoles().stream().anyMatch(c -> c.getIdLong() == id))
                         return true;
             }
-            if (gp != null && jActor.isGuildEvent())
-                return jActor.getMember().hasPermission((GuildChannel) jActor.getChannel(), gp.value());
+            if (permissions != null && jActor.isGuildEvent())
+                return jActor.getMember().hasPermission((GuildChannel) jActor.getChannel(), permissions.value());
         }
-        if (up != null) {
-            for (String allowed : up.names())
+        if (users != null) {
+            for (String allowed : users.names())
                 if (actor.getName().equalsIgnoreCase(allowed))
                     return true;
-            for (long allowed : up.ids())
+            for (long allowed : users.ids())
                 if (jActor.getUser().getIdLong() == allowed)
                     return true;
         }
