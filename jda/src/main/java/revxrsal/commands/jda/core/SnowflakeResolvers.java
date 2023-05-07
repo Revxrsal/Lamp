@@ -27,7 +27,7 @@ enum SnowflakeResolvers implements ValueResolver<ISnowflake> {
     TEXT_CHANNEL(Guild::getTextChannelById, Guild::getTextChannelsByName, InvalidChannelException::new),
     VOICE_CHANNEL(Guild::getVoiceChannelById, Guild::getVoiceChannelsByName, InvalidChannelException::new),
     STAGE_CHANNEL(Guild::getStageChannelById, Guild::getStageChannelsByName, InvalidChannelException::new),
-    EMOTE(Guild::getEmoteById, Guild::getEmotesByName, InvalidEmoteException::new),
+    EMOTE(Guild::getEmojiById, Guild::getEmojisByName, InvalidEmoteException::new),
     CATEGORY(Guild::getCategoryById, Guild::getCategoriesByName, InvalidCategoryException::new);
 
     private final GetById getById;

@@ -1,7 +1,7 @@
 package revxrsal.commands.jda;
 
 import lombok.Getter;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
@@ -39,8 +39,8 @@ public final class JDAPermission implements CommandPermission {
                     if (jActor.getMember().getRoles().stream().anyMatch(c -> c.getIdLong() == id))
                         return true;
             }
-            if (gp != null)
-                return jActor.getMember().hasPermission(((TextChannel) jActor.getChannel()), gp.value());
+            if (gp != null && jActor.isGuildEvent())
+                return jActor.getMember().hasPermission((GuildChannel) jActor.getChannel(), gp.value());
         }
         if (up != null) {
             for (String allowed : up.names())
