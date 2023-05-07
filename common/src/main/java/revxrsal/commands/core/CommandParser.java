@@ -364,9 +364,11 @@ final class CommandParser {
             );
 
             String[] defaultValue = paramAnns.get(Default.class, Default::value);
-            if (defaultValue == null || defaultValue.length == 0 && paramAnns.contains(Optional.class))
+            if (defaultValue == null || defaultValue.length == 0 && paramAnns.contains(Optional.class)) {
                 defaultValue = paramAnns.get(Optional.class, Optional::def);
-
+                if (defaultValue != null && defaultValue.length == 1 && defaultValue[0].equals("<?null>"))
+                    defaultValue = null;
+            }
             BaseCommandParameter param = new BaseCommandParameter(
                     paramAnns.get(Description.class, Description::value),
                     i,
