@@ -15,9 +15,9 @@ import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.jda.actor.MessageJDAActor;
-import revxrsal.commands.jda.actor.SlashJDAActor;
+import revxrsal.commands.jda.actor.SlashCommandJDAActor;
 import revxrsal.commands.jda.core.actor.BaseJDAMessageActor;
-import revxrsal.commands.jda.core.actor.BaseJDASlashActor;
+import revxrsal.commands.jda.core.actor.BaseJDASlashCommandActor;
 import revxrsal.commands.jda.exception.GuildOnlyCommandException;
 import revxrsal.commands.jda.exception.PrivateMessageOnlyCommandException;
 
@@ -42,8 +42,8 @@ public interface JDAActor extends CommandActor {
      * @param event Event to wrap
      * @return The wrapping {@link JDAActor}.
      */
-    static @NotNull SlashJDAActor wrap(@NotNull SlashCommandInteractionEvent event, @NotNull CommandHandler handler) {
-        return new BaseJDASlashActor(event, handler);
+    static @NotNull SlashCommandJDAActor wrap(@NotNull SlashCommandInteractionEvent event, @NotNull CommandHandler handler) {
+        return new BaseJDASlashCommandActor(event, handler);
     }
 
     /**
@@ -77,6 +77,13 @@ public interface JDAActor extends CommandActor {
     default @Nullable Message getMessage() {
         return null;
     }
+
+    /**
+     * Returns the {@link Event} that created this actor.
+     *
+     * @return The event
+     */
+    @NotNull Event getGenericEvent();
 
     /**
      * Returns the {@link MessageReceivedEvent} that created this
@@ -138,15 +145,4 @@ public interface JDAActor extends CommandActor {
      * @return This actor
      */
     JDAActor checkNotInGuild(ExecutableCommand command) throws PrivateMessageOnlyCommandException;
-
-    /**
-     * Creates a new {@link JDAActor} that wraps the given {@link MessageReceivedEvent}.
-     *
-     * @param event Event to wrap
-     * @return The wrapping {@link JDAActor}.
-     */
-    static @NotNull JDAActor wrap(@NotNull MessageReceivedEvent event, @NotNull CommandHandler handler) {
-        return new BaseActorJDA(event, handler);
-    }
-
 }
