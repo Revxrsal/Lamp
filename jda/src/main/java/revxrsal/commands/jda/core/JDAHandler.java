@@ -1,5 +1,9 @@
 package revxrsal.commands.jda.core;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -13,10 +17,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
+
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.jda.JDAActor;
 import revxrsal.commands.jda.JDACommandHandler;
 import revxrsal.commands.jda.JDAPermission;
+import revxrsal.commands.jda.SlashCommandMapper;
 import revxrsal.commands.jda.exception.JDAExceptionAdapter;
 import revxrsal.commands.process.ContextResolver;
 import revxrsal.commands.process.ValueResolver;
@@ -24,10 +31,11 @@ import revxrsal.commands.process.ValueResolver;
 import static revxrsal.commands.jda.core.SnowflakeResolvers.*;
 import static revxrsal.commands.jda.core.SnowflakeResolvers.UserResolver.USER;
 import static revxrsal.commands.util.Preconditions.notNull;
+import static revxrsal.commands.util.Preconditions.coerceIn;
 
 @ApiStatus.Internal
 public final class JDAHandler extends BaseCommandHandler implements JDACommandHandler {
-
+    private final List<SlashCommandMapper> slashCommandMappers = new ArrayList<>();
     private final JDA jda;
 
     public JDAHandler(@NotNull JDA jda, @NotNull String prefix) {
@@ -56,6 +64,25 @@ public final class JDAHandler extends BaseCommandHandler implements JDACommandHa
         registerPermissionReader(JDAPermission::new);
         registerCondition((actor, command, arguments) -> actor.as(JDAActor.class).checkInGuild(command));
         jda.addEventListener(new JDACommandListener(prefix, this));
+    }
+
+    @Override
+    public @NotNull JDACommandHandler registerSlashCommandMapper(@NotNull SlashCommandMapper commandMapper) {
+        notNull(commandMapper, "slash command mapper");
+        slashCommandMappers.add(commandMapper);
+        return this;
+    }
+
+    @Override
+    public @NotNull JDACommandHandler registerSlashCommandMapper(int priority, @NotNull SlashCommandMapper commandMapper) {
+        notNull(commandMapper, "slash command mapper");
+        slashCommandMappers.add(coerceIn(priority, 0, slashCommandMappers.size()), commandMapper);
+        return this;
+    }
+
+    @Override
+    public @NotNull @UnmodifiableView List<SlashCommandMapper> getSlashCommandMappers() {
+        return Collections.unmodifiableList(slashCommandMappers);
     }
 
     private void registerSnowflakeResolver(Class c, ValueResolver res) {
