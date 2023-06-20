@@ -19,6 +19,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
+import revxrsal.commands.annotation.DefaultFor;
+import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.jda.JDAActor;
 import revxrsal.commands.jda.JDACommandHandler;
@@ -83,6 +85,37 @@ public final class JDAHandler extends BaseCommandHandler implements JDACommandHa
     @Override
     public @NotNull @UnmodifiableView List<SlashCommandMapper> getSlashCommandMappers() {
         return Collections.unmodifiableList(slashCommandMappers);
+    }
+
+    /**
+     * Registers all existing commands using {@link JDA#updateCommands()}. Currently it have limitations:
+     * <ul>
+     *     <li>Subcommand depth cannot be more than 2, for example: '/foo bar baz bar' will be considered invalid
+     *     <li>We cannot have {@link DefaultFor} for path if it has subcommands annotated with {@link Subcommand}. Command like this will be invalid:
+     *     <pre>
+     *     {@code
+     *     @Command("foo")
+     *     public class FooCommand {
+     *         @DefaultFor("foo")
+     *         public void defaultCommand(CommandActor actor) {
+     *             // Some command logic
+     *         }
+     *
+     *         @Subcommand("bar")
+     *         public void subcommand(CommandActor actor) {
+     *             // Some subcommand logic
+     *         }
+     *     }
+     *     }
+     *     </pre>
+     * </ul>
+     *
+     * @return this {@link JDACommandHandler} instance.
+     */
+    @Override
+    public @NotNull JDACommandHandler registerSlashCommands() {
+        jda.updateCommands().addCommands(SlashCommandConverter.convertCommands(this)).queue();
+        return this;
     }
 
     private void registerSnowflakeResolver(Class c, ValueResolver res) {

@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.jda.core.JDAHandler;
 
@@ -20,6 +21,14 @@ public interface JDACommandHandler extends CommandHandler {
      * @return The JDA instance
      */
     @NotNull JDA getJDA();
+
+    /**
+     * Registers a {@link SlashCommandData} using {@link JDA#updateCommands()}
+     *
+     * @return This command handler
+     * @see SlashCommandMapper
+     */
+    @NotNull JDACommandHandler registerSlashCommands();
 
     /**
      * Registers a {@link SlashCommandMapper} to this handler
