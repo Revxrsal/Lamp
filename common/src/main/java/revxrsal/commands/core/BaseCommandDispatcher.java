@@ -162,16 +162,11 @@ public final class BaseCommandDispatcher {
                                      CommandParameter parameter,
                                      Object[] values) {
         if (args.isEmpty()) {
-            if (parameter.getDefaultValue().isEmpty()) {
-                values[parameter.getMethodIndex()] = null;
-                return true;
+            if (!parameter.getDefaultValue().isEmpty()) {
+                args.addAll(parameter.getDefaultValue());
+                return false;
             } else {
-                if (!parameter.getDefaultValue().isEmpty()) {
-                    args.addAll(parameter.getDefaultValue());
-                    return false;
-                } else {
-                    throw new MissingArgumentException(parameter);
-                }
+                throw new MissingArgumentException(parameter);
             }
         }
         return false;
