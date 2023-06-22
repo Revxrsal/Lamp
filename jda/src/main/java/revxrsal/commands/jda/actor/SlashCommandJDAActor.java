@@ -37,8 +37,7 @@ public interface SlashCommandJDAActor extends JDAActor {
     }
 
     /**
-     * Returns the {@link SlashCommandInteractionEvent} that created this
-     * actor.
+     * Returns the cast result of {@link #getGenericEvent()} to {@link SlashCommandInteractionEvent}.
      *
      * @return The event
      */

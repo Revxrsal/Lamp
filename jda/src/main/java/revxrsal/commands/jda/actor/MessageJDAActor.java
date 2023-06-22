@@ -18,8 +18,7 @@ public interface MessageJDAActor extends JDAActor {
     }
 
     /**
-     * Returns the {@link MessageReceivedEvent} that created this
-     * actor.
+     * Returns the cast result of {@link #getGenericEvent()} to {@link MessageReceivedEvent}.
      *
      * @return The event
      */
