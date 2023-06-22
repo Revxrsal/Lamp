@@ -14,7 +14,7 @@ public interface SlashCommandJDAActor extends JDAActor {
      *
      * @return The actor's message channel union
      */
-    default ReplyCallbackAction deferReply() {
+    default @NotNull ReplyCallbackAction deferReply() {
         return getSlashEvent().deferReply();
     }
 
@@ -23,7 +23,7 @@ public interface SlashCommandJDAActor extends JDAActor {
      *
      * @return The actor's message channel union
      */
-    default MessageChannelUnion getChannelUnion() {
+    default @NotNull MessageChannelUnion getChannelUnion() {
         return getSlashEvent().getChannel();
     }
 
