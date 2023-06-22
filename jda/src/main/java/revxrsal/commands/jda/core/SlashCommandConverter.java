@@ -3,6 +3,7 @@ package revxrsal.commands.jda.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -106,7 +107,12 @@ public final class SlashCommandConverter {
 
     private static void validateCommandPaths(JDACommandHandler commandHandler) {
         List<CommandPath> commandPaths = Stream.of(commandHandler.getCommands().keySet(),
-                        commandHandler.getCategories().keySet().stream().filter(CommandPath::isRoot).collect(Collectors.toList()))
+                        commandHandler.getCategories()
+                                .entrySet()
+                                .stream()
+                                .filter(entry -> entry.getValue().getParent() == null && entry.getValue().getDefaultAction() != null)
+                                .map(Entry::getKey)
+                                .collect(Collectors.toList()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
         for (CommandPath path : commandPaths) {
