@@ -53,22 +53,28 @@ final class JDACommandListener implements EventListener {
             return;
         ExecutableCommand command = commandOptional.get();
         AutoCompleteQuery focusedOption = event.getFocusedOption();
-        findParameter(command, focusedOption.getName()).ifPresent(parameter -> {
-            try {
-                Collection<String> suggestions = parameter.getSuggestionProvider()
-                        .getSuggestions(event.getOptions().stream().map(OptionMapping::getAsString).collect(Collectors.toList()), JDAActor.wrap(event, handler),
-                                command);
-                event.replyChoices(suggestions.stream().map(suggestion -> {
-                    if (focusedOption.getType() == OptionType.NUMBER)
-                        return new Choice(suggestion, Double.parseDouble(suggestion));
-                    if (focusedOption.getType() == OptionType.INTEGER)
-                        return new Choice(suggestion, Long.parseLong(suggestion));
-                    return new Choice(suggestion, suggestion);
-                }).collect(Collectors.toList())).queue();
-            } catch(Throwable e) {
-                e.printStackTrace();
-            }
-        });
+        Optional<CommandParameter> foundParameter = command.getValueParameters()
+                .values()
+                .stream()
+                .filter(parameter -> getParameterName(parameter).equals(focusedOption.getName()))
+                .findFirst();
+        if (!foundParameter.isPresent())
+            return;
+        CommandParameter parameter = foundParameter.get();
+        try {
+            Collection<String> suggestions = parameter.getSuggestionProvider()
+                    .getSuggestions(event.getOptions().stream().map(OptionMapping::getAsString).collect(Collectors.toList()), JDAActor.wrap(event, handler),
+                            command);
+            event.replyChoices(suggestions.stream().map(suggestion -> {
+                if (focusedOption.getType() == OptionType.NUMBER)
+                    return new Choice(suggestion, Double.parseDouble(suggestion));
+                if (focusedOption.getType() == OptionType.INTEGER)
+                    return new Choice(suggestion, Long.parseLong(suggestion));
+                return new Choice(suggestion, suggestion);
+            }).collect(Collectors.toList())).queue();
+        } catch(Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private void onSlashCommandEvent(SlashCommandInteractionEvent event) {
@@ -115,15 +121,12 @@ final class JDACommandListener implements EventListener {
         return Optional.ofNullable(category.getDefaultAction());
     }
 
-    private Optional<CommandParameter> findParameter(ExecutableCommand command, String focusedOptionName) {
-        return command.getValueParameters().values().stream().filter(parameter -> {
-            if (parameter.hasAnnotation(OptionData.class)) {
-                OptionData optionData = parameter.getAnnotation(OptionData.class);
-                String name = optionData.name().isEmpty() ? parameter.getName() : optionData.name();
-                return name.equals(focusedOptionName);
-            }
-            return parameter.getName().equals(focusedOptionName);
-        }).findFirst();
+    private String getParameterName(CommandParameter parameter) {
+        if (parameter.hasAnnotation(OptionData.class)) {
+            OptionData optionData = parameter.getAnnotation(OptionData.class);
+            return optionData.name().isEmpty() ? parameter.getName() : optionData.name();
+        }
+        return parameter.getName();
     }
 
     /**
