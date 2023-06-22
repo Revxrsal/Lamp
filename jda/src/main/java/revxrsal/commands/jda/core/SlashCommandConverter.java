@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -13,6 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import revxrsal.commands.command.CommandCategory;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.jda.JDACommandHandler;
 import revxrsal.commands.jda.core.adapter.SlashCommandAdapter;
 
@@ -31,11 +33,12 @@ public final class SlashCommandConverter {
      * @return Converted CommandData collection
      */
     public static Collection<? extends CommandData> convertCommands(JDACommandHandler commandHandler) {
+        validateCommandPaths(commandHandler);
         List<SlashCommandData> commandDataList = new ArrayList<>();
         List<CommandCategory> roots = commandHandler.getCategories()
                 .values()
                 .stream()
-                .filter(category -> category.getPath().isRoot())
+                .filter(category -> category.getParent() == null)
                 .collect(Collectors.toList());
         List<ExecutableCommand> rootCommands = commandHandler.getCommands()
                 .values()
@@ -90,24 +93,28 @@ public final class SlashCommandConverter {
     }
 
     private static SlashCommandData parseCategory(JDACommandHandler commandHandler, CommandCategory category, SlashCommandData parentCommand) {
-        if (category.getDefaultAction() != null) {
-            if (!category.getCategories().isEmpty())
-                throw new IllegalArgumentException("Cannot mix subcommands and base command. Path '" + category.getPath().toRealString() + "'.");
-            if (category.getPath().isRoot())
-                return parseCommand(commandHandler, category.getDefaultAction());
+        if (category.getDefaultAction() != null)
             parseSubcommand(commandHandler, category.getDefaultAction(), parentCommand);
-        }
 
         for (CommandCategory children : category.getCategories().values())
             parseCategory(commandHandler, children, parentCommand);
 
-        for (ExecutableCommand command : category.getCommands().values()) {
-            if (!category.getCategories().isEmpty())
-                throw new IllegalArgumentException(
-                        "Cannot mix subcommand and subcommand categories. Path '" + category.getPath().toRealString() + "'. Command '" +
-                                command.getPath().toRealString() + "'.");
+        for (ExecutableCommand command : category.getCommands().values())
             parseSubcommand(commandHandler, command, parentCommand);
-        }
         return parentCommand;
+    }
+
+    private static void validateCommandPaths(JDACommandHandler commandHandler) {
+        List<CommandPath> commandPaths = Stream.of(commandHandler.getCommands().keySet(),
+                        commandHandler.getCategories().keySet().stream().filter(CommandPath::isRoot).collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        for (CommandPath path : commandPaths) {
+            Optional<CommandPath> conflictingPath = commandPaths.stream().filter(childPath -> !childPath.equals(path) && path.isChildOf(childPath)).findFirst();
+            if (!conflictingPath.isPresent())
+                continue;
+            throw new IllegalArgumentException(
+                    "Paths `" + path.toRealString() + "` and `" + conflictingPath.get().toRealString() + "` are conflicting, remove or modify one of paths");
+        }
     }
 }
