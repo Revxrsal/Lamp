@@ -9,16 +9,6 @@ import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import revxrsal.commands.jda.JDAActor;
 
 public interface SlashCommandJDAActor extends JDAActor {
-    @Override
-    default void reply(@NotNull String message) {
-        getSlashEvent().reply(getCommandHandler().getMessagePrefix() + message).queue();
-    }
-
-    @Override
-    default void error(@NotNull String message) {
-        getSlashEvent().reply(getCommandHandler().getMessagePrefix() + message).queue();
-    }
-
     /**
      * Returns the ReplyCallbackAction. You should use {@link ReplyCallbackAction#queue()}, for sending 'thinking...' action
      *

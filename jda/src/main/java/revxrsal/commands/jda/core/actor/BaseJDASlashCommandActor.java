@@ -16,6 +16,16 @@ public class BaseJDASlashCommandActor extends BaseActorJDA implements SlashComma
     }
 
     @Override
+    public void reply(@NotNull String message) {
+        getSlashEvent().reply(getCommandHandler().getMessagePrefix() + message).queue();
+    }
+
+    @Override
+    public void error(@NotNull String message) {
+        getSlashEvent().reply(getCommandHandler().getMessagePrefix() + message).queue();
+    }
+
+    @Override
     public @NotNull User getUser() {
         return getSlashEvent().getUser();
     }
