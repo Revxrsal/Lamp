@@ -70,7 +70,7 @@ public class BasicSlashCommandMapper implements SlashCommandMapper {
             return optionData;
         }
         String name = parameter.getName();
-        boolean required = !parameter.isOptional() && !parameter.isFlag();
+        boolean required = !parameter.isOptional();
         if (parameter.isSwitch())
             return new net.dv8tion.jda.api.interactions.commands.build.OptionData(OptionType.BOOLEAN, name, parameterDescription, false);
         OptionType type = findType(parameter);
