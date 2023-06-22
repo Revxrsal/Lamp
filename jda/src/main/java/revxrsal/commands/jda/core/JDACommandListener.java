@@ -145,7 +145,7 @@ final class JDACommandListener implements EventListener {
             Map<Integer, CommandParameter> valueParameters = foundCommand.getValueParameters();
             for (int i = 0; i < valueParameters.size(); i++) {
                 CommandParameter parameter = valueParameters.get(i);
-                OptionMapping optionMapping = event.getOption(parameter.getName());
+                OptionMapping optionMapping = event.getOption(getParameterName(parameter));
                 if (optionMapping == null)
                     continue;
                 if (parameter.isFlag())
