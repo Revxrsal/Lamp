@@ -65,6 +65,7 @@ public final class JDAHandler extends BaseCommandHandler implements JDACommandHa
         setExceptionHandler(JDAExceptionAdapter.INSTANCE);
         registerPermissionReader(JDAPermission::new);
         registerCondition((actor, command, arguments) -> actor.as(JDAActor.class).checkInGuild(command));
+        registerSlashCommandMapper(new BasicSlashCommandMapper());
         jda.addEventListener(new JDACommandListener(prefix, this));
     }
 
