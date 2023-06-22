@@ -1,5 +1,6 @@
 package revxrsal.commands.jda.core;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,10 +11,14 @@ import org.jetbrains.annotations.NotNull;
 
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
+import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.Command.Type;
+import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import revxrsal.commands.command.ArgumentStack;
@@ -23,6 +28,7 @@ import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.CommandPath;
 import revxrsal.commands.jda.JDAActor;
 import revxrsal.commands.jda.JDACommandHandler;
+import revxrsal.commands.jda.annotation.OptionData;
 import revxrsal.commands.jda.core.actor.BaseJDAMessageActor;
 import revxrsal.commands.jda.core.actor.BaseJDASlashCommandActor;
 
@@ -37,6 +43,32 @@ final class JDACommandListener implements EventListener {
             onMessageEvent((MessageReceivedEvent) genericEvent);
         if (genericEvent instanceof SlashCommandInteractionEvent)
             onSlashCommandEvent((SlashCommandInteractionEvent) genericEvent);
+        if (genericEvent instanceof CommandAutoCompleteInteractionEvent)
+            onAutocompleteEvent((CommandAutoCompleteInteractionEvent) genericEvent);
+    }
+
+    private void onAutocompleteEvent(CommandAutoCompleteInteractionEvent event) {
+        Optional<ExecutableCommand> commandOptional = findExecutableCommand(event);
+        if (!commandOptional.isPresent())
+            return;
+        ExecutableCommand command = commandOptional.get();
+        AutoCompleteQuery focusedOption = event.getFocusedOption();
+        findParameter(command, focusedOption.getName()).ifPresent(parameter -> {
+            try {
+                Collection<String> suggestions = parameter.getSuggestionProvider()
+                        .getSuggestions(event.getOptions().stream().map(OptionMapping::getAsString).collect(Collectors.toList()), JDAActor.wrap(event, handler),
+                                command);
+                event.replyChoices(suggestions.stream().map(suggestion -> {
+                    if (focusedOption.getType() == OptionType.NUMBER)
+                        return new Choice(suggestion, Double.parseDouble(suggestion));
+                    if (focusedOption.getType() == OptionType.INTEGER)
+                        return new Choice(suggestion, Long.parseLong(suggestion));
+                    return new Choice(suggestion, suggestion);
+                }).collect(Collectors.toList())).queue();
+            } catch(Throwable e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void onSlashCommandEvent(SlashCommandInteractionEvent event) {
@@ -70,8 +102,32 @@ final class JDACommandListener implements EventListener {
         }
     }
 
+    private Optional<ExecutableCommand> findExecutableCommand(CommandInteractionPayload event) {
+        CommandPath commandPath = CommandPath.get(
+                Stream.of(event.getName(), event.getSubcommandGroup(), event.getSubcommandName()).filter(Objects::nonNull).collect(Collectors.toList()));
+        ExecutableCommand command = handler.getCommand(commandPath);
+        if (command != null)
+            return Optional.of(command);
+
+        CommandCategory category = handler.getCategory(commandPath);
+        if (category == null)
+            return Optional.empty();
+        return Optional.ofNullable(category.getDefaultAction());
+    }
+
+    private Optional<CommandParameter> findParameter(ExecutableCommand command, String focusedOptionName) {
+        return command.getValueParameters().values().stream().filter(parameter -> {
+            if (parameter.hasAnnotation(OptionData.class)) {
+                OptionData optionData = parameter.getAnnotation(OptionData.class);
+                String name = optionData.name().isEmpty() ? parameter.getName() : optionData.name();
+                return name.equals(focusedOptionName);
+            }
+            return parameter.getName().equals(focusedOptionName);
+        }).findFirst();
+    }
+
     /**
-     * Parses a SlashCommandInteractionEvent and converts it to a raw command string.
+     * Parses a SlashCommandInteractionEvent and converts event to a raw command string.
      *
      * @param event The SlashCommandInteractionEvent to parse.
      * @return An Optional containing the raw command string.
@@ -79,42 +135,27 @@ final class JDACommandListener implements EventListener {
     private Optional<String> parseSlashCommandEvent(SlashCommandInteractionEvent event) {
         if (event.getCommandType() != Type.SLASH)
             return Optional.of(event.getName());
-        CommandPath commandPath = CommandPath.get(
-                Stream.of(event.getName(), event.getSubcommandGroup(), event.getSubcommandName()).filter(Objects::nonNull).collect(Collectors.toList()));
+        return findExecutableCommand(event).map(foundCommand -> {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(foundCommand.getPath().toRealString()).append(" ");
 
-        ExecutableCommand foundCommand = findExecutableCommand(commandPath);
-        if (foundCommand == null)
-            return Optional.empty();
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(commandPath.toRealString()).append(" ");
-
-        Map<Integer, CommandParameter> valueParameters = foundCommand.getValueParameters();
-        for (int i = 0; i < valueParameters.size(); i++) {
-            CommandParameter parameter = valueParameters.get(i);
-            OptionMapping optionMapping = event.getOption(parameter.getName());
-            if (optionMapping == null)
-                continue;
-            if (parameter.isFlag())
-                buffer.append("-").append(parameter.getFlagName()).append(" ");
-            if (parameter.isSwitch() && optionMapping.getType() == OptionType.BOOLEAN && optionMapping.getAsBoolean()) {
-                buffer.append("-").append(parameter.getSwitchName()).append(" ");
-                continue;
+            Map<Integer, CommandParameter> valueParameters = foundCommand.getValueParameters();
+            for (int i = 0; i < valueParameters.size(); i++) {
+                CommandParameter parameter = valueParameters.get(i);
+                OptionMapping optionMapping = event.getOption(parameter.getName());
+                if (optionMapping == null)
+                    continue;
+                if (parameter.isFlag())
+                    buffer.append("-").append(parameter.getFlagName()).append(" ");
+                if (parameter.isSwitch() && optionMapping.getType() == OptionType.BOOLEAN && optionMapping.getAsBoolean()) {
+                    buffer.append("-").append(parameter.getSwitchName()).append(" ");
+                    continue;
+                }
+                appendOptionMapping(buffer, optionMapping).append(" ");
             }
-            appendOptionMapping(buffer, optionMapping).append(" ");
-        }
 
-        return Optional.of(buffer.toString());
-    }
-
-    private ExecutableCommand findExecutableCommand(CommandPath commandPath) {
-        ExecutableCommand command = handler.getCommand(commandPath);
-        if (command != null)
-            return command;
-
-        CommandCategory category = handler.getCategory(commandPath);
-        if (category == null)
-            return null;
-        return category.getDefaultAction();
+            return buffer.toString();
+        });
     }
 
     private StringBuffer appendOptionMapping(StringBuffer buffer, OptionMapping optionMapping) {

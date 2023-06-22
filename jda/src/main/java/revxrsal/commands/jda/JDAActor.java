@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import revxrsal.commands.CommandHandler;
@@ -16,6 +17,8 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.jda.actor.MessageJDAActor;
 import revxrsal.commands.jda.actor.SlashCommandJDAActor;
+import revxrsal.commands.jda.actor.SlashCommandSuggestionJDAActor;
+import revxrsal.commands.jda.core.actor.BaseJDACommandSuggestionActor;
 import revxrsal.commands.jda.core.actor.BaseJDAMessageActor;
 import revxrsal.commands.jda.core.actor.BaseJDASlashCommandActor;
 import revxrsal.commands.jda.exception.GuildOnlyCommandException;
@@ -44,6 +47,16 @@ public interface JDAActor extends CommandActor {
      */
     static @NotNull SlashCommandJDAActor wrap(@NotNull SlashCommandInteractionEvent event, @NotNull CommandHandler handler) {
         return new BaseJDASlashCommandActor(event, handler);
+    }
+
+    /**
+     * Creates a new {@link JDAActor} that wraps the given {@link CommandAutoCompleteInteractionEvent}.
+     *
+     * @param event Event to wrap
+     * @return The wrapping {@link JDAActor}.
+     */
+    static @NotNull SlashCommandSuggestionJDAActor wrap(@NotNull CommandAutoCompleteInteractionEvent event, @NotNull CommandHandler handler) {
+        return new BaseJDACommandSuggestionActor(event, handler);
     }
 
     /**
