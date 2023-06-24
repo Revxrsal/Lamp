@@ -1,4 +1,4 @@
-package revxrsal.commands.jda.core;
+package revxrsal.commands.jda.core.actor;
 
 import org.jetbrains.annotations.NotNull;
 
