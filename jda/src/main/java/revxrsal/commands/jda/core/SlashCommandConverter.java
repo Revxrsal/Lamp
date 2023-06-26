@@ -47,8 +47,13 @@ public final class SlashCommandConverter {
                 .filter(command -> command.getPath().isRoot())
                 .collect(Collectors.toList());
         for (CommandCategory root : roots) {
-            String rootCommandPath = root.getPath().getFirst();
-            commandDataList.add(parseCategory(commandHandler, root, Commands.slash(rootCommandPath, rootCommandPath)));
+            CommandPath rootPath = root.getPath();
+            if (rootPath.size() == 1 && root.getDefaultAction() != null) {
+                commandDataList.add(parseCommand(commandHandler, root.getDefaultAction()));
+                continue;
+            }
+            String commandPath = root.getPath().getFirst();
+            commandDataList.add(parseCategory(commandHandler, root, Commands.slash(commandPath, commandPath)));
         }
         for (ExecutableCommand root : rootCommands)
             commandDataList.add(parseCommand(commandHandler, root));
