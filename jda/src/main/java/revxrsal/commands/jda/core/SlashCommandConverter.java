@@ -71,6 +71,8 @@ public final class SlashCommandConverter {
     private static void parseSubcommand(JDACommandHandler commandHandler, ExecutableCommand command, SlashCommandData commandData) {
         if (command.getPath().size() > 3)
             throw new IllegalArgumentException("Command path for JDA subcommands cannot be longer than 3. Path '" + command.getPath().toRealString() + "'");
+        if (command.getPath().size() <= 1)
+            return;
         String subcommandPath = command.getName();
         String commandDescription = Optional.ofNullable(command.getDescription()).orElse(subcommandPath);
         SubcommandData subcommandData = new SubcommandData(subcommandPath, commandDescription);
