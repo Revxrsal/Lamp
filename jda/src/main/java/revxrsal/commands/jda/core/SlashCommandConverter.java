@@ -47,8 +47,13 @@ public final class SlashCommandConverter {
                 .filter(command -> command.getPath().isRoot())
                 .collect(Collectors.toList());
         for (CommandCategory root : roots) {
-            String rootCommandPath = root.getPath().getFirst();
-            commandDataList.add(parseCategory(commandHandler, root, Commands.slash(rootCommandPath, rootCommandPath)));
+            CommandPath rootPath = root.getPath();
+            if (rootPath.size() == 1 && root.getDefaultAction() != null) {
+                commandDataList.add(parseCommand(commandHandler, root.getDefaultAction()));
+                continue;
+            }
+            String commandPath = root.getPath().getFirst();
+            commandDataList.add(parseCategory(commandHandler, root, Commands.slash(commandPath, commandPath)));
         }
         for (ExecutableCommand root : rootCommands)
             commandDataList.add(parseCommand(commandHandler, root));
@@ -71,6 +76,8 @@ public final class SlashCommandConverter {
     private static void parseSubcommand(JDACommandHandler commandHandler, ExecutableCommand command, SlashCommandData commandData) {
         if (command.getPath().size() > 3)
             throw new IllegalArgumentException("Command path for JDA subcommands cannot be longer than 3. Path '" + command.getPath().toRealString() + "'");
+        if (command.getPath().size() <= 1)
+            return;
         String subcommandPath = command.getName();
         String commandDescription = Optional.ofNullable(command.getDescription()).orElse(subcommandPath);
         SubcommandData subcommandData = new SubcommandData(subcommandPath, commandDescription);
