@@ -131,10 +131,10 @@ final class JDACommandListener implements EventListener {
     }
 
     /**
-     * Parses a SlashCommandInteractionEvent and converts event to a raw command string.
+     * Parses a SlashCommandInteractionEvent and converts event to an {@link ArgumentStack}.
      *
      * @param event The SlashCommandInteractionEvent to parse.
-     * @return An Optional containing the raw command string.
+     * @return An Optional containing the {@link ArgumentStack}.
      */
     private Optional<ArgumentStack> parseSlashCommandEvent(SlashCommandInteractionEvent event) {
         if (event.getCommandType() != Type.SLASH)
