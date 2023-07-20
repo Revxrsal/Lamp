@@ -146,8 +146,10 @@ final class JDACommandListener implements EventListener {
             for (int i = 0; i < valueParameters.size(); i++) {
                 CommandParameter parameter = valueParameters.get(i);
                 OptionMapping optionMapping = event.getOption(getParameterName(parameter));
-                if (optionMapping == null)
+                if (optionMapping == null) {
+                    arguments.addAll(parameter.getDefaultValue());
                     continue;
+                }
                 if (parameter.isFlag())
                     arguments.add("-" + parameter.getFlagName());
                 if (parameter.isSwitch() && optionMapping.getType() == OptionType.BOOLEAN && optionMapping.getAsBoolean()) {
