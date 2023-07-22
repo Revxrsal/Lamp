@@ -7,5 +7,5 @@ include "cli"
 include "jda"
 include "velocity"
 include "sponge"
+include "sponge-8"
 include "brigadier"
-
