@@ -19,7 +19,7 @@ import java.util.Optional;
 
 // i'm not sure if we are supposed to be providing implementations
 // for testPermission(), getHelp() and getUsage().
-final class SpongeCommandCallable implements Command.Raw {
+public final class SpongeCommandCallable implements Command.Raw {
 
     private final SpongeCommandHandler handler;
     private final String name;
@@ -49,7 +49,8 @@ final class SpongeCommandCallable implements Command.Raw {
         final List<CommandCompletion> complete = new ArrayList<>();
         try {
             CommandActor actor = new SpongeActor(cause, handler);
-            ArgumentStack args = ArgumentStack.parseForAutoCompletion(arguments.input());
+            System.out.println("Complete: " + arguments.input());
+            ArgumentStack args = ArgumentStack.parseForAutoCompletion(arguments.input().split(" "));
             handler.getAutoCompleter().complete(actor, args).forEach((entry)-> complete.add(CommandCompletion.of(entry)));
             return complete;
         } catch (ArgumentParseException e) {
@@ -59,7 +60,7 @@ final class SpongeCommandCallable implements Command.Raw {
 
     @Override
     public boolean canExecute(CommandCause cause) {
-        return false;
+        return true;
     }
 
     @Override

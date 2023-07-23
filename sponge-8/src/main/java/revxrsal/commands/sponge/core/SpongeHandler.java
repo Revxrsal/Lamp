@@ -12,6 +12,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.data.Has;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.world.World;
 import org.spongepowered.plugin.PluginContainer;
@@ -45,9 +46,7 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
         registerContextValue((Class) plugin.getClass(), plugin);
         registerDependency((Class) plugin.getClass(), plugin);
         registerContextValue(Game.class, Sponge.game());
-        registerContextValue(Server.class, Sponge.server());
-        registerContextValue(Scheduler.class, Sponge.asyncScheduler());
-        registerContextValue(Platform.class, Sponge.platform());
+
         registerValueResolver(Selector.class, context -> Selector.parse(context.pop()));
         registerValueResolver(Player.class, context -> {
             String name = context.pop();
@@ -63,11 +62,7 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
             return Sponge.server().worldManager().world(ResourceKey.minecraft(name))
                     .orElseThrow(() -> new InvalidPlayerException(context.parameter(), name));
         });
-        getAutoCompleter()
-                .registerSuggestion("players", SuggestionProvider.map(Sponge.server()::onlinePlayers, ServerPlayer::name))
-                .registerSuggestion("worlds", SuggestionProvider.map(Sponge.server().worldManager()::worlds, (world)->world.key().value()))//everything switched to ResourceKey, so we'll just leave out the namespace
-                .registerParameterSuggestions(Player.class, "players")
-                .registerParameterSuggestions(World.class, "worlds");
+
         registerResponseHandler(String.class, (response, actor, command) -> actor.as(SpongeCommandActor.class).getSource().audience().sendMessage(Component.text(response)));
         registerResponseHandler(Component.class, (response, actor, command) -> actor.as(SpongeCommandActor.class).getSource().audience().sendMessage(response));
         registerResponseHandler(Component[].class, (response, actor, command) ->{
@@ -76,7 +71,20 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
             }
         });
         setExceptionHandler(SpongeExceptionAdapter.INSTANCE);
+        System.out.println("Registering listener.");
         Sponge.eventManager().registerListeners((PluginContainer) plugin, this);
+    }
+
+    @Listener
+    public void init(final StartingEngineEvent<Server> event) {
+        registerContextValue(Server.class, Sponge.server());
+        registerContextValue(Scheduler.class, Sponge.asyncScheduler());
+        registerContextValue(Platform.class, Sponge.platform());
+        getAutoCompleter()
+                .registerSuggestion("players", SuggestionProvider.map(Sponge.server()::onlinePlayers, ServerPlayer::name))
+                .registerSuggestion("worlds", SuggestionProvider.map(Sponge.server().worldManager()::worlds, (world)->world.key().value()))//everything switched to ResourceKey, so we'll just leave out the namespace
+                .registerParameterSuggestions(Player.class, "players")
+                .registerParameterSuggestions(World.class, "worlds");
     }
 
     @Override public @NotNull CommandHandler register(@NotNull Object... commands) {
@@ -97,10 +105,18 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
     }
 
     //We have to register listeners because #Sponge8
-    @Listener(order = Order.LAST)
+    @Listener
     public void handleRegistrationEvent(final RegisterCommandEvent<Command.Raw> event) {
+        System.out.println("Register Lamp Commands.");
 
-        this.registered.forEach((name, command)-> event.register((PluginContainer)plugin, command, name));
+        this.registered.forEach((name, command)-> {
+            event.register((PluginContainer)plugin, command, name);
+            System.out.println("Register: " + name);
+        });
+    }
+
+    public Map<String, SpongeCommandCallable> getRegistered() {
+        return registered;
     }
 
     @Override public @NotNull Object getPlugin() {
