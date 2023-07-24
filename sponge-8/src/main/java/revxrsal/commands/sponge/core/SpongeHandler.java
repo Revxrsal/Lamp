@@ -9,8 +9,6 @@ import org.spongepowered.api.command.selector.Selector;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.filter.data.Has;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import org.spongepowered.api.scheduler.Scheduler;
@@ -19,6 +17,7 @@ import org.spongepowered.plugin.PluginContainer;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandCategory;
+import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.sponge.SpongeCommandActor;
@@ -71,6 +70,7 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
             }
         });
         setExceptionHandler(SpongeExceptionAdapter.INSTANCE);
+        registerPermissionReader(SpongePermissionReader.INSTANCE);
         System.out.println("Registering listener.");
         Sponge.eventManager().registerListeners((PluginContainer) plugin, this);
     }
@@ -91,27 +91,25 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
         super.register(commands);
         for (ExecutableCommand command : executables.values()) {
             if (command.getParent() != null) continue;
-            createPluginCommand(command.getName());
+            createPluginCommand(command.getName(), command.getPermission());
         }
         for (CommandCategory category : categories.values()) {
             if (category.getParent() != null) continue;
-            createPluginCommand(category.getName());
+            createPluginCommand(category.getName(), category.getPermission());
         }
         return this;
     }
 
-    private void createPluginCommand(String name) {
-        registered.put(name, new SpongeCommandCallable(this, name));
+    private void createPluginCommand(String name, @NotNull CommandPermission permission) {
+        registered.put(name, new SpongeCommandCallable(this, name, permission));
     }
 
     //We have to register listeners because #Sponge8
     @Listener
     public void handleRegistrationEvent(final RegisterCommandEvent<Command.Raw> event) {
-        System.out.println("Register Lamp Commands.");
 
         this.registered.forEach((name, command)-> {
             event.register((PluginContainer)plugin, command, name);
-            System.out.println("Register: " + name);
         });
     }
 

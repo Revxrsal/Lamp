@@ -1,6 +1,7 @@
 package revxrsal.commands.sponge.core;
 
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandCompletion;
@@ -9,7 +10,7 @@ import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.ArgumentReader;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.exception.ArgumentParseException;
+import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.sponge.SpongeCommandHandler;
 
 import java.util.ArrayList;
@@ -22,11 +23,13 @@ import java.util.Optional;
 public final class SpongeCommandCallable implements Command.Raw {
 
     private final SpongeCommandHandler handler;
+    private final CommandPermission permission;
     private final String name;
 
-    public SpongeCommandCallable(SpongeCommandHandler handler, String name) {
+    public SpongeCommandCallable(SpongeCommandHandler handler, String name, @NotNull CommandPermission permission) {
         this.handler = handler;
         this.name = name;
+        this.permission = permission;
     }
 
     @Override
@@ -48,19 +51,19 @@ public final class SpongeCommandCallable implements Command.Raw {
 
         final List<CommandCompletion> complete = new ArrayList<>();
         try {
-            CommandActor actor = new SpongeActor(cause, handler);
-            System.out.println("Complete: " + arguments.input());
-            ArgumentStack args = ArgumentStack.parseForAutoCompletion(arguments.input().split(" "));
+            final CommandActor actor = new SpongeActor(cause, handler);
+            final ArgumentStack args = ArgumentStack.parseForAutoCompletion(arguments.input().split(" "));
             handler.getAutoCompleter().complete(actor, args).forEach((entry)-> complete.add(CommandCompletion.of(entry)));
             return complete;
-        } catch (ArgumentParseException e) {
+        } catch (Exception e) {
             return Collections.emptyList();
         }
     }
 
     @Override
     public boolean canExecute(CommandCause cause) {
-        return true;
+        final CommandActor actor = new SpongeActor(cause, handler);
+        return permission.canExecute(actor);
     }
 
     @Override
