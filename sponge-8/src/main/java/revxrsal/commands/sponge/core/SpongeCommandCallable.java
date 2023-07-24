@@ -52,7 +52,8 @@ public final class SpongeCommandCallable implements Command.Raw {
         final List<CommandCompletion> complete = new ArrayList<>();
         try {
             final CommandActor actor = new SpongeActor(cause, handler);
-            final ArgumentStack args = ArgumentStack.parseForAutoCompletion(arguments.input().split(" "));
+            final ArgumentStack args = ArgumentStack.parseForAutoCompletion(arguments.input());
+            args.addFirst(name);
             handler.getAutoCompleter().complete(actor, args).forEach((entry)-> complete.add(CommandCompletion.of(entry)));
             return complete;
         } catch (Exception e) {

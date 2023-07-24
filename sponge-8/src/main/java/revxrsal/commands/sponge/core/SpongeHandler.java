@@ -71,7 +71,6 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
         });
         setExceptionHandler(SpongeExceptionAdapter.INSTANCE);
         registerPermissionReader(SpongePermissionReader.INSTANCE);
-        System.out.println("Registering listener.");
         Sponge.eventManager().registerListeners((PluginContainer) plugin, this);
     }
 
