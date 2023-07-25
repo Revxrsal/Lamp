@@ -11,6 +11,7 @@ import org.spongepowered.api.command.parameter.ArgumentReader;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandPermission;
+import revxrsal.commands.exception.ArgumentParseException;
 import revxrsal.commands.sponge.SpongeCommandHandler;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public final class SpongeCommandCallable implements Command.Raw {
             args.addFirst(name);
             handler.getAutoCompleter().complete(actor, args).forEach((entry)-> complete.add(CommandCompletion.of(entry)));
             return complete;
-        } catch (Exception e) {
+        } catch (ArgumentParseException e) {
             return Collections.emptyList();
         }
     }
