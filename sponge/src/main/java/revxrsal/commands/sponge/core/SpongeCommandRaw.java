@@ -21,13 +21,13 @@ import java.util.Optional;
 
 // i'm not sure if we are supposed to be providing implementations
 // for testPermission(), getHelp() and getUsage().
-public final class SpongeCommandCallable implements Command.Raw {
+public final class SpongeCommandRaw implements Command.Raw {
 
     private final SpongeCommandHandler handler;
     private final CommandPermission permission;
     private final String name;
 
-    public SpongeCommandCallable(SpongeCommandHandler handler, String name, @NotNull CommandPermission permission) {
+    public SpongeCommandRaw(SpongeCommandHandler handler, String name, @NotNull CommandPermission permission) {
         this.handler = handler;
         this.name = name;
         this.permission = permission;
@@ -37,7 +37,6 @@ public final class SpongeCommandCallable implements Command.Raw {
     public CommandResult process(CommandCause cause, ArgumentReader.Mutable args) throws CommandException {
         CommandActor actor = new SpongeActor(cause, handler);
         try {
-            //Not sure which string is correct here, I believe it's the input one.
             ArgumentStack arguments = ArgumentStack.parse(args.input());
             arguments.addFirst(name);
             handler.dispatch(actor, arguments);

@@ -1,11 +1,12 @@
 package revxrsal.commands.sponge.core;
 
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.source.ConsoleSource;
+import org.spongepowered.api.SystemSubject;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.sponge.SpongeCommandActor;
 import revxrsal.commands.sponge.exception.SenderNotConsoleException;
@@ -20,24 +21,24 @@ public final class SpongeActor implements SpongeCommandActor {
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
 
-    private final CommandSource source;
+    private final CommandCause source;
     private final CommandHandler handler;
 
-    public SpongeActor(CommandSource source, CommandHandler handler) {
+    public SpongeActor(CommandCause source, CommandHandler handler) {
         this.source = source;
         this.handler = handler;
     }
 
     @Override public @NotNull String getName() {
-        return isConsole() ? "Console" : requirePlayer().getName();
+        return isConsole() ? "Console" : requirePlayer().name();
     }
 
     @Override public @NotNull UUID getUniqueId() {
-        return isConsole() ? CONSOLE_UUID : requirePlayer().getUniqueId();
+        return isConsole() ? CONSOLE_UUID : requirePlayer().uniqueId();
     }
 
     @Override public void reply(@NotNull String message) {
-        source.sendMessage(Text.of(colorize(handler.getMessagePrefix() + message)));
+        source.audience().sendMessage(Component.text(colorize(handler.getMessagePrefix() + message)));
     }
 
     @Override public void error(@NotNull String message) {
@@ -48,41 +49,41 @@ public final class SpongeActor implements SpongeCommandActor {
         return handler;
     }
 
-    @Override public @NotNull CommandSource getSource() {
+    @Override public @NotNull CommandCause getSource() {
         return source;
     }
 
     @Override public boolean isPlayer() {
-        return source instanceof Player;
+        return source.subject() instanceof Player;
     }
 
     @Override public boolean isConsole() {
-        return source instanceof ConsoleSource;
+        return source.subject() instanceof SystemSubject;
     }
 
-    @Override public @Nullable Player getAsPlayer() {
-        return isPlayer() ? (Player) source : null;
+    @Override public @Nullable ServerPlayer getAsPlayer() {
+        return isPlayer() ? (ServerPlayer) source.subject() : null;
     }
 
-    @Override public @NotNull Player requirePlayer() throws SenderNotPlayerException {
+    @Override public @NotNull ServerPlayer requirePlayer() throws SenderNotPlayerException {
         if (!isPlayer())
             throw new SenderNotPlayerException(this);
-        return (Player) source;
+        return (ServerPlayer) source.subject();
     }
 
-    @Override public @NotNull ConsoleSource requireConsole() throws SenderNotConsoleException {
+    @Override public @NotNull SystemSubject requireConsole() throws SenderNotConsoleException {
         if (!isPlayer())
             throw new SenderNotConsoleException(this);
-        return (ConsoleSource) source;
+        return (SystemSubject) source.subject();
     }
 
     @Override public @NotNull Locale getLocale() {
         if (isPlayer())
-            return requirePlayer().getLocale();
+            return requirePlayer().locale();
         return SpongeCommandActor.super.getLocale();
     }
 
-    @Override public void reply(@NotNull Text message) {
-        source.sendMessage(message);
+    @Override public void reply(@NotNull Component message) {
+        source.audience().sendMessage(message);
     }
 }

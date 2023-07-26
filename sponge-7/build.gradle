@@ -4,6 +4,5 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
-    implementation 'org.jetbrains:annotations:24.0.0'
-    compileOnly("org.spongepowered:spongeapi:8.0.0")
+    compileOnly("org.spongepowered:spongeapi:7.3.0")
 }
