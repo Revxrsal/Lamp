@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.utils.data.DataObject;
  * Adapts {@link SlashCommandData} and {@link SubcommandData} into one object.
  */
 public interface SlashCommandAdapter {
+
     /**
      * Creates a new {@link SlashCommandAdapter} that wraps the given {@link SlashCommandData}
      *

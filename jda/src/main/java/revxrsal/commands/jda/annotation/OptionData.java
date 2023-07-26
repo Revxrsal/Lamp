@@ -15,6 +15,7 @@ import revxrsal.commands.annotation.NotSender;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OptionData {
+
     OptionType value();
 
     OptionChoice[] choices() default {};

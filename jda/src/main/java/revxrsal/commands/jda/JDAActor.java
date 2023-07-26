@@ -1,5 +1,6 @@
 package revxrsal.commands.jda;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +30,7 @@ import revxrsal.commands.jda.exception.PrivateMessageOnlyCommandException;
  * whether in a private message or a guild.
  */
 public interface JDAActor extends CommandActor {
+
     /**
      * Creates a new {@link JDAActor} that wraps the given {@link MessageReceivedEvent}.
      *

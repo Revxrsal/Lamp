@@ -1,12 +1,12 @@
 package revxrsal.commands.jda.actor;
 
-import org.jetbrains.annotations.NotNull;
-
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.jda.JDAActor;
 
 public interface MessageJDAActor extends JDAActor {
+
     /**
      * Returns the message of the actor
      *

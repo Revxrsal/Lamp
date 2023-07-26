@@ -1,21 +1,21 @@
 package revxrsal.commands.jda.actor;
 
-import java.util.List;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnmodifiableView;
-
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.jda.JDAActor;
 
+import java.util.List;
+
 public interface SlashCommandSuggestionJDAActor extends JDAActor {
-    default @UnmodifiableView @NotNull List<OptionMapping> getOptions(){
+
+    default @UnmodifiableView @NotNull List<OptionMapping> getOptions() {
         return getSuggestionEvent().getOptions();
     }
 
-    default @NotNull AutoCompleteQuery getFocusedOption(){
+    default @NotNull AutoCompleteQuery getFocusedOption() {
         return getSuggestionEvent().getFocusedOption();
     }
 

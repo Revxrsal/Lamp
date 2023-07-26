@@ -1,14 +1,5 @@
 package revxrsal.commands.jda.core;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.jetbrains.annotations.NotNull;
-
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
@@ -19,20 +10,22 @@ import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.jda.SlashCommandMapper;
-import revxrsal.commands.jda.annotation.GuildOnly;
-import revxrsal.commands.jda.annotation.GuildPermission;
-import revxrsal.commands.jda.annotation.NSFW;
-import revxrsal.commands.jda.annotation.OptionChoice;
-import revxrsal.commands.jda.annotation.OptionData;
+import revxrsal.commands.jda.annotation.*;
 import revxrsal.commands.jda.core.adapter.SlashCommandAdapter;
 import revxrsal.commands.util.Primitives;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class BasicSlashCommandMapper implements SlashCommandMapper {
+
     @Override
-    public void mapSlashCommand(@NotNull SlashCommandAdapter slashCommandAdapter, @NotNull ExecutableCommand command) {
+    public void mapSlashCommand(@NotNull SlashCommandAdapter slashCommandAdapter,
+                                @NotNull ExecutableCommand command) {
         if (slashCommandAdapter.isSlashCommand()) {
             SlashCommandData slashCommandData = slashCommandAdapter.getCommandData();
             if (command.hasAnnotation(GuildOnly.class))
