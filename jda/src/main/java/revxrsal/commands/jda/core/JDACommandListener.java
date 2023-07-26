@@ -1,6 +1,8 @@
 package revxrsal.commands.jda.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -78,10 +80,9 @@ final class JDACommandListener implements EventListener {
     }
 
     private void onSlashCommandEvent(SlashCommandInteractionEvent event) {
-        parseSlashCommandEvent(event).ifPresent(content -> {
+        parseSlashCommandEvent(event).ifPresent(arguments -> {
             JDAActor actor = new BaseJDASlashCommandActor(event, handler);
             try {
-                ArgumentStack arguments = ArgumentStack.parse(content);
                 handler.dispatch(actor, arguments);
             } catch(Throwable t) {
                 handler.getExceptionHandler().handleException(t, actor);
@@ -130,54 +131,54 @@ final class JDACommandListener implements EventListener {
     }
 
     /**
-     * Parses a SlashCommandInteractionEvent and converts event to a raw command string.
+     * Parses a SlashCommandInteractionEvent and converts event to an {@link ArgumentStack}.
      *
      * @param event The SlashCommandInteractionEvent to parse.
-     * @return An Optional containing the raw command string.
+     * @return An Optional containing the {@link ArgumentStack}.
      */
-    private Optional<String> parseSlashCommandEvent(SlashCommandInteractionEvent event) {
+    private Optional<ArgumentStack> parseSlashCommandEvent(SlashCommandInteractionEvent event) {
         if (event.getCommandType() != Type.SLASH)
-            return Optional.of(event.getName());
+            return Optional.of(ArgumentStack.copyExact(event.getName()));
         return findExecutableCommand(event).map(foundCommand -> {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(foundCommand.getPath().toRealString()).append(" ");
+            List<String> arguments = new ArrayList<>(foundCommand.getPath().toList());
 
             Map<Integer, CommandParameter> valueParameters = foundCommand.getValueParameters();
             for (int i = 0; i < valueParameters.size(); i++) {
                 CommandParameter parameter = valueParameters.get(i);
                 OptionMapping optionMapping = event.getOption(getParameterName(parameter));
-                if (optionMapping == null)
-                    continue;
-                if (parameter.isFlag())
-                    buffer.append("-").append(parameter.getFlagName()).append(" ");
-                if (parameter.isSwitch() && optionMapping.getType() == OptionType.BOOLEAN && optionMapping.getAsBoolean()) {
-                    buffer.append("-").append(parameter.getSwitchName()).append(" ");
+                if (optionMapping == null) {
+                    arguments.addAll(parameter.getDefaultValue());
                     continue;
                 }
-                appendOptionMapping(buffer, optionMapping).append(" ");
+                if (parameter.isFlag())
+                    arguments.add("-" + parameter.getFlagName());
+                if (parameter.isSwitch() && optionMapping.getType() == OptionType.BOOLEAN && optionMapping.getAsBoolean()) {
+                    arguments.add("-" + parameter.getSwitchName());
+                    continue;
+                }
+                appendOptionMapping(arguments, optionMapping);
             }
 
-            return buffer.toString();
+            return ArgumentStack.copyExact(arguments);
         });
     }
 
-    private StringBuffer appendOptionMapping(StringBuffer buffer, OptionMapping optionMapping) {
+    private void appendOptionMapping(Collection<String> arguments, OptionMapping optionMapping) {
         switch (optionMapping.getType()) {
             case CHANNEL:
-                buffer.append(optionMapping.getAsChannel().getName());
+                arguments.add(optionMapping.getAsChannel().getName());
                 break;
             case USER:
-                buffer.append(optionMapping.getAsUser().getName());
+                arguments.add(optionMapping.getAsUser().getName());
                 break;
             case ROLE:
-                buffer.append(optionMapping.getAsRole().getName());
+                arguments.add(optionMapping.getAsRole().getName());
                 break;
             case MENTIONABLE:
-                buffer.append("<@").append(optionMapping.getAsMentionable().getIdLong()).append(">");
+                arguments.add("<@" + optionMapping.getAsMentionable().getIdLong() + ">");
                 break;
             default:
-                buffer.append(optionMapping.getAsString());
+                arguments.add(optionMapping.getAsString());
         }
-        return buffer;
     }
 }
