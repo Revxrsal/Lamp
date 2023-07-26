@@ -17,6 +17,7 @@ import revxrsal.commands.core.BaseCommandHandler;
 import revxrsal.commands.jda.JDAActor;
 import revxrsal.commands.jda.JDACommandHandler;
 import revxrsal.commands.jda.JDAPermission;
+import revxrsal.commands.jda.annotation.GuildOnly;
 import revxrsal.commands.jda.exception.JDAExceptionAdapter;
 import revxrsal.commands.process.ContextResolver;
 import revxrsal.commands.process.ValueResolver;
@@ -54,7 +55,10 @@ public final class JDAHandler extends BaseCommandHandler implements JDACommandHa
         registerResponseHandler(MessageEmbed.class, (response, actor, command) -> actor.as(JDAActor.class).getChannel().sendMessageEmbeds(response).queue());
         setExceptionHandler(JDAExceptionAdapter.INSTANCE);
         registerPermissionReader(JDAPermission::new);
-        registerCondition((actor, command, arguments) -> actor.as(JDAActor.class).checkInGuild(command));
+        registerCondition((actor, command, arguments) -> {
+            if (command.hasAnnotation(GuildOnly.class))
+                actor.as(JDAActor.class).checkInGuild(command);
+        });
         jda.addEventListener(new JDACommandListener(prefix, this));
     }
 
