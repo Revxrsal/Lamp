@@ -101,7 +101,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
             if (value.equalsIgnoreCase("self") || value.equalsIgnoreCase("me"))
                 return ((BukkitCommandActor) context.actor()).requirePlayer();
             OfflinePlayer player = Bukkit.getOfflinePlayer(value);
-            if (!player.hasPlayedBefore() && !player.isOnline())
+            if (!player.hasPlayedBefore() && !player.isOnline() && player.getFirstPlayed() == 0L)
                 throw new InvalidPlayerException(context.parameter(), value);
             return player;
         });
