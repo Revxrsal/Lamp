@@ -69,6 +69,7 @@ final class PaperCommodore extends Commodore implements Listener {
             LiteralCommandNode<?> node = commands.get(commandLabel);
             if (node != null) {
                 ref.setLiteral.call(event, node);
+                ref.setRawCommand.call(event, true);
             }
         }, plugin);
     }
@@ -139,11 +140,13 @@ final class PaperCommodore extends Commodore implements Listener {
             Method getCommand = eventClass.getDeclaredMethod("getCommand");
             Method getCommandLabel = eventClass.getDeclaredMethod("getCommandLabel");
             Method setLiteral = eventClass.getDeclaredMethod("setLiteral", LiteralCommandNode.class);
+            Method setRawCommand = eventClass.getDeclaredMethod("setRawCommand", boolean.class);
             return new RegisterEventReflection(
                     eventClass,
                     defaultFactory().createFor(getCommand),
                     defaultFactory().createFor(getCommandLabel),
-                    defaultFactory().createFor(setLiteral)
+                    defaultFactory().createFor(setLiteral),
+                    defaultFactory().createFor(setRawCommand)
             );
         } catch (Throwable e) {
             throw new UnsupportedOperationException("Not running on modern Paper!", e);
@@ -154,7 +157,7 @@ final class PaperCommodore extends Commodore implements Listener {
     private static final class RegisterEventReflection {
 
         private final Class<? extends Event> eventClass;
-        private final MethodCaller getCommand, getCommandLabel, setLiteral;
+        private final MethodCaller getCommand, getCommandLabel, setLiteral, setRawCommand;
     }
 
 
