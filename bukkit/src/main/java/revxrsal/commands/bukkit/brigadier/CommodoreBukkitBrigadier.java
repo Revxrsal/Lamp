@@ -36,6 +36,7 @@ import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.bukkit.core.BukkitActor;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
+import revxrsal.commands.util.Primitives;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
         commodore = CommodoreProvider.getCommodore(handler.getPlugin());
         if (isSupported()) {
             bind(String.class, STRING);
-            bind(Number.class, NUMBER);
+            registerArgumentTypeResolver(NUMBER);
             bind(Boolean.class, BOOLEAN);
             bind(Player.class, PLAYER);
             bind(EntitySelector.class, ENTITY_SELECTOR);
@@ -77,7 +78,11 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
     @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentTypeResolver resolver) {
         notNull(type, "type");
         notNull(resolver, "resolver");
-        resolvers.add(parameter -> parameter.getType() == type ? resolver.getArgumentType(parameter) : null);
+        resolvers.add(
+                parameter -> Primitives.wrap(parameter.getType()) == type
+                        ? resolver.getArgumentType(parameter)
+                        : null
+        );
     }
 
     @Override public void bind(@NotNull Class<?> type, @NotNull ArgumentType<?> argumentType) {
