@@ -87,6 +87,7 @@ final class PaperCommodore extends Commodore implements Listener {
     //        LiteralCommandNode<?> node = commands.get(event.getCommandLabel());
     //        if (node != null) {
     //            event.setLiteral((LiteralCommandNode) node);
+    //            event.setRawCommand(true);
     //        }
     //    }
 
