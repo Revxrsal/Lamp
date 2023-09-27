@@ -57,8 +57,9 @@ final class NodeParser {
         this.brigadier = brigadier;
     }
 
-    private Node createExecutableNode(ArgumentBuilder<?, ?> builder) {
-        return Node.from(builder).canBeExecuted(brigadier);
+    private Node createNode(ArgumentBuilder<?, ?> builder) {
+//        return Node.from(builder).canBeExecuted(brigadier);
+        return Node.from(builder);
     }
 
     public List<Node> parse(CommandHandler handler) {
@@ -75,7 +76,7 @@ final class NodeParser {
     private List<Node> createNodes(CommandParameter parameter) {
         if (parameter.isSwitch()) {
             String switchLiteral = parameter.getCommandHandler().getSwitchPrefix() + parameter.getSwitchName();
-            return singletonList(createExecutableNode(literal(switchLiteral)));
+            return singletonList(createNode(literal(switchLiteral)));
         }
         if (parameter.getType() == Either.class) {
             EitherParameter[] either = EitherParameter.create(parameter);
@@ -88,7 +89,7 @@ final class NodeParser {
         ArgumentType<?> argumentType = brigadier.getArgumentType(parameter);
         boolean isLast = parameter.getCommandIndex() == command.getValueParameters().size() - 1;
 
-        Node node = createExecutableNode(argument(parameter.getName(), argumentType));
+        Node node = createNode(argument(parameter.getName(), argumentType));
         node.require(generateRequirement(parameter));
         node.suggest(createSuggestionProvider(brigadier, parameter));
         if (isLast)
@@ -97,7 +98,7 @@ final class NodeParser {
     }
 
     public Node create(CommandCategory category) {
-        Node node = createExecutableNode(literal(category.getName()));
+        Node node = createNode(literal(category.getName()));
         node.require(generateRequirement(category));
 
         for (CommandCategory subcategory : category.getCategories().values()) {
@@ -121,7 +122,7 @@ final class NodeParser {
     }
 
     public Node create(ExecutableCommand command) {
-        Node node = createExecutableNode(literal(command.getName()));
+        Node node = createNode(literal(command.getName()));
         node.require(generateRequirement(command));
         addExecutables(command, node);
         return node;
@@ -159,7 +160,7 @@ final class NodeParser {
     }
 
     private void addFlagParameter(CommandParameter parameter, ArrayList<Node> lastNodes) {
-        Node flagLiteral = createExecutableNode(literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()));
+        Node flagLiteral = createNode(literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()));
         flagLiteral.require(generateRequirement(parameter));
 
         if (parameter.isOptional())
