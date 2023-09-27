@@ -26,6 +26,7 @@ package revxrsal.commands.bukkit.brigadier;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.BukkitBrigadier;
@@ -56,6 +57,10 @@ final class NodeParser {
         this.brigadier = brigadier;
     }
 
+    private Node createExecutableNode(ArgumentBuilder<?, ?> builder) {
+        return Node.from(builder).canBeExecuted(brigadier);
+    }
+
     public List<Node> parse(CommandHandler handler) {
         List<Node> nodes = new ArrayList<>();
         for (CommandCategory category : handler.getCategories().values()) {
@@ -70,7 +75,7 @@ final class NodeParser {
     private List<Node> createNodes(CommandParameter parameter) {
         if (parameter.isSwitch()) {
             String switchLiteral = parameter.getCommandHandler().getSwitchPrefix() + parameter.getSwitchName();
-            return singletonList(new Node(literal(switchLiteral)));
+            return singletonList(createExecutableNode(literal(switchLiteral)));
         }
         if (parameter.getType() == Either.class) {
             EitherParameter[] either = EitherParameter.create(parameter);
@@ -83,7 +88,7 @@ final class NodeParser {
         ArgumentType<?> argumentType = brigadier.getArgumentType(parameter);
         boolean isLast = parameter.getCommandIndex() == command.getValueParameters().size() - 1;
 
-        Node node = new Node(argument(parameter.getName(), argumentType));
+        Node node = createExecutableNode(argument(parameter.getName(), argumentType));
         node.require(generateRequirement(parameter));
         node.suggest(createSuggestionProvider(brigadier, parameter));
         if (isLast)
@@ -92,7 +97,7 @@ final class NodeParser {
     }
 
     public Node create(CommandCategory category) {
-        Node node = new Node(literal(category.getName()));
+        Node node = createExecutableNode(literal(category.getName()));
         node.require(generateRequirement(category));
 
         for (CommandCategory subcategory : category.getCategories().values()) {
@@ -116,7 +121,7 @@ final class NodeParser {
     }
 
     public Node create(ExecutableCommand command) {
-        Node node = new Node(literal(command.getName()));
+        Node node = createExecutableNode(literal(command.getName()));
         node.require(generateRequirement(command));
         addExecutables(command, node);
         return node;
@@ -154,7 +159,7 @@ final class NodeParser {
     }
 
     private void addFlagParameter(CommandParameter parameter, ArrayList<Node> lastNodes) {
-        Node flagLiteral = new Node(literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()));
+        Node flagLiteral = createExecutableNode(literal(parameter.getCommandHandler().getFlagPrefix() + parameter.getFlagName()));
         flagLiteral.require(generateRequirement(parameter));
 
         if (parameter.isOptional())
