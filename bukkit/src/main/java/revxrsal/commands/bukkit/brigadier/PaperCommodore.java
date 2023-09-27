@@ -52,11 +52,12 @@ final class PaperCommodore extends Commodore implements Listener {
 
     private final Map<String, LiteralCommandNode<?>> commands = new HashMap<>();
     private final BukkitCommandHandler handler;
+    private final String fallbackPrefix;
 
     PaperCommodore(@NotNull BukkitCommandHandler handler) {
         this.handler = handler;
-
         Plugin plugin = handler.getPlugin();
+        fallbackPrefix = plugin.getName().toLowerCase().trim();
         registerListener(plugin);
     }
 
@@ -71,12 +72,14 @@ final class PaperCommodore extends Commodore implements Listener {
         @EventHandler
         public void onUnknownCommand(UnknownCommandEvent event) {
             ArgumentStack args = ArgumentStack.parse(
-                    stripNamespace(event.getCommandLine())
+                    stripNamespace(fallbackPrefix, event.getCommandLine())
             );
-            if (commands.containsKey(args.get(0))) {
-                BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
+            if (commands.containsKey(args.getFirst())) {
                 event.message(null);
+                BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
                 try {
+                    // This will automatically fail, we can then easily get the
+                    // exception message and overwrite it.
                     handler.dispatch(actor, args);
                 } catch (Throwable t) {
                     handler.getExceptionHandler().handleException(t, actor);

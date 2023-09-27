@@ -91,6 +91,15 @@ public final class Strings {
         return null;
     }
 
+    public static @NotNull String stripNamespace(String namespace, @NotNull String command) {
+        int colon = command.indexOf(namespace + ':');
+        if (colon == -1) {
+            return command;
+        }
+        // +1 for the ':'
+        return command.substring(namespace.length() + 1);
+    }
+
     public static @NotNull String stripNamespace(@NotNull String command) {
         int colon = command.indexOf(':');
         if (colon == -1)
