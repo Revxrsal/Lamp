@@ -22,36 +22,29 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-
 package revxrsal.commands.bukkit.brigadier;
 
 import com.destroystokyo.paper.event.brigadier.CommandRegisteredEvent;
-import com.google.common.base.Suppliers;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.core.BukkitCommandExecutor;
 import revxrsal.commands.command.ArgumentStack;
-import revxrsal.commands.core.reflect.MethodCaller;
 
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
-import static revxrsal.commands.core.reflect.MethodCallerFactory.defaultFactory;
 import static revxrsal.commands.util.Strings.stripNamespace;
 
 @SuppressWarnings({"rawtypes"})
@@ -60,7 +53,7 @@ final class PaperCommodore extends Commodore implements Listener {
     private final Map<String, LiteralCommandNode<?>> commands = new HashMap<>();
     private final BukkitCommandHandler handler;
 
-    PaperCommodore(BukkitCommandHandler handler) {
+    PaperCommodore(@NotNull BukkitCommandHandler handler) {
         this.handler = handler;
 
         Plugin plugin = handler.getPlugin();
@@ -68,37 +61,44 @@ final class PaperCommodore extends Commodore implements Listener {
     }
 
     private void registerListener(Plugin plugin) {
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+        // Put each listener in a class, in case one of them fails due to incompatibility.
+        Bukkit.getPluginManager().registerEvents(new UnknownCommandListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new CommandRegisterListener(), plugin);
     }
 
-    @EventHandler
-    public void onUnknownCommand(UnknownCommandEvent event) {
-        ArgumentStack args = ArgumentStack.parse(
-                stripNamespace(event.getCommandLine())
-        );
-        if (commands.containsKey(args.get(0))) {
-            BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
-            event.message(null);
-            try {
-                handler.dispatch(actor, event.getCommandLine());
-            } catch (Throwable t) {
-                handler.getExceptionHandler().handleException(t, actor);
+    public final class UnknownCommandListener implements Listener {
+
+        @EventHandler
+        public void onUnknownCommand(UnknownCommandEvent event) {
+            ArgumentStack args = ArgumentStack.parse(
+                    stripNamespace(event.getCommandLine())
+            );
+            if (commands.containsKey(args.get(0))) {
+                BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
+                event.message(null);
+                try {
+                    handler.dispatch(actor, args);
+                } catch (Throwable t) {
+                    handler.getExceptionHandler().handleException(t, actor);
+                }
             }
         }
     }
 
-    @EventHandler
-    public void onCommandRegistered(CommandRegisteredEvent<?> event) {
-        if (!(event.getCommand() instanceof PluginCommand)) {
-            return;
-        }
-        PluginCommand pCommand = (PluginCommand) event.getCommand();
-        if (!(pCommand.getExecutor() instanceof BukkitCommandExecutor)) {
-            return;
-        }
-        LiteralCommandNode<?> node = commands.get(event.getCommandLabel());
-        if (node != null) {
-            event.setLiteral((LiteralCommandNode) node);
+    public final class CommandRegisterListener implements Listener {
+        @EventHandler
+        public void onCommandRegistered(CommandRegisteredEvent<?> event) {
+            if (!(event.getCommand() instanceof PluginCommand)) {
+                return;
+            }
+            PluginCommand pCommand = (PluginCommand) event.getCommand();
+            if (!(pCommand.getExecutor() instanceof BukkitCommandExecutor)) {
+                return;
+            }
+            LiteralCommandNode<?> node = commands.get(event.getCommandLabel());
+            if (node != null) {
+                event.setLiteral((LiteralCommandNode) node);
+            }
         }
     }
 
@@ -130,8 +130,6 @@ final class PaperCommodore extends Commodore implements Listener {
         }
     }
 
-    private static final Listener EMPTY_LISTENER = new Listener() {};
-
     static void ensureSetup() {
         // do nothing - this is only called to trigger the static initializer
     }
@@ -143,32 +141,4 @@ final class PaperCommodore extends Commodore implements Listener {
             throw new UnsupportedOperationException("Not running on modern Paper!", e);
         }
     }
-
-    private static final Supplier<RegisterEventReflection> REGISTER_EVENT = Suppliers.memoize(() -> {
-        try {
-            Class<? extends Event> eventClass = Class
-                    .forName("com.destroystokyo.paper.event.brigadier.CommandRegisteredEvent")
-                    .asSubclass(Event.class);
-            Method getCommand = eventClass.getDeclaredMethod("getCommand");
-            Method getCommandLabel = eventClass.getDeclaredMethod("getCommandLabel");
-            Method setLiteral = eventClass.getDeclaredMethod("setLiteral", LiteralCommandNode.class);
-            return new RegisterEventReflection(
-                    eventClass,
-                    defaultFactory().createFor(getCommand),
-                    defaultFactory().createFor(getCommandLabel),
-                    defaultFactory().createFor(setLiteral)
-            );
-        } catch (Throwable e) {
-            throw new UnsupportedOperationException("Not running on modern Paper!", e);
-        }
-    });
-
-    @AllArgsConstructor
-    private static final class RegisterEventReflection {
-
-        private final Class<? extends Event> eventClass;
-        private final MethodCaller getCommand, getCommandLabel, setLiteral;
-    }
-
-
 }
