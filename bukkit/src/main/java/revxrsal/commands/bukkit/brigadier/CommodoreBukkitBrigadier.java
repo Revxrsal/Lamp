@@ -55,7 +55,7 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
     public CommodoreBukkitBrigadier(BukkitCommandHandler handler) {
         this.handler = handler;
-        commodore = CommodoreProvider.getCommodore(handler.getPlugin());
+        commodore = CommodoreProvider.getCommodore(handler);
         if (isSupported()) {
             bind(String.class, STRING);
             registerArgumentTypeResolver(NUMBER);
