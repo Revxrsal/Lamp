@@ -48,9 +48,9 @@ final class NodeReflection {
         }
     }
 
-    public static <T> void setCommand(CommandNode<T> node, Command<T> requirement) {
+    public static <T> void setCommand(CommandNode<T> node, Command<T> command) {
         try {
-            command.set(node, requirement);
+            NodeReflection.command.set(node, command);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
