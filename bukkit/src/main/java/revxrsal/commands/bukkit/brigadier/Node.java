@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.bukkit.BukkitBrigadier;
 import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.util.Preconditions;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -40,8 +41,8 @@ import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.util.Strings.stripNamespace;
 
 /**
- * Represents a node in the Brigadier tree. Since Brigadier only allows modifying elements
- * inside builders, this one captures already-built instances and modifies it safely
+ * Represents a generic-free node in the Brigadier tree. Since Brigadier only allows modifying
+ * elements inside builders, this one captures already-built instances and modifies it safely
  * using reflection to avoid bugs from immutability.
  */
 @SuppressWarnings("rawtypes")
@@ -49,33 +50,31 @@ final class Node {
 
     private final CommandNode<?> node;
 
-    public Node(ArgumentBuilder<?, ?> node) {
-        this.node = node.build();
-    }
-
-    public Node(CommandNode node) {
+    private Node(CommandNode node) {
         this.node = node;
     }
 
-    public void addChild(@NotNull Node node) {
+    public Node addChild(@NotNull Node node) {
         notNull(node, "node");
         this.node.addChild((CommandNode) node.node);
+        return this;
     }
 
-    public void addChildren(@NotNull List<Node> nodes) {
+    public Node addChildren(@NotNull List<Node> nodes) {
         notNull(nodes, "nodes");
         for (Node node : nodes)
             this.node.addChild((CommandNode) node.node);
+        return this;
     }
 
     public void action(Command<?> command) {
         NodeReflection.setCommand(node, (Command) command);
     }
 
-    public void canBeExecuted(BukkitBrigadier brigadier) {
+    public Node canBeExecuted(BukkitBrigadier brigadier) {
         action(a -> {
             String input = stripNamespace(a.getInput());
-            ArgumentStack args = ArgumentStack.parseForAutoCompletion(
+            ArgumentStack args = ArgumentStack.parse(
                     input.startsWith("/") ? input.substring(1) : input
             );
             CommandActor actor = brigadier.wrapSource(a.getSource());
@@ -86,19 +85,33 @@ final class Node {
             }
             return Command.SINGLE_SUCCESS;
         });
+        return this;
     }
 
-    public void require(Predicate<Object> requirement) {
+    public Node require(Predicate<Object> requirement) {
         NodeReflection.setRequirement(node, (Predicate) requirement);
+        return this;
     }
 
-    public void suggest(SuggestionProvider provider) {
+    public Node suggest(SuggestionProvider provider) {
         if (!(node instanceof ArgumentCommandNode))
             throw new IllegalArgumentException("Not an argument node.");
         NodeReflection.setSuggestionProvider(((ArgumentCommandNode) node), provider);
+        return this;
     }
 
     public <T extends CommandNode<?>> T getNode() {
         return (T) node;
     }
+
+    public static @NotNull Node from(@NotNull ArgumentBuilder<?, ?> builder) {
+        Preconditions.notNull(builder, "builder");
+        return new Node(builder.build());
+    }
+
+    public static @NotNull Node from(@NotNull CommandNode<?> node) {
+        Preconditions.notNull(node, "node");
+        return new Node(node);
+    }
+
 }
