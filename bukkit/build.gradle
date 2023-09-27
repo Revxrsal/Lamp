@@ -16,6 +16,14 @@ configurations {
 dependencies {
     compileOnly(project(":common"))
 
+    // We create a module that contains type definitions
+    // of the paper API but no implementations. This will allow us to
+    // create valid code that calls Paper APIs without having to depend
+    // on Paper directly, since Paper will require us to compile
+    // on Java 17.
+    compileOnly(project(":paper-types"))
+
+    /* Spigot 1.13.2 */
     compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
 
     /* For adventure components support */
