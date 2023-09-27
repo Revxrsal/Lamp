@@ -37,13 +37,15 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static revxrsal.commands.util.Preconditions.notNull;
+import static revxrsal.commands.util.Strings.stripNamespace;
 
 /**
  * Represents a node in the Brigadier tree. Since Brigadier only allows modifying elements
  * inside builders, this one captures already-built instances and modifies it safely
  * using reflection to avoid bugs from immutability.
  */
-@SuppressWarnings("rawtypes") final class Node {
+@SuppressWarnings("rawtypes")
+final class Node {
 
     private final CommandNode<?> node;
 
@@ -72,7 +74,7 @@ import static revxrsal.commands.util.Preconditions.notNull;
 
     public void canBeExecuted(BukkitBrigadier brigadier) {
         action(a -> {
-            String input = a.getInput();
+            String input = stripNamespace(a.getInput());
             ArgumentStack args = ArgumentStack.parseForAutoCompletion(
                     input.startsWith("/") ? input.substring(1) : input
             );

@@ -91,6 +91,13 @@ public final class Strings {
         return null;
     }
 
+    public static @NotNull String stripNamespace(@NotNull String command) {
+        int colon = command.indexOf(':');
+        if (colon == -1)
+            return command;
+        return command.substring(colon + 1);
+    }
+
     public static String repeat(String string, int count) {
         notNull(string, "string");
 

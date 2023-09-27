@@ -12,6 +12,8 @@ import revxrsal.commands.exception.ArgumentParseException;
 import java.util.Collections;
 import java.util.List;
 
+import static revxrsal.commands.util.Strings.stripNamespace;
+
 public final class BukkitCommandExecutor implements TabExecutor {
 
     private final BukkitHandler handler;
@@ -53,12 +55,4 @@ public final class BukkitCommandExecutor implements TabExecutor {
             return Collections.emptyList();
         }
     }
-
-    private static String stripNamespace(String command) {
-        int colon = command.indexOf(':');
-        if (colon == -1)
-            return command;
-        return command.substring(colon + 1);
-    }
-
 }
