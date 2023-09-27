@@ -25,7 +25,7 @@
 
 package revxrsal.commands.bukkit.brigadier;
 
-import org.bukkit.plugin.Plugin;
+import revxrsal.commands.bukkit.BukkitCommandHandler;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -39,10 +39,10 @@ public final class CommodoreProvider {
         throw new AssertionError();
     }
 
-    private static final Function<Plugin, Commodore> PROVIDER = checkSupported();
+    private static final Function<BukkitCommandHandler, Commodore> PROVIDER = checkSupported();
 
     @SuppressWarnings("Convert2MethodRef")
-    private static Function<Plugin, Commodore> checkSupported() {
+    private static Function<BukkitCommandHandler, Commodore> checkSupported() {
         try {
             Class.forName("com.mojang.brigadier.CommandDispatcher");
         } catch (Throwable e) {
@@ -91,7 +91,7 @@ public final class CommodoreProvider {
      * @param plugin the plugin
      * @return the commodore instance
      */
-    public static Commodore getCommodore(Plugin plugin) {
+    public static Commodore getCommodore(BukkitCommandHandler plugin) {
         Objects.requireNonNull(plugin, "plugin");
         return PROVIDER == null ? null : PROVIDER.apply(plugin);
     }

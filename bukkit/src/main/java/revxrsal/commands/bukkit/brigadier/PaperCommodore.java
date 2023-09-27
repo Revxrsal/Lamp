@@ -25,6 +25,7 @@
 
 package revxrsal.commands.bukkit.brigadier;
 
+import com.destroystokyo.paper.event.brigadier.CommandRegisteredEvent;
 import com.google.common.base.Suppliers;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import lombok.AllArgsConstructor;
@@ -32,10 +33,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventPriority;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.plugin.Plugin;
+import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.core.BukkitCommandExecutor;
+import revxrsal.commands.command.ArgumentStack;
 import revxrsal.commands.core.reflect.MethodCaller;
 
 import java.lang.reflect.Method;
@@ -47,48 +52,55 @@ import java.util.function.Supplier;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static revxrsal.commands.core.reflect.MethodCallerFactory.defaultFactory;
+import static revxrsal.commands.util.Strings.stripNamespace;
 
-@SuppressWarnings("CommentedOutCode")
+@SuppressWarnings({"rawtypes"})
 final class PaperCommodore extends Commodore implements Listener {
 
     private final Map<String, LiteralCommandNode<?>> commands = new HashMap<>();
+    private final BukkitCommandHandler handler;
 
-    PaperCommodore(Plugin plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    PaperCommodore(BukkitCommandHandler handler) {
+        this.handler = handler;
+
+        Plugin plugin = handler.getPlugin();
         registerListener(plugin);
     }
 
     private void registerListener(Plugin plugin) {
-        RegisterEventReflection ref = REGISTER_EVENT.get();
-        Bukkit.getPluginManager().registerEvent(ref.eventClass, EMPTY_LISTENER, EventPriority.NORMAL, (listener, event) -> {
-            Command command = (Command) ref.getCommand.call(event);
-            if (!(command instanceof PluginCommand))
-                return;
-            if (!(((PluginCommand) command).getExecutor() instanceof BukkitCommandExecutor))
-                return;
-            String commandLabel = (String) ref.getCommandLabel.call(event);
-            LiteralCommandNode<?> node = commands.get(commandLabel);
-            if (node != null) {
-                ref.setLiteral.call(event, node);
-            }
-        }, plugin);
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    // The below is kept as a reference to the above
-    //
-    //    @EventHandler
-    //    public void onCommandRegistered(CommandRegisteredEvent<BukkitBrigadierCommandSource> event) {
-    //        if (!(event.getCommand() instanceof PluginCommand command)) {
-    //            return;
-    //        }
-    //        if (!(command.getExecutor() instanceof BukkitCommandExecutor)) {
-    //            return;
-    //        }
-    //        LiteralCommandNode<?> node = commands.get(event.getCommandLabel());
-    //        if (node != null) {
-    //            event.setLiteral((LiteralCommandNode) node);
-    //        }
-    //    }
+    @EventHandler
+    public void onUnknownCommand(UnknownCommandEvent event) {
+        ArgumentStack args = ArgumentStack.parse(
+                stripNamespace(event.getCommandLine())
+        );
+        if (commands.containsKey(args.get(0))) {
+            BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
+            event.message(null);
+            try {
+                handler.dispatch(actor, event.getCommandLine());
+            } catch (Throwable t) {
+                handler.getExceptionHandler().handleException(t, actor);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onCommandRegistered(CommandRegisteredEvent<?> event) {
+        if (!(event.getCommand() instanceof PluginCommand)) {
+            return;
+        }
+        PluginCommand pCommand = (PluginCommand) event.getCommand();
+        if (!(pCommand.getExecutor() instanceof BukkitCommandExecutor)) {
+            return;
+        }
+        LiteralCommandNode<?> node = commands.get(event.getCommandLabel());
+        if (node != null) {
+            event.setLiteral((LiteralCommandNode) node);
+        }
+    }
 
     @Override
     public void register(LiteralCommandNode<?> node) {

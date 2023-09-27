@@ -37,6 +37,7 @@ import org.bukkit.event.player.PlayerCommandSendEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.Plugin;
+import revxrsal.commands.bukkit.BukkitCommandHandler;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -95,8 +96,8 @@ final class ReflectionCommodore extends Commodore {
     private final Plugin plugin;
     private final List<LiteralCommandNode<?>> registeredNodes = new ArrayList<>();
 
-    ReflectionCommodore(Plugin plugin) {
-        this.plugin = plugin;
+    ReflectionCommodore(BukkitCommandHandler handler) {
+        this.plugin = handler.getPlugin();
         this.plugin.getServer().getPluginManager().registerEvents(new ServerReloadListener(), this.plugin);
     }
 
