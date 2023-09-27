@@ -162,7 +162,7 @@ public final class BaseCommandDispatcher {
                                      CommandParameter parameter,
                                      Object[] values) {
         if (args.isEmpty()) {
-            if (parameter.getDefaultValue().isEmpty()) {
+            if (parameter.isOptional() && parameter.getDefaultValue().isEmpty()) {
                 values[parameter.getMethodIndex()] = null;
                 return true;
             } else {
