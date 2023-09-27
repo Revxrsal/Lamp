@@ -9,3 +9,5 @@ include "velocity"
 include "sponge-7"
 include "sponge"
 include "brigadier"
+include 'paper-types'
+

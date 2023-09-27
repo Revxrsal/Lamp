@@ -1,0 +1,18 @@
+repositories {
+    maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url = "https://hub.spigotmc.org/nexus/content/groups/public/" }
+    maven { url = "https://libraries.minecraft.net" }
+}
+
+dependencies {
+
+    /* Depend on Spigot 1.13.2 */
+    compileOnly("org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT")
+
+    /* For Brigadier on 1.13+ */
+    compileOnly("com.mojang:brigadier:1.0.18")
+
+    /* Adventure APIs */
+    compileOnly("net.kyori:adventure-api:4.14.0")
+
+}
