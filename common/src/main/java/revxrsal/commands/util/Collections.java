@@ -23,9 +23,13 @@
  */
 package revxrsal.commands.util;
 
+import org.jetbrains.annotations.CheckReturnValue;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 
 public final class Collections {
 
@@ -45,8 +49,78 @@ public final class Collections {
         return list;
     }
 
-    public static <T> @Nullable T getOrNull(List<T> list, int index) {
-        return index >= 0 && index <= (list.size() - 1) ? list.get(index) : null;
+    /**
+     * Applies a mapping function to a given map's keys, and returns
+     * a new map that contains the mapped keys to their values
+     *
+     * @param map   Original map
+     * @param remap Remapping function
+     * @param <K>   Old key type
+     * @param <L>   New key type
+     * @param <V>   Value type
+     * @return The new remapped map
+     */
+    @Contract(pure = true)
+    @CheckReturnValue
+    public static <L, K, V> Map<L, V> mapKeys(Map<K, V> map, Function<K, L> remap) {
+        Map<L, V> remapped = new HashMap<>();
+        for (Map.Entry<K, V> e : map.entrySet()) {
+            if (remapped.put(
+                    remap.apply(e.getKey()), // Remap here
+                    e.getValue()
+            ) != null) {
+                throw new IllegalStateException("Duplicate key");
+            }
+        }
+        return remapped;
     }
 
+    /**
+     * Returns an element at the given [index] or `null` if the [index] is out of bounds of this array.
+     */
+    public static <T> T getOrNull(T[] array, int index) {
+        return (index >= 0 && index <= lastIndex(array)) ? array[index] : null;
+    }
+
+    /**
+     * Returns an element at the given [index] or `null` if the [index] is out of bounds of this array.
+     */
+    public static <T> T getOrNull(List<T> list, int index) {
+        return (index >= 0 && index <= list.size() - 1) ? list.get(index) : null;
+    }
+
+    /**
+     * Returns the index of the last element in the array
+     *
+     * @param array Array to get for
+     * @return The last index
+     */
+    private static int lastIndex(Object[] array) {
+        return array.length - 1;
+    }
+
+    /**
+     * Creates a grown copy of the given array, with the given element
+     * inserted at the beginning.
+     * <p>
+     * Note: The given array is not modified.
+     *
+     * @param original Original array
+     * @param item     The item to insert
+     * @param <T>      Array type
+     * @return A new array consisting of the new item + original elements
+     */
+    @Contract(pure = true, value = "null, _ -> fail; _, _ -> new")
+    @CheckReturnValue
+    public static <T> Object[] insertAtBeginning(
+            @NotNull T[] original,
+            @Nullable T item
+    ) {
+        Preconditions.notNull(original, "original array");
+        int newSize = original.length + 1;
+        Object[] newArr = new Object[newSize];
+        newArr[0] = item;
+        System.arraycopy(original, 0, newArr, 1, original.length);
+        return newArr;
+    }
 }
