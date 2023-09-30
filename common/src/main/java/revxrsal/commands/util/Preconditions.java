@@ -23,8 +23,14 @@
  */
 package revxrsal.commands.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Objects;
+
+import static java.lang.reflect.Modifier.isStatic;
 
 public final class Preconditions {
 
@@ -66,4 +72,9 @@ public final class Preconditions {
         return Objects.requireNonNull(t, err + " cannot be null!");
     }
 
+    public static void checkCallableStatic(@Nullable Object instance, @NotNull Method method) {
+        if (instance == null && !isStatic(method.getModifiers()))
+            throw new IllegalArgumentException("The given method is not static, and no instance was provided. "
+                    + "Either mark the function as static with @JvmStatic, or pass the object/companion object value for the instance.");
+    }
 }
