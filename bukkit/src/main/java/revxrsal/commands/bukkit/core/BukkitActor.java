@@ -1,7 +1,5 @@
 package revxrsal.commands.bukkit.core;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.ComponentLike;
@@ -25,9 +23,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.util.Strings.colorize;
+import static revxrsal.commands.util.Suppliers.lazy;
 
 @Internal
 public final class BukkitActor implements BukkitCommandActor {
@@ -129,7 +129,7 @@ public final class BukkitActor implements BukkitCommandActor {
         return BukkitCommandActor.super.getLocale();
     }
 
-    private static final Supplier<Optional<MethodCaller>> getLocale = Suppliers.memoize(() -> {
+    private static final Supplier<Optional<MethodCaller>> getLocale = lazy(() -> {
         try {
             Method spigotGetLocale = Player.Spigot.class.getDeclaredMethod("getLocale");
             MethodCaller caller = MethodCallerFactory.defaultFactory().createFor(spigotGetLocale);

@@ -1,7 +1,5 @@
 package revxrsal.commands.jda.core.actor;
 
-import static revxrsal.commands.jda.core.actor.MemoizingSupplier.memoize;
-
 import net.dv8tion.jda.api.events.Event;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.CommandHandler;
@@ -13,9 +11,11 @@ import revxrsal.commands.jda.exception.PrivateMessageOnlyCommandException;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import static revxrsal.commands.util.Suppliers.lazy;
+
 public abstract class BaseActorJDA implements JDAActor {
 
-    private final Supplier<UUID> uuid = memoize(() -> new UUID(0, getUser().getIdLong()));
+    private final Supplier<UUID> uuid = lazy(() -> new UUID(0, getUser().getIdLong()));
     private final Event event;
     private final CommandHandler handler;
 
