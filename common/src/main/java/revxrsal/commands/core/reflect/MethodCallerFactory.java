@@ -24,6 +24,7 @@
 package revxrsal.commands.core.reflect;
 
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.ktx.call.KotlinFunction;
 
 import java.lang.reflect.Method;
 
@@ -42,13 +43,34 @@ public interface MethodCallerFactory {
     @NotNull MethodCaller createFor(@NotNull Method method) throws Throwable;
 
     /**
-     * Returns the default {@link MethodCallerFactory}, which uses
-     * the method handles API to create method callers.
+     * Returns a {@link MethodCallerFactory} that uses the new
+     * method handles API to create method callers.
      *
      * @return The default method caller factory.
      */
-    static MethodCallerFactory defaultFactory() {
+    static @NotNull MethodCallerFactory methodHandles() {
         return MethodHandlesCallerFactory.INSTANCE;
+    }
+
+    /**
+     * Returns a {@link MethodCallerFactory} that allows invocation
+     * of Kotlin functions with their default values.
+     *
+     * @return The Kotlin method caller factory
+     */
+    static @NotNull MethodCallerFactory kotlinFunctions() {
+        return KotlinMethodCallerFactory.INSTANCE;
+    }
+
+    /**
+     * Returns the default {@link MethodCallerFactory}, which uses
+     * the method handles API to create method callers, and
+     * {@link KotlinFunction} to call Kotlin methods.
+     *
+     * @return The default method caller factory.
+     */
+    static @NotNull MethodCallerFactory defaultFactory() {
+        return DefaultMethodCallerFactory.INSTANCE;
     }
 
 }
