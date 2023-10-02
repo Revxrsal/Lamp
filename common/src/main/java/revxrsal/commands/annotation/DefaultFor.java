@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
  *
  *     @DefaultFor("test") // <--- Becomes the default action when running '/test [page]'
  *     @Subcommand("help") // <--- Also executes in '/test help [page]'
- *     public void help(@Optional(def = "1") int page) {
+ *     public void help(@Default("1") int page) {
  *         ...
  *     }
  * }}

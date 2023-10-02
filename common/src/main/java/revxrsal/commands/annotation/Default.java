@@ -42,9 +42,6 @@ import java.lang.annotation.Target;
  * <p>
  * Accessible with {@link CommandParameter#getDefaultValue()}.
  * <p>
- * This annotation is a more compact form of {@link Optional#def() @Optional(def = "...")},
- * and achieves the same result.
- * <p>
  * Note that prior to v3.1.4, this annotation used to be applicable on methods to create
  * a fallback logic for commands. As this seemed to have caused a lot of confusion and false
  * expectations on what path receives this default logic, this functionality has been moved
