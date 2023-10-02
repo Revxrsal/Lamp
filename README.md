@@ -257,6 +257,43 @@ With Brigadier:
 
 ![Example selector](https://i.imgur.com/JK0373h.png)
 
+### Kotlin
+Lamp provides first-class support for many Kotlin features, such as:
+
+**Default arguments**
+```kt
+@Command("sum")
+fun sum(
+    actor: CommandActor,
+    @Optional a: Int = 10,
+    @Optional b: Int = Random.nextInt()
+) {
+    actor.reply("Result: ${a + b}")
+}
+```
+
+**Suspend functions**
+Note: You must call this to allow Lamp to support suspend functions
+```kt
+myCommandHandler.supportSuspendFunctions()
+```
+
+```kt
+@Command("countdown")
+suspend fun countdown(
+    actor: CommandActor,
+    @Optional @Range(min = 1.0) value: Int = 20
+) {
+    var countdown = value
+    while (countdown > 0) {
+        countdown--
+        delay(1000) // Coroutine function
+        actor.reply("Countdown: $countdown")
+    }
+    actor.reply("Countdown finished!")
+}
+```
+
 **More examples available [here](https://github.com/Revxrsal/Lamp/wiki/Building-commands)**
 
 ## Documentation
