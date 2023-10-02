@@ -53,7 +53,10 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.addAll;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
@@ -65,6 +68,18 @@ import static revxrsal.commands.util.Strings.splitBySpace;
  * Handles the parsing logic for commands
  */
 final class CommandParser {
+
+    /**
+     * The special character that gets parsed by {@link DefaultFor}
+     * to be replaced with parent paths.
+     */
+    private static final char INHERIT_PARENT_PATH = '~';
+
+    /**
+     * The special character that gets parsed by {@link DefaultFor}
+     * to be replaced with parent paths.
+     */
+    private static final String S_INHERIT_PARENT_PATH = "~";
 
     /**
      * Handles the response returned by (void) methods
@@ -139,9 +154,8 @@ final class CommandParser {
 
             /* Check if the command is default, and if so, generate a path for it */
             String[] defPaths = reader.get(DefaultFor.class, DefaultFor::value);
-            List<CommandPath> defaultPaths = defPaths == null ? emptyList() : Arrays.stream(defPaths)
-                    .map(CommandPath::parse)
-                    .collect(Collectors.toList());
+            List<CommandPath> defaultPaths = defPaths == null ? emptyList() :
+                    parseDefaultPaths(defPaths, container, method, reader);
             boolean isDefault = !defaultPaths.isEmpty();
 
             /* Generate categories for default paths if not created already */
@@ -370,7 +384,7 @@ final class CommandParser {
             BaseCommandParameter param = new BaseCommandParameter(
                     paramAnns.get(Description.class, Description::value),
                     i,
-                    defaultValue == null ? emptyList() : Collections.unmodifiableList(Arrays.asList(defaultValue)),
+                    defaultValue == null ? emptyList() : Collections.unmodifiableList(asList(defaultValue)),
                     i == methodParameters.length - 1 && !paramAnns.contains(Single.class),
                     paramAnns.contains(Optional.class) || paramAnns.contains(Default.class),
                     command,
@@ -432,8 +446,8 @@ final class CommandParser {
 
     /**
      * Concatenates all the paths for a command by merging those
-     * defined by {@link Command}, {@link Subcommand}, and those
-     * defined in the parent class, and any other parent classes
+     * defined by {@link Command}, {@link Subcommand}, {@link DefaultFor}, and
+     * those defined in the parent class, and any other parent classes.
      *
      * @param container The class containing the commands
      * @param method    The method that contains annotations
@@ -443,16 +457,55 @@ final class CommandParser {
     private static List<CommandPath> getCommandPath(@NotNull Class<?> container,
                                                     @NotNull Method method,
                                                     @NotNull AnnotationReader reader) {
-        List<CommandPath> paths = new ArrayList<>();
 
         DefaultFor defaultFor = reader.get(DefaultFor.class);
         if (defaultFor != null) {
-            return Arrays.stream(defaultFor.value()).map(CommandPath::parse)
-                    .collect(Collectors.toList());
+            return parseDefaultPaths(defaultFor.value(), container, method, reader);
         }
 
+        return parseCommandAnnotations(container, method, reader);
+    }
+
+    /**
+     * Parses the paths in {@link DefaultFor}. This will automatically replace
+     * {@code ~} with the top-level parent paths.
+     *
+     * @param path      The path, as defined in {@link DefaultFor#value()}
+     * @param container The container class
+     * @param method    The method that contains the annotation
+     * @param reader    The annotation reader
+     * @return The parsed CommandPaths.
+     */
+    @NotNull
+    private static List<CommandPath> parseDefaultPaths(
+            String[] path,
+            @NotNull Class<?> container,
+            @NotNull Method method,
+            @NotNull AnnotationReader reader
+    ) {
+        return stream(path)
+                .flatMap(defaultPath -> {
+                    if (defaultPath.indexOf(INHERIT_PARENT_PATH) != -1) {
+                        return parseCommandAnnotations(container, method, reader)
+                                .stream()
+                                .map(CommandPath::toRealString)
+                                .map(v -> defaultPath.replace(S_INHERIT_PARENT_PATH, v))
+                                .map(CommandPath::parse);
+                    } else
+                        return Stream.of(CommandPath.parse(defaultPath));
+                })
+                .collect(Collectors.toList());
+    }
+
+    private static List<CommandPath> parseCommandAnnotations(
+            @NotNull Class<?> container,
+            @NotNull Method method,
+            @NotNull AnnotationReader reader
+    ) {
+        List<CommandPath> paths = new ArrayList<>();
         List<String> commands = new ArrayList<>();
         List<String> subcommands = new ArrayList<>();
+
         Command commandAnnotation = reader.get(Command.class, "Method " + method.getName() + " does not have a parent command! You might have forgotten one of the following:\n" +
                 "- @Command on the method or class\n" +
                 "- implement OrphanCommand");
@@ -511,5 +564,4 @@ final class CommandParser {
         }
         map.put(key, value);
     }
-
 }
