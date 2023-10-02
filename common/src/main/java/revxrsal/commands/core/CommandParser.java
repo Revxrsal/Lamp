@@ -403,10 +403,11 @@ final class CommandParser {
                 }
             }
 
+
             /* Optional parmeters may be null, so make sure it isn't primitive as primitives cannot
                hold null values */
-            if (param.getType().isPrimitive() && param.isOptional() && param.getDefaultValue().isEmpty() && !param.isSwitch())
-                throw new IllegalStateException("Optional parameter " + javaParameter + " at " + method + " cannot be a prmitive!");
+//            if (param.getType().isPrimitive() && param.isOptional() && param.getDefaultValue().isEmpty() && !param.isSwitch())
+//                throw new IllegalStateException("Optional parameter " + javaParameter + " at " + method + " cannot be a prmitive!");
 
             /* Switches must only be booleans */
             if (param.isSwitch()) {
