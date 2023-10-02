@@ -45,6 +45,10 @@ Glad you asked!
    - **[Context resolver factories](common/src/main/java/revxrsal/commands/process/ContextResolverFactory.java)** and **[value resolver factories](common/src/main/java/revxrsal/commands/process/ValueResolverFactory.java)**
    - **[Simple and powerful auto completions API](common/src/main/java/revxrsal/commands/autocomplete/AutoCompleter.java)**
    - **[Built-in command cooldown handler](common/src/main/java/revxrsal/commands/annotation/Cooldown.java)**
+   - **First-class Kotlin support**: Lamp provides top-tier support for Kotlin features, such as:
+     - Default parameters (with `@Optional`)
+     - Suspend functions
+     - Auxiliary Kotlin extensions
 
 ## Getting Started
 
@@ -98,8 +102,6 @@ dependencies {
 
 compileJava { // Preserve parameter names in the bytecode
     options.compilerArgs += ["-parameters"]
-    options.fork = true
-    options.forkOptions.executable = "javac"
 }
 
 compileKotlin { // optional: if you're using Kotlin
@@ -122,14 +124,14 @@ dependencies {
     implementation("com.github.Revxrsal.Lamp:[module]:[verison]")
 }
 
-compileJava { // Preserve parameter names in the bytecode
-    options.compilerArgs += ["-parameters"]
-    options.fork = true
-    options.forkOptions.executable = "javac"
+tasks.withType<JavaCompile> { // Preserve parameter names in the bytecode
+    options.compilerArgs.add("-parameters")
 }
 
-compileKotlin { // optional: if you're using Kotlin
-    kotlinOptions.javaParameters = true
+tasks.withType<KotlinJvmCompile> { // optional: if you're using Kotlin
+    compilerOptions {
+        javaParameters = true
+    }
 }
 ```
 </details>
@@ -148,6 +150,20 @@ compileKotlin { // optional: if you're using Kotlin
 - `cli` for building console applications
 
 ## Examples
+Creating a command handler
+```java
+public final class BansPlugin extends JavaPlugin {
+
+    @Override
+    public void onEnable() {
+        // Create a command handler here
+        BukkitCommandHandler handler = BukkitCommandHandler.create(this);
+        handler.register(new BansCommand());
+        // (Optional) Register colorful tooltips (Works on 1.13+ only) 
+        handler.registerBrigadier();
+    }
+}
+```
 
 **`/epicbans ban <player> <days> <reason>`**
 
