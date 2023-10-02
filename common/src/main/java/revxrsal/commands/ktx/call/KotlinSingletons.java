@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
-import static revxrsal.commands.ktx.call.KotlinConstants.isJvmStatic;
 import static revxrsal.commands.ktx.call.KotlinConstants.isStaticFinal;
 
 /**
@@ -70,7 +69,7 @@ public final class KotlinSingletons {
     ) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         MethodCaller caller = wrapMethod(method);
-        boolean isStatic = isStatic(method.getModifiers()) || isJvmStatic(method);
+        boolean isStatic = isStatic(method.getModifiers());
         if (isStatic)
             return caller;
 

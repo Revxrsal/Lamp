@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Modifier;
 import java.util.function.Supplier;
 
@@ -47,13 +46,6 @@ public final class KotlinConstants {
     /**
      * The {@link kotlin.jvm.JvmStatic} annotation
      */
-    private static final Supplier<Class<? extends Annotation>> JVM_STATIC = lazy(() ->
-            findClass("kotlin.jvm.JvmStatic").asSubclass(Annotation.class)
-    );
-
-    /**
-     * The {@link kotlin.jvm.JvmStatic} annotation
-     */
     private static final Supplier<Class<?>> CONTINUATION = lazy(() ->
             findClass("kotlin.coroutines.Continuation")
     );
@@ -61,9 +53,10 @@ public final class KotlinConstants {
     /**
      * The {@link kotlin.jvm.JvmStatic} annotation
      */
-    private static final Supplier<Class<? extends Annotation>> METADATA = lazy(() ->
-            findClass("kotlin.Metadata").asSubclass(Annotation.class)
-    );
+    private static final Supplier<Class<? extends Annotation>> METADATA = lazy(() -> {
+        Class<?> metadata = findClass("kotlin.Metadata");
+        return metadata == null ? null : metadata.asSubclass(Annotation.class);
+    });
 
     /**
      * Finds the given class, otherwise throws a {@link IllegalStateException}
@@ -71,23 +64,12 @@ public final class KotlinConstants {
      * @param name Class name
      * @return The class
      */
-    private static @NotNull Class<?> findClass(@NotNull String name) {
+    private static @Nullable Class<?> findClass(@NotNull String name) {
         try {
             return Class.forName(name);
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Can't find class " + name);
+            return null;
         }
-    }
-
-    /**
-     * Tests whether the given element has {@link kotlin.jvm.JvmStatic} annotation
-     * on it or not
-     *
-     * @param element Element to check for
-     * @return whether it has JvmStatic or not
-     */
-    public static boolean isJvmStatic(@NotNull AnnotatedElement element) {
-        return element.isAnnotationPresent(JVM_STATIC.get());
     }
 
     /**
@@ -137,7 +119,7 @@ public final class KotlinConstants {
      *
      * @return the continuation class
      */
-    public static Class<?> continuation() {
+    public static @Nullable Class<?> continuation() {
         return CONTINUATION.get();
     }
 
@@ -148,6 +130,6 @@ public final class KotlinConstants {
      * @return if the class is a Kotlin class
      */
     public static boolean isKotlinClass(@NotNull Class<?> cl) {
-        return cl.isAnnotationPresent(METADATA.get());
+        return METADATA.get() != null && cl.isAnnotationPresent(METADATA.get());
     }
 }
