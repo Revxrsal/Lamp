@@ -42,6 +42,8 @@ import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 import java.util.List;
 import java.util.function.Function;
 
+import static revxrsal.commands.ktx.call.KotlinConstants.*;
+
 public final class BaseCommandDispatcher {
 
     private final BaseCommandHandler handler;
@@ -143,7 +145,8 @@ public final class BaseCommandDispatcher {
                     }
                     values[parameter.getMethodIndex()] = value;
                 } else {
-                    if (!addDefaultValues(args, parameter, values)) {
+                    boolean added = addDefaultValues(args, parameter, values);
+                    if (added) {
                         parameter.checkPermission(actor);
                         ValueContextR cxt = new ValueContextR(input, actor, parameter, values, args);
                         Object value = resolver.resolve(cxt);
@@ -163,18 +166,21 @@ public final class BaseCommandDispatcher {
                                      Object[] values) {
         if (args.isEmpty()) {
             if (parameter.isOptional() && parameter.getDefaultValue().isEmpty()) {
-                values[parameter.getMethodIndex()] = null;
-                return true;
+                if (isKotlinClass(parameter.getJavaParameter().getDeclaringExecutable().getDeclaringClass()))
+                    values[parameter.getMethodIndex()] = ABSENT_VALUE;
+                else
+                    values[parameter.getMethodIndex()] = defaultPrimitiveValue(parameter.getType());
+                return false;
             } else {
                 if (!parameter.getDefaultValue().isEmpty()) {
                     args.addAll(parameter.getDefaultValue());
-                    return false;
+                    return true;
                 } else {
                     throw new MissingArgumentException(parameter);
                 }
             }
         }
-        return false;
+        return true;
     }
 
     private void handleSwitch(ArgumentStack args, Object[] values, CommandParameter parameter) {
@@ -201,7 +207,10 @@ public final class BaseCommandDispatcher {
                     for (ParameterValidator<Object> v : parameter.getValidators()) {
                         v.validate(null, parameter, actor);
                     }
-                    values[parameter.getMethodIndex()] = null;
+                    if (isKotlinClass(parameter.getJavaParameter().getDeclaringExecutable().getDeclaringClass()))
+                        values[parameter.getMethodIndex()] = ABSENT_VALUE;
+                    else
+                        values[parameter.getMethodIndex()] = defaultPrimitiveValue(parameter.getType());
                     return;
                 }
             } else {
