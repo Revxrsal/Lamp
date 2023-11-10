@@ -71,9 +71,8 @@ final class PaperCommodore extends Commodore implements Listener {
 
         @EventHandler
         public void onUnknownCommand(UnknownCommandEvent event) {
-            ArgumentStack args = ArgumentStack.parse(
-                    stripNamespace(fallbackPrefix, event.getCommandLine())
-            );
+            ArgumentStack args = ArgumentStack.parse(event.getCommandLine());
+            args.set(0, stripNamespace(fallbackPrefix, args.getFirst()));
             if (commands.containsKey(args.getFirst())) {
                 event.message(null);
                 BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);

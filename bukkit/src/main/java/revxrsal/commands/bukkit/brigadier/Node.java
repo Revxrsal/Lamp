@@ -73,10 +73,12 @@ final class Node {
 
     public Node canBeExecuted(BukkitBrigadier brigadier) {
         action(a -> {
-            String input = stripNamespace(a.getInput());
+            String input = a.getInput();
             ArgumentStack args = ArgumentStack.parse(
-                    input.startsWith("/") ? input.substring(1) : input
+                    input.indexOf('/') == 0 ? input.substring(1) : input
             );
+            args.set(0, stripNamespace(args.getFirst()));
+
             CommandActor actor = brigadier.wrapSource(a.getSource());
             try {
                 brigadier.getCommandHandler().dispatch(actor, args);
