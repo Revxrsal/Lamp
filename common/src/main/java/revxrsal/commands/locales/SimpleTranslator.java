@@ -24,6 +24,7 @@
 package revxrsal.commands.locales;
 
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.command.CommandActor;
 
 import java.util.*;
 
@@ -31,9 +32,7 @@ import static revxrsal.commands.util.Preconditions.notNull;
 
 final class SimpleTranslator implements Translator {
 
-    private static final LinkedList<LocaleReader> EMPTY_LIST = new LinkedList<>();
-
-    private final Map<Locale, LinkedList<LocaleReader>> registeredBundles = new HashMap<>();
+    private final Map<Locale, LinkedList<DynamicLocaleReader<?>>> registeredBundles = new HashMap<>();
     private volatile Locale locale = Locale.ENGLISH;
 
     SimpleTranslator() {
@@ -50,6 +49,34 @@ final class SimpleTranslator implements Translator {
             addResourceBundle("lamp-jda");
     }
 
+    @Override public void reply(@NotNull CommandActor actor, @NotNull String key, @NotNull Locale locale, Object... args) {
+        notNull(actor, "actor");
+        notNull(key, "key");
+        notNull(locale, "locale");
+        notNull(args, "args");
+        DynamicLocaleReader<?> localeReader = findDynamicLocaleReader(key, locale)
+                .orElseGet(() -> findDynamicLocaleReader(key, this.locale).orElse(null));
+        if (localeReader == null) {
+            actor.reply(key);
+            return;
+        }
+        localeReader.reply(actor, key, args);
+    }
+
+    @Override public void error(@NotNull CommandActor actor, @NotNull String key, @NotNull Locale locale, Object... args) {
+        notNull(actor, "actor");
+        notNull(key, "key");
+        notNull(locale, "locale");
+        notNull(args, "args");
+        DynamicLocaleReader<?> localeReader = findDynamicLocaleReader(key, locale)
+                .orElseGet(() -> findDynamicLocaleReader(key, this.locale).orElse(null));
+        if (localeReader == null) {
+            actor.error(key);
+            return;
+        }
+        localeReader.error(actor, key, args);
+    }
+
     @Override public @NotNull String get(@NotNull String key) {
         return get(key, locale);
     }
@@ -57,19 +84,12 @@ final class SimpleTranslator implements Translator {
     @Override public @NotNull String get(@NotNull String key, @NotNull Locale locale) {
         notNull(key, "key");
         notNull(locale, "locale");
-        for (LocaleReader registeredBundle : registeredBundles.getOrDefault(locale, EMPTY_LIST)) {
-            if (registeredBundle.containsKey(key))
-                return registeredBundle.get(key);
-        }
-        for (LocaleReader registeredBundle : registeredBundles.getOrDefault(this.locale, EMPTY_LIST)) {
-            if (registeredBundle.containsKey(key))
-                return registeredBundle.get(key);
-        }
-        return key;
+        return findLocaleMessage(key, locale)
+                .orElseGet(() -> findLocaleMessage(key, this.locale).orElse(key));
     }
 
-    @Override public void add(@NotNull LocaleReader reader) {
-        LinkedList<LocaleReader> list = registeredBundles.computeIfAbsent(reader.getLocale(), v -> new LinkedList<>());
+    @Override public void add(@NotNull DynamicLocaleReader<?> reader) {
+        LinkedList<DynamicLocaleReader<?>> list = registeredBundles.computeIfAbsent(reader.getLocale(), v -> new LinkedList<>());
         list.push(reader);
     }
 
@@ -111,6 +131,26 @@ final class SimpleTranslator implements Translator {
     public void add(@NotNull ResourceBundle resourceBundle) {
         notNull(resourceBundle, "resource bundle");
         add(LocaleReader.wrap(resourceBundle));
+    }
+
+    private Optional<String> findLocaleMessage(@NotNull String key, @NotNull Locale locale) {
+        return findLocaleReader(key, locale).map(reader -> reader.get(key));
+    }
+
+    private Optional<LocaleReader> findLocaleReader(@NotNull String key, @NotNull Locale locale) {
+        if (!registeredBundles.containsKey(locale))
+            return Optional.empty();
+        return registeredBundles.get(locale).stream()
+                .filter(reader -> reader.containsKey(key))
+                .filter(reader -> reader instanceof LocaleReader)
+                .map(reader -> (LocaleReader) reader)
+                .findFirst();
+    }
+
+    private Optional<DynamicLocaleReader<?>> findDynamicLocaleReader(@NotNull String key, @NotNull Locale locale) {
+        if (!registeredBundles.containsKey(locale))
+            return Optional.empty();
+        return registeredBundles.get(locale).stream().filter(reader -> reader.containsKey(key)).findFirst();
     }
 
     private static boolean classExists(String name) {
