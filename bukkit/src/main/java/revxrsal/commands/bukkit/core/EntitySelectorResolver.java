@@ -139,7 +139,7 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
 
         @Override
         public boolean consistsOf(final Entity... entities) {
-            if (entities.length == this.entities.size()) {
+            if (entities.length != this.entities.size()) {
                 return false;
             }
             HashSet<Entity> set = new HashSet<>(entities.length);
