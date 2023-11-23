@@ -34,4 +34,11 @@ import java.util.List;
  * Note that this selector ONLY works on 1.13+. Unfortunately, Bukkit provides no other
  * ways for parsing selectors on older versions.
  */
-public interface EntitySelector<E extends Entity> extends List<E> {}
+public interface EntitySelector<E extends Entity> extends List<E> {
+
+     /**
+      * Checks if the selector results consists of specific entities
+      */
+     boolean consistsOf(Entity... entities);
+
+}
