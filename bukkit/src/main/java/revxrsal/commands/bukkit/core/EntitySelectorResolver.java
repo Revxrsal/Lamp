@@ -138,7 +138,10 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
         }
 
         @Override
-        public boolean consistsOf(Entity... entities) {
+        public boolean consistsOf(final Entity... entities) {
+            if (entities.length == this.entities.size()) {
+                return false;
+            }
             HashSet<Entity> set = new HashSet<>(entities.length);
             Collections.addAll(set, entities);
             return set.containsAll(this.entities);
