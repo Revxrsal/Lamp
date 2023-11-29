@@ -44,6 +44,7 @@ import revxrsal.commands.util.Primitives;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -134,6 +135,16 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
 
         @Override protected List<E> delegate() {
             return entities;
+        }
+
+        @Override
+        public boolean consistsOf(final Entity... entities) {
+            if (entities.length != this.entities.size()) {
+                return false;
+            }
+            HashSet<Entity> set = new HashSet<>(entities.length);
+            Collections.addAll(set, entities);
+            return set.containsAll(this.entities);
         }
 
     }
