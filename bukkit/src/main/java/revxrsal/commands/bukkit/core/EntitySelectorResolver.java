@@ -42,12 +42,11 @@ import revxrsal.commands.process.ValueResolver.ValueResolverContext;
 import revxrsal.commands.process.ValueResolverFactory;
 import revxrsal.commands.util.Primitives;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import static revxrsal.commands.util.Preconditions.notNull;
 
 public enum EntitySelectorResolver implements ValueResolverFactory {
     INSTANCE;
@@ -138,11 +137,12 @@ public enum EntitySelectorResolver implements ValueResolverFactory {
         }
 
         @Override
-        public boolean consistsOf(final Entity... entities) {
+        public boolean containsExactly(@NotNull Entity... entities) {
+            notNull(entities, "entities");
             if (entities.length != this.entities.size()) {
                 return false;
             }
-            HashSet<Entity> set = new HashSet<>(entities.length);
+            Set<Entity> set = new HashSet<>(entities.length);
             Collections.addAll(set, entities);
             return set.containsAll(this.entities);
         }

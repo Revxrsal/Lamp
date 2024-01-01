@@ -24,6 +24,7 @@
 package revxrsal.commands.bukkit;
 
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -36,9 +37,29 @@ import java.util.List;
  */
 public interface EntitySelector<E extends Entity> extends List<E> {
 
-     /**
-      * Checks if the selector results consists of specific entities
-      */
-     boolean consistsOf(Entity... entities);
+    /**
+     * Checks if the selector results are identical to the given array
+     * of entities.
+     * <p>
+     * This will ignore the order of entities in this selector as well as
+     * the order of the passed array of entities.
+     * <p>
+     * Example:
+     * <pre>
+     * {@code
+     * EntitySelector<Player> players = [PlayerA, PlayerB]
+     *
+     * players.containsExactly(PlayerA) ==> false
+     * players.containsExactly(PlayerB) ==> false
+     * players.containsExactly(PlayerA, PlayerB) ==> true
+     * players.containsExactly(PlayerB, PlayerA) ==> true
+     * }
+     * </pre>
+     *
+     * @param entities The entities to check if they are all in the list
+     * @return true if the selector yields the same collection of entities
+     * as the given array.
+     */
+    boolean containsExactly(@NotNull Entity... entities);
 
 }
