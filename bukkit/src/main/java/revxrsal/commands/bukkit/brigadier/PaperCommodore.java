@@ -38,7 +38,6 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.core.BukkitCommandExecutor;
 import revxrsal.commands.command.ArgumentStack;
-import revxrsal.commands.exception.ArgumentParseException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -72,14 +71,9 @@ final class PaperCommodore extends Commodore implements Listener {
 
         @EventHandler
         public void onUnknownCommand(UnknownCommandEvent event) {
-            ArgumentStack args;
-            try {
-                args = ArgumentStack.parse(
-                        stripNamespace(fallbackPrefix, event.getCommandLine())
-                );
-            } catch (ArgumentParseException e) {
-                return;
-            }
+            ArgumentStack args = ArgumentStack.parse(
+                    stripNamespace(fallbackPrefix, event.getCommandLine())
+            );
             if (commands.containsKey(args.getFirst())) {
                 event.message(null);
                 BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
