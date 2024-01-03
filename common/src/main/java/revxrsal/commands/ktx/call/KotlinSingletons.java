@@ -74,7 +74,7 @@ public final class KotlinSingletons {
             return caller;
 
         // an object or a companion object, bind it twice
-        if (parameterTypes[0] == method.getDeclaringClass())
+        if (parameterTypes.length > 0 && parameterTypes[0] == method.getDeclaringClass())
             return (instance, arguments) -> {
                 Object[] boundArgs = Collections.insertAtBeginning(arguments, instance);
                 return caller.call(instance, boundArgs);
