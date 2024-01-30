@@ -79,7 +79,7 @@ final class PaperCommodore extends Commodore implements Listener {
                         stripNamespace(fallbackPrefix, event.getCommandLine())
                 );
                 if (commands.containsKey(args.getFirst())) {
-                    event.message(null);
+                    event.setMessage(null);
                     BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
                     try {
                         // This will automatically fail, we can then easily get the
