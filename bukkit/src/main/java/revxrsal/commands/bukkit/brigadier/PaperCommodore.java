@@ -38,6 +38,7 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.core.BukkitCommandExecutor;
 import revxrsal.commands.command.ArgumentStack;
+import revxrsal.commands.exception.ArgumentParseException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -71,20 +72,24 @@ final class PaperCommodore extends Commodore implements Listener {
 
         @EventHandler
         public void onUnknownCommand(UnknownCommandEvent event) {
-            ArgumentStack args = ArgumentStack.parse(
-                    stripNamespace(fallbackPrefix, event.getCommandLine())
-            );
-            if (commands.containsKey(args.getFirst())) {
-                event.message(null);
-                BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
-                try {
-                    // This will automatically fail, we can then easily get the
-                    // exception message and overwrite it.
-                    handler.dispatch(actor, args);
-                } catch (Throwable t) {
-                    handler.getExceptionHandler().handleException(t, actor);
+            if (event.getCommandLine().isEmpty())
+                return;
+            try {
+                ArgumentStack args = ArgumentStack.parse(
+                        stripNamespace(fallbackPrefix, event.getCommandLine())
+                );
+                if (commands.containsKey(args.getFirst())) {
+                    event.message(null);
+                    BukkitCommandActor actor = BukkitCommandActor.wrap(event.getSender(), handler);
+                    try {
+                        // This will automatically fail, we can then easily get the
+                        // exception message and overwrite it.
+                        handler.dispatch(actor, args);
+                    } catch (Throwable t) {
+                        handler.getExceptionHandler().handleException(t, actor);
+                    }
                 }
-            }
+            } catch (ArgumentParseException ignored) {}
         }
     }
 
