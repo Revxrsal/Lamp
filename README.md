@@ -121,7 +121,7 @@ dependencies {
     implementation("com.github.Revxrsal.Lamp:common:[version]")
 
     // Add your specific platform module here
-    implementation("com.github.Revxrsal.Lamp:[module]:[verison]")
+    implementation("com.github.Revxrsal.Lamp:[module]:[version]")
 }
 
 tasks.withType<JavaCompile> { // Preserve parameter names in the bytecode
