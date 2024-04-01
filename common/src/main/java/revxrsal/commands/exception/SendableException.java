@@ -36,6 +36,16 @@ import revxrsal.commands.command.CommandActor;
 public abstract class SendableException extends RuntimeException {
 
     /**
+     * Constructs a new {@link SendableException} that does not send any message.
+     * <p>
+     * Use this constructor if you would like to implement your own messaging
+     * system instead of relying on {@link CommandActor#reply(String)}.
+     */
+    public SendableException() {
+        this("");
+    }
+
+    /**
      * Constructs a new {@link SendableException} with an inferred actor
      *
      * @param message Message to send

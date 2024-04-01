@@ -39,6 +39,17 @@ public class CommandErrorException extends SendableException {
     private final Object[] arguments;
 
     /**
+     * Constructs a new {@link CommandErrorException} that does not send any message.
+     * <p>
+     * Use this constructor if you would like to implement your own messaging
+     * system instead of relying on {@link CommandActor#error(String)}.
+     */
+    public CommandErrorException() {
+        super();
+        this.arguments = new Object[0];
+    }
+
+    /**
      * Constructs a new {@link CommandErrorException} with an inferred actor
      *
      * @param message Message to send
@@ -54,6 +65,8 @@ public class CommandErrorException extends SendableException {
      * @param actor Actor to send to
      */
     @Override public void sendTo(@NotNull CommandActor actor) {
+        if (getMessage().isEmpty())
+            return;
         actor.errorLocalized(getMessage(), arguments);
     }
 }
