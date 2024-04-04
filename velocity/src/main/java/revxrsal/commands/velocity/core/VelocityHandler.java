@@ -5,6 +5,7 @@ import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import net.kyori.adventure.text.ComponentLike;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,8 @@ import static revxrsal.commands.util.Preconditions.notNull;
 public final class VelocityHandler extends BaseCommandHandler implements VelocityCommandHandler {
 
     private final ProxyServer server;
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType") private final Optional<PluginContainer> plugin;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private final Optional<PluginContainer> plugin;
 //    private final DummyVelocityBrigadier brigadier = new DummyVelocityBrigadier(this);
 
     public VelocityHandler(@Nullable Object plugin, @NotNull ProxyServer server) {
@@ -53,6 +55,7 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
                 .registerSuggestion("playerSelector", SuggestionProvider.of("@a", "@p", "@r", "@s")
                         .compose(getAutoCompleter().getSuggestionProvider("players")))
                 .registerParameterSuggestions(PlayerSelector.class, "playerSelector");
+        registerResponseHandler(ComponentLike.class, (component, actor, command) -> actor.as(VelocityCommandActor.class).reply(component));
         setExceptionHandler(VelocityExceptionAdapter.INSTANCE);
     }
 
