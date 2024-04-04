@@ -26,6 +26,7 @@ package revxrsal.commands.bukkit;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.bukkit.annotation.LiteralEnum;
 import revxrsal.commands.bukkit.brigadier.ArgumentTypeResolver;
 import revxrsal.commands.bukkit.brigadier.MinecraftArgumentType;
 import revxrsal.commands.command.CommandActor;
@@ -123,6 +124,25 @@ public interface BukkitBrigadier {
     boolean isNativePlayerCompletionEnabled();
 
     /**
+     * Whether should enums be shown as native literals, instead of regular
+     * arguments.
+     * <p>
+     * Note that it is possible to apply this to individual parameters
+     * using {@link LiteralEnum}
+     *
+     * @param show If they should be shown as native or not
+     */
+    void showEnumsAsNativeLiterals(boolean show);
+
+    /**
+     * Tests whether should enums be shown as native literals
+     *
+     * @return If enums should be rendered as native literals
+     * @see LiteralEnum
+     */
+    boolean isShowEnumsAsNativeLiterals();
+
+    /**
      * Registers the command handler's brigadier
      */
     void register();
@@ -134,4 +154,5 @@ public interface BukkitBrigadier {
      * @return The command handler
      */
     @NotNull BukkitCommandHandler getCommandHandler();
+
 }

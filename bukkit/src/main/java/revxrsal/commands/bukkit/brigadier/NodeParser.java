@@ -27,9 +27,11 @@ import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.bukkit.BukkitBrigadier;
+import revxrsal.commands.bukkit.annotation.LiteralEnum;
 import revxrsal.commands.bukkit.core.BukkitHandler;
 import revxrsal.commands.command.*;
 import revxrsal.commands.command.trait.PermissionHolder;
@@ -84,6 +86,20 @@ final class NodeParser {
             List<Node> second = createNodes(either[1]);
             return Stream.concat(first.stream(), second.stream()).collect(Collectors.toList());
         }
+
+        if (parameter.getType().isEnum()) {
+            if (parameter.hasAnnotation(LiteralEnum.class) ||
+                    brigadier.isShowEnumsAsNativeLiterals()) {
+                List<Node> nodes = new ArrayList<>();
+                for (Object v : parameter.getType().getEnumConstants()) {
+                    String name = ((Enum<?>) v).name().toLowerCase();
+                    LiteralArgumentBuilder<Object> literal = literal(name);
+                    nodes.add(Node.from(literal));
+                }
+                return nodes;
+            }
+        }
+
         ExecutableCommand command = parameter.getDeclaringCommand();
 
         ArgumentType<?> argumentType = brigadier.getArgumentType(parameter);

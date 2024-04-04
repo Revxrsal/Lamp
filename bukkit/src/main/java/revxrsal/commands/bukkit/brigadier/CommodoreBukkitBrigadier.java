@@ -51,6 +51,7 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
     private final BukkitCommandHandler handler;
     private boolean nativePlayerCompletions = true;
+    private boolean showEnumsAsNativeLiterals = false;
     private final Commodore commodore;
     private final List<ArgumentTypeResolver> resolvers = new ArrayList<>();
 
@@ -124,6 +125,14 @@ public final class CommodoreBukkitBrigadier implements BukkitBrigadier {
 
     @Override public boolean isNativePlayerCompletionEnabled() {
         return nativePlayerCompletions;
+    }
+
+    @Override public void showEnumsAsNativeLiterals(boolean show) {
+        showEnumsAsNativeLiterals = show;
+    }
+
+    @Override public boolean isShowEnumsAsNativeLiterals() {
+        return showEnumsAsNativeLiterals;
     }
 
     @Override public void register() {
