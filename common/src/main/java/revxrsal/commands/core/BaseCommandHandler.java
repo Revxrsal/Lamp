@@ -102,7 +102,7 @@ public abstract class BaseCommandHandler implements CommandHandler {
     ParameterNamingStrategy parameterNamingStrategy = ParameterNamingStrategy.lowerCaseWithSpace();
     boolean failOnExtra = false;
     final List<CommandCondition> conditions = new ArrayList<>();
-    private final Translator translator = Translator.create();
+    private Translator translator = Translator.create();
 
     @SuppressWarnings("rawtypes")
     public BaseCommandHandler() {
@@ -209,6 +209,12 @@ public abstract class BaseCommandHandler implements CommandHandler {
 
     @Override public @NotNull Translator getTranslator() {
         return translator;
+    }
+
+    @Override public void setTranslator(@NotNull Translator translator) {
+        Locale previous = getLocale();
+        this.translator = translator;
+        this.translator.setLocale(previous);
     }
 
     private void findPermission(@Nullable CommandExecutable executable) {

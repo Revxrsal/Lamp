@@ -87,6 +87,11 @@ public interface CommandHandler {
     @NotNull Translator getTranslator();
 
     /**
+     * Sets the translator of this command handler
+     */
+    void setTranslator(@NotNull Translator translator);
+
+    /**
      * Sets the {@link MethodCallerFactory} responsible for generating access
      * to reflection methods.
      * <p>
