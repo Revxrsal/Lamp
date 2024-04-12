@@ -212,9 +212,9 @@ public abstract class BaseCommandHandler implements CommandHandler {
     }
 
     @Override public void setTranslator(@NotNull Translator translator) {
-        Locale previous = getLocale();
+        Locale locale = getLocale();
         this.translator = translator;
-        this.translator.setLocale(previous);
+        this.translator.setLocale(locale);
     }
 
     private void findPermission(@Nullable CommandExecutable executable) {

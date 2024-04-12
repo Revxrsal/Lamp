@@ -88,6 +88,8 @@ public interface CommandHandler {
 
     /**
      * Sets the translator of this command handler
+     *
+     * @param translator the translator of this command handler
      */
     void setTranslator(@NotNull Translator translator);
 
