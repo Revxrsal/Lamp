@@ -300,3 +300,14 @@ suspend fun countdown(
 - **Overview**: [Lamp/wiki](https://github.com/Revxrsal/Lamp/wiki)
 - **Examples**: [wiki/examples](https://github.com/Revxrsal/Lamp/wiki/Building-commands)
 - **Javadocs**: https://revxrsal.github.io/Lamp/
+
+## Sponsors
+If Lamp has made your life significantly easier or you're feeling particularly generous, consider sponsoring the project! It's a great way to support the many hours I've spent maintaining this library and keeps me motivated. Please don't sponsor if you can't afford it.
+
+[Donate with PayPal](https://www.paypal.me/Recxrsion)
+
+Huge thanks to those who donated! 😄
+
+*If I missed you or you would like to remain anonymous, feel free to shoot me a DM on Discord)*
+
+- Demeng ($50)
