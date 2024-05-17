@@ -28,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.locales.Translator;
 
-import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -117,8 +116,7 @@ public interface CommandActor {
      * @param args The arguments to format with
      */
     default void replyLocalized(@NotNull String key, Object... args) {
-        String message = MessageFormat.format(getTranslator().get(key, getLocale()), args);
-        reply(message);
+        getTranslator().reply(this, key, getLocale(), args);
     }
 
     /**
@@ -128,8 +126,7 @@ public interface CommandActor {
      * @param args The arguments to format with
      */
     default void errorLocalized(@NotNull String key, Object... args) {
-        String message = MessageFormat.format(getTranslator().get(key, getLocale()), args);
-        error(message);
+        getTranslator().error(this, key, getLocale(), args);
     }
 
     /**
