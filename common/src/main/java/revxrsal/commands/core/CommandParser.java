@@ -1,7 +1,7 @@
 /*
  * This file is part of lamp, licensed under the MIT License.
  *
- *  Copysecond (c) Revxrsal <reflxction.github@gmail.com>
+ *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -10,7 +10,7 @@
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
  *
- *  The above copysecond notice and this permission notice shall be included in all
+ *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
  *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -60,7 +60,8 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.addAll;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
-import static revxrsal.commands.util.Collections.listOf;
+import static revxrsal.commands.util.Reflections.getAllMethods;
+import static revxrsal.commands.util.Reflections.getTopClasses;
 import static revxrsal.commands.util.Strings.getOverriddenName;
 import static revxrsal.commands.util.Strings.splitBySpace;
 
@@ -228,23 +229,6 @@ final class CommandParser {
                 return pathsArray;
             }
         });
-    }
-
-    /**
-     * Finds all {@link Method}s defined by a class, including private ones
-     * and ones that are inherited from classes.
-     *
-     * @param c Class to get for
-     * @return A list of all methods
-     */
-    private static Set<Method> getAllMethods(Class<?> c) {
-        Set<Method> methods = new HashSet<>();
-        Class<?> current = c;
-        while (current != null && current != Object.class) {
-            addAll(methods, current.getDeclaredMethods());
-            current = current.getSuperclass();
-        }
-        return methods;
     }
 
     /**
@@ -539,23 +523,6 @@ final class CommandParser {
             }
         }
         return paths;
-    }
-
-    /**
-     * Returns a hierarchy of classes that are contained by the given class. The
-     * order of the list matters, as it starts from the parent and ends at the child
-     *
-     * @param c Class to find for
-     * @return A list of all classes containing each other
-     */
-    private static List<Class<?>> getTopClasses(Class<?> c) {
-        List<Class<?>> classes = listOf(c);
-        Class<?> enclosingClass = c.getEnclosingClass();
-        while (c.getEnclosingClass() != null) {
-            classes.add(c = enclosingClass);
-        }
-        Collections.reverse(classes);
-        return classes;
     }
 
     private static <K, V> void putOrError(Map<K, V> map, K key, V value, String err) {
