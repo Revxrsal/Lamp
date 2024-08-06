@@ -6,6 +6,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.CommandHandler;
@@ -43,7 +44,7 @@ public final class VelocityActor implements VelocityCommandActor {
 
     @Override public void reply(@NotNull String message) {
         notNull(message, "message");
-        source.sendMessage(Component.text(colorize(handler.getMessagePrefix() + message)));
+        source.sendMessage(LegacyComponentSerializer.legacy('&').deserialize(handler.getMessagePrefix() + message));
     }
 
     @Override public void error(@NotNull String message) {
