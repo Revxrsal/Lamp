@@ -24,42 +24,29 @@
 package revxrsal.commands.locales;
 
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.command.CommandActor;
 
-import java.util.Locale;
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 /**
- * A locale reader is a source in which messages for a specific locale
+ * A locale reader is a source in which plain messages for a specific locale
  * are fetched. This can be a file, a resource bundle, or even a remote
  * source.
  */
-public interface LocaleReader {
+public interface LocaleReader extends DynamicLocaleReader<String> {
 
-    /**
-     * Returns whether this reader contains a mapping for the
-     * given key.
-     *
-     * @param key Key to check for
-     * @return {@code true} if this reader has a mapping for the key
-     */
-    boolean containsKey(String key);
+    @Override default void reply(CommandActor actor, String message) {
+        actor.reply(message);
+    }
 
-    /**
-     * Returns the mapping value for this key. It is recommended that
-     * this only return values if {@link #containsKey(String)} is true,
-     * otherwise throwing an exception to avoid confusion.
-     *
-     * @param key Key to fetch for
-     * @return The string value
-     */
-    String get(String key);
+    @Override default void error(CommandActor actor, String message) {
+        actor.error(message);
+    }
 
-    /**
-     * Returns the locale of by this reader
-     *
-     * @return The reader's locale
-     */
-    Locale getLocale();
+    @Override default String format(String message, Object... args) {
+        return MessageFormat.format(message, args);
+    }
 
     /**
      * Wraps a {@link ResourceBundle} in a {@link LocaleReader}.

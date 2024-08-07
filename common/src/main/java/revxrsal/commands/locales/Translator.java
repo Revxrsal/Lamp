@@ -24,6 +24,7 @@
 package revxrsal.commands.locales;
 
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.command.CommandActor;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -42,6 +43,10 @@ public interface Translator {
     static @NotNull Translator create() {
         return new SimpleTranslator();
     }
+
+    void reply(@NotNull CommandActor actor, @NotNull String key, @NotNull Locale locale, @NotNull Object... args);
+
+    void error(@NotNull CommandActor actor, @NotNull String key, @NotNull Locale locale, @NotNull Object... args);
 
     /**
      * Returns the message that corresponds to the given key, using
@@ -65,11 +70,11 @@ public interface Translator {
     @NotNull String get(@NotNull String key, @NotNull Locale locale);
 
     /**
-     * Adds the given locale reader to this translator.
+     * Adds the given dynamic locale reader to this translator.
      *
      * @param reader The locale reader to add
      */
-    void add(@NotNull LocaleReader reader);
+    void add(@NotNull DynamicLocaleReader<?> reader);
 
     /**
      * Registers the given resource bundle
