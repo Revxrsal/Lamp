@@ -162,14 +162,5 @@ public interface ParameterType<A extends CommandActor, T> extends BaseParameterT
             return new ClassParameterTypeFactory<>(type, parameterType, true);
         }
 
-        /**
-         * Tests whether this factory consumes input or not.
-         *
-         * @return If the factory consumes input or not
-         */
-        @Override
-        default boolean consumesInput() {
-            return true;
-        }
     }
 }

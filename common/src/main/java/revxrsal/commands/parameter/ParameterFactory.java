@@ -32,11 +32,4 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.NonExtendable
 public interface ParameterFactory {
 
-    /**
-     * Tests whether this factory consumes input or not.
-     *
-     * @return If the factory consumes input or not
-     */
-    boolean consumesInput();
-
 }

@@ -145,13 +145,17 @@ public final class ParameterTypes<A extends CommandActor> {
 
         for (int i = skipPastIndex + 1, size = factories.size(); i < size; i++) {
             ParameterFactory factory = factories.get(i);
-            if (skipPast.consumesInput() != factory.consumesInput())
+            if (consumesInput(skipPast) != consumesInput(factory))
                 continue;
             ParameterResolver<A, T> parameterType = toParameterResolver(type, annotations, lamp, factory);
             if (parameterType != null)
                 return parameterType;
         }
         throw new IllegalArgumentException("Failed to find the next resolver for type " + type + " with annotations " + annotations);
+    }
+
+    private static boolean consumesInput(@NotNull ParameterFactory factory) {
+        return factory instanceof ParameterType.Factory<?>;
     }
 
     @SuppressWarnings("unchecked")

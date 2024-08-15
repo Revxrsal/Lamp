@@ -82,16 +82,6 @@ public interface ContextParameter<A extends CommandActor, T> {
         <T> ContextParameter<A, T> create(@NotNull Type parameterType, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp);
 
         /**
-         * Tests whether this {@link ParameterFactory} is expected to consume
-         * input from a {@link MutableStringStream} or not.
-         *
-         * @return if this input is expected to consume input or not
-         */
-        default boolean consumesInput() {
-            return false;
-        }
-
-        /**
          * Creates a new {@link Factory} that returns a {@link ContextParameter} for all
          * parameters that <em>exactly</em> have a certain class.
          *
