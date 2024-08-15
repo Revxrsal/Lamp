@@ -23,11 +23,8 @@
  */
 package revxrsal.commands.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.Range;
-import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.CommandParameter;
 
 /**
  * Thrown when a numerical parameter that is annotated with {@link Range}
@@ -35,28 +32,48 @@ import revxrsal.commands.command.CommandParameter;
  *
  * @see Range
  */
-@Getter
-@AllArgsConstructor
 public class NumberNotInRangeException extends RuntimeException {
-
-    /**
-     * The command actor
-     */
-    private final CommandActor actor;
-
-    /**
-     * The inputted parameter
-     */
-    private final CommandParameter parameter;
 
     /**
      * The inputted value
      */
-    private final Number input;
+    private final @NotNull Number input;
 
     /**
      * The minimum and maximum values of the range
      */
     private final double minimum, maximum;
 
+    public NumberNotInRangeException(@NotNull Number input, double minimum, double maximum) {
+        this.input = input;
+        this.minimum = minimum;
+        this.maximum = maximum;
+    }
+
+    /**
+     * The inputted value
+     *
+     * @return The inputted value
+     */
+    public @NotNull Number input() {
+        return input;
+    }
+
+    /**
+     * The minimum value of the range
+     *
+     * @return The minimum value of the range
+     */
+    public double minimum() {
+        return minimum;
+    }
+
+    /**
+     * The maximum value of the range
+     *
+     * @return The maximum value of the range
+     */
+    public double maximum() {
+        return maximum;
+    }
 }

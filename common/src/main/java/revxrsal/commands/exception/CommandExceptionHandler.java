@@ -5,7 +5,7 @@
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the seconds
+ *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
@@ -24,8 +24,9 @@
 package revxrsal.commands.exception;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.CommandHandler;
+import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.exception.context.ErrorContext;
 
 /**
  * A handler for all exceptions that may be thrown during the command
@@ -34,19 +35,25 @@ import revxrsal.commands.command.CommandActor;
  * Exceptions may be anything, including Java's normal exceptions,
  * and build-in ones thrown by different components in the framework.
  * <p>
- * Set with {@link CommandHandler#setExceptionHandler(CommandExceptionHandler)}.
+ * Set with {@link Lamp.Builder#exceptionHandler(CommandExceptionHandler)}.
+ * <p>
+ * For a flexible yet powerful implementation, see {@link RuntimeExceptionAdapter}
+ * which allows handling exceptions in smaller functions
+ *
+ * @see RuntimeExceptionAdapter
  */
-public interface CommandExceptionHandler {
+@FunctionalInterface
+public interface CommandExceptionHandler<A extends CommandActor> {
 
     /**
-     * Handles the given exception. Note that this method does not
-     * provide information about the command context (such as the command, etc.)
-     * These are available in individual exceptions and can be
-     * accessed only if the thrown exception exposes them.
+     * Handles the given exception.
      *
-     * @param throwable Exception to handle
-     * @param actor     The command actor
+     * @param throwable    Exception to handle
+     * @param errorContext The context in which the error occurred. For example,
+     *                     if the error was because a parameter was invalid, this
+     *                     will be a {@link ErrorContext.ParsingParameter} context,
+     *                     which contains information about the parameter being parsed.
      */
-    void handleException(@NotNull Throwable throwable, @NotNull CommandActor actor);
+    void handleException(@NotNull Throwable throwable, @NotNull ErrorContext<A> errorContext);
 
 }

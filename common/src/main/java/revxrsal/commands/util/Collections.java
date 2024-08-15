@@ -21,32 +21,51 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
+/*
+ * This file is part of lamp, licensed under the MIT License.
+ *
+ *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
 package revxrsal.commands.util;
 
-import org.jetbrains.annotations.CheckReturnValue;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
+import static revxrsal.commands.util.Preconditions.cannotInstantiate;
+
+/**
+ * Provides utilities for dealing with collections and iterators. This
+ * provides similar functions to {@link java.util.stream.Stream}s without
+ * the intermediate layer of a Stream.
+ * <p>
+ * This improves performance and allows us to make use of invariants of data-backed
+ * collections (as a Stream is not necessarily backed by a data structure).
+ */
 public final class Collections {
 
-    private Collections() {}
-
-    @SafeVarargs
-    public static <T> LinkedList<T> linkedListOf(T... elements) {
-        LinkedList<T> list = new LinkedList<>();
-        java.util.Collections.addAll(list, elements);
-        return list;
-    }
-
-    @SafeVarargs
-    public static <T> List<T> listOf(T... elements) {
-        List<T> list = new ArrayList<>();
-        java.util.Collections.addAll(list, elements);
-        return list;
+    private Collections() {
+        cannotInstantiate(Collections.class);
     }
 
     /**
@@ -122,5 +141,80 @@ public final class Collections {
         newArr[0] = item;
         System.arraycopy(original, 0, newArr, 1, original.length);
         return newArr;
+    }
+
+    public static @NotNull <T> T first(@NotNull Iterable<T> iterator, @NotNull Predicate<T> predicate) {
+        for (T t : iterator) {
+            if (predicate.test(t))
+                return t;
+        }
+        throw new IllegalStateException("No element found matching the predicate");
+    }
+
+    public static @NotNull <T> List<T> filter(@NotNull Iterable<T> iterator, @NotNull Predicate<T> predicate) {
+        List<T> list = new ArrayList<>();
+        for (T t : iterator) {
+            if (predicate.test(t))
+                list.add(t);
+        }
+        return list;
+    }
+
+    public static @NotNull <U, T> List<T> map(@NotNull Iterable<U> iterator, @NotNull Function<U, T> fn) {
+        List<T> list = new ArrayList<>();
+        for (U u : iterator) {
+            list.add(fn.apply(u));
+        }
+        return list;
+    }
+
+    public static @NotNull <U, T> LinkedList<T> mapToLinkedList(@NotNull Iterable<U> iterator, @NotNull Function<U, T> fn) {
+        LinkedList<T> list = new LinkedList<>();
+        for (U u : iterator) {
+            list.add(fn.apply(u));
+        }
+        return list;
+    }
+
+    public static <E> @NotNull @UnmodifiableView Iterator<E> unmodifiableIterator(@NotNull Iterator<E> iterator) {
+        return new UnmodifiableIterator<>(iterator);
+    }
+
+    /**
+     * UnmodifiableIterator, A wrapper around an iterator instance that
+     * disables the remove method.
+     */
+    static final class UnmodifiableIterator<E> implements Iterator<E> {
+
+        /**
+         * iterator, The base iterator.
+         */
+        private final Iterator<? extends E> iterator;
+
+        private UnmodifiableIterator(final Iterator<? extends E> iterator) {
+            this.iterator = iterator;
+        }
+
+        public static <E> Iterator<E> create(final Iterator<? extends E> iterator) {
+            if (iterator == null) {
+                throw new NullPointerException("The iterator can not be null.");
+            }
+            return new UnmodifiableIterator<>(iterator);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public E next() {
+            return iterator.next();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Iterator.remove() is disabled.");
+        }
     }
 }

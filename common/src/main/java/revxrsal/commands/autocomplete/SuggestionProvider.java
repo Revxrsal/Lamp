@@ -21,110 +21,164 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
+/*
+ * This file is part of lamp, licensed under the MIT License.
+ *
+ *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
 package revxrsal.commands.autocomplete;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.Lamp;
+import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.node.ExecutionContext;
+import revxrsal.commands.stream.StringStream;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static revxrsal.commands.util.Collections.listOf;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.List;
 
 /**
- * A provider for tab completions.
- * <p>
- * Register with {@link AutoCompleter#registerSuggestion(String, SuggestionProvider)}
+ * An interface that supplies completions for the user depending on their input.
  */
-public interface SuggestionProvider {
-
-    /**
-     * A {@link SuggestionProvider} that always returns an empty list.
-     */
-    SuggestionProvider EMPTY = (args, sender, command) -> Collections.emptyList();
+@FunctionalInterface
+public interface SuggestionProvider<A extends CommandActor> {
 
     /**
      * Returns the suggestions
      *
-     * @param args    The command arguments
-     * @param sender  The command sender
-     * @param command The handled command
+     * @param input   The user input. This may end in a trailing space.
+     * @param actor   The command actor
+     * @param context The execution context. This will try to parse
+     *                arguments inputted by the user and store them
+     *                to provide context-aware suggestions.
      * @return The command suggestions.
      */
     @NotNull
-    Collection<String> getSuggestions(@NotNull List<String> args,
-                                      @NotNull CommandActor sender,
-                                      @NotNull ExecutableCommand command) throws Throwable;
+    Collection<String> getSuggestions(@NotNull StringStream input, @NotNull A actor, @NotNull ExecutionContext<A> context);
 
     /**
-     * Composes the two {@link SuggestionProvider}s into one provider that returns
-     * the completions from both.
+     * Returns a {@link SuggestionProvider} that always gives empty suggestions.
      *
-     * @param other Other provider to merge with
-     * @return The new provider
+     * @param <A> The actor type
+     * @return The empty suggestion provider singleton
      */
-    @Contract("null -> this; !null -> new")
-    default SuggestionProvider compose(@Nullable SuggestionProvider other) {
-        if (other == null) return this;
-        if (this == EMPTY && other == EMPTY) return EMPTY;
-        if (other == EMPTY) return this;
-        if (this == EMPTY) return other;
-        return (args, sender, command) -> {
-            Set<String> completions = new HashSet<>(other.getSuggestions(args, sender, command));
-            completions.addAll(getSuggestions(args, sender, command));
-            return completions;
-        };
+    static <A extends CommandActor> @NotNull SuggestionProvider<A> empty() {
+        //noinspection unchecked
+        return (SuggestionProvider<A>) EmptySuggestionProvider.INSTANCE;
     }
 
     /**
-     * Returns a {@link SuggestionProvider} that always returns the given values
+     * Returns a {@link SuggestionProvider} that provides a static list of suggestions
      *
-     * @param suggestions Values to return.
-     * @return The provider
+     * @param suggestions Suggestions to provide
+     * @param <A>         The actor type
+     * @return The suggestion provider.
      */
-    static SuggestionProvider of(@Nullable Collection<String> suggestions) {
-        if (suggestions == null) return EMPTY;
-        return (args, sender, command) -> suggestions;
+    static <A extends CommandActor> @NotNull SuggestionProvider<A> of(@NotNull String... suggestions) {
+        if (suggestions == null || suggestions.length == 0)
+            return empty();
+        List<String> list = List.of(suggestions);
+        return (input, sender, context) -> list;
     }
 
     /**
-     * Returns a {@link SuggestionProvider} that always returns the given values
+     * Returns a {@link SuggestionProvider} that provides a static list of suggestions
      *
-     * @param suggestions Values to return.
-     * @return The provider
+     * @param suggestions Suggestions to provide
+     * @param <A>         The actor type
+     * @return The suggestion provider.
      */
-    static SuggestionProvider of(@Nullable String... suggestions) {
-        if (suggestions == null) return EMPTY;
-        List<String> values = listOf(suggestions);
-        return (args, sender, command) -> values;
+    static <A extends CommandActor> @NotNull SuggestionProvider<A> of(@NotNull List<String> suggestions) {
+        if (suggestions.isEmpty())
+            return empty();
+        return (input, sender, context) -> suggestions;
     }
 
     /**
-     * Returns a {@link SuggestionProvider} that computes the given supplier
-     * every time suggestions are returned.
+     * Represents a factory that creates {@link SuggestionProvider}s dynamically. This
+     * can access the parameter type, generics and annotations.
      *
-     * @param supplier The collection supplier
-     * @return The provider
+     * @param <A> The actor type
      */
-    static SuggestionProvider of(@NotNull Supplier<Collection<String>> supplier) {
-        return (args, sender, command) -> supplier.get();
-    }
+    interface Factory<A extends CommandActor> {
 
-    /**
-     * Returns a {@link SuggestionProvider} that takes the given collection of
-     * values and maps it to strings according to the given function.
-     *
-     * @param values   Values to map
-     * @param function Function to remap values with
-     * @param <T>      The values type
-     * @return The provider
-     */
-    static <T> SuggestionProvider map(@NotNull Supplier<Collection<T>> values, Function<T, String> function) {
-        return (args, sender, command) -> values.get().stream().map(function).collect(Collectors.toList());
+        /**
+         * Returns a {@link Factory} that returns a suggestion provider for
+         * all parameters that match a certain type. Note that this does <em>not</em>
+         * include the subclasses of such type.
+         *
+         * @param type     Type to provide suggestions for
+         * @param provider The suggestion provider
+         * @param <A>      The actor type
+         * @return The newly created {@link Factory}.
+         */
+        static <A extends CommandActor> Factory<? super A> forType(@NotNull Class<?> type, @NotNull SuggestionProvider<A> provider) {
+            return new ClassSuggestionProviderFactory<>(type, provider, false);
+        }
+
+        /**
+         * Returns a {@link Factory} that returns a suggestion provider for
+         * all parameters that match a certain type, as well as its subclasses.
+         *
+         * @param type     Type to provide suggestions for
+         * @param provider The suggestion provider
+         * @param <A>      The actor type
+         * @return The newly created {@link Factory}.
+         */
+        static <A extends CommandActor> Factory<? super A> forTypeAndSubclasses(@NotNull Class<?> type, @NotNull SuggestionProvider<A> provider) {
+            return new ClassSuggestionProviderFactory<>(type, provider, true);
+        }
+
+        /**
+         * Returns a {@link Factory} that returns a suggestion provider for
+         * all parameters that contain a specific annotation
+         *
+         * @param annotationType The annotation type to provide suggestions for
+         * @param provider       The suggestion provider
+         * @param <A>            The actor type
+         * @return The newly created {@link Factory}.
+         */
+        static @NotNull <A extends CommandActor> SuggestionProvider.@NotNull Factory<? super A> forAnnotation(@NotNull Class<? extends Annotation> annotationType, @NotNull SuggestionProvider<A> provider) {
+            return (type, annotations, lamp) -> {
+                if (annotations.contains(annotationType))
+                    return provider;
+                return null;
+            };
+        }
+
+        /**
+         * Creates a {@link SuggestionProvider} for the given parameter. If
+         * this parameter is not applicable, {@code null} should be returned.
+         *
+         * @param type        Type to create for
+         * @param annotations The type annotations
+         * @param lamp        The Lamp instance
+         * @return The suggestion provider for the parameter, or {@code null}
+         * if not applicable.
+         */
+        @Nullable SuggestionProvider<A> create(@NotNull Type type, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp);
+
     }
 }

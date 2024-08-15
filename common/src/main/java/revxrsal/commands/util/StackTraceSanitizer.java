@@ -21,25 +21,46 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
+/*
+ * This file is part of lamp, licensed under the MIT License.
+ *
+ *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
 package revxrsal.commands.util;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
-import revxrsal.commands.core.BaseCommandDispatcher;
-import revxrsal.commands.core.reflect.MethodCaller;
+import revxrsal.commands.Lamp;
+import revxrsal.commands.reflect.MethodCaller;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
-import static revxrsal.commands.util.Collections.listOf;
 
 /**
- * A utility for stripping stacktraces from local paths to classes. This helps
+ * A utility for stripping stacktrace from local paths to classes. This helps
  * keep errors clean as well as removing unnecessary trace paths which do not
  * help.
  */
@@ -49,7 +70,7 @@ public final class StackTraceSanitizer {
      * The default stack trace sanitizer
      */
     private static final StackTraceSanitizer DEFAULT_SANITIZER = StackTraceSanitizer.builder()
-            .ignoreClasses(BaseCommandDispatcher.class)
+            .ignoreClasses(Lamp.class)
             .ignoreClasses(MethodHandles.class, MethodHandle.class)
             .ignorePackage(MethodCaller.class.getPackage())
             .build();
@@ -74,7 +95,8 @@ public final class StackTraceSanitizer {
         if (filters.isEmpty()) return;
         if (throwable.getCause() != null)
             sanitize(throwable.getCause());
-        List<StackTraceElement> trace = listOf(throwable.getStackTrace());
+        List<StackTraceElement> trace = new ArrayList<>();
+        java.util.Collections.addAll(trace, throwable.getStackTrace());
         int stripIndex = trace.size();
         for (int i = 0; i < trace.size(); i++) {
             StackTraceElement stackTraceElement = trace.get(i);
@@ -179,7 +201,7 @@ public final class StackTraceSanitizer {
          * @return The newly created sanitizer
          */
         public StackTraceSanitizer build() {
-            return new StackTraceSanitizer(Collections.unmodifiableList(new ArrayList<>(filters)));
+            return new StackTraceSanitizer(List.copyOf(filters));
         }
     }
 

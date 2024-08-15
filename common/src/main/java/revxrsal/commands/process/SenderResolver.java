@@ -5,7 +5,7 @@
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the seconds
+ *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
@@ -24,8 +24,8 @@
 package revxrsal.commands.process;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.CommandHandler;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
 
 /**
@@ -34,21 +34,19 @@ import revxrsal.commands.command.ExecutableCommand;
  * command actor.
  * <p>
  * Registering a custom sender resolver allows using certain types as
- * senders. The custom types must be tested inside {@link #isCustomType(Class)},
+ * senders. The custom types must be tested inside {@link #isSenderType(CommandParameter)},
  * and it is recommended to use {@code CustomType.class.isAssignableFrom(type)} to
  * make sure subclasses are respected.
- * <p>
- * Register with {@link CommandHandler#registerSenderResolver(SenderResolver)}.
  */
-public interface SenderResolver {
+public interface SenderResolver<A extends CommandActor> {
 
     /**
      * Tests whether is the specified type a custom sender type or not
      *
-     * @param type Type to test
+     * @param parameter Type to test
      * @return True if it is a custom type, false if otherwise.
      */
-    boolean isCustomType(Class<?> type);
+    boolean isSenderType(@NotNull CommandParameter parameter);
 
     /**
      * Returns the custom sender value from the given context
@@ -59,8 +57,10 @@ public interface SenderResolver {
      * @param command          The command being executed
      * @return The custom sender value. This must not be null.
      */
-    @NotNull Object getSender(@NotNull Class<?> customSenderType,
-                              @NotNull CommandActor actor,
-                              @NotNull ExecutableCommand command);
+    @NotNull Object getSender(
+            @NotNull Class<?> customSenderType,
+            @NotNull A actor,
+            @NotNull ExecutableCommand<A> command
+    );
 
 }

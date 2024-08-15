@@ -166,12 +166,12 @@ public final class Annotations {
         return s.substring(1, s.length() - 1); // cut off the []
     }
 
-    private static class DynamicAnnotationHandler implements InvocationHandler {
+    private record DynamicAnnotationHandler(
+            Class<? extends Annotation> annotationType,
+            Map<String, Object> annotationMembers
+    ) implements InvocationHandler {
 
-        private final Class<? extends Annotation> annotationType;
-        private final Map<String, Object> annotationMembers;
-
-        DynamicAnnotationHandler(Class<? extends Annotation> annotationType, Map<String, Object> annotationMembers) {
+        private DynamicAnnotationHandler(Class<? extends Annotation> annotationType, Map<String, Object> annotationMembers) {
             this.annotationType = annotationType;
             this.annotationMembers = new HashMap<>(annotationMembers);
             for (Method method : annotationType.getDeclaredMethods()) {
@@ -179,7 +179,8 @@ public final class Annotations {
             }
         }
 
-        @Override public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             switch (method.getName()) {
                 case "toString":
                     return Annotations.toString(annotationType, annotationMembers);

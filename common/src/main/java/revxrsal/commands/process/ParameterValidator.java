@@ -5,7 +5,7 @@
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the seconds
+ *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
@@ -24,23 +24,24 @@
 package revxrsal.commands.process;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.CommandHandler;
+import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.exception.CommandExceptionHandler;
+import revxrsal.commands.node.ParameterNode;
+import revxrsal.commands.parameter.ParameterType;
 
 /**
  * A validator for a specific parameter type. These validators can do extra checks on parameters
- * after they are resolved from {@link ValueResolver} or {@link ContextResolver}s.
+ * after they are resolved from {@link ParameterType}s.
  * <p>
  * Validators work on subclasses as well. For example, we can write a validator to validate
  * a custom <code>@Range(min, max)</code> annotation for numbers:
  *
  * <pre>{@code
- * public enum RangeValidator implements ParameterValidator<Number> {
+ * public enum RangeValidator implements ParameterValidator<CommandActor, Number> {
  *     INSTANCE;
  *
- *     @Override public void validate(Number value, @NotNull CommandParameter parameter, @NotNull CommandActor actor) throws Throwable {
+ *     @Override public void validate(@NotNull CommandActor actor, Number value, @NotNull ParameterNode<CommandActor, Number> parameter, @NotNull Lamp<CommandActor> lamp) {
  *         Range range = parameter.getAnnotation(Range.class);
  *         if (range == null) return;
  *         double d = value.doubleValue();
@@ -52,11 +53,12 @@ import revxrsal.commands.exception.CommandExceptionHandler;
  * }
  * }</pre>
  * <p>
- * These can be registered through {@link CommandHandler#registerParameterValidator(Class, ParameterValidator)}
+ * These can be registered through {@link Lamp.Builder#parameterValidator(Class, ParameterValidator)}
  *
  * @param <T> The parameter handler
  */
-public interface ParameterValidator<T> {
+@FunctionalInterface
+public interface ParameterValidator<A extends CommandActor, T> {
 
     /**
      * Validates the specified value that was passed to a parameter.
@@ -68,6 +70,6 @@ public interface ParameterValidator<T> {
      * @param parameter The parameter that will take this value
      * @param actor     The command actor
      */
-    void validate(T value, @NotNull CommandParameter parameter, @NotNull CommandActor actor);
+    void validate(@NotNull A actor, T value, @NotNull ParameterNode<A, T> parameter, @NotNull Lamp<A> lamp);
 
 }

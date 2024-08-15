@@ -41,10 +41,11 @@ package revxrsal.commands.orphan;
  * Register as:
  * <pre>
  * {@code
- * CommandHandler handler = ...;
- * handler.register(Orphans.path("foo").handler(new Foo()));
+ * Lamp lamp = ...;
+ * lamp.register(Orphans.path("foo").handler(new Foo()));
  * }</pre>
  *
  * @see Orphans
  */
-public interface OrphanCommand {}
+public interface OrphanCommand {
+}

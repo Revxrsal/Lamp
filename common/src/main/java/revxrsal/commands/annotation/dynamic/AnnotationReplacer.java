@@ -25,8 +25,8 @@ package revxrsal.commands.annotation.dynamic;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.CommandHandler;
-import revxrsal.commands.command.trait.CommandAnnotationHolder;
+import revxrsal.commands.Lamp.Builder;
+import revxrsal.commands.annotation.list.AnnotationList;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -41,20 +41,21 @@ import java.util.Collection;
  * It also allows building shortcut annotations, as well as
  * configurable values inside annotations.
  * <p>
- * Register with {@link CommandHandler#registerAnnotationReplacer(Class, AnnotationReplacer)}
+ * Register with {@link Builder#annotationReplacer(Class, AnnotationReplacer)}
  *
  * @param <T>
  */
-public interface AnnotationReplacer<T> {
+@FunctionalInterface
+public interface AnnotationReplacer<T extends Annotation> {
 
     /**
      * Returns a collection of annotations that will substitute the given annotation,
-     * and be accessible in {@link CommandAnnotationHolder#getAnnotation(Class)}.
+     * and be accessible in {@link AnnotationList#get(Class)}.
      *
      * @param element    The element (method, parameter, class, etc.)
      * @param annotation The annotation to replace.
      * @return The list of replacing annotations. The collection may be null or empty.
      */
-    @Nullable Collection<Annotation> replaceAnnotations(@NotNull AnnotatedElement element, @NotNull T annotation);
+    @Nullable Collection<Annotation> replaceAnnotation(@NotNull AnnotatedElement element, @NotNull T annotation);
 
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of lamp, licensed under the MIT License.
  *
- *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
+ *  Copysecond (c) Revxrsal <reflxction.github@gmail.com>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -10,7 +10,7 @@
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
  *
- *  The above copyright notice and this permission notice shall be included in all
+ *  The above copysecond notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
  *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -35,8 +35,6 @@ import revxrsal.commands.command.CommandActor;
  */
 public class SendMessageException extends SendableException {
 
-    private final Object[] arguments;
-
     /**
      * Constructs a new {@link SendMessageException} that does not send any message.
      * <p>
@@ -45,7 +43,6 @@ public class SendMessageException extends SendableException {
      */
     public SendMessageException() {
         super();
-        this.arguments = new Object[0];
     }
 
     /**
@@ -53,9 +50,8 @@ public class SendMessageException extends SendableException {
      *
      * @param message Message to send
      */
-    public SendMessageException(String message, Object... arguments) {
+    public SendMessageException(String message) {
         super(message);
-        this.arguments = arguments;
     }
 
     /**
@@ -66,6 +62,6 @@ public class SendMessageException extends SendableException {
     @Override public void sendTo(@NotNull CommandActor actor) {
         if (getMessage().isEmpty())
             return;
-        actor.replyLocalized(getMessage(), arguments);
+        actor.reply(getMessage());
     }
 }
