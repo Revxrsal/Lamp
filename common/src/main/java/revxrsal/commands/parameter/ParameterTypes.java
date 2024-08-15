@@ -30,8 +30,10 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.ParseWith;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.parameter.builtins.*;
 import revxrsal.commands.parameter.primitives.*;
+import revxrsal.commands.stream.StringStream;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -73,7 +75,11 @@ public final class ParameterTypes<A extends CommandActor> {
             ParameterType.Factory.forType(char.class, new CharParameterType()),
             ParameterType.Factory.forType(boolean.class, new BooleanParameterType()),
             ParameterType.Factory.forType(UUID.class, new UUIDParameterType()),
-            ParameterType.Factory.forType(String.class, StringParameterType.single())
+            ParameterType.Factory.forType(String.class, StringParameterType.single()),
+            ContextParameter.Factory.forType(StringStream.class, (parameter, input, context) -> input),
+            ContextParameter.Factory.forType(ExecutableCommand.class, (parameter, input, context) -> context.command()),
+            ContextParameter.Factory.forType(Lamp.class, (parameter, input, context) -> context.lamp()),
+            ContextParameter.Factory.forTypeAndSubclasses(CommandActor.class, (parameter, input, context) -> context.actor())
     );
 
     private final List<ParameterFactory> factories;
