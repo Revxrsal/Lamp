@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.command;
 
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -137,6 +138,7 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
      * @return The {@link Potential} result
      */
     @NotNull
+    @CheckReturnValue
     Potential<A> test(@NotNull A actor, @NotNull MutableStringStream input);
 
     /**
