@@ -1,8 +1,0 @@
-repositories {
-    maven { url = "https://m2.dv8tion.net/releases" }
-}
-
-dependencies {
-    implementation(project(":common"))
-    compileOnly("net.dv8tion:JDA:5.0.0-beta.9")
-}
