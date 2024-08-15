@@ -46,6 +46,8 @@
  */
 package revxrsal.commands.util;
 
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -182,6 +184,26 @@ public final class Classes {
             throw new IllegalArgumentException("Expected a Class, ParameterizedType, or "
                     + "GenericArrayType, but <" + type + "> is of type " + className);
         }
+    }
+
+    /**
+     * Returns the first generic type of the given class. Because
+     * classes do not have generics, this function emits a warning
+     * to inform them that they probably passed the wrong {@code type}
+     * argument, and meant to invoke {@link #getFirstGeneric(Type, Type)} instead.
+     *
+     * @param cl       The class. This parameter is ignored
+     * @param fallback The fallback to return
+     * @return The fallback type
+     * @see #getFirstGeneric(Type, Type)
+     * @deprecated Classes do not have generics. You might have passed
+     * the wrong parameters.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
+    @Contract("_,_ -> param2")
+    public static Type getFirstGeneric(Class<?> cl, Type fallback) {
+        return fallback;
     }
 
     /**
