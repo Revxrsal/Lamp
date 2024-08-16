@@ -31,6 +31,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Dependency;
+import revxrsal.commands.annotation.OrphanCommandPlaceholder;
 import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
@@ -115,7 +116,8 @@ public final class CommandRegistry<A extends CommandActor> {
     }
 
     private boolean isCommandMethod(AnnotationList annotations) {
-        return annotations.contains(Command.class) || annotations.contains(Subcommand.class);
+        return annotations.contains(Command.class) || annotations.contains(Subcommand.class)
+                || annotations.contains(OrphanCommandPlaceholder.class);
     }
 
     private void injectDependencies(Class<?> commandClass, Object instance) {
