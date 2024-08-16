@@ -37,7 +37,6 @@ import revxrsal.commands.stream.StringStream;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,16 +54,23 @@ import java.util.UUID;
 public final class ParameterTypes<A extends CommandActor> {
 
     /**
+     * Highest priority factories. These come even before the user's
+     * parameter types, but work in very specific conditions only.
+     */
+    private static final List<ParameterFactory> HIGHEST_PRIORITY_FACTORIES = List.of(
+            ParseWithParameterTypeFactory.INSTANCE
+    );
+
+    /**
      * A list of default factories. These are registered at the very last
      * so they do not override user-registered factories.
      * <p>
      * These also will not be included in {@link #toBuilder()}.
      */
-    private static final List<ParameterFactory> DEFAULT_FACTORIES = Arrays.asList(
+    private static final List<ParameterFactory> DEFAULT_FACTORIES = List.of(
             ArrayParameterTypeFactory.INSTANCE,
             ListParameterTypeFactory.INSTANCE,
             SetParameterTypeFactory.INSTANCE,
-            ParseWithParameterTypeFactory.INSTANCE,
             EnumParameterTypeFactory.INSTANCE,
             ParameterType.Factory.forType(int.class, new IntParameterType()),
             ParameterType.Factory.forType(double.class, new DoubleParameterType()),
@@ -87,6 +93,7 @@ public final class ParameterTypes<A extends CommandActor> {
 
     private ParameterTypes(@NotNull Builder<A> builder) {
         List<ParameterFactory> factories = new ArrayList<>(builder.factories.size() + DEFAULT_FACTORIES.size());
+        factories.addAll(HIGHEST_PRIORITY_FACTORIES);
         factories.addAll(builder.factories);
         factories.addAll(DEFAULT_FACTORIES);
         this.factories = factories;
@@ -186,7 +193,7 @@ public final class ParameterTypes<A extends CommandActor> {
     @Contract(value = "-> new", pure = true)
     public @NotNull Builder<A> toBuilder() {
         Builder<A> result = new Builder<>();
-        for (int i = 0; i < lastIndex; i++) {
+        for (int i = HIGHEST_PRIORITY_FACTORIES.size(); i < lastIndex; i++) {
             result.addFactory(factories.get(i));
         }
         for (int i = lastIndex, limit = factories.size() - DEFAULT_FACTORIES.size(); i < limit; i++) {
