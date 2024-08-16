@@ -32,6 +32,7 @@ import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.autocomplete.SuggestionProviders;
 import revxrsal.commands.command.*;
 import revxrsal.commands.exception.CommandExceptionHandler;
+import revxrsal.commands.exception.DefaultExceptionHandler;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.hook.Hooks;
 import revxrsal.commands.node.ParameterNamingStrategy;
@@ -555,7 +556,7 @@ public final class Lamp<A extends CommandActor> {
 
         private MessageSender<? super A> messageSender = CommandActor::sendRawMessage;
         private MessageSender<? super A> errorSender = CommandActor::sendRawError;
-        private CommandExceptionHandler<A> exceptionHandler;
+        private CommandExceptionHandler<A> exceptionHandler = new DefaultExceptionHandler<>();
         private ParameterNamingStrategy namingStrategy = ParameterNamingStrategy.lowerCaseWithSpace();
         private final ParameterTypes.Builder<A> parameterTypes = ParameterTypes.builder();
         private final SuggestionProviders.Builder<A> suggestionProviders = SuggestionProviders.builder();
@@ -832,8 +833,9 @@ public final class Lamp<A extends CommandActor> {
          * @return This builder instance
          */
         @Contract("_ -> this")
-        public @NotNull Builder<A> accept(@NotNull LampBuilderVisitor<A> visitor) {
-            visitor.visit(this);
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        public @NotNull Builder<A> accept(@NotNull LampBuilderVisitor<? super A> visitor) {
+            visitor.visit((Builder) this);
             return this;
         }
 
