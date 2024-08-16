@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.node;
 
+import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.stream.MutableStringStream;
@@ -40,7 +41,7 @@ public interface CommandAction<A extends CommandActor> {
      * of errors.
      * <p>
      * Any exception thrown by this action will be handled by
-     * {@link #handleException(Throwable, ErrorContext)}.
+     * {@link Lamp#handleException(Throwable, ErrorContext)}.
      *
      * @param context The command execution context
      * @param input   The user input
