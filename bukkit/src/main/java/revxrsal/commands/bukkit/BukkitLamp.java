@@ -23,7 +23,6 @@
  */
 package revxrsal.commands.bukkit;
 
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -34,7 +33,11 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.LampBuilderVisitor;
 import revxrsal.commands.bukkit.exception.BukkitExceptionHandler;
 import revxrsal.commands.bukkit.hooks.BukkitCommandHooks;
-import revxrsal.commands.bukkit.parameters.*;
+import revxrsal.commands.bukkit.parameters.EntitySelectorParameterTypeFactory;
+import revxrsal.commands.bukkit.parameters.OfflinePlayerParameterType;
+import revxrsal.commands.bukkit.parameters.PlayerParameterType;
+import revxrsal.commands.bukkit.parameters.WorldParameterType;
+import revxrsal.commands.bukkit.sender.BukkitPermissionFactory;
 import revxrsal.commands.bukkit.sender.BukkitSenderResolver;
 import revxrsal.commands.exception.CommandExceptionHandler;
 
@@ -78,12 +81,18 @@ public final class BukkitLamp {
         };
     }
 
+    public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> bukkitPermissions() {
+        return builder -> builder
+                .permissionFactory(BukkitPermissionFactory.INSTANCE);
+    }
+
     public static Lamp.Builder<BukkitCommandActor> defaultBuilder(@NotNull JavaPlugin plugin) {
         return Lamp.builder(BukkitCommandActor.class)
                 .accept(legacyColorCodes())
                 .accept(bukkitSenderResolver())
                 .accept(bukkitParameterTypes())
                 .accept(bukkitExceptionHandler())
+                .accept(bukkitPermissions())
                 .accept(registrationHooks(plugin))
                 .accept(pluginContextParameters(plugin));
     }
