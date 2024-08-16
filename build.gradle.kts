@@ -5,10 +5,19 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.29.0"
 }
 
+group = "io.github.revxrsal"
+version = "4.0.0-beta.1"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 subprojects {
 
-    group = "io.github.revxrsal"
-    version = "4.0.0-beta.1"
+    group = rootProject.group
+    version = rootProject.version
 
     apply(plugin = "java")
     apply(plugin = "com.vanniktech.maven.publish")
