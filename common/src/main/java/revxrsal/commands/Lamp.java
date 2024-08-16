@@ -33,6 +33,7 @@ import revxrsal.commands.autocomplete.SuggestionProviders;
 import revxrsal.commands.command.*;
 import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.exception.DefaultExceptionHandler;
+import revxrsal.commands.exception.SelfHandledException;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.hook.Hooks;
 import revxrsal.commands.node.ParameterNamingStrategy;
@@ -470,6 +471,11 @@ public final class Lamp<A extends CommandActor> {
     public void handleException(@NotNull Throwable throwable, @NotNull ErrorContext<A> errorContext) {
         notNull(throwable, "throwable");
         try {
+            if (throwable instanceof SelfHandledException) {
+                //noinspection unchecked
+                SelfHandledException<A> she = (SelfHandledException<A>) throwable;
+                she.handle(errorContext);
+            }
             exceptionHandler.handleException(throwable, errorContext);
         } catch (Throwable t) {
             throw new IllegalStateException("The CommandExceptionHandler threw an exception", t);
