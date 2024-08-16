@@ -145,85 +145,66 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
         return source.substring(start, pos);
     }
 
-    private static boolean isNumerical(char c, boolean decimal) {
-        boolean isDigit = c >= '0' && c <= '9';
-        return decimal ? (isDigit || c == '.') : isDigit;
-    }
-
     public float readFloat() {
-        int start = pos;
-        String value = readWhile(c -> isNumerical(c, true));
+        String value = readUnquotedString();
         try {
             return Float.parseFloat(value);
         } catch (NumberFormatException e) {
-            pos = start;
             throw new InvalidDecimalException(value);
         }
     }
 
     public double readDouble() {
-        int start = pos;
-        String value = readWhile(c -> isNumerical(c, true));
+        String value = readUnquotedString();
         try {
             return Double.parseDouble(value);
         } catch (NumberFormatException e) {
-            pos = start;
             throw new InvalidDecimalException(value);
         }
     }
 
     public int readInt() {
-        int start = pos;
-        String value = readWhile(c -> isNumerical(c, false));
+        String value = readUnquotedString();
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            pos = start;
             throw new InvalidIntegerException(value);
         }
     }
 
     public long readLong() {
-        int start = pos;
-        String value = readWhile(c -> isNumerical(c, false));
+        String value = readUnquotedString();
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
-            pos = start;
             throw new InvalidIntegerException(value);
         }
     }
 
     public short readShort() {
-        int start = pos;
-        String value = readWhile(c -> isNumerical(c, false));
+        String value = readUnquotedString();
         try {
             return Short.parseShort(value);
         } catch (NumberFormatException e) {
-            pos = start;
             throw new InvalidIntegerException(value);
         }
     }
 
     public byte readByte() {
-        int start = pos;
-        String value = readWhile(c -> isNumerical(c, false));
+        String value = readUnquotedString();
         try {
             return Byte.parseByte(value);
         } catch (NumberFormatException e) {
-            pos = start;
             throw new InvalidIntegerException(value);
         }
     }
 
     public boolean readBoolean() {
-        int start = pos;
         String value = readString();
         return switch (value.toLowerCase(Locale.ENGLISH)) {
             case "true", "yes" -> true;
             case "false", "no", "nope" -> false;
             default -> {
-                pos = start;
                 throw new InvalidBooleanException(value);
             }
         };
