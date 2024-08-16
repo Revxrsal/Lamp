@@ -727,9 +727,10 @@ public final class Lamp<A extends CommandActor> {
          * @see CommandPermission.Factory
          * @see CommandPermission
          */
-        public Builder<A> permissionFactory(@NotNull CommandPermission.Factory<A> factory) {
+        public Builder<A> permissionFactory(@NotNull CommandPermission.Factory<? super A> factory) {
             notNull(factory, "permission factory");
-            permissionFactories.add(factory);
+            //noinspection unchecked
+            permissionFactories.add((CommandPermission.Factory<A>) factory);
             return this;
         }
 
