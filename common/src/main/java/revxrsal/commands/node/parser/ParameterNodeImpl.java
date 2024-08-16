@@ -142,6 +142,10 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
         return suggestions;
     }
 
+    @Override public boolean isGreedy() {
+        return type().isGreedy();
+    }
+
     @Override
     public @NotNull CommandParameter parameter() {
         return this.parameter;

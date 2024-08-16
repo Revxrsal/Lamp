@@ -33,6 +33,7 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandFunction;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.node.CommandNode;
 import revxrsal.commands.parameter.ContextParameter;
 import revxrsal.commands.parameter.ParameterResolver;
 import revxrsal.commands.parameter.ParameterType;
@@ -47,8 +48,6 @@ import revxrsal.commands.stream.token.Token;
 import revxrsal.commands.stream.token.TokenParser;
 
 import java.util.*;
-
-import static revxrsal.commands.util.Collections.mapToLinkedList;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public final class TreeParser<A extends CommandActor> {
@@ -115,7 +114,15 @@ public final class TreeParser<A extends CommandActor> {
         last.setAction(action);
         if (isParameter(last))
             setIfGreedy(p(last));
-        return new Execution<>(fn, mapToLinkedList(nodes, MutableCommandNode::toNode));
+        LinkedList<CommandNode<A>> executionNodes = new LinkedList<>();
+        for (MutableCommandNode<A> node : nodes) {
+            if (isParameter(node) && p(node).type().isGreedy() && !node.isLast()) {
+                throw new IllegalArgumentException("Found a greedy parameter (" + node.getName() + ") in the middle of the command. " +
+                        "Greedy parameters can only come at the end of the command.");
+            }
+            executionNodes.add(node.toNode());
+        }
+        return new Execution<>(fn, executionNodes);
     }
 
     private boolean addSenderIfFirst(CommandParameter param, ReflectionAction<A> action) {
@@ -136,10 +143,8 @@ public final class TreeParser<A extends CommandActor> {
 
     private boolean isGreedy(MutableParameterNode<A, Object> argument) {
         return argument.isLast()
-                && argument.parameter().type() == String.class
-                && !argument.parameter().annotations().contains(Single.class)
-                && argument.type() == ((ParameterType) StringParameterType.single()
-        );
+                && argument.type().isGreedy()
+                && !argument.parameter().annotations().contains(Single.class);
     }
 
     private void checkOptional(MutableCommandNode<A> node, @NotNull MutableStringStream src) {
@@ -208,7 +213,7 @@ public final class TreeParser<A extends CommandActor> {
         CommandParameter parameter = methodParameters.remove(name);
         if (parameter == null) {
             throw new IllegalArgumentException("Couldn't find a parameter in method " + fn.method()
-                    + " named " + name + ". Available names: " + methodParameters.keySet() + ".");
+                    + " named '" + name + "'. Available names: " + methodParameters.keySet() + ".");
         }
         return parameter;
     }
