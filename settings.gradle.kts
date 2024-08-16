@@ -5,5 +5,4 @@ plugins {
 rootProject.name = "lamp"
 
 include("common")
-
-
+include("bukkit")
