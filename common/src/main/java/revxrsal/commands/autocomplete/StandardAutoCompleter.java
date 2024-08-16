@@ -36,6 +36,7 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -112,39 +113,72 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                     }
                 }
             } else if (child instanceof ParameterNode<A, ?> parameter) {
-                int pos = input.position();
+                int posBeforeParsing = input.position();
                 if (!parameter.permission().isExecutableBy(actor))
                     return List.of();
-
                 try {
                     Object value = parameter.parse(input, context);
                     context.addResoledArgument(parameter.name(), value);
                     if (input.hasFinished()) {
-                        input.setPosition(pos);
+                        input.setPosition(posBeforeParsing);
                         String consumed = input.peekRemaining();
-                        return filter(parameter.complete(actor, input, context), s -> s.startsWith(consumed));
+                        // user inputted something valid, but we still have some
+                        // suggestions. throw it at them
+                        if (consumed.contains(" ")) {
+                            return filterWithSpaces(parameter.complete(actor, input, context), consumed);
+                        }
+                        return filter(parameter.complete(actor, input, context), s -> startsWithIgnoreCase(s, consumed));
                     } else if (input.peek() == ' ') {
                         input.moveForward();
                     }
-                } catch (Throwable t) {
+                } catch (Throwable e) {
+                    // user inputted invalid input. what do we do here?
+                    // 1. restore the stream to its previous state
+                    // 2. see what we consumed
+                    // 2.1. if suggestion does not contain spaces, we're cool. just
+                    //      give the same suggestions
+                    // 2.2. if suggestion does contain spaces, pick the part after
+                    //      the space
                     int finishedAt = input.position();
-                    input.setPosition(pos);
-                    String consumed = input.peek(finishedAt - pos);
-                    if (input.hasFinished())
-                        return filter(parameter.complete(actor, input, context), s -> s.startsWith(consumed));
-                    else if (input.peek() == ' ') {
-                        input.moveForward();
+                    input.setPosition(posBeforeParsing);
+                    String consumed = input.peek(finishedAt - posBeforeParsing);
+                    if (consumed.contains(" ")) {
+                        return filterWithSpaces(parameter.complete(actor, input, context), consumed);
                     }
+                    return filter(parameter.complete(actor, input, context), s -> startsWithIgnoreCase(s, consumed));
                 }
             }
         }
         return List.of();
     }
 
+    private static @NotNull List<String> filterWithSpaces(Collection<String> suggestions, String consumed) {
+        return suggestions
+                .stream()
+                .filter(suggestion -> startsWithIgnoreCase(suggestion, consumed))
+                .map(s -> getRemainingContent(s, consumed))
+                .toList();
+    }
+
+    private static boolean startsWithIgnoreCase(String a, String b) {
+        return a.toLowerCase().startsWith(b.toLowerCase());
+    }
+
+    public static String getRemainingContent(String suggestion, String consumed) {
+        // Find the index where they match until
+        int matchIndex = consumed.length();
+
+        // Find the first space after the matching part
+        int spaceIndex = suggestion.lastIndexOf(' ', matchIndex - 1);
+
+        // Return the content after the first space
+        return suggestion.substring(spaceIndex + 1);
+    }
+
     private @NotNull List<String> promptWith(CommandNode<A> child, A actor, ExecutionContext<A> context, StringStream input) {
         if (child instanceof LiteralNode<A> l)
             return List.of(l.name());
-        else if (child instanceof ParameterNode<A,?> p)
+        else if (child instanceof ParameterNode<A, ?> p)
             return p.type().defaultSuggestions(input, actor, context);
         else
             return List.of();
