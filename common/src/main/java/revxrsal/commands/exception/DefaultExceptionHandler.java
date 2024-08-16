@@ -36,7 +36,7 @@ public class DefaultExceptionHandler<A extends CommandActor> extends RuntimeExce
 
     @HandleException
     public void onExpectedLiteral(@NotNull ExpectedLiteralException e, @NotNull A actor) {
-        actor.error("Expected '" + e.node().name() + "', found " + e.input());
+        actor.error("Expected '" + e.node().name() + "', found '" + e.input() + "'");
     }
 
     @HandleException
