@@ -29,25 +29,30 @@ import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.util.BukkitUtils;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.BiFunction;
 
+import static revxrsal.commands.util.Collections.map;
 import static revxrsal.commands.util.Strings.stripNamespace;
 
-public final class DefaultLampCommandExecutor implements TabExecutor {
+public final class LampCommandExecutor<A extends BukkitCommandActor> implements TabExecutor {
 
-    private final @NotNull Lamp<BukkitCommandActor> lamp;
+    private final @NotNull Lamp<A> lamp;
+    private final @NotNull BiFunction<CommandSender, Lamp<A>, A> senderToActor;
 
-    public DefaultLampCommandExecutor(@NotNull Lamp<BukkitCommandActor> lamp) {
+    public LampCommandExecutor(@NotNull Lamp<A> lamp, @NotNull BiFunction<CommandSender, Lamp<A>, A> senderToActor) {
         this.lamp = lamp;
+        this.senderToActor = senderToActor;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        BukkitCommandActor actor = new BasicBukkitActor(sender, lamp);
+        A actor = senderToActor.apply(sender, lamp);
 
         MutableStringStream input = createInput(command.getName(), args);
         lamp.dispatch(actor, input);
@@ -56,9 +61,20 @@ public final class DefaultLampCommandExecutor implements TabExecutor {
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        BukkitCommandActor actor = new BasicBukkitActor(sender, lamp);
+        A actor = senderToActor.apply(sender, lamp);
         MutableStringStream input = createInput(command.getName(), args);
-        return lamp.autoCompleter().complete(actor, input);
+        List<String> completions = lamp.autoCompleter().complete(actor, input);
+        if (BukkitUtils.isBrigadierAvailable()) {
+            return completions; // brigadier allows suggestions with spaces
+        } else {
+            // on older versions, we get funny behavior when suggestions contain spaces
+            return map(completions, LampCommandExecutor::ignoreAfterSpace);
+        }
+    }
+
+    private static String ignoreAfterSpace(String v) {
+        int spaceIndex = v.indexOf(' ');
+        return spaceIndex == -1 ? v : v.substring(0, spaceIndex);
     }
 
     private static @NotNull MutableStringStream createInput(String commandName, String[] args) {
@@ -68,6 +84,4 @@ public final class DefaultLampCommandExecutor implements TabExecutor {
             userInput.add(arg);
         return StringStream.createMutable(userInput.toString());
     }
-
-
 }

@@ -55,7 +55,7 @@ public final class BukkitCommandHooks implements CommandRegisteredHook<BukkitCom
 
             PluginCommand cmd = PluginCommands.create(command.firstNode().name(), plugin);
 
-            LampExecutor<BukkitCommandActor> executor = new LampExecutor<>(command.lamp(), BasicBukkitActor::new);
+            LampCommandExecutor<BukkitCommandActor> executor = new LampCommandExecutor<>(command.lamp(), BasicBukkitActor::new);
             cmd.setExecutor(executor);
             cmd.setTabCompleter(executor);
 
