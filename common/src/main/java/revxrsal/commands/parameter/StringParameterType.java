@@ -59,6 +59,10 @@ public final class StringParameterType implements ParameterType<CommandActor, St
         return (ParameterType<A, String>) SINGLE;
     }
 
+    @Override public boolean isGreedy() {
+        return greedy;
+    }
+
     @Override
     public @NotNull PrioritySpec parsePriority() {
         return PrioritySpec.lowest();

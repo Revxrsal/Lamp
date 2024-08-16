@@ -113,6 +113,20 @@ public interface ParameterType<A extends CommandActor, T> extends BaseParameterT
     }
 
     /**
+     * Returns whether this parameter is greedy or not. Greedy parameters
+     * are treated slightly differently:
+     * <ul>
+     *     <li>They must come at the end of the command</li>
+     *     <li>They can provide tab completes indefinitely</li>
+     * </ul>
+     *
+     * @return if this parameter is greedy or not
+     */
+    default boolean isGreedy() {
+        return false;
+    }
+
+    /**
      * Represents a factory that constructs {@link ParameterType}s dynamically
      *
      * @param <A> The command actor type

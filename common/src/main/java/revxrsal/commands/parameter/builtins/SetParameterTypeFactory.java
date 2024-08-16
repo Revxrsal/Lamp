@@ -52,4 +52,8 @@ public final class SetParameterTypeFactory extends CollectionParameterTypeFactor
     protected Object convert(List<Object> items, Type componentType) {
         return new LinkedHashSet<>(items);
     }
+
+    @Override protected boolean preventsDuplicates() {
+        return true;
+    }
 }

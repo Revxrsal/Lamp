@@ -115,6 +115,13 @@ public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>
     @NotNull CommandParameter parameter();
 
     /**
+     * Tests whether is this parameter greedy or not
+     *
+     * @return if this parameter is greedy
+     */
+    boolean isGreedy();
+
+    /**
      * Provides suggestions for the given user input.
      *
      * @param actor   The actor to generate for
@@ -122,6 +129,7 @@ public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>
      * @param context The execution context.
      * @return The
      */
+    @Contract(pure = true)
     @NotNull Collection<String> complete(A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context);
 
     /**

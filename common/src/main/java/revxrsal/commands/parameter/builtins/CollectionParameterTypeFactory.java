@@ -45,14 +45,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApiStatus.Internal
-@ApiStatus.NonExtendable
-public abstract class CollectionParameterTypeFactory implements ParameterType.Factory<CommandActor> {
+abstract class CollectionParameterTypeFactory implements ParameterType.Factory<CommandActor> {
 
     protected abstract boolean matchType(@NotNull Type type, @NotNull Class<?> rawType);
 
     protected abstract Type getElementType(@NotNull Type type);
 
     protected abstract Object convert(List<Object> items, Type componentType);
+
+    protected boolean preventsDuplicates() {
+        return false;
+    }
 
     @Override
     public @Nullable <T> ParameterType<CommandActor, T> create(
@@ -128,7 +131,13 @@ public abstract class CollectionParameterTypeFactory implements ParameterType.Fa
 
         @Override
         public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull CommandActor actor, @NotNull ExecutionContext<CommandActor> context) {
-            return ParameterType.super.defaultSuggestions(input, actor, context);
+            List<String> inputted = List.of(input.peekRemaining().split(Character.toString(delimiter)));
+            if (preventsDuplicates()) {
+                return componentType.defaultSuggestions(input, actor, context).stream()
+                        .filter(c -> !inputted.contains(c))
+                        .toList();
+            }
+            return componentType.defaultSuggestions(input, actor, context);
         }
 
         @Override
@@ -136,6 +145,9 @@ public abstract class CollectionParameterTypeFactory implements ParameterType.Fa
             return priority;
         }
 
+        @Override public boolean isGreedy() {
+            return maxSize == Integer.MAX_VALUE;
+        }
     }
 
 }
