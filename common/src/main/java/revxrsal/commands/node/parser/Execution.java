@@ -215,8 +215,25 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                     return false;
                 }
             }
+            if (!testConditions()) {
+                return false;
+            }
             consumedAllInput = input.hasFinished();
             return true;
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private boolean testConditions() {
+            try {
+                for (var condition : context.lamp().commandConditions()) {
+                    condition.test(((ExecutionContext) context), input);
+                }
+                return true;
+            } catch (Throwable t) {
+                error = t;
+                errorContext = ErrorContext.executingFunction(context);
+                return false;
+            }
         }
 
         @Override
