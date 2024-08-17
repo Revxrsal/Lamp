@@ -26,6 +26,7 @@ package revxrsal.commands.node.parser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.annotation.Default;
+import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.Sized;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.autocomplete.SuggestionProvider;
@@ -158,6 +159,8 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
 
     @Override
     public @NotNull Collection<String> complete(@NotNull A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
+        if (suggestions == SuggestionProvider.empty())
+            return type.defaultSuggestions(input, actor, context);
         return suggestions.getSuggestions(input, actor, context);
     }
 
@@ -165,5 +168,9 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     public @NotNull <L> ParameterNode<A, L> requireParameterNode() {
         //noinspection unchecked
         return (ParameterNode<A, L>) this;
+    }
+
+    @Override public @Nullable String description() {
+        return annotations().map(Description.class, Description::value);
     }
 }

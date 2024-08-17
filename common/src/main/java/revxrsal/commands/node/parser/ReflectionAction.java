@@ -56,9 +56,7 @@ public final class ReflectionAction<A extends CommandActor> implements CommandAc
                 int index = function.parameter(parameterName).methodIndex();
                 arguments[index] = value;
             });
-            for (var condition : context.lamp().commandConditions()) {
-                condition.test(((ExecutionContext) context), input);
-            }
+
             Object result = function.call(arguments);
             if (result != null) {
                 function.responseHandler().handleResponse(result, (BasicExecutionContext) context);
