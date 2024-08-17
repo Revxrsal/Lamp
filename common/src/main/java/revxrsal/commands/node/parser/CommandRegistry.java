@@ -49,14 +49,12 @@ import revxrsal.commands.util.CommandPaths;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import static revxrsal.commands.util.Collections.unmodifiableIterator;
 import static revxrsal.commands.util.Reflections.getAllMethods;
 
-public final class CommandRegistry<A extends CommandActor> {
+public final class CommandRegistry<A extends CommandActor> implements Iterable<ExecutableCommand<A>> {
 
     private static final int MAX_CANDIDATES = 5;
 
@@ -180,6 +178,10 @@ public final class CommandRegistry<A extends CommandActor> {
 
     public void unregister(ExecutableCommand<A> execution) {
         children.remove(execution);
+    }
+
+    @Override public @NotNull Iterator<ExecutableCommand<A>> iterator() {
+        return unmodifiableIterator(children.iterator());
     }
 
     private record DynamicCommand(String[] value) implements Command {
