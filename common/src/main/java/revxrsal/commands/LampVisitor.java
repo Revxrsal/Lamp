@@ -43,4 +43,13 @@ public interface LampVisitor<A extends CommandActor> {
      */
     void visit(@NotNull Lamp<A> lamp);
 
+    /**
+     * Returns a {@link LampVisitor} that does nothing
+     *
+     * @param <A> The actor type
+     * @return A visitor that does nothing
+     */
+    static <A extends CommandActor> @NotNull LampVisitor<A> nothing() {
+        return lamp -> {};
+    }
 }
