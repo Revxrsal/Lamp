@@ -25,6 +25,7 @@ package revxrsal.commands.node.parser;
 
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
@@ -37,7 +38,7 @@ import revxrsal.commands.parameter.ParameterType;
 final class MutableParameterNode<A extends CommandActor, T> extends MutableCommandNode<A> implements Comparable<MutableParameterNode<A, Object>> {
 
     private @NotNull ParameterType<A, T> type;
-    private @NotNull SuggestionProvider<A> suggestions;
+    private @NotNull SuggestionProvider<A> suggestions = SuggestionProvider.empty();
     private @NotNull CommandPermission<A> permission = CommandPermission.alwaysTrue();
 
     private @NotNull CommandParameter parameter;
@@ -45,7 +46,6 @@ final class MutableParameterNode<A extends CommandActor, T> extends MutableComma
 
     public MutableParameterNode(@NotNull String name) {
         super(name);
-        suggestions = (input, sender, context) -> type().defaultSuggestions(input, sender, context);
     }
 
     @Override
