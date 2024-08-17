@@ -50,7 +50,7 @@ import java.util.Collection;
  * @param <A> The actor type
  * @param <T> The parameter type, for type-safety.
  */
-public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>, RequiresPermission<A> {
+public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>, RequiresPermission<A>, HasDescription {
 
     /**
      * Parses the given input and produces the appropriate value

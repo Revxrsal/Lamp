@@ -32,6 +32,7 @@ import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.SecretCommand;
 import revxrsal.commands.annotation.Usage;
 import revxrsal.commands.node.CommandNode;
+import revxrsal.commands.node.HasDescription;
 import revxrsal.commands.node.LiteralNode;
 import revxrsal.commands.node.RequiresPermission;
 import revxrsal.commands.stream.MutableStringStream;
@@ -44,7 +45,7 @@ import java.util.List;
  * @param <A> The actor type
  * @see #test(CommandActor, MutableStringStream)
  */
-public interface ExecutableCommand<A extends CommandActor> extends Comparable<ExecutableCommand<A>>, Iterable<CommandNode<A>>, RequiresPermission<A> {
+public interface ExecutableCommand<A extends CommandActor> extends Comparable<ExecutableCommand<A>>, Iterable<CommandNode<A>>, RequiresPermission<A>, HasDescription {
 
     /**
      * Returns the {@link Lamp} instance that created this command
