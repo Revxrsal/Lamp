@@ -673,7 +673,7 @@ public final class Lamp<A extends CommandActor> {
             notNull(validator, "parameter validator");
             Class<?> wrapped = wrap(type);
             validators.add((actor, value, parameter, lamp) -> {
-                if (!wrapped.isAssignableFrom(wrap(parameter.parameter().type())))
+                if (!wrapped.isAssignableFrom(wrap(parameter.type())))
                     return;
                 //noinspection unchecked
                 validator.validate(actor, (T) value, ((ParameterNode) parameter), (Lamp) lamp);
