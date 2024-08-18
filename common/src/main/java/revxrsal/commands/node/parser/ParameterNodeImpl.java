@@ -119,7 +119,7 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
                 return 1;
             else if (n.isOptional && !isOptional)
                 return -1;
-            return type.parsePriority().comparator().compare(type(), n.type());
+            return type.parsePriority().comparator().compare(parameterType(), n.parameterType());
         }
     }
 
@@ -134,7 +134,7 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     }
 
     @Override
-    public @NotNull ParameterType<A, T> type() {
+    public @NotNull ParameterType<A, T> parameterType() {
         return this.type;
     }
 
@@ -144,7 +144,7 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     }
 
     @Override public boolean isGreedy() {
-        return type().isGreedy();
+        return parameterType().isGreedy();
     }
 
     @Override

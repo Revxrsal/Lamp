@@ -180,7 +180,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
         if (child instanceof LiteralNode<A> l)
             return List.of(l.name());
         else if (child instanceof ParameterNode<A, ?> p)
-            return p.type().defaultSuggestions(input, actor, context);
+            return p.parameterType().defaultSuggestions(input, actor, context);
         else
             return List.of();
     }

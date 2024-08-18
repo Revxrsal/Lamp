@@ -60,7 +60,7 @@ public interface ArgumentTypeFactory<A extends CommandActor> {
      */
     static @NotNull <A extends CommandActor> ArgumentTypeFactory<A> forType(Class<?> type, ArgumentType<?> argumentType) {
         Class<?> wrapped = wrap(type);
-        return parameter -> wrap(parameter.parameter().type()) == wrapped ? argumentType : null;
+        return parameter -> wrap(parameter.type()) == wrapped ? argumentType : null;
     }
 
     /**
@@ -74,6 +74,6 @@ public interface ArgumentTypeFactory<A extends CommandActor> {
      */
     static @NotNull <A extends CommandActor> ArgumentTypeFactory<A> forTypeAndSubclasses(Class<?> type, ArgumentType<?> argumentType) {
         Class<?> wrapped = wrap(type);
-        return parameter -> wrapped.isAssignableFrom(wrap(parameter.parameter().type())) ? argumentType : null;
+        return parameter -> wrapped.isAssignableFrom(wrap(parameter.type())) ? argumentType : null;
     }
 }

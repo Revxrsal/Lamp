@@ -37,13 +37,13 @@ final class DefaultTypeFactories {
     private DefaultTypeFactories() {}
 
     public static final ArgumentTypeFactory<CommandActor> STRING = parameter -> {
-        if (parameter.parameter().type() == String.class)
+        if (parameter.type() == String.class)
             return parameter.isGreedy() ? StringArgumentType.greedyString() : StringArgumentType.string();
         return null;
     };
 
     public static final ArgumentTypeFactory<CommandActor> INTEGER = parameter -> {
-        if (wrap(parameter.parameter().type()) == Integer.class) {
+        if (wrap(parameter.type()) == Integer.class) {
             Range range = parameter.annotations().get(Range.class);
             if (range == null)
                 return IntegerArgumentType.integer();
@@ -53,7 +53,7 @@ final class DefaultTypeFactories {
     };
 
     public static final ArgumentTypeFactory<CommandActor> SHORT = parameter -> {
-        if (wrap(parameter.parameter().type()) == Short.class) {
+        if (wrap(parameter.type()) == Short.class) {
             Range range = parameter.annotations().get(Range.class);
             if (range == null)
                 return IntegerArgumentType.integer(Short.MIN_VALUE, Short.MAX_VALUE);
@@ -62,7 +62,7 @@ final class DefaultTypeFactories {
         return null;
     };
     public static final ArgumentTypeFactory<CommandActor> BYTE = parameter -> {
-        if (wrap(parameter.parameter().type()) == Byte.class) {
+        if (wrap(parameter.type()) == Byte.class) {
             Range range = parameter.annotations().get(Range.class);
             if (range == null)
                 return IntegerArgumentType.integer(Byte.MIN_VALUE, Byte.MAX_VALUE);
@@ -72,7 +72,7 @@ final class DefaultTypeFactories {
     };
 
     public static final ArgumentTypeFactory<CommandActor> LONG = parameter -> {
-        if (wrap(parameter.parameter().type()) == Long.class) {
+        if (wrap(parameter.type()) == Long.class) {
             Range range = parameter.annotations().get(Range.class);
             if (range == null)
                 return LongArgumentType.longArg();
@@ -82,7 +82,7 @@ final class DefaultTypeFactories {
     };
 
     public static final ArgumentTypeFactory<CommandActor> DOUBLE = parameter -> {
-        if (wrap(parameter.parameter().type()) == Double.class) {
+        if (wrap(parameter.type()) == Double.class) {
             Range range = parameter.annotations().get(Range.class);
             if (range == null)
                 return DoubleArgumentType.doubleArg();
@@ -92,7 +92,7 @@ final class DefaultTypeFactories {
     };
 
     public static final ArgumentTypeFactory<CommandActor> FLOAT = parameter -> {
-        if (wrap(parameter.parameter().type()) == Double.class) {
+        if (wrap(parameter.type()) == Double.class) {
             Range range = parameter.annotations().get(Range.class);
             if (range == null)
                 return FloatArgumentType.floatArg();

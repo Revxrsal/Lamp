@@ -37,10 +37,11 @@ import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 
 /**
- * Represents a parameter node. This node has a specific {@link #type()} that
+ * Represents a parameter node. This node has a specific {@link #parameterType()} that
  * can parse the content of {@link MutableStringStream} and generate the
  * appropriate values.
  * <p>
@@ -95,7 +96,7 @@ public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>
      *
      * @return The parameter type
      */
-    @NotNull ParameterType<A, T> type();
+    @NotNull ParameterType<A, T> parameterType();
 
     /**
      * Returns the suggestion provider for this parameter node. This
@@ -131,6 +132,24 @@ public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>
      */
     @Contract(pure = true)
     @NotNull Collection<String> complete(A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context);
+
+    /**
+     * Returns the parameter Java type
+     *
+     * @return The parameter type
+     */
+    default @NotNull Class<?> type() {
+        return parameter().type();
+    }
+
+    /**
+     * Returns the parameter Java type
+     *
+     * @return The parameter type
+     */
+    default @NotNull Type fullType() {
+        return parameter().fullType();
+    }
 
     /**
      * Tests whether this node is a {@link LiteralNode}. This will
