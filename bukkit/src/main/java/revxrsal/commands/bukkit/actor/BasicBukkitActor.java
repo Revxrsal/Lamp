@@ -1,4 +1,4 @@
-package revxrsal.commands.bukkit.hooks;
+package revxrsal.commands.bukkit.actor;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -9,7 +9,7 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-public record BasicBukkitActor(CommandSender sender, Lamp<BukkitCommandActor> lamp) implements BukkitCommandActor {
+record BasicBukkitActor(CommandSender sender, Lamp<BukkitCommandActor> lamp) implements BukkitCommandActor {
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
 
