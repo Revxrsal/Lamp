@@ -26,11 +26,15 @@ package revxrsal.commands.brigadier;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.Message;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -38,8 +42,10 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.node.LiteralNode;
 import revxrsal.commands.node.ParameterNode;
+import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
@@ -236,6 +242,37 @@ public final class BrigadierParser {
                     .distinct()
                     .forEach(c -> builder.suggest(c, tooltip));
             return builder.buildFuture();
+        };
+    }
+
+    /**
+     * Wraps the given {@link ArgumentType} into a {@link ParameterType}.
+     * <p>
+     * Note that this will not give the same suggestions as the given type.
+     *
+     * @param argumentType Argument type to wrap
+     * @param <A>          The actor type
+     * @param <T>          The parameter type
+     * @return The parameter node
+     */
+    public static <A extends CommandActor, T> @NotNull ParameterType<A, T> toParameterType(@NotNull ArgumentType<T> argumentType) {
+        return new ParameterType<>() {
+
+            @Override public boolean isGreedy() {
+                if (argumentType instanceof StringArgumentType sat) {
+                    return sat.getType() == StringArgumentType.StringType.GREEDY_PHRASE;
+                }
+                return false;
+            }
+
+            @SneakyThrows
+            @Override public T parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<A> context) {
+                StringReader reader = new StringReader(input.source());
+                reader.setCursor(input.position());
+                T result = argumentType.parse(reader);
+                input.setPosition(reader.getCursor());
+                return result;
+            }
         };
     }
 }
