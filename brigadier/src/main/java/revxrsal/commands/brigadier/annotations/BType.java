@@ -24,6 +24,7 @@
 package revxrsal.commands.brigadier.annotations;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import revxrsal.commands.brigadier.types.ArgumentTypeFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -32,7 +33,7 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation that instructs Lamp that certain parameters should have
- * a specific {@link ArgumentType}.
+ * a specific {@link ArgumentType} or an {@link ArgumentTypeFactory}.
  * <p>
  * Note that the supplied type <em>must</em> be a concrete class (not an interface)
  * that has a no-arg constructor. This class must implement {@link ArgumentType}.
@@ -46,7 +47,6 @@ public @interface BType {
      *
      * @return The type
      */
-    @SuppressWarnings("rawtypes")
-    Class<? extends ArgumentType> value();
+    Class<?> value();
 
 }

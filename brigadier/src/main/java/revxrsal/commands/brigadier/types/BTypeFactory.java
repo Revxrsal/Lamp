@@ -43,12 +43,18 @@ enum BTypeFactory implements ArgumentTypeFactory<CommandActor> {
         BType b = parameter.annotations().get(BType.class);
         if (b == null)
             return null;
-        return construct(b.value());
+        Object v = construct(b.value());
+        if (v instanceof ArgumentTypeFactory<?> factory)
+            //noinspection rawtypes
+            return factory.getArgumentType(((ParameterNode) parameter));
+        if (v instanceof ArgumentType<?> type)
+            return type;
+        throw new IllegalArgumentException("Don't know how to create an ArgumentType from @BType(" + v + ")");
     }
 
-    @SuppressWarnings("rawtypes") private @NotNull ArgumentType<?> construct(Class<? extends ArgumentType> value) {
+    private @NotNull Object construct(Class<?> value) {
         try {
-            Constructor<? extends ArgumentType> constructor = value.getDeclaredConstructor();
+            Constructor<?> constructor = value.getDeclaredConstructor();
             return constructor.newInstance();
         } catch (Throwable t) {
             throw new IllegalArgumentException("Failed to construct the parameter type inside @BType (" + value + ")", t);
