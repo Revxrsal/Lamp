@@ -12,5 +12,5 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
-    implementation("com.mojang:brigadier:1.0.18")
+    compileOnly("com.mojang:brigadier:1.0.18")
 }
