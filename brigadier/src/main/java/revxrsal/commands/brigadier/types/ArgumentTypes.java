@@ -104,7 +104,7 @@ public final class ArgumentTypes<A extends CommandActor> {
             if (provider != null)
                 return provider;
         }
-        return StringArgumentType.string();
+        return parameter.isGreedy() ? StringArgumentType.greedyString() : StringArgumentType.string();
     }
 
     /**
