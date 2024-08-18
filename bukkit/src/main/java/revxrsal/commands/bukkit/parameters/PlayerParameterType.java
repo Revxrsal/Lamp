@@ -48,7 +48,7 @@ public final class PlayerParameterType implements ParameterType<BukkitCommandAct
     @Override
     public Player parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
         String name = input.readString();
-        if (name.equals("self") || name.equals("me"))
+        if (name.equals("self") || name.equals("me") || name.equals("@s"))
             return context.actor().requirePlayer();
         Player player = Bukkit.getPlayerExact(name);
         if (player != null)

@@ -26,6 +26,7 @@ package revxrsal.commands.bukkit.hooks;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.util.PluginCommands;
 import revxrsal.commands.command.ExecutableCommand;
@@ -42,9 +43,11 @@ public final class BukkitCommandHooks implements CommandRegisteredHook<BukkitCom
     private final Set<String> registeredRootNames = new HashSet<>();
 
     private final JavaPlugin plugin;
+    private final ActorFactory<?> actorFactory;
 
-    public BukkitCommandHooks(JavaPlugin plugin) {
+    public BukkitCommandHooks(JavaPlugin plugin, ActorFactory<?> actorFactory) {
         this.plugin = plugin;
+        this.actorFactory = actorFactory;
     }
 
     @Override
@@ -55,7 +58,7 @@ public final class BukkitCommandHooks implements CommandRegisteredHook<BukkitCom
 
             PluginCommand cmd = PluginCommands.create(command.firstNode().name(), plugin);
 
-            LampCommandExecutor<BukkitCommandActor> executor = new LampCommandExecutor<>(command.lamp(), BasicBukkitActor::new);
+            LampCommandExecutor<BukkitCommandActor> executor = new LampCommandExecutor<>(command.lamp(), ((ActorFactory) actorFactory));
             cmd.setExecutor(executor);
             cmd.setTabCompleter(executor);
 

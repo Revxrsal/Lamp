@@ -31,6 +31,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.LampBuilderVisitor;
+import revxrsal.commands.brigadier.types.ArgumentTypes;
+import revxrsal.commands.bukkit.actor.ActorFactory;
+import revxrsal.commands.bukkit.brigadier.BrigadierRegistryHook;
 import revxrsal.commands.bukkit.exception.BukkitExceptionHandler;
 import revxrsal.commands.bukkit.hooks.BukkitCommandHooks;
 import revxrsal.commands.bukkit.parameters.EntitySelectorParameterTypeFactory;
@@ -42,6 +45,7 @@ import revxrsal.commands.bukkit.sender.BukkitSenderResolver;
 import revxrsal.commands.exception.CommandExceptionHandler;
 
 import static revxrsal.commands.bukkit.util.BukkitUtils.legacyColorize;
+import static revxrsal.commands.bukkit.util.BukkitVersion.isBrigadierSupported;
 
 public final class BukkitLamp {
 
@@ -67,8 +71,12 @@ public final class BukkitLamp {
                 .addParameterTypeFactoryLast(new EntitySelectorParameterTypeFactory());
     }
 
-    public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> registrationHooks(@NotNull JavaPlugin plugin) {
-        BukkitCommandHooks hooks = new BukkitCommandHooks(plugin);
+    public static @NotNull LampBuilderVisitor<BukkitCommandActor> registrationHooks(@NotNull JavaPlugin plugin) {
+        return registrationHooks(plugin, ActorFactory.defaultFactory());
+    }
+
+    public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> registrationHooks(@NotNull JavaPlugin plugin, @NotNull ActorFactory<A> factory) {
+        BukkitCommandHooks hooks = new BukkitCommandHooks(plugin, factory);
         return builder -> builder.hooks()
                 .onCommandRegistered(hooks)
                 .onCommandUnregistered(hooks);
@@ -86,7 +94,39 @@ public final class BukkitLamp {
                 .permissionFactory(BukkitPermissionFactory.INSTANCE);
     }
 
-    public static Lamp.Builder<BukkitCommandActor> defaultBuilder(@NotNull JavaPlugin plugin) {
+    public static @NotNull LampBuilderVisitor<BukkitCommandActor> brigadier(
+            @NotNull JavaPlugin plugin
+    ) {
+        ArgumentTypes.Builder<BukkitCommandActor> builder = BukkitArgumentTypes.builder();
+        return brigadier(plugin, builder.build(), ActorFactory.defaultFactory());
+    }
+
+    public static @NotNull LampBuilderVisitor<BukkitCommandActor> brigadier(
+            @NotNull JavaPlugin plugin,
+            @NotNull ArgumentTypes<? super BukkitCommandActor> argumentTypes
+    ) {
+        return brigadier(plugin, argumentTypes, ActorFactory.defaultFactory());
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> brigadier(
+            @NotNull JavaPlugin plugin,
+            @NotNull ArgumentTypes<? super A> argumentTypes,
+            @NotNull ActorFactory<A> actorFactory
+    ) {
+        if (isBrigadierSupported()) {
+            return builder -> builder.hooks()
+                    .onCommandRegistered(new BrigadierRegistryHook<>(((ArgumentTypes) argumentTypes), actorFactory, plugin));
+        }
+        return LampBuilderVisitor.nothing();
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <A extends BukkitCommandActor> Lamp.Builder<A> defaultBuilder(
+            @NotNull JavaPlugin plugin,
+            @NotNull ArgumentTypes<? super A> argumentTypes,
+            @NotNull ActorFactory<A> actorFactory
+    ) {
         return Lamp.builder(BukkitCommandActor.class)
                 .accept(legacyColorCodes())
                 .accept(bukkitSenderResolver())
@@ -94,6 +134,19 @@ public final class BukkitLamp {
                 .accept(bukkitExceptionHandler())
                 .accept(bukkitPermissions())
                 .accept(registrationHooks(plugin))
+                .accept(brigadier(plugin, (ArgumentTypes) argumentTypes, actorFactory))
                 .accept(pluginContextParameters(plugin));
+    }
+
+    public static Lamp.Builder<BukkitCommandActor> defaultBuilder(
+            @NotNull JavaPlugin plugin,
+            @NotNull ArgumentTypes<BukkitCommandActor> argumentTypes
+    ) {
+        return defaultBuilder(plugin, argumentTypes, ActorFactory.defaultFactory());
+    }
+
+    public static Lamp.Builder<BukkitCommandActor> defaultBuilder(@NotNull JavaPlugin plugin) {
+        ArgumentTypes.Builder<BukkitCommandActor> argumentTypes = BukkitArgumentTypes.builder();
+        return defaultBuilder(plugin, argumentTypes.build());
     }
 }

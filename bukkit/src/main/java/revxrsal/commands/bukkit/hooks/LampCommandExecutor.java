@@ -28,6 +28,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.util.BukkitUtils;
 import revxrsal.commands.stream.MutableStringStream;
@@ -35,7 +36,6 @@ import revxrsal.commands.stream.StringStream;
 
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.function.BiFunction;
 
 import static revxrsal.commands.util.Collections.map;
 import static revxrsal.commands.util.Strings.stripNamespace;
@@ -43,16 +43,16 @@ import static revxrsal.commands.util.Strings.stripNamespace;
 public final class LampCommandExecutor<A extends BukkitCommandActor> implements TabExecutor {
 
     private final @NotNull Lamp<A> lamp;
-    private final @NotNull BiFunction<CommandSender, Lamp<A>, A> senderToActor;
+    private final @NotNull ActorFactory<A> senderToActor;
 
-    public LampCommandExecutor(@NotNull Lamp<A> lamp, @NotNull BiFunction<CommandSender, Lamp<A>, A> senderToActor) {
+    public LampCommandExecutor(@NotNull Lamp<A> lamp, @NotNull ActorFactory<A> senderToActor) {
         this.lamp = lamp;
         this.senderToActor = senderToActor;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        A actor = senderToActor.apply(sender, lamp);
+        A actor = senderToActor.create(sender, lamp);
 
         MutableStringStream input = createInput(command.getName(), args);
         lamp.dispatch(actor, input);
@@ -61,7 +61,7 @@ public final class LampCommandExecutor<A extends BukkitCommandActor> implements 
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        A actor = senderToActor.apply(sender, lamp);
+        A actor = senderToActor.create(sender, lamp);
         MutableStringStream input = createInput(command.getName(), args);
         List<String> completions = lamp.autoCompleter().complete(actor, input);
         if (BukkitUtils.isBrigadierAvailable()) {

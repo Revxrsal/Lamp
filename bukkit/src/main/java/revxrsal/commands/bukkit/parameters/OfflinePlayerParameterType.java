@@ -50,7 +50,7 @@ public final class OfflinePlayerParameterType implements ParameterType<BukkitCom
     @SuppressWarnings("deprecation")
     public OfflinePlayer parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
         String name = input.readString();
-        if (name.equals("self") || name.equals("me"))
+        if (name.equals("self") || name.equals("me") || name.equals("@s"))
             return context.actor().requirePlayer();
         OfflinePlayer player = Bukkit.getOfflinePlayer(name);
         if (exists(player))
