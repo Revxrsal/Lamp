@@ -23,17 +23,16 @@
  */
 package revxrsal;
 
-import org.bukkit.plugin.java.JavaPlugin;
-import revxrsal.commands.Lamp;
-import revxrsal.commands.bukkit.BukkitCommandActor;
-import revxrsal.commands.bukkit.BukkitLamp;
+import revxrsal.commands.annotation.Command;
+import revxrsal.commands.annotation.CommandPlaceholder;
 
-public class TestPlugin extends JavaPlugin {
+@Command("test")
+public class TestCommands {
 
-    @Override public void onEnable() {
-        Lamp<BukkitCommandActor> lamp = BukkitLamp
-                .defaultBuilder(this)
-                .build();
-        lamp.register(new TestCommands());
+    @CommandPlaceholder
+    public void teleport(int x, int y, int z) {
+        System.out.println(x);
+        System.out.println(y);
+        System.out.println(z);
     }
 }
