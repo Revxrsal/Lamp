@@ -57,6 +57,7 @@ import revxrsal.commands.stream.StringStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -607,6 +608,20 @@ public final class Lamp<A extends CommandActor> {
         }
 
         /**
+         * Performs the given {@code consumer} on the {@link #parameterTypes()} builder.
+         * This allows for easier chaining of the {@link Builder} instance
+         *
+         * @param consumer The consumer to perform
+         * @return This builder instance
+         * @see ParameterTypes
+         */
+        public @NotNull Builder<A> parameterTypes(@NotNull Consumer<ParameterTypes.Builder<A>> consumer) {
+            notNull(consumer, "consumer");
+            consumer.accept(parameterTypes);
+            return this;
+        }
+
+        /**
          * Returns the {@link SuggestionProviders} builder
          *
          * @return The suggestion providers builder
@@ -617,6 +632,20 @@ public final class Lamp<A extends CommandActor> {
         }
 
         /**
+         * Performs the given {@code consumer} on the {@link #suggestionProviders()} builder.
+         * This allows for easier chaining of the {@link Builder} instance
+         *
+         * @param consumer The consumer to perform
+         * @return This builder instance
+         * @see SuggestionProviders
+         */
+        public @NotNull Builder<A> suggestionProviders(@NotNull Consumer<SuggestionProviders.Builder<A>> consumer) {
+            notNull(consumer, "consumer");
+            consumer.accept(suggestionProviders);
+            return this;
+        }
+
+        /**
          * Returns the {@link Hooks} builder
          *
          * @return The hooks builder
@@ -624,6 +653,20 @@ public final class Lamp<A extends CommandActor> {
          */
         public @NotNull Hooks.Builder<A> hooks() {
             return hooks;
+        }
+
+        /**
+         * Performs the given {@code consumer} on the {@link #hooks()} builder.
+         * This allows for easier chaining of the {@link Builder} instance
+         *
+         * @param consumer The consumer to perform
+         * @return This builder instance
+         * @see Hooks
+         */
+        public @NotNull Builder<A> hooks(@NotNull Consumer<Hooks.Builder<A>> consumer) {
+            notNull(consumer, "consumer");
+            consumer.accept(hooks);
+            return this;
         }
 
         /**
