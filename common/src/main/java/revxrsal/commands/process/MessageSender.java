@@ -31,10 +31,11 @@ import revxrsal.commands.command.CommandActor;
  * actor. This can be used to append prefixes to messages or
  * use custom formats for strings (such as MiniMessage).
  *
- * @param <A>
+ * @param <A> The actor type
+ * @param <T> The message object type
  */
 @FunctionalInterface
-public interface MessageSender<A extends CommandActor> {
+public interface MessageSender<A extends CommandActor, T> {
 
     /**
      * Sends the message to the actor
@@ -42,6 +43,6 @@ public interface MessageSender<A extends CommandActor> {
      * @param actor   The actor to send to
      * @param message The message to send
      */
-    void send(@NotNull A actor, @NotNull String message);
+    void send(@NotNull A actor, @NotNull T message);
 
 }

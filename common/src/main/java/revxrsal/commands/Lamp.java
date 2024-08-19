@@ -84,7 +84,7 @@ public final class Lamp<A extends CommandActor> {
     private final List<CommandCondition<? super A>> commandConditions;
     private final List<ResponseHandler.Factory<? super A>> responseHandlers;
     private final List<CommandPermission.Factory<? super A>> permissionFactories;
-    private final MessageSender<? super A> messageSender, errorSender;
+    private final MessageSender<? super A, String> messageSender, errorSender;
     private final Map<Class<?>, Supplier<Object>> dependencies;
     private final CommandExceptionHandler<A> exceptionHandler;
 
@@ -506,7 +506,7 @@ public final class Lamp<A extends CommandActor> {
      *
      * @return The message sender
      */
-    public @NotNull MessageSender<? super A> messageSender() {
+    public @NotNull MessageSender<? super A, String> messageSender() {
         return messageSender;
     }
 
@@ -516,7 +516,7 @@ public final class Lamp<A extends CommandActor> {
      *
      * @return The error sender
      */
-    public @NotNull MessageSender<? super A> errorSender() {
+    public @NotNull MessageSender<? super A, String> errorSender() {
         return errorSender;
     }
 
@@ -560,8 +560,8 @@ public final class Lamp<A extends CommandActor> {
 
     public static class Builder<A extends CommandActor> {
 
-        private MessageSender<? super A> messageSender = CommandActor::sendRawMessage;
-        private MessageSender<? super A> errorSender = CommandActor::sendRawError;
+        private MessageSender<? super A, String> messageSender = CommandActor::sendRawMessage;
+        private MessageSender<? super A, String> errorSender = CommandActor::sendRawError;
         private CommandExceptionHandler<A> exceptionHandler = new DefaultExceptionHandler<>();
         private ParameterNamingStrategy namingStrategy = ParameterNamingStrategy.lowerCaseWithSpace();
         private final ParameterTypes.Builder<A> parameterTypes = ParameterTypes.builder();
@@ -814,7 +814,7 @@ public final class Lamp<A extends CommandActor> {
          * @param messageSender The sender to use
          * @return This builder instance
          */
-        public Builder<A> defaultMessageSender(@NotNull MessageSender<? super A> messageSender) {
+        public Builder<A> defaultMessageSender(@NotNull MessageSender<? super A, String> messageSender) {
             notNull(messageSender, "message sender");
             this.messageSender = messageSender;
             return this;
@@ -826,7 +826,7 @@ public final class Lamp<A extends CommandActor> {
          * @param messageSender The sender to use
          * @return This builder instance
          */
-        public Builder<A> defaultErrorSender(@NotNull MessageSender<? super A> messageSender) {
+        public Builder<A> defaultErrorSender(@NotNull MessageSender<? super A, String> messageSender) {
             notNull(messageSender, "message sender");
             this.errorSender = messageSender;
             return this;
