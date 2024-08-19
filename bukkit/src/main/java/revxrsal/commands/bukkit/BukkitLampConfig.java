@@ -29,6 +29,8 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.LampBuilderVisitor;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.ActorFactory;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
+import revxrsal.commands.bukkit.brigadier.BukkitArgumentTypes;
 
 import java.util.function.Consumer;
 

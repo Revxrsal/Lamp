@@ -2,7 +2,7 @@ package revxrsal.commands.bukkit.sender;
 
 import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.command.CommandPermission;
 
 /**

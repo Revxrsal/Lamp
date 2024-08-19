@@ -1,7 +1,7 @@
 package revxrsal.commands.bukkit.exception;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.exception.*;
 import revxrsal.commands.node.ParameterNode;
 

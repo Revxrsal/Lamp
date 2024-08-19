@@ -24,7 +24,7 @@
 package revxrsal.commands.bukkit.exception;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bukkit.EntitySelector;
+import revxrsal.commands.bukkit.parameters.EntitySelector;
 import revxrsal.commands.exception.InvalidValueException;
 
 /**

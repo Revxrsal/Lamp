@@ -27,7 +27,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.process.SenderResolver;

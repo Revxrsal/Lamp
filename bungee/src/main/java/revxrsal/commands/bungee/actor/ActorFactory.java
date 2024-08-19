@@ -26,7 +26,6 @@ package revxrsal.commands.bungee.actor;
 import net.md_5.bungee.api.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.bungee.BungeeCommandActor;
 
 /**
  * Represents a functional interface that allows for creating custom

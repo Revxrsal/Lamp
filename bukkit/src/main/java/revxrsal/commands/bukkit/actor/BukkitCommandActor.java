@@ -21,7 +21,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.bukkit;
+package revxrsal.commands.bukkit.actor;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

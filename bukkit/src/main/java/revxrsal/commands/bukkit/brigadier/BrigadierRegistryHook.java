@@ -26,7 +26,7 @@ package revxrsal.commands.bukkit.brigadier;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.hook.CancelHandle;

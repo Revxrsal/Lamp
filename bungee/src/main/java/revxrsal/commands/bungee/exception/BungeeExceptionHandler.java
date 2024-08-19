@@ -1,7 +1,7 @@
 package revxrsal.commands.bungee.exception;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bungee.BungeeCommandActor;
+import revxrsal.commands.bungee.actor.BungeeCommandActor;
 import revxrsal.commands.exception.*;
 import revxrsal.commands.node.ParameterNode;
 

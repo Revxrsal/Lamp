@@ -27,7 +27,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bungee.BungeeCommandActor;
+import revxrsal.commands.bungee.actor.BungeeCommandActor;
 import revxrsal.commands.bungee.exception.InvalidPlayerException;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;

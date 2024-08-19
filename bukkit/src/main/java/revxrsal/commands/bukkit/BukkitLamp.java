@@ -26,6 +26,7 @@ package revxrsal.commands.bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 
 /**
  * Creates {@link Lamp} instances that contain relevant registrations

@@ -27,7 +27,7 @@ package revxrsal.commands.bukkit.brigadier;
 
 import org.bukkit.command.PluginCommand;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 
 import java.util.List;

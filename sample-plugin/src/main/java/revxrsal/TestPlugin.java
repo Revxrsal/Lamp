@@ -25,14 +25,18 @@ package revxrsal;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.BukkitLamp;
+import revxrsal.commands.bukkit.BukkitLampConfig;
+import revxrsal.commands.bukkit.actor.ActorFactory;
 
 public class TestPlugin extends JavaPlugin {
 
     @Override public void onEnable() {
-        Lamp<BukkitCommandActor> lamp = BukkitLamp
-                .defaultBuilder(this)
+        Lamp<BukkitCommandActor> lamp = BukkitLamp.builder(BukkitLampConfig.builder(this)
+                        .actorFactory(ActorFactory.defaultFactory())
+                        .build()
+                )
                 .build();
         lamp.register(new TestCommands());
     }

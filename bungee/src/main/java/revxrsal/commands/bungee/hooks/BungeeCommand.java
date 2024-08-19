@@ -5,7 +5,7 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.bungee.BungeeCommandActor;
+import revxrsal.commands.bungee.actor.BungeeCommandActor;
 import revxrsal.commands.bungee.actor.ActorFactory;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;

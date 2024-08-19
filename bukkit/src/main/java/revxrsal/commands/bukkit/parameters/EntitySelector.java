@@ -21,7 +21,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.bukkit;
+package revxrsal.commands.bukkit.parameters;
 
 import org.bukkit.entity.Entity;
 

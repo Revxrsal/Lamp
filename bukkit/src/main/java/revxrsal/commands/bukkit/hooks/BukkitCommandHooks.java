@@ -27,7 +27,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.bukkit.actor.ActorFactory;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.util.PluginCommands;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.hook.CancelHandle;

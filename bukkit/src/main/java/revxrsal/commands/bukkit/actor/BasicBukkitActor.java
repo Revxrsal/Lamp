@@ -4,7 +4,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.bukkit.BukkitCommandActor;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;

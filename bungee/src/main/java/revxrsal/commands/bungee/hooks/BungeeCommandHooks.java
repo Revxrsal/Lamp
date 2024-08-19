@@ -27,7 +27,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.bungee.BungeeCommandActor;
+import revxrsal.commands.bungee.actor.BungeeCommandActor;
 import revxrsal.commands.bungee.actor.ActorFactory;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.hook.CancelHandle;

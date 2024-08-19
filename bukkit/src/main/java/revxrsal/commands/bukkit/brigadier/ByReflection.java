@@ -43,7 +43,7 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.brigadier.BrigadierAdapter;
 import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.util.BukkitVersion;
 import revxrsal.commands.command.ExecutableCommand;

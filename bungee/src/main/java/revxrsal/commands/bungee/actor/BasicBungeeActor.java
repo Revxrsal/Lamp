@@ -4,7 +4,6 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.bungee.BungeeCommandActor;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;

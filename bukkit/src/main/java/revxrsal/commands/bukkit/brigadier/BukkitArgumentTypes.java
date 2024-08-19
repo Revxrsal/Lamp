@@ -21,7 +21,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.bukkit;
+package revxrsal.commands.bukkit.brigadier;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import org.bukkit.OfflinePlayer;
@@ -30,7 +30,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
-import revxrsal.commands.bukkit.brigadier.MinecraftArgumentType;
+import revxrsal.commands.bukkit.parameters.EntitySelector;
 import revxrsal.commands.command.CommandActor;
 
 import java.util.UUID;

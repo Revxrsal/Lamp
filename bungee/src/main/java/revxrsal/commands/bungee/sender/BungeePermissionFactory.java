@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.list.AnnotationList;
-import revxrsal.commands.bungee.BungeeCommandActor;
+import revxrsal.commands.bungee.actor.BungeeCommandActor;
 import revxrsal.commands.bungee.annotation.CommandPermission;
 
 public enum BungeePermissionFactory implements revxrsal.commands.command.CommandPermission.Factory<BungeeCommandActor> {

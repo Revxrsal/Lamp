@@ -26,7 +26,7 @@ package revxrsal.commands.bukkit.parameters;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;

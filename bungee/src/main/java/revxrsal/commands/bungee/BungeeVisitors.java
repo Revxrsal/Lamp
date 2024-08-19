@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.LampBuilderVisitor;
 import revxrsal.commands.bungee.actor.ActorFactory;
+import revxrsal.commands.bungee.actor.BungeeCommandActor;
 import revxrsal.commands.bungee.annotation.CommandPermission;
 import revxrsal.commands.bungee.exception.BungeeExceptionHandler;
 import revxrsal.commands.bungee.hooks.BungeeCommandHooks;

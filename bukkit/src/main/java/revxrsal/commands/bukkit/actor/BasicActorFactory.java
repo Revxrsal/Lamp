@@ -26,7 +26,6 @@ package revxrsal.commands.bukkit.actor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.bukkit.BukkitCommandActor;
 
 /**
  * Default implementation of {@link ActorFactory}
