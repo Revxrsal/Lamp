@@ -42,7 +42,7 @@ import static revxrsal.commands.util.Collections.map;
  * A parameter type for {@link ProxiedPlayer} types.
  * <p>
  * If the player inputs {@code me} or {@code self}, the parser will return the
- * executing player (or give an error if the revxrsal.commands.bungee.sender is not a player)
+ * executing player (or give an error if the sender is not a player)
  */
 public final class ProxiedPlayerParameterType implements ParameterType<BungeeCommandActor, ProxiedPlayer> {
 

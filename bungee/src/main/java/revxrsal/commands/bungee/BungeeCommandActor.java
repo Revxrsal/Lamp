@@ -58,7 +58,7 @@ public interface BungeeCommandActor extends CommandActor {
      * Returns this actor as a {@link ProxiedPlayer} if it is a player,
      * otherwise returns {@code null}.
      *
-     * @return The revxrsal.commands.bungee.sender as a player, or null.
+     * @return The sender as a player, or null.
      */
     @Nullable
     default ProxiedPlayer asPlayer() {
