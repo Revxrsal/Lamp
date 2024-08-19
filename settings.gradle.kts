@@ -7,5 +7,6 @@ rootProject.name = "lamp"
 include("common")
 include("bukkit")
 include("paper")
+include("bungee")
 include("brigadier")
 include("sample-plugin")

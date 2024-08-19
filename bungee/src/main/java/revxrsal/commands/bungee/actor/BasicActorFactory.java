@@ -21,37 +21,25 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.paper.brigadier.registry;
+package revxrsal.commands.bungee.actor;
 
-import org.bukkit.block.BlockState;
-import org.jetbrains.annotations.Contract;
+import net.md_5.bungee.api.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.brigadier.types.ArgumentTypes;
-import revxrsal.commands.bukkit.BukkitArgumentTypes;
-import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.Lamp;
+import revxrsal.commands.bungee.BungeeCommandActor;
 
-import static io.papermc.paper.command.brigadier.argument.ArgumentTypes.blockState;
+/**
+ * Default implementation of {@link ActorFactory}
+ */
+final class BasicActorFactory implements ActorFactory<BungeeCommandActor> {
 
-public final class PaperArgumentTypes {
+    public static final ActorFactory<BungeeCommandActor> INSTANCE = new BasicActorFactory();
 
-    /**
-     * Creates a new {@link ArgumentTypes.Builder}. This function is primarily for improving
-     * type-inference and pleasing the Java compiler. The {@code actorType} parameter
-     * is not used.
-     *
-     * @param actorType Actor type. This allows for better type-inference. The parameter is unused.
-     * @param <A>       The actor type
-     * @return The newly created builder
-     */
-    public static @NotNull <A extends CommandActor> ArgumentTypes.Builder<A> builder(
-            @SuppressWarnings("unused") Class<A> actorType
-    ) {
-        return builder();
+    private BasicActorFactory() {
     }
 
-    @Contract(value = "-> new", pure = true)
-    public static @NotNull <A extends CommandActor> ArgumentTypes.Builder<A> builder() {
-        ArgumentTypes.Builder<A> builder = BukkitArgumentTypes.builder();
-        return builder.addType(BlockState.class, blockState());
+    @Override
+    public @NotNull BungeeCommandActor create(@NotNull CommandSender sender, @NotNull Lamp<BungeeCommandActor> lamp) {
+        return new BasicBungeeActor(sender, lamp);
     }
 }
