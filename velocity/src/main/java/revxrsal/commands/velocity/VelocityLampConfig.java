@@ -30,7 +30,6 @@ import revxrsal.commands.LampBuilderVisitor;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.velocity.actor.ActorFactory;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
-import revxrsal.commands.velocity.brigadier.VelocityArgumentTypes;
 
 import java.util.function.Consumer;
 
