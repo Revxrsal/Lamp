@@ -36,8 +36,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.brigadier.BrigadierConverter;
 import revxrsal.commands.brigadier.BrigadierAdapter;
-import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.actor.ActorFactory;
@@ -58,7 +58,7 @@ import static revxrsal.commands.bukkit.brigadier.BrigadierUtil.renameLiteralNode
 import static revxrsal.commands.util.Strings.stripNamespace;
 
 @SuppressWarnings({"rawtypes"})
-final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierAdapter<A, Object>, Listener {
+final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierConverter<A, Object>, Listener {
 
     private final Map<String, LiteralCommandNode<?>> commands = new HashMap<>();
     private final String fallbackPrefix;
@@ -95,7 +95,7 @@ final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadi
             Bukkit.getPluginManager().registerEvents(new UnknownCommandListener(command.lamp()), plugin);
             unknownCommandListenerRegistered = true;
         }
-        LiteralCommandNode<Object> node = BrigadierParser.createNode(command, this);
+        LiteralCommandNode<Object> node = BrigadierAdapter.createNode(command, this);
         Collection<String> aliases = BukkitBrigadierBridge.getAliases(
                 plugin.getCommand(command.firstNode().name())
         );

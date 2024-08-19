@@ -23,41 +23,255 @@
  */
 package revxrsal.commands.brigadier;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.Message;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.tree.ArgumentCommandNode;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.CommandPermission;
+import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.node.ExecutionContext;
+import revxrsal.commands.node.LiteralNode;
 import revxrsal.commands.node.ParameterNode;
+import revxrsal.commands.parameter.ParameterType;
+import revxrsal.commands.stream.MutableStringStream;
+import revxrsal.commands.stream.StringStream;
+
+import java.util.List;
+import java.util.function.Predicate;
+
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
+import static revxrsal.commands.autocomplete.SuggestionProvider.empty;
+import static revxrsal.commands.brigadier.Nodes.*;
+import static revxrsal.commands.util.Preconditions.notNull;
+import static revxrsal.commands.util.Strings.stripNamespace;
 
 /**
- * Represents an intermediate layer that allows for simple interoperability
- * with {@link BrigadierParser}.
- *
- * @param <A> The Lamp actor type
- * @param <S> The Brigadier actor type
+ * A utility that parses all the commands in a {@link Lamp} instance
+ * into {@link CommandNode brigadier CommandNodes}
  */
-public interface BrigadierAdapter<A extends CommandActor, S> {
+public final class BrigadierAdapter {
 
     /**
-     * Returns the argument type that corresponds to the given {@link ParameterNode}.
+     * Parses all the currently registered commands in the given {@link Lamp} instance
+     *
+     * @param lamp    The {@link Lamp} instance
+     * @param adapter The {@link BrigadierConverter} adapter
+     * @param <S>     The brigadier command source type
+     * @param <A>     Lamp's command actor type
+     * @return The parsed {@link RootCommandNode} tree
+     */
+    public static <S, A extends CommandActor> RootCommandNode<S> parse(
+            BrigadierConverter<A, S> adapter,
+            Lamp<A> lamp
+    ) {
+        notNull(lamp, "lamp");
+        notNull(adapter, "brigadier");
+        RootCommandNode<S> root = new RootCommandNode<>();
+        for (ExecutableCommand<A> command : lamp.registry()) {
+            CommandNode<S> firstNode = createNode(command.firstNode(), adapter, lamp);
+            setRequirement(firstNode, createRequirement(command.permission(), adapter, lamp));
+
+            root.addChild(firstNode);
+
+            CommandNode<S> lastNode = firstNode;
+
+            @Unmodifiable List<revxrsal.commands.node.CommandNode<A>> nodes = command.nodes();
+            for (int i = 1; i < nodes.size(); i++) {
+                revxrsal.commands.node.CommandNode<A> node = nodes.get(i);
+                CommandNode<S> elementNode = createNode(node, adapter, lamp);
+                lastNode.addChild(elementNode);
+                lastNode = elementNode;
+            }
+        }
+
+        return root;
+    }
+
+    /**
+     * Creates a Brigadier {@link CommandNode} based on the given {@link ExecutableCommand}
+     *
+     * @param command Command to wrap
+     * @param adapter The {@link BrigadierConverter} adapter
+     * @param <S>     Brigadier sender type
+     * @param <A>     Lamp sender type
+     * @return The equivalent node
+     */
+    public static <S, A extends CommandActor> @NotNull LiteralCommandNode<S> createNode(@NotNull ExecutableCommand<A> command, @NotNull BrigadierConverter<A, S> adapter) {
+        final CommandNode<S> firstNode = createNode(command.firstNode(), adapter, command.lamp());
+        setRequirement(firstNode, createRequirement(command.permission(), adapter, command.lamp()));
+
+        CommandNode<S> lastNode = firstNode;
+
+        @Unmodifiable List<revxrsal.commands.node.CommandNode<A>> nodes = command.nodes();
+        for (int i = 1; i < nodes.size(); i++) {
+            revxrsal.commands.node.CommandNode<A> node = nodes.get(i);
+            CommandNode<S> elementNode = createNode(node, adapter, command.lamp());
+            lastNode.addChild(elementNode);
+            lastNode = elementNode;
+        }
+        return (LiteralCommandNode<S>) firstNode;
+    }
+
+    /**
+     * Creates a Brigadier {@link CommandNode} based on the given Lamp {@link revxrsal.commands.node.CommandNode}
+     *
+     * @param node    Node to wrap
+     * @param adapter The {@link BrigadierConverter} adapter
+     * @param lamp    The {@link Lamp} instance
+     * @param <S>     Brigadier sender type
+     * @param <A>     Lamp sender type
+     * @return The equivalent node
+     */
+    @SuppressWarnings({"unchecked"})
+    public static <S, A extends CommandActor> CommandNode<S> createNode(
+            revxrsal.commands.node.CommandNode<A> node,
+            BrigadierConverter<A, S> adapter,
+            Lamp<A> lamp
+    ) {
+        CommandNode<S> brigadierNode;
+
+        if (node instanceof LiteralNode<A>)
+            brigadierNode = (CommandNode<S>) literal(node.name()).build();
+        else if (node instanceof ParameterNode<A, ?> p)
+            brigadierNode = (CommandNode<S>) argument(node.name(), adapter.getArgumentType(p)).build();
+        else
+            throw new IllegalArgumentException("Unsupported node type: " + node);
+
+        if (node.hasAction())
+            setCommand(brigadierNode, createAction(adapter, lamp));
+        if (node instanceof ParameterNode<A, ?> parameter) {
+            setRequirement(brigadierNode, createRequirement(parameter.permission(), adapter, lamp));
+            if (brigadierNode instanceof ArgumentCommandNode<S, ?> arg)
+                setSuggestionProvider(arg, createSuggestionProvider(parameter, adapter, lamp));
+        }
+        return brigadierNode;
+    }
+
+    /**
+     * Creates a {@link Predicate} that is equivalent to a {@link CommandPermission}
+     *
+     * @param permission Permission to wrap
+     * @param adapter    The {@link BrigadierConverter} adapter
+     * @param lamp       The {@link Lamp} instance
+     * @param <S>        The Brigadier sender type
+     * @param <A>        The Lamp actor type
+     * @return The wrapped predicate
+     */
+    public static <S, A extends CommandActor> @NotNull Predicate<S> createRequirement(
+            @NotNull CommandPermission<A> permission,
+            @NotNull BrigadierConverter<A, S> adapter,
+            @NotNull Lamp<A> lamp
+    ) {
+        if (permission == CommandPermission.alwaysTrue())
+            return x -> true;
+        return o -> {
+            A actor = adapter.createActor(o, lamp);
+            return permission.isExecutableBy(actor);
+        };
+    }
+
+    /**
+     * Returns a Brigadier {@link Command} action that always delegates
+     * the execution to the supplied {@link Lamp} instance.
+     *
+     * @param adapter The {@link BrigadierConverter} adapter
+     * @param lamp    The {@link Lamp} instance
+     * @param <S>     The Brigadier sender type
+     * @param <A>     The Lamp actor type
+     * @return The wrapped {@link Command}
+     */
+    public static <S, A extends CommandActor> @NotNull Command<S> createAction(
+            BrigadierConverter<A, S> adapter,
+            Lamp<A> lamp
+    ) {
+        return a -> {
+            MutableStringStream input = StringStream.createMutable(a.getInput());
+            if (input.peekUnquotedString().contains(":"))
+                input = StringStream.createMutable(stripNamespace(a.getInput()));
+
+            A actor = adapter.createActor(a.getSource(), lamp);
+            lamp.dispatch(actor, input);
+            return Command.SINGLE_SUCCESS;
+        };
+    }
+
+    /**
+     * Returns a Brigadier {@link SuggestionProvider} action that always delegates
+     * the auto-completion to the given {@link ParameterNode}.
      * <p>
-     * In general, adapters should maintain an instance of {@link ArgumentTypes}
-     * and delegate the logic of this function to {@link ArgumentTypes#type(ParameterNode)},
-     * which is guaranteed to return the correct results
+     * This may return null if the parameter node's provider equals
+     * {@link revxrsal.commands.autocomplete.SuggestionProvider#empty()}, as Brigadier
+     * treats such parameters in a more nuanced way.
      *
-     * @param parameter The parameter to get for
-     * @return The argument type
+     * @param adapter The {@link BrigadierConverter} adapter
+     * @param lamp    The {@link Lamp} instance
+     * @param <S>     The Brigadier sender type
+     * @param <A>     The Lamp actor type
+     * @return The wrapped {@link Command}
      */
-    @NotNull ArgumentType<?> getArgumentType(@NotNull ParameterNode<A, ?> parameter);
+    public static <S, A extends CommandActor> @Nullable SuggestionProvider<S> createSuggestionProvider(
+            ParameterNode<A, ?> parameter,
+            BrigadierConverter<A, S> adapter,
+            Lamp<A> lamp
+    ) {
+        if (parameter.suggestions().equals(empty()))
+            return null;
+        return (context, builder) -> {
+            A actor = adapter.createActor(context.getSource(), lamp);
+            String tooltipMessage = parameter.description() == null ? parameter.name() : parameter.description();
+            Message tooltip = new LiteralMessage(tooltipMessage);
+            String input = context.getInput();
+            lamp.autoCompleter().complete(actor, input.startsWith("/") ? input.substring(1) : input)
+                    .stream()
+                    .sorted(String.CASE_INSENSITIVE_ORDER)
+                    .distinct()
+                    .forEach(c -> builder.suggest(c, tooltip));
+            return builder.buildFuture();
+        };
+    }
 
     /**
-     * Wraps the given Brigadier sender to a Lamp {@link CommandActor}
+     * Wraps the given {@link ArgumentType} into a {@link ParameterType}.
+     * <p>
+     * Note that this will not give the same suggestions as the given type.
      *
-     * @param sender Sender to wrap
-     * @param lamp   The Lamp instance
-     * @return The wrapped actor
+     * @param argumentType Argument type to wrap
+     * @param <A>          The actor type
+     * @param <T>          The parameter type
+     * @return The parameter node
      */
-    @NotNull A createActor(@NotNull S sender, @NotNull Lamp<A> lamp);
+    public static <A extends CommandActor, T> @NotNull ParameterType<A, T> toParameterType(@NotNull ArgumentType<T> argumentType) {
+        return new ParameterType<>() {
 
+            @Override public boolean isGreedy() {
+                if (argumentType instanceof StringArgumentType sat) {
+                    return sat.getType() == StringArgumentType.StringType.GREEDY_PHRASE;
+                }
+                return false;
+            }
+
+            @SneakyThrows
+            @Override public T parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<A> context) {
+                StringReader reader = new StringReader(input.source());
+                reader.setCursor(input.position());
+                T result = argumentType.parse(reader);
+                input.setPosition(reader.getCursor());
+                return result;
+            }
+        };
+    }
 }

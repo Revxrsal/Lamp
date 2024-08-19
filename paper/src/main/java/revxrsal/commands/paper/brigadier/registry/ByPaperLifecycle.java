@@ -30,8 +30,8 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.brigadier.BrigadierConverter;
 import revxrsal.commands.brigadier.BrigadierAdapter;
-import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.actor.ActorFactory;
@@ -39,7 +39,7 @@ import revxrsal.commands.bukkit.brigadier.BukkitBrigadierBridge;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.node.ParameterNode;
 
-public final class ByPaperLifecycle<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierAdapter<A, CommandSourceStack> {
+public final class ByPaperLifecycle<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierConverter<A, CommandSourceStack> {
 
     private final JavaPlugin plugin;
     private final ArgumentTypes<A> types;
@@ -52,7 +52,7 @@ public final class ByPaperLifecycle<A extends BukkitCommandActor> implements Buk
     }
 
     @Override public void register(ExecutableCommand<A> command) {
-        LiteralCommandNode<CommandSourceStack> node = BrigadierParser.createNode(command, this);
+        LiteralCommandNode<CommandSourceStack> node = BrigadierAdapter.createNode(command, this);
         plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> event.registrar().register(node, command.description())
         );

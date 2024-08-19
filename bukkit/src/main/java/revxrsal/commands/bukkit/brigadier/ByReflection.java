@@ -40,8 +40,8 @@ import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.brigadier.BrigadierConverter;
 import revxrsal.commands.brigadier.BrigadierAdapter;
-import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.actor.ActorFactory;
@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 
 import static revxrsal.commands.bukkit.brigadier.BrigadierUtil.*;
 
-final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierAdapter<A, Object> {
+final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierConverter<A, Object> {
 
     // obc.CraftServer#console field
     private static final Field CONSOLE_FIELD;
@@ -138,7 +138,7 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
 
     @Override public void register(ExecutableCommand<A> command) {
         Objects.requireNonNull(command, "command");
-        LiteralCommandNode<Object> node = BrigadierParser.createNode(command, this);
+        LiteralCommandNode<Object> node = BrigadierAdapter.createNode(command, this);
 
         PluginCommand bCommand = plugin.getCommand(command.firstNode().name());
         Collection<String> aliases = BukkitBrigadierBridge.getAliases(bCommand);
