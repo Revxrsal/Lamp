@@ -73,6 +73,8 @@ record FunctionParameter(
 
     @Override
     public boolean isOptional() {
+        if (type() == java.util.Optional.class)
+            return true;
         if (annotations.contains(Optional.class) || annotations.contains(Default.class))
             return true;
         Sized sized = annotations.get(Sized.class);

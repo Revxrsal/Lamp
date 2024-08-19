@@ -51,6 +51,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static revxrsal.commands.util.Suppliers.lazy;
@@ -111,6 +112,7 @@ public final class KotlinConstants {
      *     <li>For numbers, this is 0</li>
      *     <li>For booleans, this is false</li>
      *     <li>For characters, this is the NULL terminator</li>
+     *     <li>For {@link Optional}, this is {@link Optional#empty()}</li>
      *     <li>For other objects, this is null</li>
      * </ul>
      *
@@ -134,6 +136,8 @@ public final class KotlinConstants {
             return false;
         if (type == char.class)
             return '\u0000';
+        if (type == Optional.class)
+            return Optional.empty();
         return null;
     }
 
