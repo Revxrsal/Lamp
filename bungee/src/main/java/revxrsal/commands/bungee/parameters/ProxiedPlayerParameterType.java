@@ -23,9 +23,9 @@
  */
 package revxrsal.commands.bungee.parameters;
 
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.connection.Server;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.bungee.BungeeCommandActor;
 import revxrsal.commands.bungee.exception.InvalidPlayerException;
@@ -35,6 +35,8 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
 import java.util.List;
+
+import static revxrsal.commands.util.Collections.map;
 
 /**
  * A parameter type for {@link ProxiedPlayer} types.
@@ -57,6 +59,6 @@ public final class ProxiedPlayerParameterType implements ParameterType<BungeeCom
 
     @Override
     public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull BungeeCommandActor actor, @NotNull ExecutionContext<BungeeCommandActor> context) {
-        return ParameterType.super.defaultSuggestions(input, actor, context);
+        return map(ProxyServer.getInstance().getPlayers(), CommandSender::getName);
     }
 }
