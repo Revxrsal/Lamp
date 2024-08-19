@@ -43,16 +43,16 @@ import static revxrsal.commands.util.Strings.stripNamespace;
 public final class LampCommandExecutor<A extends BukkitCommandActor> implements TabExecutor {
 
     private final @NotNull Lamp<A> lamp;
-    private final @NotNull ActorFactory<A> senderToActor;
+    private final @NotNull ActorFactory<A> actorFactory;
 
-    public LampCommandExecutor(@NotNull Lamp<A> lamp, @NotNull ActorFactory<A> senderToActor) {
+    public LampCommandExecutor(@NotNull Lamp<A> lamp, @NotNull ActorFactory<A> actorFactory) {
         this.lamp = lamp;
-        this.senderToActor = senderToActor;
+        this.actorFactory = actorFactory;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        A actor = senderToActor.create(sender, lamp);
+        A actor = actorFactory.create(sender, lamp);
 
         MutableStringStream input = createInput(command.getName(), args);
         lamp.dispatch(actor, input);
@@ -61,7 +61,7 @@ public final class LampCommandExecutor<A extends BukkitCommandActor> implements 
 
     @Override
     public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        A actor = senderToActor.create(sender, lamp);
+        A actor = actorFactory.create(sender, lamp);
         MutableStringStream input = createInput(command.getName(), args);
         List<String> completions = lamp.autoCompleter().complete(actor, input);
         if (BukkitUtils.isBrigadierAvailable()) {
