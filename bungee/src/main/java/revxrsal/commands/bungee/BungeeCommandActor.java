@@ -1,4 +1,4 @@
-package revxrsal.commands.bungee;/*
+/*
  * This file is part of lamp, licensed under the MIT License.
  *
  *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
@@ -21,6 +21,7 @@ package revxrsal.commands.bungee;/*
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
+package revxrsal.commands.bungee;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;

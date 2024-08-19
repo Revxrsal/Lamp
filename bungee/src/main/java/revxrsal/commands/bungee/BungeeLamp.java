@@ -1,4 +1,4 @@
-package revxrsal.commands.bungee;/*
+/*
  * This file is part of lamp, licensed under the MIT License.
  *
  *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
@@ -21,6 +21,7 @@ package revxrsal.commands.bungee;/*
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
+package revxrsal.commands.bungee;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -155,9 +156,9 @@ public final class BungeeLamp {
      * Returns a {@link Lamp.Builder} that contains the default registrations
      * for the Bungee platform
      *
-     * @param plugin        The plugin instance
-     * @param actorFactory  The actor factory for creating custom implementations of {@link BungeeCommandActor}
-     * @param <A>           The actor type
+     * @param plugin       The plugin instance
+     * @param actorFactory The actor factory for creating custom implementations of {@link BungeeCommandActor}
+     * @param <A>          The actor type
      * @return A {@link Lamp.Builder}
      */
     public static <A extends BungeeCommandActor> Lamp.Builder<A> defaultBuilder(
@@ -179,7 +180,7 @@ public final class BungeeLamp {
      * Returns a {@link Lamp.Builder} that contains the default registrations
      * for the Bungee platform
      *
-     * @param plugin        The plugin instance
+     * @param plugin The plugin instance
      * @return A {@link Lamp.Builder}
      */
     public static Lamp.Builder<BungeeCommandActor> defaultBuilder(@NotNull Plugin plugin) {
