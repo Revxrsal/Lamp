@@ -70,6 +70,7 @@ public final class VelocityVisitors {
      * @return The visitor
      */
     public static <A extends VelocityCommandActor> @NotNull LampBuilderVisitor<A> velocityExceptionHandler() {
+        //noinspection unchecked
         return builder -> builder.exceptionHandler((CommandExceptionHandler<A>) new VelocityExceptionHandler());
     }
 
