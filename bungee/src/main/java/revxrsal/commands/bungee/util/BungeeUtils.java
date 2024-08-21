@@ -34,6 +34,13 @@ public final class BungeeUtils {
         cannotInstantiate(BungeeUtils.class);
     }
 
+    /**
+     * Returns a {@link String} that colorizes the given text using
+     * the ampersand for color coding.
+     *
+     * @param text The text to colorize
+     * @return The component
+     */
     public static @NotNull String legacyColorize(@NotNull String text) {
         return ChatColor.translateAlternateColorCodes('&', text);
     }
