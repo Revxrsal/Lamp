@@ -24,6 +24,7 @@
 package revxrsal.commands.bukkit;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.LampBuilderVisitor;
@@ -55,11 +56,25 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
         this.plugin = plugin;
     }
 
+    /**
+     * Returns a new {@link Builder} with the given plugin.
+     *
+     * @param plugin Plugin to create for
+     * @param <A>    The actor type
+     * @return The {@link Builder}
+     */
     public static <A extends BukkitCommandActor> Builder<A> builder(@NotNull JavaPlugin plugin) {
         notNull(plugin, "plugin");
         return new Builder<>(plugin);
     }
 
+    /**
+     * Returns a new {@link BukkitLampConfig} with the given plugin,
+     * containing the default settings.
+     *
+     * @param plugin Plugin to create for
+     * @return The {@link Builder}
+     */
     public static BukkitLampConfig<BukkitCommandActor> createDefault(@NotNull JavaPlugin plugin) {
         notNull(plugin, "plugin");
         return new BukkitLampConfig<>(ActorFactory.defaultFactory(), BukkitArgumentTypes.<BukkitCommandActor>builder().build(), plugin);
@@ -76,6 +91,11 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
                 .accept(pluginContextParameters(plugin));
     }
 
+    /**
+     * Represents a builder for {@link BukkitLampConfig}
+     *
+     * @param <A> The actor type
+     */
     public static class Builder<A extends BukkitCommandActor> {
 
         private ActorFactory<A> actorFactory;
@@ -86,21 +106,39 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
             this.plugin = plugin;
         }
 
-        public Builder<A> actorFactory(ActorFactory<A> actorFactory) {
+        public @NotNull Builder<A> actorFactory(@NotNull ActorFactory<A> actorFactory) {
             this.actorFactory = actorFactory;
             return this;
         }
 
-        public ArgumentTypes.Builder<A> argumentTypes() {
+        /**
+         * Returns the {@link ArgumentTypes.Builder} of this builder
+         *
+         * @return The builder
+         */
+        public @NotNull ArgumentTypes.Builder<A> argumentTypes() {
             return argumentTypes;
         }
 
-        public Builder<A> argumentTypes(Consumer<ArgumentTypes.Builder<A>> consumer) {
+        /**
+         * Applies the given {@link Consumer} on the {@link #argumentTypes()} instance.
+         * This allows for easy chaining of the builder instances
+         *
+         * @param consumer Consumer to apply
+         * @return This builder
+         */
+        public @NotNull Builder<A> argumentTypes(@NotNull Consumer<ArgumentTypes.Builder<A>> consumer) {
             consumer.accept(argumentTypes);
             return this;
         }
 
-        public BukkitLampConfig<A> build() {
+        /**
+         * Returns a new {@link BukkitLampConfig} from this builder
+         *
+         * @return The newly created config
+         */
+        @Contract("-> new")
+        public @NotNull BukkitLampConfig<A> build() {
             return new BukkitLampConfig<>(this.actorFactory, this.argumentTypes.build(), this.plugin);
         }
     }
