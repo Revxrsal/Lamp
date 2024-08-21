@@ -38,27 +38,27 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public final class BukkitCommandHooks implements CommandRegisteredHook<BukkitCommandActor>, CommandUnregisteredHook<BukkitCommandActor> {
+public final class BukkitCommandHooks<A extends BukkitCommandActor> implements CommandRegisteredHook<A>, CommandUnregisteredHook<A> {
 
     private final Set<String> registeredRootNames = new HashSet<>();
 
     private final JavaPlugin plugin;
-    private final ActorFactory<?> actorFactory;
+    private final ActorFactory<A> actorFactory;
 
-    public BukkitCommandHooks(JavaPlugin plugin, ActorFactory<?> actorFactory) {
+    public BukkitCommandHooks(JavaPlugin plugin, ActorFactory<A> actorFactory) {
         this.plugin = plugin;
         this.actorFactory = actorFactory;
     }
 
     @Override
-    public void onRegistered(@NotNull ExecutableCommand<BukkitCommandActor> command, @NotNull CancelHandle cancelHandle) {
+    public void onRegistered(@NotNull ExecutableCommand<A> command, @NotNull CancelHandle cancelHandle) {
         String name = command.firstNode().name();
         if (registeredRootNames.add(name)) {
             // command wasn't registered before. register it.
 
             PluginCommand cmd = PluginCommands.create(command.firstNode().name(), plugin);
 
-            LampCommandExecutor<BukkitCommandActor> executor = new LampCommandExecutor<>(command.lamp(), ((ActorFactory) actorFactory));
+            LampCommandExecutor<A> executor = new LampCommandExecutor<>(command.lamp(), actorFactory);
             cmd.setExecutor(executor);
             cmd.setTabCompleter(executor);
 
@@ -70,7 +70,7 @@ public final class BukkitCommandHooks implements CommandRegisteredHook<BukkitCom
     }
 
     @Override
-    public void onUnregistered(@NotNull ExecutableCommand<BukkitCommandActor> command, @NotNull CancelHandle cancelHandle) {
+    public void onUnregistered(@NotNull ExecutableCommand<A> command, @NotNull CancelHandle cancelHandle) {
         String name = command.firstNode().name();
         PluginCommand cmd = plugin.getCommand(name);
         if (cmd == null)

@@ -139,7 +139,7 @@ public final class BukkitVisitors {
             @NotNull JavaPlugin plugin,
             @NotNull ActorFactory<A> actorFactory
     ) {
-        BukkitCommandHooks hooks = new BukkitCommandHooks(plugin, actorFactory);
+        BukkitCommandHooks<A> hooks = new BukkitCommandHooks<>(plugin, actorFactory);
         return builder -> builder.hooks()
                 .onCommandRegistered(hooks)
                 .onCommandUnregistered(hooks);

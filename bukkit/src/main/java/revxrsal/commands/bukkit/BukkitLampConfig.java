@@ -106,6 +106,14 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
             this.plugin = plugin;
         }
 
+        /**
+         * Sets the {@link ActorFactory}. This allows to supply custom implementations for
+         * the {@link BukkitLampConfig} interface.
+         *
+         * @param actorFactory The actor factory
+         * @return This builder
+         * @see ActorFactory
+         */
         public @NotNull Builder<A> actorFactory(@NotNull ActorFactory<A> actorFactory) {
             this.actorFactory = actorFactory;
             return this;
