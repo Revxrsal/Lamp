@@ -26,12 +26,14 @@ package revxrsal.commands.velocity.actor;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.process.MessageSender;
 import revxrsal.commands.velocity.exception.SenderNotConsoleException;
 import revxrsal.commands.velocity.exception.SenderNotPlayerException;
 import revxrsal.commands.velocity.util.VelocityUtils;
@@ -46,7 +48,7 @@ public interface VelocityCommandActor extends CommandActor {
      *
      * @return The revxrsal.commands.bungee.sender
      */
-    @NotNull CommandSource sender();
+    @NotNull CommandSource source();
 
     /**
      * Tests whether is this actor a player or not
@@ -54,7 +56,7 @@ public interface VelocityCommandActor extends CommandActor {
      * @return Is this a player or not
      */
     default boolean isPlayer() {
-        return sender() instanceof Player;
+        return source() instanceof Player;
     }
 
     /**
@@ -63,7 +65,7 @@ public interface VelocityCommandActor extends CommandActor {
      * @return Is this the console or not
      */
     default boolean isConsole() {
-        return sender() instanceof ConsoleCommandSource;
+        return source() instanceof ConsoleCommandSource;
     }
 
     /**
@@ -74,7 +76,7 @@ public interface VelocityCommandActor extends CommandActor {
      */
     @Nullable
     default Player asPlayer() {
-        return isPlayer() ? (Player) sender() : null;
+        return isPlayer() ? (Player) source() : null;
     }
 
     /**
@@ -88,7 +90,7 @@ public interface VelocityCommandActor extends CommandActor {
     default Player requirePlayer() throws SenderNotPlayerException {
         if (!isPlayer())
             throw new SenderNotPlayerException();
-        return (Player) sender();
+        return (Player) source();
     }
 
     /**
@@ -102,29 +104,77 @@ public interface VelocityCommandActor extends CommandActor {
     default ConsoleCommandSource requireConsole() throws SenderNotConsoleException {
         if (!isPlayer())
             throw new SenderNotConsoleException();
-        return (ConsoleCommandSource) sender();
+        return (ConsoleCommandSource) source();
     }
 
+    /**
+     * Sends the given component to this actor.
+     * <p>
+     * Note that this may be delegated to an underlying {@link MessageSender},
+     * as specified in an {@link ActorFactory}.
+     *
+     * @param message The message to send
+     */
     void reply(@NotNull ComponentLike message);
 
+    /**
+     * Sends the given component to this error.
+     * <p>
+     * Note that this may be delegated to an underlying {@link MessageSender},
+     * as specified in an {@link ActorFactory}.
+     *
+     * @param message The message to send
+     */
     void error(@NotNull ComponentLike message);
 
+    /**
+     * Prints the given component to this actor. This function does
+     * not delegate sending, but invokes {@link CommandSource#sendMessage(Component)}
+     * directly
+     *
+     * @param message The message to send
+     */
     default void sendRawMessage(@NotNull ComponentLike message) {
-        sender().sendMessage(message);
+        source().sendMessage(message);
     }
 
+    /**
+     * Prints the given component to this actor as an error. This function does
+     * not delegate sending, but invokes {@link CommandSource#sendMessage(Component)}
+     * directly
+     *
+     * @param message The message to send
+     */
     default void sendRawError(@NotNull ComponentLike message) {
-        sender().sendMessage(message.asComponent().colorIfAbsent(NamedTextColor.RED));
+        source().sendMessage(message.asComponent().colorIfAbsent(NamedTextColor.RED));
     }
 
+    /**
+     * Sends the given message to the actor, with legacy color-coding.
+     * <p>
+     * This function does
+     * not delegate sending, but invokes {@link CommandSource#sendMessage(Component)}
+     * directly
+     *
+     * @param message Message to send
+     */
     @Override
     default void sendRawMessage(@NotNull String message) {
-        sender().sendMessage(VelocityUtils.legacyColorize(message));
+        source().sendMessage(VelocityUtils.legacyColorize(message));
     }
 
+    /**
+     * Sends the given message to the actor as an error, with legacy color-coding.
+     * <p>
+     * This function does
+     * not delegate sending, but invokes {@link CommandSource#sendMessage(Component)}
+     * directly
+     *
+     * @param message Message to send
+     */
     @Override
     default void sendRawError(@NotNull String message) {
-        sender().sendMessage(VelocityUtils.legacyColorize("&c" + message));
+        source().sendMessage(VelocityUtils.legacyColorize("&c" + message));
     }
 
     @Override Lamp<VelocityCommandActor> lamp();

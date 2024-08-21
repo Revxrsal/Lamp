@@ -15,6 +15,6 @@ public enum VelocityPermissionFactory implements revxrsal.commands.command.Comma
         CommandPermission permissionAnn = annotations.get(CommandPermission.class);
         if (permissionAnn == null)
             return null;
-        return actor -> actor.sender().hasPermission(permissionAnn.value());
+        return actor -> actor.source().hasPermission(permissionAnn.value());
     }
 }

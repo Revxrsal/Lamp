@@ -59,7 +59,7 @@ public final class VelocityVisitors {
      */
     public static <A extends VelocityCommandActor> @NotNull LampBuilderVisitor<A> legacyColorCodes() {
         return builder -> builder
-                .defaultMessageSender((actor, message) -> actor.sender().sendMessage(legacyColorize(message)))
+                .defaultMessageSender((actor, message) -> actor.source().sendMessage(legacyColorize(message)))
                 .defaultErrorSender((actor, message) -> actor.sendRawMessage(legacyColorize("&c" + message)));
     }
 

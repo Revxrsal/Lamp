@@ -19,7 +19,7 @@ record BasicVelocityActor(
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
 
-    @Override public @NotNull CommandSource sender() {
+    @Override public @NotNull CommandSource source() {
         return sender;
     }
 

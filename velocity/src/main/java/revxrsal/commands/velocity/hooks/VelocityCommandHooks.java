@@ -41,8 +41,16 @@ import revxrsal.commands.velocity.actor.VelocityCommandActor;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A hook that registers Lamp commands into Velocity
+ *
+ * @param <A> The actor type
+ */
 public final class VelocityCommandHooks<A extends VelocityCommandActor> implements CommandRegisteredHook<A>, BrigadierConverter<A, CommandSource> {
 
+    /**
+     * Tracks the commands we registered
+     */
     private final Set<String> registeredRootNames = new HashSet<>();
 
     private final VelocityLampConfig<A> config;
@@ -55,6 +63,7 @@ public final class VelocityCommandHooks<A extends VelocityCommandActor> implemen
     public void onRegistered(@NotNull ExecutableCommand<A> command, @NotNull CancelHandle cancelHandle) {
         String name = command.firstNode().name();
         if (registeredRootNames.add(name)) {
+            // command wasn't registered before. register it.
             LiteralCommandNode<CommandSource> node = BrigadierAdapter.createNode(command, this);
             BrigadierCommand brigadierCommand = new BrigadierCommand(node);
             config.server().getCommandManager().register(brigadierCommand);

@@ -35,6 +35,13 @@ public final class VelocityUtils {
         cannotInstantiate(VelocityUtils.class);
     }
 
+    /**
+     * Returns a {@link TextComponent} that colorizes the given text using
+     * the ampersand for color coding.
+     *
+     * @param text The text to colorize
+     * @return The component
+     */
     public static @NotNull TextComponent legacyColorize(@NotNull String text) {
         return LegacyComponentSerializer.legacyAmpersand().deserialize(text);
     }

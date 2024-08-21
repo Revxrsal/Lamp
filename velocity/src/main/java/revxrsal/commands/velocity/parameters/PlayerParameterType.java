@@ -42,8 +42,8 @@ import static revxrsal.commands.util.Collections.map;
 /**
  * A parameter type for {@link Player} types.
  * <p>
- * If the player inputs {@code me} or {@code self}, the parser will return the
- * executing player (or give an error if the sender is not a player)
+ * If the player inputs {@code me} or {@code self} or {@code @s}, the parser will
+ * return the executing player (or give an error if the sender is not a player)
  */
 public record PlayerParameterType(@NotNull ProxyServer server) implements ParameterType<VelocityCommandActor, Player> {
 

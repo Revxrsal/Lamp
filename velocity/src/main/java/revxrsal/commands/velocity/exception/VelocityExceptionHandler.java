@@ -8,7 +8,6 @@ import revxrsal.commands.velocity.actor.VelocityCommandActor;
 
 import static revxrsal.commands.velocity.util.VelocityUtils.legacyColorize;
 
-
 public class VelocityExceptionHandler extends DefaultExceptionHandler<VelocityCommandActor> {
 
     @HandleException
@@ -18,6 +17,11 @@ public class VelocityExceptionHandler extends DefaultExceptionHandler<VelocityCo
 
     @HandleException
     public void onSenderNotPlayer(SenderNotPlayerException e, VelocityCommandActor actor) {
+        actor.error(legacyColorize("&cYou must be a player to execute this command!"));
+    }
+
+    @HandleException
+    public void onSenderNotConsole(SenderNotConsoleException e, VelocityCommandActor actor) {
         actor.error(legacyColorize("&cYou must be a player to execute this command!"));
     }
 

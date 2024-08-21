@@ -43,6 +43,6 @@ public final class VelocitySenderResolver implements SenderResolver<VelocityComm
             return actor.requirePlayer();
         else if (ConsoleCommandSource.class.isAssignableFrom(customSenderType))
             return actor.requireConsole();
-        return actor.sender();
+        return actor.source();
     }
 }

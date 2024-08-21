@@ -24,6 +24,7 @@
 package revxrsal.commands.velocity;
 
 import com.velocitypowered.api.proxy.ProxyServer;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.LampBuilderVisitor;
@@ -37,8 +38,8 @@ import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.velocity.VelocityVisitors.*;
 
 /**
- * A collective object that contains all Velocity-only properties and allows for
- * easy customizing and chaining using a builder
+ * A collective immutable object that contains all Velocity-only properties and allows
+ * for easy customizing and chaining using a builder
  *
  * @param <A> The actor type.
  */
@@ -56,13 +57,31 @@ public final class VelocityLampConfig<A extends VelocityCommandActor> implements
         this.server = server;
     }
 
-    public static <A extends VelocityCommandActor> Builder<A> builder(@NotNull Object plugin, @NotNull ProxyServer server) {
+    /**
+     * Returns a new {@link Builder} with the given plugin and {@link ProxyServer}.
+     *
+     * @param plugin Plugin to create for
+     * @param server Server to create for
+     * @param <A>    The actor type
+     * @return The {@link Builder}
+     */
+    @Contract("_, _ -> new")
+    public static <A extends VelocityCommandActor> @NotNull Builder<A> builder(@NotNull Object plugin, @NotNull ProxyServer server) {
         notNull(plugin, "plugin");
         notNull(server, "proxy server");
         return new Builder<>(plugin, server);
     }
 
-    public static VelocityLampConfig<VelocityCommandActor> createDefault(@NotNull Object plugin, @NotNull ProxyServer server) {
+    /**
+     * Returns a new {@link VelocityLampConfig} with the given plugin and {@link ProxyServer},
+     * containing the default settings.
+     *
+     * @param plugin Plugin to create for
+     * @param server Server to create for
+     * @return The {@link Builder}
+     */
+    @Contract("_, _ -> new")
+    public static @NotNull VelocityLampConfig<VelocityCommandActor> createDefault(@NotNull Object plugin, @NotNull ProxyServer server) {
         notNull(plugin, "plugin");
         return new VelocityLampConfig<>(
                 ActorFactory.defaultFactory(),
@@ -99,6 +118,11 @@ public final class VelocityLampConfig<A extends VelocityCommandActor> implements
         return server;
     }
 
+    /**
+     * Represents a builder for {@link VelocityLampConfig}
+     *
+     * @param <A> The actor type
+     */
     public static class Builder<A extends VelocityCommandActor> {
 
         private ActorFactory<A> actorFactory;
@@ -111,21 +135,47 @@ public final class VelocityLampConfig<A extends VelocityCommandActor> implements
             this.server = server;
         }
 
-        public Builder<A> actorFactory(ActorFactory<A> actorFactory) {
-            this.actorFactory = actorFactory;
+        /**
+         * Sets the {@link ActorFactory}. This allows to supply custom implementations for
+         * the {@link VelocityCommandActor} interface.
+         *
+         * @param actorFactory The actor factory
+         * @return This builder
+         * @see ActorFactory
+         */
+        public @NotNull Builder<A> actorFactory(@NotNull ActorFactory<A> actorFactory) {
+            this.actorFactory = notNull(actorFactory, "actor factory");
             return this;
         }
 
-        public ArgumentTypes.Builder<A> argumentTypes() {
+        /**
+         * Returns the {@link ArgumentTypes.Builder} of this builder
+         *
+         * @return The builder
+         */
+        public @NotNull ArgumentTypes.Builder<A> argumentTypes() {
             return argumentTypes;
         }
 
-        public Builder<A> argumentTypes(Consumer<ArgumentTypes.Builder<A>> consumer) {
+        /**
+         * Applies the given {@link Consumer} on the {@link #argumentTypes()} instance.
+         * This allows for easy chaining of the builder instances
+         *
+         * @param consumer Consumer to apply
+         * @return This builder
+         */
+        public @NotNull Builder<A> argumentTypes(@NotNull Consumer<ArgumentTypes.Builder<A>> consumer) {
             consumer.accept(argumentTypes);
             return this;
         }
 
-        public VelocityLampConfig<A> build() {
+        /**
+         * Returns a new {@link VelocityLampConfig} from this builder
+         *
+         * @return The newly created config
+         */
+        @Contract("-> new")
+        public @NotNull VelocityLampConfig<A> build() {
             return new VelocityLampConfig<>(actorFactory, argumentTypes.build(), plugin, server);
         }
     }
