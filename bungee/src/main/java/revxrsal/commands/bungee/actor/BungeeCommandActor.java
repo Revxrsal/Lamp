@@ -89,8 +89,19 @@ public interface BungeeCommandActor extends CommandActor {
         sender().sendMessage(new TextComponent(ChatColor.RED + message));
     }
 
+    /**
+     * Returns the {@link Lamp} instance that constructed this actor.
+     *
+     * @return The {@link Lamp} instance
+     */
     @Override Lamp<BungeeCommandActor> lamp();
 
+    /**
+     * Returns the name of this actor. Varies depending on the
+     * platform.
+     *
+     * @return The actor name
+     */
     @Override @NotNull
     default String name() {
         return sender().getName();

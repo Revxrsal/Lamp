@@ -102,18 +102,43 @@ public interface BukkitCommandActor extends CommandActor {
         return (ConsoleCommandSender) sender();
     }
 
+    /**
+     * Prints the given component to this actor. This function does
+     * not delegate sending, but invokes {@link CommandSender#sendMessage(String)}
+     * directly
+     *
+     * @param message The message to send
+     */
     @Override
     default void sendRawMessage(@NotNull String message) {
         sender().sendMessage(message);
     }
 
+    /**
+     * Prints the given component to this actor as an error. This function does
+     * not delegate sending, but invokes {@link CommandSender#sendMessage(String)}
+     * directly
+     *
+     * @param message The message to send
+     */
     @Override
     default void sendRawError(@NotNull String message) {
         sender().sendMessage(ChatColor.RED + message);
     }
 
+    /**
+     * Returns the {@link Lamp} instance that constructed this actor.
+     *
+     * @return The {@link Lamp} instance
+     */
     @Override Lamp<BukkitCommandActor> lamp();
 
+    /**
+     * Returns the name of this actor. Varies depending on the
+     * platform.
+     *
+     * @return The actor name
+     */
     @Override @NotNull
     default String name() {
         return sender().getName();

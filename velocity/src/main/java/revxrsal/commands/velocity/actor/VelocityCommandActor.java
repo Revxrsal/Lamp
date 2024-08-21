@@ -177,8 +177,19 @@ public interface VelocityCommandActor extends CommandActor {
         source().sendMessage(VelocityUtils.legacyColorize("&c" + message));
     }
 
+    /**
+     * Returns the {@link Lamp} instance that constructed this actor.
+     *
+     * @return The {@link Lamp} instance
+     */
     @Override Lamp<VelocityCommandActor> lamp();
 
+    /**
+     * Returns the name of this actor. Varies depending on the
+     * platform.
+     *
+     * @return The actor name
+     */
     @Override @NotNull
     default String name() {
         return isConsole() ? "Console" : requirePlayer().getUsername();
