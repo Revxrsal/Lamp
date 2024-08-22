@@ -32,8 +32,11 @@ import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.brigadier.BukkitArgumentTypes;
+import revxrsal.commands.bukkit.util.BukkitVersion;
+import revxrsal.commands.util.Lazy;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static revxrsal.commands.bukkit.BukkitVisitors.*;
 import static revxrsal.commands.util.Preconditions.notNull;
@@ -47,10 +50,10 @@ import static revxrsal.commands.util.Preconditions.notNull;
 public final class BukkitLampConfig<A extends BukkitCommandActor> implements LampBuilderVisitor<A> {
 
     private final ActorFactory<A> actorFactory;
-    private final ArgumentTypes<A> argumentTypes;
+    private final Supplier<ArgumentTypes<A>> argumentTypes;
     private final JavaPlugin plugin;
 
-    private BukkitLampConfig(ActorFactory<A> actorFactory, ArgumentTypes<A> argumentTypes, JavaPlugin plugin) {
+    private BukkitLampConfig(ActorFactory<A> actorFactory, Supplier<ArgumentTypes<A>> argumentTypes, JavaPlugin plugin) {
         this.actorFactory = actorFactory;
         this.argumentTypes = argumentTypes;
         this.plugin = plugin;
@@ -77,17 +80,19 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
      */
     public static BukkitLampConfig<BukkitCommandActor> createDefault(@NotNull JavaPlugin plugin) {
         notNull(plugin, "plugin");
-        return new BukkitLampConfig<>(ActorFactory.defaultFactory(), BukkitArgumentTypes.<BukkitCommandActor>builder().build(), plugin);
+        return new BukkitLampConfig<>(ActorFactory.defaultFactory(), () -> BukkitArgumentTypes.<BukkitCommandActor>builder().build(), plugin);
     }
 
     @Override public void visit(Lamp.@NotNull Builder<A> builder) {
+        if (BukkitVersion.isBrigadierSupported())
+            builder.accept(brigadier(plugin, argumentTypes.get(), actorFactory));
+
         builder.accept(legacyColorCodes())
                 .accept(bukkitSenderResolver())
                 .accept(bukkitParameterTypes())
                 .accept(bukkitExceptionHandler())
                 .accept(bukkitPermissions())
                 .accept(registrationHooks(plugin))
-                .accept(brigadier(plugin, argumentTypes, actorFactory))
                 .accept(pluginContextParameters(plugin));
     }
 
@@ -99,7 +104,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
     public static class Builder<A extends BukkitCommandActor> {
 
         private ActorFactory<A> actorFactory;
-        private final ArgumentTypes.Builder<A> argumentTypes = BukkitArgumentTypes.builder();
+        private final Supplier<ArgumentTypes.Builder<A>> argumentTypes = Lazy.of(() -> BukkitArgumentTypes.builder());
         private final @NotNull JavaPlugin plugin;
 
         Builder(@NotNull JavaPlugin plugin) {
@@ -125,7 +130,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
          * @return The builder
          */
         public @NotNull ArgumentTypes.Builder<A> argumentTypes() {
-            return argumentTypes;
+            return argumentTypes.get();
         }
 
         /**
@@ -136,7 +141,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
          * @return This builder
          */
         public @NotNull Builder<A> argumentTypes(@NotNull Consumer<ArgumentTypes.Builder<A>> consumer) {
-            consumer.accept(argumentTypes);
+            consumer.accept(argumentTypes.get());
             return this;
         }
 
@@ -147,7 +152,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
          */
         @Contract("-> new")
         public @NotNull BukkitLampConfig<A> build() {
-            return new BukkitLampConfig<>(this.actorFactory, this.argumentTypes.build(), this.plugin);
+            return new BukkitLampConfig<>(this.actorFactory, Lazy.of(() -> argumentTypes.get().build()), this.plugin);
         }
     }
 }
