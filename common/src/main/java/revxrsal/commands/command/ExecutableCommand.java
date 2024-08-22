@@ -23,10 +23,7 @@
  */
 package revxrsal.commands.command;
 
-import org.jetbrains.annotations.CheckReturnValue;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.*;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.SecretCommand;
@@ -60,6 +57,7 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
      *
      * @return The command node
      */
+    @Range(from = 1, to = Integer.MAX_VALUE)
     int size();
 
     /**
