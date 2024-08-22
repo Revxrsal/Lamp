@@ -48,10 +48,10 @@ import static revxrsal.commands.util.Preconditions.notNull;
  * Re-adapted from Guava's Suppliers class, to use the MemoizingSupplier (renamed
  * to LazySupplier)
  */
-public final class Suppliers {
+public final class Lazy {
 
-    private Suppliers() {
-        cannotInstantiate(Suppliers.class);
+    private Lazy() {
+        cannotInstantiate(Lazy.class);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class Suppliers {
      * @param fetch Fetch function
      * @return The lazy supplier
      */
-    public static <T> @NotNull Supplier<T> lazy(@NotNull Supplier<T> fetch) {
+    public static <T> @NotNull Supplier<T> of(@NotNull Supplier<T> fetch) {
         notNull(fetch, "fetch supplier");
         return new LazySupplier<>(fetch);
     }

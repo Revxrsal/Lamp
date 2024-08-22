@@ -54,7 +54,7 @@ import java.lang.reflect.Modifier;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static revxrsal.commands.util.Suppliers.lazy;
+import static revxrsal.commands.util.Lazy.of;
 
 /**
  * A utility that abstracts away certain Kotlin constant
@@ -70,14 +70,14 @@ public final class KotlinConstants {
     /**
      * The {@link kotlin.jvm.JvmStatic} annotation
      */
-    private static final Supplier<Class<?>> CONTINUATION = lazy(() ->
+    private static final Supplier<Class<?>> CONTINUATION = of(() ->
             findClass("kotlin.coroutines.Continuation")
     );
 
     /**
      * The {@link kotlin.jvm.JvmStatic} annotation
      */
-    private static final Supplier<Class<? extends Annotation>> METADATA = lazy(() -> {
+    private static final Supplier<Class<? extends Annotation>> METADATA = of(() -> {
         Class<?> metadata = findClass("kotlin.Metadata");
         return metadata == null ? null : metadata.asSubclass(Annotation.class);
     });

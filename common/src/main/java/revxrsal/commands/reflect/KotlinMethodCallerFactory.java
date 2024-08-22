@@ -28,6 +28,8 @@ import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.reflect.ktx.KotlinFunction;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static revxrsal.commands.reflect.ktx.KotlinConstants.ABSENT_VALUE;
@@ -39,7 +41,8 @@ final class KotlinMethodCallerFactory implements MethodCallerFactory {
     @Override public @NotNull MethodCaller createFor(@NotNull Method method) {
         KotlinFunction function = KotlinFunction.wrap(method);
         return (instance, arguments) -> {
-            List<Object> list = List.of(arguments);
+            List<Object> list = new ArrayList<>();
+            Collections.addAll(list, arguments);
             list.replaceAll(v -> v == ABSENT_VALUE ? null : v);
             return function.call(
                     instance,
