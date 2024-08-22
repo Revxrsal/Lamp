@@ -95,8 +95,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     public @NotNull String path() {
         StringJoiner joiner = new StringJoiner(" ");
         for (CommandNode<A> n : nodes) {
-            if (n instanceof ParameterNodeImpl)
-                if (((ParameterNode<? extends CommandActor, ?>) n).isOptional())
+            if (n.isParameter())
+                if (n.requireParameterNode().isOptional())
                     joiner.add("[" + n.name() + "]");
                 else
                     joiner.add("<" + n.name() + ">");
