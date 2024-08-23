@@ -309,7 +309,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                 Object value = parameter.parse(input, context);
                 Lamp<A> lamp = execution.function().lamp();
                 lamp.validate(context.actor(), value, parameter);
-                context.addResoledArgument(parameter.name(), value);
+                context.addResolvedArgument(parameter.name(), value);
                 checkForSpace(input);
                 return true;
             } catch (Throwable t) {

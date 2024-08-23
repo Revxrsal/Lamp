@@ -95,7 +95,7 @@ public final class BasicExecutionContext<A extends CommandActor> implements Exec
         return (T) resolvedArguments.get(argumentName);
     }
 
-    public void addResoledArgument(@NotNull String name, Object result) {
+    public void addResolvedArgument(@NotNull String name, Object result) {
         resolvedArguments.put(name, result);
     }
 
