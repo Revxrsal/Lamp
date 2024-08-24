@@ -17,6 +17,7 @@ include("bungee")
 include("brigadier")
 include("sample-plugin")
 include("velocity")
+include("cli")
 include("sponge")
 include("jda")
 
