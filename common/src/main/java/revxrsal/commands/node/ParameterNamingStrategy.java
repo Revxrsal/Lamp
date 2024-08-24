@@ -29,8 +29,8 @@ import revxrsal.commands.annotation.Named;
 import java.lang.reflect.Parameter;
 import java.util.Locale;
 
-import static revxrsal.commands.node.BuiltInNamingStrategies.separateCamelCase;
-import static revxrsal.commands.node.BuiltInNamingStrategies.upperCaseFirstLetter;
+import static revxrsal.commands.util.BuiltInNamingStrategies.separateCamelCase;
+import static revxrsal.commands.util.BuiltInNamingStrategies.upperCaseFirstLetter;
 
 /**
  * An interface that allows customizing the way parameters are named

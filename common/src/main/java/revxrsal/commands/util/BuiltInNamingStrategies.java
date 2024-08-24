@@ -21,18 +21,18 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.node;
+package revxrsal.commands.util;
 
 /**
  * Re-adapted from Gson's FieldNamingPolicy, licensed under Apache 2.0
  */
-final class BuiltInNamingStrategies {
+public final class BuiltInNamingStrategies {
 
     /**
      * Converts the field name that uses camel-case define word separation into
      * separate words that are separated by the provided {@code separatorString}.
      */
-    static String separateCamelCase(String name, String separator) {
+    public static String separateCamelCase(String name, String separator) {
         StringBuilder translation = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {
             char character = name.charAt(i);
@@ -47,7 +47,7 @@ final class BuiltInNamingStrategies {
     /**
      * Ensures the parameter names begins with an upper case letter.
      */
-    static String upperCaseFirstLetter(String name) {
+    public static String upperCaseFirstLetter(String name) {
         StringBuilder fieldNameBuilder = new StringBuilder();
         int index = 0;
         char firstCharacter = name.charAt(index);
