@@ -8,7 +8,7 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
-    implementation("net.dv8tion:JDA:5.1.0")
+    compileOnly("net.dv8tion:JDA:5.1.0")
 }
 
 tasks.withType<JavaCompile> {
