@@ -38,7 +38,7 @@ public final class SpongeLamp {
      * for the Sponge platform
      *
      * @param plugin The plugin instance to register with
-     * @return A {@link Lamp.Builder} containing the default
+     * @return A {@link Lamp.Builder} containing the default configuration
      */
     public static Lamp.Builder<SpongeCommandActor> builder(@NotNull Object plugin) {
         return builder(SpongeLampConfig.createDefault(plugin));
