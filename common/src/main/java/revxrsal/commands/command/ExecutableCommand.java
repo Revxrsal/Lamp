@@ -28,13 +28,12 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.SecretCommand;
 import revxrsal.commands.annotation.Usage;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.HasDescription;
-import revxrsal.commands.node.LiteralNode;
-import revxrsal.commands.node.RequiresPermission;
+import revxrsal.commands.annotation.list.AnnotationList;
+import revxrsal.commands.node.*;
 import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents an immutable, full, separate command path that may be executed.
@@ -162,6 +161,24 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
      * Unregisters this executable command.
      */
     void unregister();
+
+    /**
+     * Returns the action of this command.
+     *
+     * @return The command action
+     */
+    default @NotNull CommandAction<A> action() {
+        return Objects.requireNonNull(lastNode().action(), "lastNode().action() is null");
+    }
+
+    /**
+     * Returns the annotations on the function
+     *
+     * @return The function annotations
+     */
+    default @NotNull AnnotationList annotations() {
+        return function().annotations();
+    }
 
     /**
      * Tests whether this command is visible to the actor or not.
