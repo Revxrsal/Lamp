@@ -47,8 +47,7 @@ public interface ExecutionContext<A extends CommandActor> {
      *
      * @return The actor
      */
-    @NotNull
-    A actor();
+    @NotNull A actor();
 
     /**
      * Returns the {@link Lamp} instance that is executing this
@@ -56,15 +55,14 @@ public interface ExecutionContext<A extends CommandActor> {
      *
      * @return The {@link Lamp} instance
      */
-    @NotNull
-    Lamp<A> lamp();
+    @NotNull Lamp<A> lamp();
 
     /**
      * Returns the command being executed
      *
      * @return The executed command
      */
-    ExecutableCommand<A> command();
+    @NotNull ExecutableCommand<A> command();
 
     /**
      * Returns the arguments that have been resolved, each mapped to the
