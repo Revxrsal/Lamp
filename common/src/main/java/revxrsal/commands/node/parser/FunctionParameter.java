@@ -25,6 +25,7 @@ package revxrsal.commands.node.parser;
 
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.Default;
+import revxrsal.commands.annotation.Length;
 import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.annotation.Sized;
 import revxrsal.commands.annotation.list.AnnotationList;
@@ -80,6 +81,9 @@ record FunctionParameter(
         Sized sized = annotations.get(Sized.class);
         if (sized != null)
             return sized.min() == 0;
+        Length length = annotations.get(Length.class);
+        if (length != null)
+            return length.min() == 0;
         return false;
     }
 }

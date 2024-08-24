@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.annotation.Default;
 import revxrsal.commands.annotation.Description;
+import revxrsal.commands.annotation.Length;
 import revxrsal.commands.annotation.Sized;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.autocomplete.SuggestionProvider;
@@ -78,10 +79,11 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
         String defaultValue = annotations.map(Default.class, Default::value);
         if (defaultValue == null) {
             Sized sized = annotations.get(Sized.class);
-            if (sized == null)
-                return null;
-            else
+            if (sized != null)
                 return sized.min() == 0 ? "" : null;
+            Length length = annotations.get(Length.class);
+            if (length != null)
+                return length.min() == 0 ? "" : null;
         }
         return defaultValue;
     }

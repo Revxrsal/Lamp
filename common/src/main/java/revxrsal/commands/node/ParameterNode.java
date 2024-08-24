@@ -90,6 +90,23 @@ public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>
      */
     boolean isOptional();
 
+
+    /**
+     * Tests whether is this parameter required or not.
+     * <p>
+     * This will return false in these cases:
+     * <ol>
+     *     <li>It is marked with {@link Optional @Optional}</li>
+     *     <li>It has a default value from {@link Default @Default}</li>
+     *     <li>It has {@link Sized @Sized} with {@code min()} == 0</li>
+     * </ol>
+     *
+     * @return if this parameter is required
+     */
+    default boolean isRequired() {
+        return !isOptional();
+    }
+
     /**
      * Returns the {@link ParameterType} of this parameter that will be
      * used to parse the input.

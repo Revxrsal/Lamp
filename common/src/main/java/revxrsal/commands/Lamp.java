@@ -578,6 +578,7 @@ public final class Lamp<A extends CommandActor> {
 
         public Builder() {
             parameterValidator(Number.class, RangeChecker.INSTANCE);
+            parameterValidator(String.class, LengthChecker.INSTANCE);
             senderResolver(CommandActorSenderResolver.INSTANCE);
             responseHandler(SupplierResponseHandler.INSTANCE);
             responseHandler(CompletionStageResponseHandler.INSTANCE);
@@ -592,7 +593,7 @@ public final class Lamp<A extends CommandActor> {
          * @return This builder instance
          * @see ParameterNamingStrategy
          */
-        public Builder<A> parameterNamingStrategy(ParameterNamingStrategy namingStrategy) {
+        public @NotNull Builder<A> parameterNamingStrategy(ParameterNamingStrategy namingStrategy) {
             this.namingStrategy = notNull(namingStrategy, "naming strategy");
             return this;
         }
