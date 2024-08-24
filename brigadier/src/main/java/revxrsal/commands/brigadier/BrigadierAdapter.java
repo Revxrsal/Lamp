@@ -213,6 +213,10 @@ public final class BrigadierAdapter {
      * Returns a Brigadier {@link SuggestionProvider} action that always delegates
      * the auto-completion to the given {@link ParameterNode}.
      * <p>
+     * If the specified parameter has a {@link ParameterType} generated from
+     * {@link #toParameterType(ArgumentType)}, the wrapped {@link ArgumentType} will
+     * provide suggestions unless explicitly overridden.
+     * <p>
      * This may return null if the parameter node's provider equals
      * {@link revxrsal.commands.autocomplete.SuggestionProvider#empty()}, as Brigadier
      * treats such parameters in a more nuanced way.
@@ -228,11 +232,15 @@ public final class BrigadierAdapter {
             BrigadierConverter<A, S> adapter,
             Lamp<A> lamp
     ) {
-        if (parameter.suggestions().equals(empty()))
+        if (parameter.suggestions().equals(empty())) {
+            if (parameter.parameterType() instanceof BrigadierParameterType<?, ?> brigadierParameterType) {
+                return brigadierParameterType.argumentType::listSuggestions;
+            }
             return null;
+        }
+        String tooltipMessage = parameter.description() == null ? parameter.name() : parameter.description();
         return (context, builder) -> {
             A actor = adapter.createActor(context.getSource(), lamp);
-            String tooltipMessage = parameter.description() == null ? parameter.name() : parameter.description();
             Message tooltip = new LiteralMessage(tooltipMessage);
             String input = context.getInput();
             lamp.autoCompleter().complete(actor, input.startsWith("/") ? input.substring(1) : input)
@@ -255,23 +263,35 @@ public final class BrigadierAdapter {
      * @return The parameter node
      */
     public static <A extends CommandActor, T> @NotNull ParameterType<A, T> toParameterType(@NotNull ArgumentType<T> argumentType) {
-        return new ParameterType<>() {
-
-            @Override public boolean isGreedy() {
-                if (argumentType instanceof StringArgumentType sat) {
-                    return sat.getType() == StringArgumentType.StringType.GREEDY_PHRASE;
-                }
-                return false;
-            }
-
-            @SneakyThrows
-            @Override public T parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<A> context) {
-                StringReader reader = new StringReader(input.source());
-                reader.setCursor(input.position());
-                T result = argumentType.parse(reader);
-                input.setPosition(reader.getCursor());
-                return result;
-            }
-        };
+        return new BrigadierParameterType<>(argumentType);
     }
+
+    /**
+     * A {@link ParameterType} that wraps a Brigadier {@link ArgumentType}
+     *
+     * @param argumentType The argument to wrap
+     * @param <A>          The actor type
+     * @param <T>          The parameter type
+     */
+    private record BrigadierParameterType<A extends CommandActor, T>(
+            ArgumentType<T> argumentType
+    ) implements ParameterType<A, T> {
+
+        @Override public boolean isGreedy() {
+            if (argumentType instanceof StringArgumentType sat) {
+                return sat.getType() == StringArgumentType.StringType.GREEDY_PHRASE;
+            }
+            return false;
+        }
+
+        @SneakyThrows
+        @Override public T parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<A> context) {
+            StringReader reader = new StringReader(input.source());
+            reader.setCursor(input.position());
+            T result = argumentType.parse(reader);
+            input.setPosition(reader.getCursor());
+            return result;
+        }
+    }
+
 }
