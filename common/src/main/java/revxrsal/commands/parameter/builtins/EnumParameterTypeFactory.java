@@ -27,6 +27,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.list.AnnotationList;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.EnumNotFoundException;
 import revxrsal.commands.node.ExecutionContext;
@@ -78,9 +79,8 @@ public enum EnumParameterTypeFactory implements ParameterType.Factory<CommandAct
             throw new EnumNotFoundException(key);
         }
 
-        @Override
-        public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull CommandActor actor, @NotNull ExecutionContext<CommandActor> context) {
-            return suggestions;
+        @Override public @NotNull SuggestionProvider<CommandActor> defaultSuggestions() {
+            return SuggestionProvider.of(suggestions);
         }
 
         @Override

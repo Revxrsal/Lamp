@@ -30,6 +30,7 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Delimiter;
 import revxrsal.commands.annotation.Sized;
 import revxrsal.commands.annotation.list.AnnotationList;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.InputParseException;
 import revxrsal.commands.exception.InvalidListSizeException;
@@ -37,12 +38,14 @@ import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.parameter.PrioritySpec;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
 import revxrsal.commands.util.Classes;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+
+import static revxrsal.commands.autocomplete.SuggestionProvider.empty;
+import static revxrsal.commands.util.Collections.filter;
 
 @ApiStatus.Internal
 abstract class CollectionParameterTypeFactory implements ParameterType.Factory<CommandActor> {
@@ -130,14 +133,20 @@ abstract class CollectionParameterTypeFactory implements ParameterType.Factory<C
         }
 
         @Override
-        public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull CommandActor actor, @NotNull ExecutionContext<CommandActor> context) {
-            List<String> inputted = List.of(input.peekRemaining().split(Character.toString(delimiter)));
-            if (preventsDuplicates()) {
-                return componentType.defaultSuggestions(input, actor, context).stream()
-                        .filter(c -> !inputted.contains(c))
-                        .toList();
-            }
-            return componentType.defaultSuggestions(input, actor, context);
+        public @NotNull SuggestionProvider<CommandActor> defaultSuggestions() {
+            SuggestionProvider<CommandActor> paramSuggestions = componentType.defaultSuggestions();
+            if (paramSuggestions.equals(empty()))
+                return empty();
+            return (input, actor, context) -> {
+                List<String> inputted = List.of(input.peekRemaining().split(Character.toString(delimiter)));
+                if (preventsDuplicates()) {
+                    return filter(
+                            paramSuggestions.getSuggestions(input, actor, context),
+                            c -> !inputted.contains(c)
+                    );
+                }
+                return paramSuggestions.getSuggestions(input, actor, context);
+            };
         }
 
         @Override

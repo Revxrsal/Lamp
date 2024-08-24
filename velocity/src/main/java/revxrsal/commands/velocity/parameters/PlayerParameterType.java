@@ -27,14 +27,13 @@ package revxrsal.commands.velocity.parameters;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
 import revxrsal.commands.velocity.exception.InvalidPlayerException;
 
-import java.util.List;
 import java.util.Optional;
 
 import static revxrsal.commands.util.Collections.map;
@@ -58,8 +57,7 @@ public record PlayerParameterType(@NotNull ProxyServer server) implements Parame
         throw new InvalidPlayerException(name);
     }
 
-    @Override
-    public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull VelocityCommandActor actor, @NotNull ExecutionContext<VelocityCommandActor> context) {
-        return map(server.getAllPlayers(), Player::getUsername);
+    @Override public @NotNull SuggestionProvider<VelocityCommandActor> defaultSuggestions() {
+        return (input, actor, context) -> map(server.getAllPlayers(), Player::getUsername);
     }
 }

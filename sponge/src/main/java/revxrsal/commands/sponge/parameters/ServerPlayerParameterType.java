@@ -26,14 +26,13 @@ package revxrsal.commands.sponge.parameters;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.sponge.actor.SpongeCommandActor;
 import revxrsal.commands.sponge.exception.InvalidPlayerException;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
 
-import java.util.List;
 import java.util.Optional;
 
 import static revxrsal.commands.util.Collections.map;
@@ -58,7 +57,7 @@ public final class ServerPlayerParameterType implements ParameterType<SpongeComm
     }
 
     @Override
-    public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull SpongeCommandActor actor, @NotNull ExecutionContext<SpongeCommandActor> context) {
-        return map(Sponge.server().onlinePlayers(), ServerPlayer::name);
+    public @NotNull SuggestionProvider<SpongeCommandActor> defaultSuggestions() {
+        return (input, actor, context) -> map(Sponge.server().onlinePlayers(), ServerPlayer::name);
     }
 }

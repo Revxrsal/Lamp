@@ -26,16 +26,14 @@ package revxrsal.commands.sponge.parameters;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.server.ServerWorld;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.sponge.actor.SpongeCommandActor;
 import revxrsal.commands.sponge.exception.InvalidWorldException;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
 
-import java.util.List;
 import java.util.Optional;
 
 import static revxrsal.commands.util.Collections.map;
@@ -60,7 +58,7 @@ public final class ServerWorldParameterType implements ParameterType<SpongeComma
     }
 
     @Override
-    public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull SpongeCommandActor actor, @NotNull ExecutionContext<SpongeCommandActor> context) {
-        return map(Sponge.server().worldManager().worlds(), world -> world.key().value());
+    public @NotNull SuggestionProvider<SpongeCommandActor> defaultSuggestions() {
+        return (input, actor, context) -> map(Sponge.server().worldManager().worlds(), world -> world.key().value());
     }
 }

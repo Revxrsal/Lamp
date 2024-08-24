@@ -27,6 +27,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
 import revxrsal.commands.node.ExecutionContext;
@@ -58,9 +59,8 @@ public final class OfflinePlayerParameterType implements ParameterType<BukkitCom
         throw new InvalidPlayerException(name);
     }
 
-    @Override
-    public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull BukkitCommandActor actor, @NotNull ExecutionContext<BukkitCommandActor> context) {
-        return map(Bukkit.getOnlinePlayers(), Player::getName);
+    @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
+        return (input, actor, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }
 
     private static boolean exists(OfflinePlayer player) {

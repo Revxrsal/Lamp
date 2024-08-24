@@ -107,7 +107,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                         return List.of();
                     }
                     if (input.canRead(1) && input.peek() == ' ') {
-                        // our parameter is just fine. move to the next node
+                        // our literal is just fine. move to the next node
                         input.moveForward();
                         continue;
                     }
@@ -180,7 +180,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
         if (child instanceof LiteralNode<A> l)
             return List.of(l.name());
         else if (child instanceof ParameterNode<A, ?> p)
-            return p.parameterType().defaultSuggestions(input, actor, context);
+            return p.complete(actor, input, context);
         else
             return List.of();
     }

@@ -24,29 +24,28 @@
 package revxrsal.commands.parameter.primitives;
 
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.parameter.PrioritySpec;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
-
-import java.util.List;
 
 /**
  * A basic {@link ParameterType} for parsing {@code boolean} types
  */
 public final class BooleanParameterType implements ParameterType<CommandActor, Boolean> {
 
-    private static final List<String> SUGGESTIONS = List.of("true", "false");
+    private static final SuggestionProvider<CommandActor> SUGGESTIONS = SuggestionProvider.of(
+            "true", "false"
+    );
 
     @Override
     public Boolean parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<CommandActor> context) {
         return input.readBoolean();
     }
 
-    @Override
-    public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull CommandActor actor, @NotNull ExecutionContext<CommandActor> context) {
+    @Override public @NotNull SuggestionProvider<CommandActor> defaultSuggestions() {
         return SUGGESTIONS;
     }
 

@@ -44,7 +44,7 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.MutableStringStreamImpl;
 import revxrsal.commands.stream.StringStream;
 
-import java.util.Collection;
+import java.util.List;
 
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
 
@@ -158,9 +158,7 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     }
 
     @Override
-    public @NotNull Collection<String> complete(@NotNull A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
-        if (suggestions == SuggestionProvider.empty())
-            return type.defaultSuggestions(input, actor, context);
+    public @NotNull List<String> complete(@NotNull A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
         return suggestions.getSuggestions(input, actor, context);
     }
 

@@ -26,14 +26,12 @@ package revxrsal.commands.bukkit.parameters;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.exception.InvalidWorldException;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
-
-import java.util.List;
 
 import static revxrsal.commands.util.Collections.map;
 
@@ -56,8 +54,7 @@ public final class WorldParameterType implements ParameterType<BukkitCommandActo
         throw new InvalidWorldException(name);
     }
 
-    @Override
-    public @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull BukkitCommandActor actor, @NotNull ExecutionContext<BukkitCommandActor> context) {
-        return map(Bukkit.getWorlds(), World::getName);
+    @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
+        return (input, actor, context) -> map(Bukkit.getWorlds(), World::getName);
     }
 }

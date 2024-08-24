@@ -224,14 +224,18 @@ public final class TreeParser<A extends CommandActor> {
     }
 
     private MutableParameterNode<A, Object> createParameterNode(CommandParameter parameter) {
+        ParameterType<A, Object> parameterType = lamp
+                .resolver(parameter)
+                .requireParameterType(parameter.fullType());
+
         MutableParameterNode<A, Object> argument = new MutableParameterNode<>(parameter.name());
+        argument.setType(parameterType);
         argument.setParameter(parameter);
         if (parameter.isOptional()) {
             argument.setOptional(true);
             requireOptionals = true;
         }
         argument.setPermission(lamp.createPermission(parameter.annotations()));
-        setParameterType(argument);
         setSuggestions(argument);
         return argument;
     }
@@ -247,11 +251,4 @@ public final class TreeParser<A extends CommandActor> {
             argument.setType(((ParameterType) StringParameterType.greedy()));
     }
 
-    private void setParameterType(MutableParameterNode<A, Object> argument) {
-        CommandParameter parameter = argument.parameter();
-        ParameterType<A, Object> parameterType = lamp
-                .resolver(parameter)
-                .requireParameterType(parameter.fullType());
-        argument.setType(parameterType);
-    }
 }

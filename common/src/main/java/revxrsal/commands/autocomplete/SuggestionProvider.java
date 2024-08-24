@@ -76,7 +76,7 @@ public interface SuggestionProvider<A extends CommandActor> {
      * @return The command suggestions.
      */
     @NotNull
-    Collection<String> getSuggestions(@NotNull StringStream input, @NotNull A actor, @NotNull ExecutionContext<A> context);
+    List<String> getSuggestions(@NotNull StringStream input, @NotNull A actor, @NotNull ExecutionContext<A> context);
 
     /**
      * Returns a {@link SuggestionProvider} that always gives empty suggestions.

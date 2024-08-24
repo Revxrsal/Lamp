@@ -28,16 +28,14 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.ParseWith;
 import revxrsal.commands.annotation.list.AnnotationList;
+import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.parameter.builtins.ClassParameterTypeFactory;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Represents a parameter type that produces values from the user input {@link MutableStringStream}.
@@ -85,8 +83,8 @@ public interface ParameterType<A extends CommandActor, T> extends BaseParameterT
      *
      * @return The default type suggestions
      */
-    default @NotNull List<String> defaultSuggestions(@NotNull StringStream input, @NotNull A actor, @NotNull ExecutionContext<A> context) {
-        return Collections.emptyList();
+    @NotNull default SuggestionProvider<A> defaultSuggestions() {
+        return SuggestionProvider.empty();
     }
 
     /**
