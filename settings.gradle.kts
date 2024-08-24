@@ -19,3 +19,9 @@ include("sample-plugin")
 include("velocity")
 include("sponge")
 include("jda")
+
+/* example projects */
+include("examples")
+
+include("examples:bukkit-plugin")
+findProject(":examples:bukkit-plugin")?.name = "bukkit-plugin"

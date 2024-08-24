@@ -20,7 +20,12 @@ subprojects {
     version = rootProject.version
 
     apply(plugin = "java")
-    apply(plugin = "com.vanniktech.maven.publish")
+
+    val isExample = project.path.startsWith(":example")
+
+
+    if (!isExample)
+        apply(plugin = "com.vanniktech.maven.publish")
 
     java {
         toolchain {
@@ -28,42 +33,43 @@ subprojects {
         }
     }
 
-    mavenPublishing {
-        coordinates(
-            groupId = group as String,
-            artifactId = "lamp.$name",
-            version = version as String
-        )
-        pom {
-            name.set("Lamp")
-            description.set("A modern annotation-driven commands framework for Java")
-            inceptionYear.set("2024")
-            url.set("https://github.com/Revxrsal/Lamp/")
-            licenses {
-                license {
-                    name.set("MIT")
-                    url.set("https://mit-license.org/")
-                    distribution.set("https://mit-license.org/")
-                }
-            }
-            developers {
-                developer {
-                    id.set("revxrsal")
-                    name.set("Revxrsal")
-                    url.set("https://github.com/Revxrsal/")
-                }
-            }
-            scm {
+    if (!isExample)
+        mavenPublishing {
+            coordinates(
+                groupId = group as String,
+                artifactId = "lamp.$name",
+                version = version as String
+            )
+            pom {
+                name.set("Lamp")
+                description.set("A modern annotation-driven commands framework for Java")
+                inceptionYear.set("2024")
                 url.set("https://github.com/Revxrsal/Lamp/")
-                connection.set("scm:git:git://github.com/Revxrsal/Lamp.git")
-                developerConnection.set("scm:git:ssh://git@github.com/Revxrsal/Lamp.git")
+                licenses {
+                    license {
+                        name.set("MIT")
+                        url.set("https://mit-license.org/")
+                        distribution.set("https://mit-license.org/")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("revxrsal")
+                        name.set("Revxrsal")
+                        url.set("https://github.com/Revxrsal/")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/Revxrsal/Lamp/")
+                    connection.set("scm:git:git://github.com/Revxrsal/Lamp.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/Revxrsal/Lamp.git")
+                }
             }
+
+            publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+            signAllPublications()
         }
-
-        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-
-        signAllPublications()
-    }
 
 
     repositories {
