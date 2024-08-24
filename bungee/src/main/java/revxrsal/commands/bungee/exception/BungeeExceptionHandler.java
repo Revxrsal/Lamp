@@ -45,6 +45,14 @@ public class BungeeExceptionHandler extends DefaultExceptionHandler<BungeeComman
             actor.error(legacyColorize("&cYou must input at most &e" + fmt(e.maximum()) + " &centries for &e" + parameter.name() + "&c."));
     }
 
+    @Override
+    public void onInvalidStringSize(@NotNull InvalidStringSizeException e, @NotNull BungeeCommandActor actor, @NotNull ParameterNode<BungeeCommandActor, ?> parameter) {
+        if (e.input().length() < e.minimum())
+            actor.error(legacyColorize("&cParameter &e" + parameter.name() + " &cmust be at least &e" + fmt(e.minimum()) + " &ccharacters long."));
+        if (e.input().length() > e.maximum())
+            actor.error(legacyColorize("&cParameter &e" + parameter.name() + " &ccan be at most &e" + fmt(e.maximum()) + " &ccharacters long."));
+    }
+
     @Override public void onInvalidBoolean(@NotNull InvalidBooleanException e, @NotNull BungeeCommandActor actor) {
         actor.error(legacyColorize("&cExpected &etrue &cor &efalse&c, found &e" + e.input() + "&c."));
     }

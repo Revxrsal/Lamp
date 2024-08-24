@@ -57,6 +57,14 @@ public class DefaultExceptionHandler<A extends CommandActor> extends RuntimeExce
     }
 
     @HandleException
+    public void onInvalidStringSize(@NotNull InvalidStringSizeException e, @NotNull A actor, @NotNull ParameterNode<A, ?> parameter) {
+        if (e.input().length() < e.minimum())
+            actor.error("Parameter " + parameter.name() + " must be at least " + fmt(e.minimum()) + " characters long.");
+        if (e.input().length() > e.maximum())
+            actor.error("Parameter " + parameter.name() + " can be at most " + fmt(e.maximum()) + " characters long.");
+    }
+
+    @HandleException
     public void onInvalidBoolean(@NotNull InvalidBooleanException e, @NotNull A actor) {
         actor.error("Expected 'true' or 'false', found " + e.input());
     }

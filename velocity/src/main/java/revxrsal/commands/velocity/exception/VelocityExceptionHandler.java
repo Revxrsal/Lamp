@@ -1,7 +1,6 @@
 package revxrsal.commands.velocity.exception;
 
 import org.jetbrains.annotations.NotNull;
-
 import revxrsal.commands.exception.*;
 import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
@@ -49,6 +48,14 @@ public class VelocityExceptionHandler extends DefaultExceptionHandler<VelocityCo
             actor.error(legacyColorize("&cYou must input at least &e" + fmt(e.minimum()) + " &centries for &e" + parameter.name() + "&c."));
         if (e.inputSize() > e.maximum())
             actor.error(legacyColorize("&cYou must input at most &e" + fmt(e.maximum()) + " &centries for &e" + parameter.name() + "&c."));
+    }
+
+    @Override
+    public void onInvalidStringSize(@NotNull InvalidStringSizeException e, @NotNull VelocityCommandActor actor, @NotNull ParameterNode<VelocityCommandActor, ?> parameter) {
+        if (e.input().length() < e.minimum())
+            actor.error(legacyColorize("&cParameter &e" + parameter.name() + " &cmust be at least &e" + fmt(e.minimum()) + " &ccharacters long."));
+        if (e.input().length() > e.maximum())
+            actor.error(legacyColorize("&cParameter &e" + parameter.name() + " &ccan be at most &e" + fmt(e.maximum()) + " &ccharacters long."));
     }
 
     @Override public void onInvalidBoolean(@NotNull InvalidBooleanException e, @NotNull VelocityCommandActor actor) {
