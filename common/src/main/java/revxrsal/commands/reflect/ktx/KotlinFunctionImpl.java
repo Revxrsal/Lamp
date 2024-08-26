@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.reflect.MethodCaller;
-import revxrsal.commands.util.Preconditions;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -36,6 +35,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static java.lang.reflect.Modifier.isStatic;
 import static revxrsal.commands.reflect.ktx.DefaultFunctionFinder.findDefaultFunction;
 import static revxrsal.commands.reflect.ktx.KotlinConstants.continuation;
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
@@ -115,7 +115,7 @@ final class KotlinFunctionImpl implements KotlinFunction {
             @NotNull Map<Parameter, Object> arguments,
             @NotNull Function<Parameter, Boolean> isOptional
     ) {
-        Preconditions.checkCallableStatic(instance, mainMethod.method());
+        checkCallableStatic(instance, mainMethod.method());
         List<Object> args = new ArrayList<>();
         int mask = 0;
         List<Integer> masks = new ArrayList<>(1);
@@ -203,5 +203,11 @@ final class KotlinFunctionImpl implements KotlinFunction {
     @Override
     public @NotNull Parameter getParameter(int index) {
         return parameters.get(index);
+    }
+
+    private static void checkCallableStatic(@Nullable Object instance, @NotNull Method method) {
+        if (instance == null && !isStatic(method.getModifiers()))
+            throw new IllegalArgumentException("The given method is not static, and no instance was provided. "
+                    + "Either mark the function as static with @JvmStatic, or pass the object/companion object value for the instance.");
     }
 }

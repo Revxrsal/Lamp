@@ -47,61 +47,43 @@
 package revxrsal.commands.util;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Objects;
 
-import static java.lang.reflect.Modifier.isStatic;
-
+/**
+ * A utility class to check for preconditions of functions, allowing
+ * to catch problematic user input early on.
+ */
 public final class Preconditions {
 
     private Preconditions() {
         cannotInstantiate(Preconditions.class);
     }
 
-    public static <T> void notEmpty(T[] array, String err) {
+    /**
+     * Ensures that the given array is not empty
+     *
+     * @param array        Array to check
+     * @param errorMessage Error message to throw with
+     * @param <T>          The array type
+     */
+    public static <T> void notEmpty(T[] array, String errorMessage) {
         if (array.length == 0)
-            throw new IllegalStateException(err);
+            throw new IllegalStateException(errorMessage);
     }
 
-    public static <T> void notEmpty(Collection<T> collection, String err) {
-        if (collection.size() == 0)
-            throw new IllegalStateException(err);
-    }
-
-    public static void notEmpty(String s, String err) {
-        if (s.length() == 0)
-            throw new IllegalStateException(err);
-    }
-
-    public static void checkArgument(boolean expr, String err) {
-        if (!expr)
-            throw new IllegalArgumentException(err);
-    }
-
-    public static int coerceIn(int value, int min, int max) {
-        return value < min ? min : Math.min(value, max);
-    }
-
-    public static int coerceAtMost(int value, int max) {
-        return Math.min(value, max);
-    }
-
-    public static int coerceAtLeast(int value, int min) {
-        return Math.max(value, min);
-    }
-
+    /**
+     * Checks that the specified object reference is not {@code null}. This will
+     * automatically append {@code cannot be null!} to the error message.
+     *
+     * @param t   Object to check
+     * @param err Error message.
+     * @param <T> The object type
+     * @return The same object
+     */
+    @Contract("null, _ -> fail; !null, _ -> param1")
     public static <T> T notNull(T t, String err) {
         return Objects.requireNonNull(t, err + " cannot be null!");
-    }
-
-    public static void checkCallableStatic(@Nullable Object instance, @NotNull Method method) {
-        if (instance == null && !isStatic(method.getModifiers()))
-            throw new IllegalArgumentException("The given method is not static, and no instance was provided. "
-                    + "Either mark the function as static with @JvmStatic, or pass the object/companion object value for the instance.");
     }
 
     /**
