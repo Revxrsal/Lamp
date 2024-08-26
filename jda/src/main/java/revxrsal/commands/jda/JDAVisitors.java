@@ -37,6 +37,7 @@ import revxrsal.commands.LampVisitor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.jda.actor.SlashActorFactory;
 import revxrsal.commands.jda.actor.SlashCommandActor;
+import revxrsal.commands.jda.exception.SlashJDAExceptionHandler;
 import revxrsal.commands.jda.sender.JDASenderResolver;
 import revxrsal.commands.jda.slash.JDAParser;
 import revxrsal.commands.jda.slash.JDASlashListener;
@@ -177,5 +178,16 @@ public final class JDAVisitors {
                 .addParameterTypeLast(ScheduledEvent.class, scheduledEvent())
                 .addParameterTypeLast(Emoji.class, emoji())
                 .addParameterTypeLast(Category.class, category());
+    }
+
+    /**
+     * Registers the default {@link revxrsal.commands.exception.CommandExceptionHandler} for JDA
+     * exceptions
+     *
+     * @param <A> The actor type
+     * @return The visitor
+     */
+    public static <A extends SlashCommandActor> @NotNull LampBuilderVisitor<A> jdaExceptionHandler() {
+        return builder -> builder.exceptionHandler(new SlashJDAExceptionHandler<>());
     }
 }

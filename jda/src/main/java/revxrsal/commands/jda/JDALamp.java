@@ -39,6 +39,7 @@ public final class JDALamp {
 
     public static @NotNull <A extends SlashCommandActor> Builder<A> builder() {
         return Lamp.<A>builder()
+                .accept(jdaExceptionHandler())
                 .accept(jdaParameterTypes())
                 .accept(jdaSenderResolver())
                 .accept(embedResponseHandlers())
