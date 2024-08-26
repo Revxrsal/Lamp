@@ -24,10 +24,12 @@
 package revxrsal.commands.jda.exception;
 
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import revxrsal.commands.exception.ThrowableFromCommand;
 
 /**
  * Thrown when the user supplies a channel of the wrong type
  */
+@ThrowableFromCommand
 public class WrongChannelTypeException extends RuntimeException {
 
     /**

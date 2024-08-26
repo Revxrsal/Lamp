@@ -31,6 +31,7 @@ import revxrsal.commands.stream.MutableStringStream;
  * occurs if the user inputs an invalid escape sequence, or if they have
  * unclosed quotations
  */
+@ThrowableFromCommand
 public final class InputParseException extends RuntimeException {
 
     /**

@@ -26,11 +26,13 @@ package revxrsal.commands.jda.exception;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.exception.ThrowableFromCommand;
 
 /**
  * Thrown when a user supplies a {@link User}, but we require a {@link Member} (a user
  * in the executing guild)
  */
+@ThrowableFromCommand
 public class MemberNotInGuildException extends RuntimeException {
 
     /**

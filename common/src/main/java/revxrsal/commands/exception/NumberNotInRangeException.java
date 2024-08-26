@@ -32,6 +32,7 @@ import revxrsal.commands.annotation.Range;
  *
  * @see Range
  */
+@ThrowableFromCommand
 public class NumberNotInRangeException extends RuntimeException {
 
     /**

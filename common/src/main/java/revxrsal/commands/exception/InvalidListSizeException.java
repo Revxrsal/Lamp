@@ -35,6 +35,7 @@ import java.util.List;
  * This exception is used to indicate that the size of a list is either
  * smaller than the minimum allowed size or larger than the maximum allowed size.
  */
+@ThrowableFromCommand
 public class InvalidListSizeException extends RuntimeException {
 
     private final int minimum, maximum;

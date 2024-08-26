@@ -32,6 +32,7 @@ import revxrsal.commands.command.CommandActor;
  * exception handlers, and instead get their {@link #sendTo(CommandActor)} method invoked
  * directly.
  */
+@ThrowableFromCommand
 public abstract class SendableException extends RuntimeException {
 
     /**

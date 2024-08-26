@@ -31,6 +31,7 @@ import revxrsal.commands.node.RequiresPermission;
  * Thrown when a {@link CommandActor} lacks the required permission to
  * execute the given command or category.
  */
+@ThrowableFromCommand
 public class NoPermissionException extends RuntimeException {
 
     private final @NotNull RequiresPermission<?> target;

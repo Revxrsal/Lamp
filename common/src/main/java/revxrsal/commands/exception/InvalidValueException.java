@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
  * for example, an invalid number for a number parameter, or an invalid
  * UUID for a {@link java.util.UUID} parameter.
  */
+@ThrowableFromCommand
 public abstract class InvalidValueException extends RuntimeException {
 
     /**
