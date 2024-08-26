@@ -92,7 +92,6 @@ public interface SlashCommandActor extends CommandActor {
         return event().getGuild();
     }
 
-
     /**
      * Returns the guild the command was executed in, otherwise throws
      * a {@link GuildOnlyCommandException}
