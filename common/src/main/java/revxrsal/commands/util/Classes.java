@@ -46,7 +46,6 @@
  */
 package revxrsal.commands.util;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -218,7 +217,6 @@ public final class Classes {
      * the wrong parameters.
      */
     @Deprecated
-    @ApiStatus.ScheduledForRemoval
     @Contract("_,_ -> param2")
     public static Type getFirstGeneric(Class<?> cl, Type fallback) {
         return fallback;
