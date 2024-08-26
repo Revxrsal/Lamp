@@ -64,7 +64,7 @@ final class BasicActor implements SlashCommandActor {
     }
 
     @Override public void sendRawError(@NotNull String message) {
-        event.getMessageChannel().sendMessage("🚨 " + message).queue();
+        event.getMessageChannel().sendMessage("🛑 " + message).queue();
     }
 
     @Override public Lamp<SlashCommandActor> lamp() {

@@ -36,7 +36,7 @@ public class SlashJDAExceptionHandler<A extends SlashCommandActor> extends Defau
 
     @HandleException
     public void onMemberNotInGuild(MemberNotInGuildException e, SlashCommandActor actor) {
-        actor.commandEvent().reply("🚨 User **" + e.suppliedUser().getEffectiveName() + "** is not in this guild.").queue();
+        actor.commandEvent().reply("🛑 User **" + e.suppliedUser().getEffectiveName() + "** is not in this guild.").queue();
     }
 
     @HandleException
@@ -44,16 +44,16 @@ public class SlashJDAExceptionHandler<A extends SlashCommandActor> extends Defau
         String typeName = e.expectedType().getSimpleName();
         String exp = separateCamelCase(typeName, " ").toLowerCase(Locale.ENGLISH);
         String rec = e.channel().getType().name().toLowerCase().replace('_', ' ');
-        actor.commandEvent().reply("🚨 Wrong channel type. Expected a **" + exp + "**, received a **" + rec + "**.").queue();
+        actor.commandEvent().reply("🛑 Wrong channel type. Expected a **" + exp + "**, received a **" + rec + "**.").queue();
     }
 
     @HandleException
     public void onGuildOnlyCommand(GuildOnlyCommandException e, SlashCommandActor actor) {
-        actor.commandEvent().reply("🚨 This command can only be used in guilds").queue();
+        actor.commandEvent().reply("🛑 This command can only be used in guilds").queue();
     }
 
     @Override public void onCommandInvocation(@NotNull CommandInvocationException e, @NotNull A actor) {
-        actor.commandEvent().reply("🚨 An error has occurred while executing this command. Please contact the developers." +
+        actor.commandEvent().reply("🛑 An error has occurred while executing this command. Please contact the developers." +
                 " Errors have been printed to the console.").queue();
         e.cause().printStackTrace();
     }
