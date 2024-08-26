@@ -267,12 +267,12 @@ public final class JDAUtils {
                 if (range.max() == Double.MAX_VALUE)
                     data.setMaxValue(min(MAX_POSITIVE_NUMBER, Numbers.getMaxValue(type).doubleValue()));
                 else
-                    data.setMaxValue(min(range.min(), Numbers.getMaxValue(type).doubleValue()));
+                    data.setMaxValue(min(range.max(), Numbers.getMaxValue(type).doubleValue()));
             } else {
                 if (range.min() == Double.MIN_VALUE)
                     data.setMinValue(max((long) MIN_NEGATIVE_NUMBER, Numbers.getMinValue(type).longValue()));
                 else
-                    data.setMinValue(max((long) range.max(), Numbers.getMinValue(type).longValue()));
+                    data.setMinValue(max((long) range.min(), Numbers.getMinValue(type).longValue()));
 
                 if (range.max() == Double.MAX_VALUE)
                     data.setMaxValue(min((long) MAX_POSITIVE_NUMBER, Numbers.getMaxValue(type).longValue()));
