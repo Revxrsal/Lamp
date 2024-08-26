@@ -69,6 +69,11 @@ public final class Hooks<A extends CommandActor> {
         return new Builder<>();
     }
 
+    /**
+     * Creates a new {@link CancelHandle}
+     *
+     * @return The cancel handle
+     */
     private static @NotNull CancelHandle newCancelHandle() {
         return new BasicCancelHandle();
     }
