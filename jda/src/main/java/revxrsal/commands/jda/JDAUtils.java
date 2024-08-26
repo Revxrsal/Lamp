@@ -40,11 +40,11 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Length;
 import revxrsal.commands.annotation.Range;
-import revxrsal.commands.annotation.Suggest;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.jda.actor.SlashCommandActor;
+import revxrsal.commands.jda.annotation.Choices;
 import revxrsal.commands.jda.annotation.NSFW;
 import revxrsal.commands.jda.exception.MemberNotInGuildException;
 import revxrsal.commands.jda.exception.WrongChannelTypeException;
@@ -132,10 +132,10 @@ public final class JDAUtils {
                 return option.getAsString();
             }
             case INTEGER -> {
-                return parameter.type().cast(option.getAsInt());
+                return safeIntegerCast(option.getAsInt(), parameter.type());
             }
             case NUMBER -> {
-                return parameter.type().cast(option.getAsDouble());
+                return safeDoubleCast(option.getAsInt(), parameter.type());
             }
             case BOOLEAN -> {
                 return option.getAsBoolean();
@@ -167,6 +167,26 @@ public final class JDAUtils {
         throw new IllegalArgumentException("Don't know how to fetch a value from Option: " + option + " for parameter " + parameter.name() + " of type " + parameter.type());
     }
 
+    private static @NotNull Object safeIntegerCast(int value, Class<?> type) {
+        if (type == int.class)
+            return value;
+        if (type == short.class)
+            return (short) value;
+        if (type == byte.class)
+            return (byte) value;
+        if (type == long.class)
+            return (long) value;
+        return value;
+    }
+
+    private static @NotNull Object safeDoubleCast(double value, Class<?> type) {
+        if (type == double.class)
+            return value;
+        if (type == float.class)
+            return (float) value;
+        return value;
+    }
+
     /**
      * Creates {@link OptionData} from the given {@link ParameterNode}. This will respect
      * the following annotations:
@@ -174,7 +194,7 @@ public final class JDAUtils {
      *     <li>{@link NSFW @NSFW}</li>
      *     <li>{@link Range @Range}</li>
      *     <li>{@link Length @Length}</li>
-     *     <li>{@link Suggest @Suggest}</li>
+     *     <li>{@link Choices @Choices}</li>
      * </ul>
      * If the parameter type is an enum, it will also use its values
      * as predefined choices
@@ -194,12 +214,21 @@ public final class JDAUtils {
         if (!parameter.suggestions().equals(SuggestionProvider.empty()))
             data.setAutoComplete(true);
         Range range = parameter.annotations().get(Range.class);
+        Class<?> paramType = wrap(parameter.type());
         if (range != null) {
-            Class<?> paramType = wrap(parameter.type());
             if (paramType == Double.class || paramType == Float.class)
                 data.setRequiredRange(range.min(), range.max());
             else
                 data.setRequiredRange((long) range.min(), (long) range.max());
+        } else {
+            if (paramType == Integer.class)
+                data.setRequiredRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
+            else if (paramType == Short.class)
+                data.setRequiredRange(Short.MIN_VALUE, Short.MAX_VALUE);
+            else if (paramType == Byte.class)
+                data.setRequiredRange(Byte.MIN_VALUE, Byte.MAX_VALUE);
+            else if (paramType == Float.class)
+                data.setRequiredRange(Float.MIN_VALUE, Float.MAX_VALUE);
         }
         Length length = parameter.annotations().get(Length.class);
         if (length != null)
@@ -210,10 +239,10 @@ public final class JDAUtils {
             if (channelType != null)
                 data.setChannelTypes(channelType);
         }
-        Choice[] suggestions = mapToChoices(parameter.annotations().get(Suggest.class), data.getType());
-        if (suggestions != null) {
+        Choice[] choices = mapToChoices(parameter.annotations().get(Choices.class), data.getType());
+        if (choices != null) {
             data.setAutoComplete(false);
-            data.addChoices(suggestions);
+            data.addChoices(choices);
         } else if (parameter.type().isEnum()) {
             data.setAutoComplete(false);
             Enum<?>[] enums = (Enum<?>[]) parameter.type().getEnumConstants();
@@ -226,14 +255,14 @@ public final class JDAUtils {
     }
 
     /**
-     * Maps the values inside a {@link Suggest @Suggest} into {@link Choice choices}
+     * Maps the values inside a {@link Choices @Choices} annotation into {@link Choice choices}
      *
      * @param suggest Suggest annotation
      * @param type    The option type
      * @return The choices array
      */
     @Contract("null, _ -> null")
-    private static Choice[] mapToChoices(@Nullable Suggest suggest, @NotNull OptionType type) {
+    private static Choice[] mapToChoices(@Nullable Choices suggest, @NotNull OptionType type) {
         if (suggest == null)
             return null;
         String[] suggests = suggest.value();

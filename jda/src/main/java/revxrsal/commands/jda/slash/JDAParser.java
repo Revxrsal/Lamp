@@ -66,13 +66,7 @@ public final class JDAParser<A extends SlashCommandActor> {
             CommandNode<A> node = executable.lastNode();
             if (node.isParameter()) {
                 ParameterNode<A, Object> parameter = node.requireParameterNode();
-                slash.addOption(
-                        toOptionType(parameter),
-                        parameter.name(),
-                        parameter.description() == null ? parameter.name() : parameter.description(),
-                        !parameter.isOptional(),
-                        !parameter.suggestions().equals(SuggestionProvider.empty())
-                );
+                slash.addOptions(toOptionData(parameter));
             } else {
                 slash.addSubcommands(new SubcommandData(node.name(), description));
             }
