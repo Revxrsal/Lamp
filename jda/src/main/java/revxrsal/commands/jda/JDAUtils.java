@@ -248,22 +248,36 @@ public final class JDAUtils {
         Range range = parameter.annotations().get(Range.class);
         Class<?> type = wrap(parameter.type());
         if (range != null) {
-            if (type == Double.class || type == Float.class) {
-                double min = range.min(), max = range.max();
+            if (type == Double.class) {
+                if (range.min() != Double.MIN_VALUE)
+                    data.setMinValue(range.min());
+                if (range.max() != Double.MAX_VALUE)
+                    data.setMaxValue(range.max());
+            } else if (type == Long.class) {
+                if (range.min() != Double.MIN_VALUE)
+                    data.setMinValue((long) range.min());
+                if (range.max() != Double.MAX_VALUE)
+                    data.setMaxValue((long) range.max());
+            } else if (type == Float.class) {
                 if (range.min() == Double.MIN_VALUE)
-                    min = max(MIN_NEGATIVE_NUMBER, Numbers.getMinValue(type).doubleValue());
-                if (range.max() == Double.MAX_VALUE)
-                    max = min(MAX_POSITIVE_NUMBER, Numbers.getMaxValue(type).doubleValue());
+                    data.setMinValue(max(MIN_NEGATIVE_NUMBER, Numbers.getMinValue(type).doubleValue()));
+                else
+                    data.setMinValue(max(range.min(), Numbers.getMinValue(type).doubleValue()));
 
-                if (type == Float.class)
-                    data.setRequiredRange(min, max);
-            } else {
-                long min = (long) range.min(), max = (long) range.max();
-                if (range.min() == Double.MIN_VALUE)
-                    min = max((long) MIN_NEGATIVE_NUMBER, Numbers.getMinValue(type).longValue());
                 if (range.max() == Double.MAX_VALUE)
-                    max = min((long) MAX_POSITIVE_NUMBER, Numbers.getMaxValue(type).longValue());
-                data.setRequiredRange(min, max);
+                    data.setMaxValue(min(MAX_POSITIVE_NUMBER, Numbers.getMaxValue(type).doubleValue()));
+                else
+                    data.setMaxValue(min(range.min(), Numbers.getMaxValue(type).doubleValue()));
+            } else {
+                if (range.min() == Double.MIN_VALUE)
+                    data.setMinValue(max((long) MIN_NEGATIVE_NUMBER, Numbers.getMinValue(type).longValue()));
+                else
+                    data.setMinValue(max((long) range.max(), Numbers.getMinValue(type).longValue()));
+
+                if (range.max() == Double.MAX_VALUE)
+                    data.setMaxValue(min((long) MAX_POSITIVE_NUMBER, Numbers.getMaxValue(type).longValue()));
+                else
+                    data.setMaxValue(min((long) range.max(), Numbers.getMaxValue(type).longValue()));
             }
         } else {
             if (type == Integer.class)
