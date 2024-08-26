@@ -50,9 +50,12 @@ import revxrsal.commands.jda.exception.MemberNotInGuildException;
 import revxrsal.commands.jda.exception.WrongChannelTypeException;
 import revxrsal.commands.node.CommandNode;
 import revxrsal.commands.node.ParameterNode;
+import revxrsal.commands.util.Numbers;
 
 import java.util.*;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static net.dv8tion.jda.api.interactions.commands.build.OptionData.*;
 import static revxrsal.commands.util.Classes.wrap;
 import static revxrsal.commands.util.Collections.map;
@@ -230,7 +233,7 @@ public final class JDAUtils {
         } else if (parameter.type().isEnum()) {
             data.setAutoComplete(false);
             Enum<?>[] enums = (Enum<?>[]) parameter.type().getEnumConstants();
-            for (int i = 0; i < Math.min(enums.length, MAX_CHOICES); i++) {
+            for (int i = 0; i < min(enums.length, MAX_CHOICES); i++) {
                 String value = enums[i].name().toLowerCase();
                 data.addChoice(value, value);
             }
@@ -243,31 +246,33 @@ public final class JDAUtils {
             @NotNull ParameterNode<A, Object> parameter
     ) {
         Range range = parameter.annotations().get(Range.class);
-        Class<?> paramType = wrap(parameter.type());
+        Class<?> type = wrap(parameter.type());
         if (range != null) {
-            if (paramType == Double.class || paramType == Float.class) {
+            if (type == Double.class || type == Float.class) {
                 double min = range.min(), max = range.max();
                 if (range.min() == Double.MIN_VALUE)
-                    min = MIN_NEGATIVE_NUMBER;
+                    min = max(MIN_NEGATIVE_NUMBER, Numbers.getMinValue(type).doubleValue());
                 if (range.max() == Double.MAX_VALUE)
-                    max = MAX_POSITIVE_NUMBER;
-                data.setRequiredRange(min, max);
+                    max = min(MAX_POSITIVE_NUMBER, Numbers.getMaxValue(type).doubleValue());
+
+                if (type == Float.class)
+                    data.setRequiredRange(min, max);
             } else {
                 long min = (long) range.min(), max = (long) range.max();
                 if (range.min() == Double.MIN_VALUE)
-                    min = (long) MIN_NEGATIVE_NUMBER;
+                    min = max((long) MIN_NEGATIVE_NUMBER, Numbers.getMinValue(type).longValue());
                 if (range.max() == Double.MAX_VALUE)
-                    max = (long) MAX_POSITIVE_NUMBER;
+                    max = min((long) MAX_POSITIVE_NUMBER, Numbers.getMaxValue(type).longValue());
                 data.setRequiredRange(min, max);
             }
         } else {
-            if (paramType == Integer.class)
+            if (type == Integer.class)
                 data.setRequiredRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
-            else if (paramType == Short.class)
+            else if (type == Short.class)
                 data.setRequiredRange(Short.MIN_VALUE, Short.MAX_VALUE);
-            else if (paramType == Byte.class)
+            else if (type == Byte.class)
                 data.setRequiredRange(Byte.MIN_VALUE, Byte.MAX_VALUE);
-            else if (paramType == Float.class)
+            else if (type == Float.class)
                 data.setRequiredRange(Float.MIN_VALUE, Float.MAX_VALUE);
         }
     }
@@ -285,7 +290,7 @@ public final class JDAUtils {
             return null;
         String[] suggests = suggest.value();
         Choice[] values = new Choice[suggests.length];
-        for (int i = 0; i < Math.min(suggests.length, MAX_CHOICES); i++) {
+        for (int i = 0; i < min(suggests.length, MAX_CHOICES); i++) {
             String s = suggests[i];
             values[i] = toChoice(s, type);
         }
