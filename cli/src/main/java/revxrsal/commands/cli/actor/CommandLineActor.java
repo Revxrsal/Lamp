@@ -20,11 +20,6 @@ record CommandLineActor(
 
     private static final UUID CLI_UUID = new UUID(0, 0);
 
-    @Override @SneakyThrows public void close() {
-        scanner.close();
-        inputStream.close();
-    }
-
     @Override public @NotNull String name() {
         return "Command Line";
     }
