@@ -111,4 +111,11 @@ public class DefaultExceptionHandler<A extends CommandActor> extends RuntimeExce
     public void onSendable(@NotNull SendableException e, @NotNull A actor) {
         e.sendTo(actor);
     }
+
+    @HandleException
+    public void onCommandInvocation(@NotNull CommandInvocationException e, @NotNull A actor) {
+        actor.error("An error has occurred while executing this command. Please contact the developers. Errors have been printed to the console.");
+        e.cause().printStackTrace();
+    }
+
 }

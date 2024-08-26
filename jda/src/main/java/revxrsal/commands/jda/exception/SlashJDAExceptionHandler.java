@@ -23,6 +23,8 @@
  */
 package revxrsal.commands.jda.exception;
 
+import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.exception.CommandInvocationException;
 import revxrsal.commands.exception.DefaultExceptionHandler;
 import revxrsal.commands.jda.actor.SlashCommandActor;
 
@@ -48,6 +50,12 @@ public class SlashJDAExceptionHandler<A extends SlashCommandActor> extends Defau
     @HandleException
     public void onGuildOnlyCommand(GuildOnlyCommandException e, SlashCommandActor actor) {
         actor.commandEvent().reply("🚨 This command can only be used in guilds").queue();
+    }
+
+    @Override public void onCommandInvocation(@NotNull CommandInvocationException e, @NotNull A actor) {
+        actor.commandEvent().reply("🚨 An error has occurred while executing this command. Please contact the developers." +
+                " Errors have been printed to the console.").queue();
+        e.cause().printStackTrace();
     }
 
     @HandleException

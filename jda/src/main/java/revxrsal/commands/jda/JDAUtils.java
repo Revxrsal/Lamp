@@ -53,7 +53,7 @@ import revxrsal.commands.node.ParameterNode;
 
 import java.util.*;
 
-import static net.dv8tion.jda.api.interactions.commands.build.OptionData.MAX_CHOICES;
+import static net.dv8tion.jda.api.interactions.commands.build.OptionData.*;
 import static revxrsal.commands.util.Classes.wrap;
 import static revxrsal.commands.util.Collections.map;
 import static revxrsal.commands.util.Preconditions.cannotInstantiate;
@@ -143,9 +143,9 @@ public final class JDAUtils {
             case USER -> {
                 if (parameter.type() == Member.class) {
                     Member asMember = option.getAsMember();
-                    if (asMember == null) {
+                    if (asMember == null)
                         throw new MemberNotInGuildException(option.getAsUser());
-                    }
+                    return asMember;
                 }
                 return option.getAsUser();
             }
@@ -213,23 +213,7 @@ public final class JDAUtils {
         data.setRequired(parameter.isRequired());
         if (!parameter.suggestions().equals(SuggestionProvider.empty()))
             data.setAutoComplete(true);
-        Range range = parameter.annotations().get(Range.class);
-        Class<?> paramType = wrap(parameter.type());
-        if (range != null) {
-            if (paramType == Double.class || paramType == Float.class)
-                data.setRequiredRange(range.min(), range.max());
-            else
-                data.setRequiredRange((long) range.min(), (long) range.max());
-        } else {
-            if (paramType == Integer.class)
-                data.setRequiredRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
-            else if (paramType == Short.class)
-                data.setRequiredRange(Short.MIN_VALUE, Short.MAX_VALUE);
-            else if (paramType == Byte.class)
-                data.setRequiredRange(Byte.MIN_VALUE, Byte.MAX_VALUE);
-            else if (paramType == Float.class)
-                data.setRequiredRange(Float.MIN_VALUE, Float.MAX_VALUE);
-        }
+        setParameterRange(data, parameter);
         Length length = parameter.annotations().get(Length.class);
         if (length != null)
             data.setRequiredLength(length.min(), length.max());
@@ -252,6 +236,40 @@ public final class JDAUtils {
             }
         }
         return data;
+    }
+
+    private static <A extends SlashCommandActor> void setParameterRange(
+            @NotNull OptionData data,
+            @NotNull ParameterNode<A, Object> parameter
+    ) {
+        Range range = parameter.annotations().get(Range.class);
+        Class<?> paramType = wrap(parameter.type());
+        if (range != null) {
+            if (paramType == Double.class || paramType == Float.class) {
+                double min = range.min(), max = range.max();
+                if (range.min() == Double.MIN_VALUE)
+                    min = MIN_NEGATIVE_NUMBER;
+                if (range.max() == Double.MAX_VALUE)
+                    max = MAX_POSITIVE_NUMBER;
+                data.setRequiredRange(min, max);
+            } else {
+                long min = (long) range.min(), max = (long) range.max();
+                if (range.min() == Double.MIN_VALUE)
+                    min = (long) MIN_NEGATIVE_NUMBER;
+                if (range.max() == Double.MAX_VALUE)
+                    max = (long) MAX_POSITIVE_NUMBER;
+                data.setRequiredRange(min, max);
+            }
+        } else {
+            if (paramType == Integer.class)
+                data.setRequiredRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
+            else if (paramType == Short.class)
+                data.setRequiredRange(Short.MIN_VALUE, Short.MAX_VALUE);
+            else if (paramType == Byte.class)
+                data.setRequiredRange(Byte.MIN_VALUE, Byte.MAX_VALUE);
+            else if (paramType == Float.class)
+                data.setRequiredRange(Float.MIN_VALUE, Float.MAX_VALUE);
+        }
     }
 
     /**

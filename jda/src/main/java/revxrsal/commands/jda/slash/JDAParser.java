@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.jda.actor.SlashCommandActor;
 import revxrsal.commands.jda.annotation.CommandPermission;
@@ -44,7 +43,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static revxrsal.commands.jda.JDAUtils.toOptionData;
-import static revxrsal.commands.jda.JDAUtils.toOptionType;
 
 public final class JDAParser<A extends SlashCommandActor> {
 
@@ -71,23 +69,31 @@ public final class JDAParser<A extends SlashCommandActor> {
                 slash.addSubcommands(new SubcommandData(node.name(), description));
             }
         } else if (executable.size() >= 3) {
-            CommandNode<A> thirdNode = executable.nodes().get(2);
-            if (thirdNode.isParameter()) {
-                SubcommandData subcommandData = new SubcommandData(executable.nodes().get(1).name(), description);
-                for (int i = 2; i < executable.nodes().size(); i++) {
+            CommandNode<A> secondNode = executable.nodes().get(1);
+            if (secondNode.isParameter()) {
+                for (int i = 1; i < executable.nodes().size(); i++) {
                     ParameterNode<A, Object> parameter = executable.nodes().get(i).requireParameterNode();
-                    subcommandData.addOptions(toOptionData(parameter));
+                    slash.addOptions(toOptionData(parameter));
                 }
-                slash.addSubcommands(subcommandData);
             } else {
-                SubcommandGroupData group = new SubcommandGroupData(executable.nodes().get(1).name(), description);
-                SubcommandData subcommand = new SubcommandData(thirdNode.name(), description);
-                for (int i = 2; i < executable.nodes().size(); i++) {
-                    ParameterNode<A, Object> parameter = executable.nodes().get(i).requireParameterNode();
-                    subcommand.addOptions(toOptionData(parameter));
+                CommandNode<A> thirdNode = executable.nodes().get(2);
+                if (thirdNode.isParameter()) {
+                    SubcommandData subcommandData = new SubcommandData(executable.nodes().get(1).name(), description);
+                    for (int i = 2; i < executable.nodes().size(); i++) {
+                        ParameterNode<A, Object> parameter = executable.nodes().get(i).requireParameterNode();
+                        subcommandData.addOptions(toOptionData(parameter));
+                    }
+                    slash.addSubcommands(subcommandData);
+                } else {
+                    SubcommandGroupData group = new SubcommandGroupData(executable.nodes().get(1).name(), description);
+                    SubcommandData subcommand = new SubcommandData(thirdNode.name(), description);
+                    for (int i = 2; i < executable.nodes().size(); i++) {
+                        ParameterNode<A, Object> parameter = executable.nodes().get(i).requireParameterNode();
+                        subcommand.addOptions(toOptionData(parameter));
+                    }
+                    group.addSubcommands(subcommand);
+                    slash.addSubcommandGroups(group);
                 }
-                group.addSubcommands(subcommand);
-                slash.addSubcommandGroups(group);
             }
         }
     }
