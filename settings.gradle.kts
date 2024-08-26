@@ -25,3 +25,6 @@ include("examples")
 
 include("examples:bukkit-plugin")
 findProject(":examples:bukkit-plugin")?.name = "bukkit-plugin"
+
+include("examples:jda-bot")
+findProject(":examples:jda-bot")?.name = "jda-bot"
