@@ -37,13 +37,6 @@ import revxrsal.commands.command.CommandActor;
 public interface LampVisitor<A extends CommandActor> {
 
     /**
-     * Visits the given {@link Lamp}
-     *
-     * @param lamp The instance to visit.
-     */
-    void visit(@NotNull Lamp<A> lamp);
-
-    /**
      * Returns a {@link LampVisitor} that does nothing
      *
      * @param <A> The actor type
@@ -52,4 +45,11 @@ public interface LampVisitor<A extends CommandActor> {
     static <A extends CommandActor> @NotNull LampVisitor<A> nothing() {
         return lamp -> {};
     }
+
+    /**
+     * Visits the given {@link Lamp}
+     *
+     * @param lamp The instance to visit.
+     */
+    void visit(@NotNull Lamp<A> lamp);
 }

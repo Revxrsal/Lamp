@@ -48,6 +48,50 @@ import java.util.function.Supplier;
 public interface AnnotationList extends Iterable<Annotation> {
 
     /**
+     * Creates a new {@link AnnotationList} for the given {@link AnnotatedElement}. This
+     * method will take into account {@link DistributeOnMethods} annotations
+     *
+     * @param element The annotated element to create from
+     * @return The newly created annotation list
+     */
+    static @NotNull AnnotationList create(@NotNull AnnotatedElement element) {
+        return AnnotationListFromMap.createFor(element);
+    }
+
+    /**
+     * Creates a new {@link AnnotationList} for the given collection of annotations. This
+     * method will <em>not</em> take into account {@link DistributeOnMethods} annotations
+     *
+     * @param annotations The annotations in this list
+     * @return The newly created annotation list
+     */
+    static @NotNull AnnotationList create(@NotNull Collection<Annotation> annotations) {
+        return AnnotationListFromMap.createFrom(annotations);
+    }
+
+    /**
+     * Creates a new {@link AnnotationList} for the given map of annotations. This
+     * method will <em>not</em> take into account {@link DistributeOnMethods} annotations
+     *
+     * @param annotations The annotations in this list
+     * @return The newly created annotation list
+     */
+    static @NotNull AnnotationList create(@NotNull Map<Class<? extends Annotation>, Annotation> annotations) {
+        if (annotations.isEmpty())
+            return empty();
+        return new AnnotationListFromMap(annotations);
+    }
+
+    /**
+     * Returns an empty {@link AnnotationList}.
+     *
+     * @return The empty {@link AnnotationList} singleton.
+     */
+    static @NotNull AnnotationList empty() {
+        return EmptyAnnotationList.INSTANCE;
+    }
+
+    /**
      * Returns the given annotation, or {@code null} if it's not annotated
      * with the given annotation (or distributed on, indirectly)
      *
@@ -205,48 +249,4 @@ public interface AnnotationList extends Iterable<Annotation> {
      */
     @Contract(pure = true)
     boolean any(@NotNull Predicate<Annotation> predicate);
-
-    /**
-     * Creates a new {@link AnnotationList} for the given {@link AnnotatedElement}. This
-     * method will take into account {@link DistributeOnMethods} annotations
-     *
-     * @param element The annotated element to create from
-     * @return The newly created annotation list
-     */
-    static @NotNull AnnotationList create(@NotNull AnnotatedElement element) {
-        return AnnotationListFromMap.createFor(element);
-    }
-
-    /**
-     * Creates a new {@link AnnotationList} for the given collection of annotations. This
-     * method will <em>not</em> take into account {@link DistributeOnMethods} annotations
-     *
-     * @param annotations The annotations in this list
-     * @return The newly created annotation list
-     */
-    static @NotNull AnnotationList create(@NotNull Collection<Annotation> annotations) {
-        return AnnotationListFromMap.createFrom(annotations);
-    }
-
-    /**
-     * Creates a new {@link AnnotationList} for the given map of annotations. This
-     * method will <em>not</em> take into account {@link DistributeOnMethods} annotations
-     *
-     * @param annotations The annotations in this list
-     * @return The newly created annotation list
-     */
-    static @NotNull AnnotationList create(@NotNull Map<Class<? extends Annotation>, Annotation> annotations) {
-        if (annotations.isEmpty())
-            return empty();
-        return new AnnotationListFromMap(annotations);
-    }
-
-    /**
-     * Returns an empty {@link AnnotationList}.
-     *
-     * @return The empty {@link AnnotationList} singleton.
-     */
-    static @NotNull AnnotationList empty() {
-        return EmptyAnnotationList.INSTANCE;
-    }
 }

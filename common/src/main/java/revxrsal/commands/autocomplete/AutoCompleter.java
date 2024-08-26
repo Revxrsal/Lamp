@@ -50,6 +50,18 @@ import java.util.List;
 public interface AutoCompleter<A extends CommandActor> {
 
     /**
+     * Creates an {@link AutoCompleter} for the given {@link Lamp} instance.
+     *
+     * @param lamp Lamp instance to create for
+     * @param <A>  The actor type
+     * @return The {@link AutoCompleter} instance
+     */
+    @ApiStatus.Internal
+    static <A extends CommandActor> @NotNull AutoCompleter<A> create(@NotNull Lamp<A> lamp) {
+        return new StandardAutoCompleter<>(lamp);
+    }
+
+    /**
      * Returns a list of suggestions for the given input and actor.
      * <p>
      * This will exclude any command or parameter that the user has no
@@ -78,16 +90,4 @@ public interface AutoCompleter<A extends CommandActor> {
      * @return The completions
      */
     @NotNull List<String> complete(@NotNull A actor, @NotNull StringStream input);
-
-    /**
-     * Creates an {@link AutoCompleter} for the given {@link Lamp} instance.
-     *
-     * @param lamp Lamp instance to create for
-     * @param <A>  The actor type
-     * @return The {@link AutoCompleter} instance
-     */
-    @ApiStatus.Internal
-    static <A extends CommandActor> @NotNull AutoCompleter<A> create(@NotNull Lamp<A> lamp) {
-        return new StandardAutoCompleter<>(lamp);
-    }
 }

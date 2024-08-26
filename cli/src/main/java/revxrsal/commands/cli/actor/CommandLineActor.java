@@ -1,6 +1,5 @@
 package revxrsal.commands.cli.actor;
 
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.cli.ConsoleActor;

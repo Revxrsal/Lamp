@@ -42,13 +42,6 @@ public final class StringParameterType implements ParameterType<CommandActor, St
         this.greedy = greedy;
     }
 
-    @Override
-    public String parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<CommandActor> context) {
-        if (greedy)
-            return input.consumeRemaining();
-        return input.readString();
-    }
-
     @SuppressWarnings("unchecked")
     public static @NotNull <A extends CommandActor> ParameterType<A, String> greedy() {
         return (ParameterType<A, String>) GREEDY;
@@ -57,6 +50,13 @@ public final class StringParameterType implements ParameterType<CommandActor, St
     @SuppressWarnings("unchecked")
     public static @NotNull <A extends CommandActor> ParameterType<A, String> single() {
         return (ParameterType<A, String>) SINGLE;
+    }
+
+    @Override
+    public String parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<CommandActor> context) {
+        if (greedy)
+            return input.consumeRemaining();
+        return input.readString();
     }
 
     @Override public boolean isGreedy() {

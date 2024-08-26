@@ -26,8 +26,6 @@ package revxrsal.commands.exception;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.Sized;
 
-import java.util.List;
-
 /**
  * Exception thrown when a collection-like type does not meet the specified size constraints
  * set by {@link Sized @Sized}.

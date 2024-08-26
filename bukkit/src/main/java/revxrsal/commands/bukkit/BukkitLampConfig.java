@@ -103,9 +103,9 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
      */
     public static class Builder<A extends BukkitCommandActor> {
 
-        private ActorFactory<A> actorFactory;
         private final Supplier<ArgumentTypes.Builder<A>> argumentTypes = Lazy.of(() -> BukkitArgumentTypes.builder());
         private final @NotNull JavaPlugin plugin;
+        private ActorFactory<A> actorFactory;
 
         Builder(@NotNull JavaPlugin plugin) {
             this.plugin = plugin;

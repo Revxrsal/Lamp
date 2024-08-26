@@ -98,15 +98,6 @@ import java.util.List;
  */
 public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandExceptionHandler<A> {
 
-    /**
-     * Annotation for creating handler functions. The signature of the function determines
-     * the input and invocation conditions of it.
-     */
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface HandleException {
-    }
-
     private final List<CommandExceptionHandler<A>> handlers = new ArrayList<>();
 
     /**
@@ -120,6 +111,20 @@ public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandE
             var handler = createHandler(method);
             handlers.add(handler);
         }
+    }
+
+    @Contract("_ -> fail")
+    @SneakyThrows
+    private static void sneakyThrow(Throwable t) {
+        throw t;
+    }
+
+    private static boolean isHandler(Method method) {
+        return method.isAnnotationPresent(HandleException.class);
+    }
+
+    protected static @NotNull String fmt(@NotNull Number number) {
+        return NumberFormat.getInstance().format(number);
     }
 
     private @NotNull CommandExceptionHandler<A> createHandler(Method method) {
@@ -193,21 +198,20 @@ public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandE
         };
     }
 
-    @Contract("_ -> fail")
-    @SneakyThrows
-    private static void sneakyThrow(Throwable t) {
-        throw t;
-    }
-
-    private static boolean isHandler(Method method) {
-        return method.isAnnotationPresent(HandleException.class);
-    }
-
     @Override
     public final void handleException(@NotNull Throwable throwable, @NotNull ErrorContext<A> errorContext) {
         for (var handler : handlers) {
             handler.handleException(throwable, errorContext);
         }
+    }
+
+    /**
+     * Annotation for creating handler functions. The signature of the function determines
+     * the input and invocation conditions of it.
+     */
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface HandleException {
     }
 
     private interface HandlerParameterSupplier<A extends CommandActor> {
@@ -220,10 +224,6 @@ public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandE
 
         boolean test(@NotNull Throwable throwable, @NotNull ErrorContext<A> errorContext);
 
-    }
-
-    protected static @NotNull String fmt(@NotNull Number number) {
-        return NumberFormat.getInstance().format(number);
     }
 
 }

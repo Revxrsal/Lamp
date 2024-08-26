@@ -125,10 +125,10 @@ public final class VelocityLampConfig<A extends VelocityCommandActor> implements
      */
     public static class Builder<A extends VelocityCommandActor> {
 
-        private ActorFactory<A> actorFactory;
         private final ArgumentTypes.Builder<A> argumentTypes = ArgumentTypes.builder();
         private final @NotNull Object plugin;
         private final @NotNull ProxyServer server;
+        private ActorFactory<A> actorFactory;
 
         Builder(@NotNull Object plugin, @NotNull ProxyServer server) {
             this.plugin = plugin;

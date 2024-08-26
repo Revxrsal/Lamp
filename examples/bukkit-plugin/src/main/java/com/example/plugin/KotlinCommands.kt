@@ -11,7 +11,7 @@ class KotlinCommands {
         actor: BukkitCommandActor,
         x: Int,
         y: Int,
-       @Optional z: Int = 10
+        @Optional z: Int = 10
     ) {
         actor.reply("X: $x")
         actor.reply("Y: $y")

@@ -23,7 +23,6 @@
  */
 package revxrsal.commands.bukkit.util;
 
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 

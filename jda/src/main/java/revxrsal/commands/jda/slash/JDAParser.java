@@ -61,7 +61,7 @@ public final class JDAParser<A extends SlashCommandActor> {
         Permission[] permissions = executable.annotations().map(CommandPermission.class, CommandPermission::value);
         if (permissions != null)
             slash.setDefaultPermissions(DefaultMemberPermissions.enabledFor(permissions));
-        
+
         if (executable.size() == 2) {
             CommandNode<A> node = executable.lastNode();
             if (node.isParameter()) {

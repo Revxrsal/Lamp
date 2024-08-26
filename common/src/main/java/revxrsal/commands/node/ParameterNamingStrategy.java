@@ -46,14 +46,6 @@ import static revxrsal.commands.util.BuiltInNamingStrategies.upperCaseFirstLette
 public interface ParameterNamingStrategy {
 
     /**
-     * Returns the parameter name.
-     *
-     * @param parameter Parameter to get the name for
-     * @return The parameter name
-     */
-    @NotNull String getName(@NotNull Parameter parameter);
-
-    /**
      * Preserves the default parameter name.
      *
      * @return The identity parameter naming strategy
@@ -141,4 +133,12 @@ public interface ParameterNamingStrategy {
     static ParameterNamingStrategy upperCamelCaseWithSeparator(String separator) {
         return parameter -> upperCaseFirstLetter(separateCamelCase(parameter.getName(), separator));
     }
+
+    /**
+     * Returns the parameter name.
+     *
+     * @param parameter Parameter to get the name for
+     * @return The parameter name
+     */
+    @NotNull String getName(@NotNull Parameter parameter);
 }

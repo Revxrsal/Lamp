@@ -85,30 +85,6 @@ public final class StackTraceSanitizer {
      */
     private final @Unmodifiable List<Predicate<StackTraceElement>> filters;
 
-    /**
-     * Strips all the stack trace elements that meet the criteria of any
-     * filter.
-     *
-     * @param throwable Throwable to strip
-     */
-    public void sanitize(@NotNull Throwable throwable) {
-        if (filters.isEmpty()) return;
-        if (throwable.getCause() != null)
-            sanitize(throwable.getCause());
-        List<StackTraceElement> trace = new ArrayList<>();
-        java.util.Collections.addAll(trace, throwable.getStackTrace());
-        int stripIndex = trace.size();
-        for (int i = 0; i < trace.size(); i++) {
-            StackTraceElement stackTraceElement = trace.get(i);
-            if (filters.stream().anyMatch(f -> f.test(stackTraceElement))) {
-                stripIndex = i;
-                break;
-            }
-        }
-        trace.subList(stripIndex, trace.size()).clear();
-        throwable.setStackTrace(trace.toArray(new StackTraceElement[0]));
-    }
-
     private StackTraceSanitizer(@Unmodifiable List<Predicate<StackTraceElement>> filters) {
         this.filters = filters;
     }
@@ -133,6 +109,30 @@ public final class StackTraceSanitizer {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    /**
+     * Strips all the stack trace elements that meet the criteria of any
+     * filter.
+     *
+     * @param throwable Throwable to strip
+     */
+    public void sanitize(@NotNull Throwable throwable) {
+        if (filters.isEmpty()) return;
+        if (throwable.getCause() != null)
+            sanitize(throwable.getCause());
+        List<StackTraceElement> trace = new ArrayList<>();
+        java.util.Collections.addAll(trace, throwable.getStackTrace());
+        int stripIndex = trace.size();
+        for (int i = 0; i < trace.size(); i++) {
+            StackTraceElement stackTraceElement = trace.get(i);
+            if (filters.stream().anyMatch(f -> f.test(stackTraceElement))) {
+                stripIndex = i;
+                break;
+            }
+        }
+        trace.subList(stripIndex, trace.size()).clear();
+        throwable.setStackTrace(trace.toArray(new StackTraceElement[0]));
     }
 
     public static class Builder {

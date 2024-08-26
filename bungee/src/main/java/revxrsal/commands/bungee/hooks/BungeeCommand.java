@@ -5,8 +5,8 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.bungee.actor.BungeeCommandActor;
 import revxrsal.commands.bungee.actor.ActorFactory;
+import revxrsal.commands.bungee.actor.BungeeCommandActor;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
@@ -27,6 +27,19 @@ final class BungeeCommand<A extends BungeeCommandActor> extends Command implemen
         this.actorFactory = actorFactory;
     }
 
+    private static String ignoreAfterSpace(String v) {
+        int spaceIndex = v.indexOf(' ');
+        return spaceIndex == -1 ? v : v.substring(0, spaceIndex);
+    }
+
+    private static @NotNull MutableStringStream createInput(String commandName, String[] args) {
+        StringJoiner userInput = new StringJoiner(" ");
+        userInput.add(stripNamespace(commandName));
+        for (@NotNull String arg : args)
+            userInput.add(arg);
+        return StringStream.createMutable(userInput.toString());
+    }
+
     @Override public void execute(CommandSender sender, String[] args) {
         A actor = actorFactory.create(sender, lamp);
 
@@ -40,18 +53,5 @@ final class BungeeCommand<A extends BungeeCommandActor> extends Command implemen
         List<String> completions = lamp.autoCompleter().complete(actor, input);
         // on older versions, we get funny behavior when suggestions contain spaces
         return map(completions, BungeeCommand::ignoreAfterSpace);
-    }
-
-    private static String ignoreAfterSpace(String v) {
-        int spaceIndex = v.indexOf(' ');
-        return spaceIndex == -1 ? v : v.substring(0, spaceIndex);
-    }
-
-    private static @NotNull MutableStringStream createInput(String commandName, String[] args) {
-        StringJoiner userInput = new StringJoiner(" ");
-        userInput.add(stripNamespace(commandName));
-        for (@NotNull String arg : args)
-            userInput.add(arg);
-        return StringStream.createMutable(userInput.toString());
     }
 }

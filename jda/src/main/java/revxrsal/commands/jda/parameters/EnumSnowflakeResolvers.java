@@ -63,6 +63,15 @@ enum EnumSnowflakeResolvers implements ParameterType<SlashCommandActor, ISnowfla
         }
     }
 
+    public enum UserResolver implements ParameterType<SlashCommandActor, User> {
+        USER;
+
+        @Override
+        public User parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<SlashCommandActor> context) {
+            return ((Member) EnumSnowflakeResolvers.MEMBER.parse(input, context)).getUser();
+        }
+    }
+
     interface SnowflakeExceptionSupplier {
 
         InvalidValueException get(String value);
@@ -78,15 +87,6 @@ enum EnumSnowflakeResolvers implements ParameterType<SlashCommandActor, ISnowfla
 
         Object get(Guild guild, String id);
 
-    }
-
-    public enum UserResolver implements ParameterType<SlashCommandActor, User> {
-        USER;
-
-        @Override
-        public User parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<SlashCommandActor> context) {
-            return ((Member) EnumSnowflakeResolvers.MEMBER.parse(input, context)).getUser();
-        }
     }
 }
 

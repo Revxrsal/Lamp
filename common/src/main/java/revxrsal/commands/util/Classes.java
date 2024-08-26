@@ -65,12 +65,30 @@ import static revxrsal.commands.util.Preconditions.notNull;
  */
 public final class Classes {
 
+    private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER;
+    private static final Map<Class<?>, Class<?>> WRAPPER_TO_PRIMITIVE;
+
+    static {
+        Map<Class<?>, Class<?>> primToWrap = new LinkedHashMap<>(16);
+        Map<Class<?>, Class<?>> wrapToPrim = new LinkedHashMap<>(16);
+
+        addPrimitive(primToWrap, wrapToPrim, boolean.class, Boolean.class);
+        addPrimitive(primToWrap, wrapToPrim, byte.class, Byte.class);
+        addPrimitive(primToWrap, wrapToPrim, char.class, Character.class);
+        addPrimitive(primToWrap, wrapToPrim, double.class, Double.class);
+        addPrimitive(primToWrap, wrapToPrim, float.class, Float.class);
+        addPrimitive(primToWrap, wrapToPrim, int.class, Integer.class);
+        addPrimitive(primToWrap, wrapToPrim, long.class, Long.class);
+        addPrimitive(primToWrap, wrapToPrim, short.class, Short.class);
+        addPrimitive(primToWrap, wrapToPrim, void.class, Void.class);
+
+        PRIMITIVE_TO_WRAPPER = Collections.unmodifiableMap(primToWrap);
+        WRAPPER_TO_PRIMITIVE = Collections.unmodifiableMap(wrapToPrim);
+    }
+
     private Classes() {
         cannotInstantiate(Classes.class);
     }
-
-    private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER;
-    private static final Map<Class<?>, Class<?>> WRAPPER_TO_PRIMITIVE;
 
     /**
      * Returns the type of the given object
@@ -221,24 +239,6 @@ public final class Classes {
         } catch (ClassCastException e) {
             return fallback;
         }
-    }
-
-    static {
-        Map<Class<?>, Class<?>> primToWrap = new LinkedHashMap<>(16);
-        Map<Class<?>, Class<?>> wrapToPrim = new LinkedHashMap<>(16);
-
-        addPrimitive(primToWrap, wrapToPrim, boolean.class, Boolean.class);
-        addPrimitive(primToWrap, wrapToPrim, byte.class, Byte.class);
-        addPrimitive(primToWrap, wrapToPrim, char.class, Character.class);
-        addPrimitive(primToWrap, wrapToPrim, double.class, Double.class);
-        addPrimitive(primToWrap, wrapToPrim, float.class, Float.class);
-        addPrimitive(primToWrap, wrapToPrim, int.class, Integer.class);
-        addPrimitive(primToWrap, wrapToPrim, long.class, Long.class);
-        addPrimitive(primToWrap, wrapToPrim, short.class, Short.class);
-        addPrimitive(primToWrap, wrapToPrim, void.class, Void.class);
-
-        PRIMITIVE_TO_WRAPPER = Collections.unmodifiableMap(primToWrap);
-        WRAPPER_TO_PRIMITIVE = Collections.unmodifiableMap(wrapToPrim);
     }
 
     private static void addPrimitive(

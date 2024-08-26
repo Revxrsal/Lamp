@@ -38,7 +38,7 @@ record UnknownCommandContext<A extends CommandActor>(@NotNull A actor) implement
     public boolean hasExecutionContext() {
         return false;
     }
-    
+
     @Override
     public ExecutionContext<A> executionContext() {
         return null;

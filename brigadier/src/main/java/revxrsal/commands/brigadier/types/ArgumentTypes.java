@@ -87,6 +87,17 @@ public final class ArgumentTypes<A extends CommandActor> {
     }
 
     /**
+     * Creates a new {@link Builder} for the registry
+     *
+     * @param <A> The actor type
+     * @return The newly created builder
+     */
+    @Contract(value = "-> new", pure = true)
+    public static <A extends CommandActor> @NotNull Builder<A> builder() {
+        return new Builder<>();
+    }
+
+    /**
      * Returns the first {@link ArgumentType} that can create an argument type
      * for the given parameter.
      * <p>
@@ -125,21 +136,10 @@ public final class ArgumentTypes<A extends CommandActor> {
         return result;
     }
 
-    /**
-     * Creates a new {@link Builder} for the registry
-     *
-     * @param <A> The actor type
-     * @return The newly created builder
-     */
-    @Contract(value = "-> new", pure = true)
-    public static <A extends CommandActor> @NotNull Builder<A> builder() {
-        return new Builder<>();
-    }
-
     public static class Builder<A extends CommandActor> {
 
-        private int lastIndex = 0;
         private final List<ArgumentTypeFactory<? super A>> factories = new ArrayList<>();
+        private int lastIndex = 0;
 
         /**
          * Registers an {@link ArgumentType} that matches a specific class. Note

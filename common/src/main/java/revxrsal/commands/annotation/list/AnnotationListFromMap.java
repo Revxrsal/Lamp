@@ -54,6 +54,43 @@ final class AnnotationListFromMap implements AnnotationList {
         return new AnnotationListFromMap(toMap(annotations));
     }
 
+    public static @NotNull AnnotationList createFor(@NotNull AnnotatedElement element) {
+        Map<Class<? extends Annotation>, Annotation> annotations = toMap(element.getAnnotations());
+        if (annotations.isEmpty())
+            return AnnotationList.empty();
+        return new AnnotationListFromMap(annotations);
+    }
+
+    public static @NotNull Map<Class<? extends Annotation>, Annotation> toMap(@NotNull Iterable<Annotation> annotations) {
+        Map<Class<? extends Annotation>, Annotation> map = new HashMap<>();
+        for (Annotation annotation : annotations) {
+            map.put(annotation.annotationType(), annotation);
+        }
+        return map;
+    }
+
+    public static @NotNull Map<Class<? extends Annotation>, Annotation> toMap(@NotNull Annotation[] annotations) {
+        Map<Class<? extends Annotation>, Annotation> map = new HashMap<>();
+        for (Annotation annotation : annotations) {
+            map.put(annotation.annotationType(), annotation);
+        }
+        return map;
+    }
+
+    private static void distributeAnnotations(
+            @NotNull Map<Class<? extends Annotation>, Annotation> annotations,
+            @NotNull Method element
+    ) {
+        Class<?> top = element.getDeclaringClass();
+        while (top != null) {
+            for (Annotation annotation : top.getAnnotations()) {
+                if (annotation.annotationType().isAnnotationPresent(DistributeOnMethods.class))
+                    annotations.put(annotation.annotationType(), annotation);
+            }
+            top = top.getDeclaringClass();
+        }
+    }
+
     @Override
     public <T extends Annotation> @Nullable T get(@NotNull Class<T> type) {
         //noinspection unchecked
@@ -147,42 +184,5 @@ final class AnnotationListFromMap implements AnnotationList {
                 map.putIfAbsent(annotation.annotationType(), annotation);
         }
         return new AnnotationListFromMap(map);
-    }
-
-    public static @NotNull AnnotationList createFor(@NotNull AnnotatedElement element) {
-        Map<Class<? extends Annotation>, Annotation> annotations = toMap(element.getAnnotations());
-        if (annotations.isEmpty())
-            return AnnotationList.empty();
-        return new AnnotationListFromMap(annotations);
-    }
-
-    public static @NotNull Map<Class<? extends Annotation>, Annotation> toMap(@NotNull Iterable<Annotation> annotations) {
-        Map<Class<? extends Annotation>, Annotation> map = new HashMap<>();
-        for (Annotation annotation : annotations) {
-            map.put(annotation.annotationType(), annotation);
-        }
-        return map;
-    }
-
-    public static @NotNull Map<Class<? extends Annotation>, Annotation> toMap(@NotNull Annotation[] annotations) {
-        Map<Class<? extends Annotation>, Annotation> map = new HashMap<>();
-        for (Annotation annotation : annotations) {
-            map.put(annotation.annotationType(), annotation);
-        }
-        return map;
-    }
-
-    private static void distributeAnnotations(
-            @NotNull Map<Class<? extends Annotation>, Annotation> annotations,
-            @NotNull Method element
-    ) {
-        Class<?> top = element.getDeclaringClass();
-        while (top != null) {
-            for (Annotation annotation : top.getAnnotations()) {
-                if (annotation.annotationType().isAnnotationPresent(DistributeOnMethods.class))
-                    annotations.put(annotation.annotationType(), annotation);
-            }
-            top = top.getDeclaringClass();
-        }
     }
 }

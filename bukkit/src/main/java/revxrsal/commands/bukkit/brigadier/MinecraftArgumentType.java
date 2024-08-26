@@ -261,9 +261,9 @@ public enum MinecraftArgumentType {
      */
     TEMPLATE_ROTATION("TemplateRotationArgument");
 
+    private final Class<?>[] parameters;
     private @Nullable ArgumentType<?> argumentType;
     private @Nullable Constructor<? extends ArgumentType> argumentConstructor;
-    private final Class<?>[] parameters;
 
     MinecraftArgumentType(String name, Class<?>... parameters) {
         Class<?> argumentClass = resolveArgumentClass(name);
@@ -285,6 +285,27 @@ public enum MinecraftArgumentType {
         } catch (Throwable e) {
             argumentType = null;
             argumentConstructor = null;
+        }
+    }
+
+    private static @Nullable Class<?> resolveArgumentClass(String name) {
+        try {
+            if (BukkitVersion.supports(1, 16)) {
+                try {
+                    return BukkitVersion.findNmsClass("commands.arguments." + name);
+                } catch (Throwable ignored) {
+                    return Class.forName("net.minecraft.commands.arguments." + name);
+                }
+            } else {
+                String stripped;
+                if (name.lastIndexOf('.') != -1)
+                    stripped = name.substring(name.lastIndexOf('.') + 1);
+                else
+                    stripped = name;
+                return BukkitVersion.findNmsClass(stripped);
+            }
+        } catch (Throwable t) {
+            return null;
         }
     }
 
@@ -372,26 +393,5 @@ public enum MinecraftArgumentType {
         if (argumentType != null && arguments.length == 0)
             return Optional.of((ArgumentType<T>) argumentType);
         return Optional.of(argumentConstructor.newInstance(arguments));
-    }
-
-    private static @Nullable Class<?> resolveArgumentClass(String name) {
-        try {
-            if (BukkitVersion.supports(1, 16)) {
-                try {
-                    return BukkitVersion.findNmsClass("commands.arguments." + name);
-                } catch (Throwable ignored) {
-                    return Class.forName("net.minecraft.commands.arguments." + name);
-                }
-            } else {
-                String stripped;
-                if (name.lastIndexOf('.') != -1)
-                    stripped = name.substring(name.lastIndexOf('.') + 1);
-                else
-                    stripped = name;
-                return BukkitVersion.findNmsClass(stripped);
-            }
-        } catch (Throwable t) {
-            return null;
-        }
     }
 }

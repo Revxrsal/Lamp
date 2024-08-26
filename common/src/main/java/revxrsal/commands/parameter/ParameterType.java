@@ -132,19 +132,6 @@ public interface ParameterType<A extends CommandActor, T> extends BaseParameterT
     interface Factory<A extends CommandActor> extends ParameterFactory, BaseParameterType {
 
         /**
-         * Dynamically creates a {@link ParameterType}
-         *
-         * @param <T>           The parameter type
-         * @param parameterType The command parameter to create for
-         * @param annotations   The parameter annotations
-         * @param lamp          The Lamp instance (for referencing other parameter types)
-         * @return The newly created {@link ParameterType}, or {@code null} if this factory
-         * cannot deal with it.
-         */
-        @Nullable
-        <T> ParameterType<A, T> create(@NotNull Type parameterType, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp);
-
-        /**
          * Creates a new {@link Factory} that returns a {@link ParameterType} for all
          * parameters that <em>exactly</em> have a certain class.
          *
@@ -173,6 +160,19 @@ public interface ParameterType<A extends CommandActor, T> extends BaseParameterT
         static <A extends CommandActor, T> @NotNull Factory<A> forTypeAndSubclasses(@NotNull Class<T> type, @NotNull ParameterType<A, T> parameterType) {
             return new ClassParameterTypeFactory<>(type, parameterType, true);
         }
+
+        /**
+         * Dynamically creates a {@link ParameterType}
+         *
+         * @param <T>           The parameter type
+         * @param parameterType The command parameter to create for
+         * @param annotations   The parameter annotations
+         * @param lamp          The Lamp instance (for referencing other parameter types)
+         * @return The newly created {@link ParameterType}, or {@code null} if this factory
+         * cannot deal with it.
+         */
+        @Nullable
+        <T> ParameterType<A, T> create(@NotNull Type parameterType, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp);
 
     }
 }

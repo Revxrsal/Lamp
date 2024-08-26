@@ -42,15 +42,6 @@ import static revxrsal.commands.util.Classes.wrap;
 public interface ArgumentTypeFactory<A extends CommandActor> {
 
     /**
-     * Returns the argument type for the given parameter. If this resolver
-     * cannot deal with the parameter, it may return null.
-     *
-     * @param parameter Parameter to create for
-     * @return The argument type
-     */
-    @Nullable ArgumentType<?> getArgumentType(@NotNull ParameterNode<A, ?> parameter);
-
-    /**
      * Creates a {@link ArgumentTypeFactory} that will return the same
      * argument type for all parameters that match a specific type
      *
@@ -76,4 +67,13 @@ public interface ArgumentTypeFactory<A extends CommandActor> {
         Class<?> wrapped = wrap(type);
         return parameter -> wrapped.isAssignableFrom(wrap(parameter.type())) ? argumentType : null;
     }
+
+    /**
+     * Returns the argument type for the given parameter. If this resolver
+     * cannot deal with the parameter, it may return null.
+     *
+     * @param parameter Parameter to create for
+     * @return The argument type
+     */
+    @Nullable ArgumentType<?> getArgumentType(@NotNull ParameterNode<A, ?> parameter);
 }

@@ -33,9 +33,6 @@ import revxrsal.commands.bukkit.exception.InvalidPlayerException;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
-
-import java.util.List;
 
 import static revxrsal.commands.util.Collections.map;
 
@@ -46,6 +43,10 @@ import static revxrsal.commands.util.Collections.map;
  * executing player (or give an error if the sender is not a player)
  */
 public final class OfflinePlayerParameterType implements ParameterType<BukkitCommandActor, OfflinePlayer> {
+
+    private static boolean exists(OfflinePlayer player) {
+        return player.hasPlayedBefore() || player.isOnline() || player.getFirstPlayed() != 0L;
+    }
 
     @Override
     @SuppressWarnings("deprecation")
@@ -61,9 +62,5 @@ public final class OfflinePlayerParameterType implements ParameterType<BukkitCom
 
     @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
         return (input, actor, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
-    }
-
-    private static boolean exists(OfflinePlayer player) {
-        return player.hasPlayedBefore() || player.isOnline() || player.getFirstPlayed() != 0L;
     }
 }

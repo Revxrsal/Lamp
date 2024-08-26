@@ -38,15 +38,6 @@ import revxrsal.commands.Lamp;
 public interface ActorFactory<A extends BukkitCommandActor> {
 
     /**
-     * Creates the actor from the given {@link CommandSender}
-     *
-     * @param sender Sender to create for
-     * @param lamp   The {@link Lamp} instance
-     * @return The created actor
-     */
-    @NotNull A create(@NotNull CommandSender sender, @NotNull Lamp<A> lamp);
-
-    /**
      * Returns the default {@link ActorFactory} that returns a simple {@link BukkitCommandActor}
      * implementation
      *
@@ -55,4 +46,13 @@ public interface ActorFactory<A extends BukkitCommandActor> {
     static @NotNull ActorFactory<BukkitCommandActor> defaultFactory() {
         return BasicActorFactory.INSTANCE;
     }
+
+    /**
+     * Creates the actor from the given {@link CommandSender}
+     *
+     * @param sender Sender to create for
+     * @param lamp   The {@link Lamp} instance
+     * @return The created actor
+     */
+    @NotNull A create(@NotNull CommandSender sender, @NotNull Lamp<A> lamp);
 }

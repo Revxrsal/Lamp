@@ -59,6 +59,14 @@ public class SpongeCommand<A extends SpongeCommandActor> implements Command.Raw 
         this.permission = permission;
     }
 
+    private static @NotNull MutableStringStream createInput(String commandName, ArgumentReader args) {
+        StringJoiner userInput = new StringJoiner(" ");
+        userInput.add(stripNamespace(commandName));
+        if (args.totalLength() != 0)
+            userInput.add(args.input());
+        return StringStream.createMutable(userInput.toString());
+    }
+
     @Override
     public CommandResult process(CommandCause cause, ArgumentReader.Mutable arguments) throws CommandException {
         return CommandResult.success();
@@ -90,13 +98,5 @@ public class SpongeCommand<A extends SpongeCommandActor> implements Command.Raw 
 
     @Override public Component usage(CommandCause cause) {
         return null;
-    }
-
-    private static @NotNull MutableStringStream createInput(String commandName, ArgumentReader args) {
-        StringJoiner userInput = new StringJoiner(" ");
-        userInput.add(stripNamespace(commandName));
-        if (args.totalLength() != 0)
-            userInput.add(args.input());
-        return StringStream.createMutable(userInput.toString());
     }
 }

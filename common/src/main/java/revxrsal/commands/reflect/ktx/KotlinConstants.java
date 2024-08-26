@@ -63,17 +63,12 @@ import static revxrsal.commands.util.Lazy.of;
 public final class KotlinConstants {
 
     public static final Object ABSENT_VALUE = new Object();
-
-    private KotlinConstants() {
-    }
-
     /**
      * The {@link kotlin.jvm.JvmStatic} annotation
      */
     private static final Supplier<Class<?>> CONTINUATION = of(() ->
             findClass("kotlin.coroutines.Continuation")
     );
-
     /**
      * The {@link kotlin.jvm.JvmStatic} annotation
      */
@@ -81,6 +76,9 @@ public final class KotlinConstants {
         Class<?> metadata = findClass("kotlin.Metadata");
         return metadata == null ? null : metadata.asSubclass(Annotation.class);
     });
+
+    private KotlinConstants() {
+    }
 
     /**
      * Finds the given class, otherwise throws a {@link IllegalStateException}

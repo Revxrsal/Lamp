@@ -80,16 +80,6 @@ public record PrioritySpec(Comparator<ParameterType<?, ?>> comparator) {
     });
 
     /**
-     * Creates a new {@link Builder} from this priority specification
-     *
-     * @return A new builder based on this priority specification.
-     */
-    @Contract(pure = true, value = "-> new")
-    public @NotNull Builder toBuilder() {
-        return new Builder(comparator);
-    }
-
-    /**
      * Creates a new {@link Builder}
      *
      * @return A new builder
@@ -135,6 +125,16 @@ public record PrioritySpec(Comparator<ParameterType<?, ?>> comparator) {
      */
     public static @NotNull PrioritySpec defaultPriority() {
         return DEFAULT;
+    }
+
+    /**
+     * Creates a new {@link Builder} from this priority specification
+     *
+     * @return A new builder based on this priority specification.
+     */
+    @Contract(pure = true, value = "-> new")
+    public @NotNull Builder toBuilder() {
+        return new Builder(comparator);
     }
 
     /**

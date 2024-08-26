@@ -40,11 +40,11 @@ import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.brigadier.BrigadierConverter;
 import revxrsal.commands.brigadier.BrigadierAdapter;
+import revxrsal.commands.brigadier.BrigadierConverter;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
-import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.actor.ActorFactory;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.util.BukkitVersion;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.node.ParameterNode;
@@ -165,6 +165,27 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
     }
 
     /**
+     * Removes minecraft namespaced argument data, & data for players without permission to view the
+     * corresponding commands.
+     */
+    private static final class CommandDataSendListener implements Listener {
+
+        private final Set<String> minecraftPrefixedAliases;
+
+        CommandDataSendListener(Command pluginCommand) {
+            minecraftPrefixedAliases = BukkitBrigadierBridge.getAliases(pluginCommand).stream()
+                    .map(alias -> "minecraft:" + alias).collect(Collectors.toSet());
+        }
+
+        @EventHandler
+        public void onCommandSend(PlayerCommandSendEvent e) {
+            // always remove 'minecraft:' prefixed aliases added by craftbukkit.
+            // this happens because bukkit thinks our injected commands are vanilla commands.
+            e.getCommands().removeAll(minecraftPrefixedAliases);
+        }
+    }
+
+    /**
      * Listens for server (re)loads, and re-adds all registered nodes to the dispatcher.
      */
     private final class ServerReloadListener implements Listener {
@@ -191,27 +212,6 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
             for (LiteralCommandNode<?> node : registeredNodes) {
                 removeChild(root, node.getName());
             }
-        }
-    }
-
-    /**
-     * Removes minecraft namespaced argument data, & data for players without permission to view the
-     * corresponding commands.
-     */
-    private static final class CommandDataSendListener implements Listener {
-
-        private final Set<String> minecraftPrefixedAliases;
-
-        CommandDataSendListener(Command pluginCommand) {
-            minecraftPrefixedAliases = BukkitBrigadierBridge.getAliases(pluginCommand).stream()
-                    .map(alias -> "minecraft:" + alias).collect(Collectors.toSet());
-        }
-
-        @EventHandler
-        public void onCommandSend(PlayerCommandSendEvent e) {
-            // always remove 'minecraft:' prefixed aliases added by craftbukkit.
-            // this happens because bukkit thinks our injected commands are vanilla commands.
-            e.getCommands().removeAll(minecraftPrefixedAliases);
         }
     }
 }

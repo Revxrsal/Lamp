@@ -48,6 +48,14 @@ public final class ParameterResolver<A extends CommandActor, T> {
         this.resolver = resolver;
     }
 
+    public static <A extends CommandActor, T> @NotNull ParameterResolver<A, T> parameterType(@NotNull ParameterType<A, T> type) {
+        return new ParameterResolver<>(type);
+    }
+
+    public static <A extends CommandActor, T> @NotNull ParameterResolver<A, T> contextParameter(@NotNull ContextParameter<A, T> type) {
+        return new ParameterResolver<>(type);
+    }
+
     /**
      * Tests whether this actually consumes input or not.
      *
@@ -93,14 +101,6 @@ public final class ParameterResolver<A extends CommandActor, T> {
             throw new IllegalStateException(errorMessage);
         //noinspection unchecked
         return (ContextParameter<A, T>) resolver;
-    }
-
-    public static <A extends CommandActor, T> @NotNull ParameterResolver<A, T> parameterType(@NotNull ParameterType<A, T> type) {
-        return new ParameterResolver<>(type);
-    }
-
-    public static <A extends CommandActor, T> @NotNull ParameterResolver<A, T> contextParameter(@NotNull ContextParameter<A, T> type) {
-        return new ParameterResolver<>(type);
     }
 }
 

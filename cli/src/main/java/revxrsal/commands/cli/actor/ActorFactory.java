@@ -41,6 +41,16 @@ import java.util.Scanner;
 public interface ActorFactory<A extends ConsoleActor> {
 
     /**
+     * Returns the default {@link ActorFactory} that returns a simple {@link ConsoleActor}
+     * implementation
+     *
+     * @return The default {@link ActorFactory}.
+     */
+    static @NotNull ActorFactory<ConsoleActor> defaultFactory() {
+        return BasicActorFactory.INSTANCE;
+    }
+
+    /**
      * Creates the actor from the given input
      *
      * @param inputStream  The input stream to poll
@@ -57,15 +67,4 @@ public interface ActorFactory<A extends ConsoleActor> {
             @NotNull Scanner scanner,
             @NotNull Lamp<A> lamp
     );
-
-
-    /**
-     * Returns the default {@link ActorFactory} that returns a simple {@link ConsoleActor}
-     * implementation
-     *
-     * @return The default {@link ActorFactory}.
-     */
-    static @NotNull ActorFactory<ConsoleActor> defaultFactory() {
-        return BasicActorFactory.INSTANCE;
-    }
 }

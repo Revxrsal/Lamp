@@ -52,6 +52,28 @@ final class CommandFunctionImpl implements CommandFunction {
     private final @NotNull BoundMethodCaller caller;
     private final @NotNull ResponseHandler<?, ?> responseHandler;
 
+    public static @NotNull CommandFunction create(
+            @NotNull Method method,
+            @NotNull AnnotationList annotations,
+            @NotNull Lamp<?> lamp,
+            @NotNull BoundMethodCaller caller
+    ) {
+        Parameter[] pArray = method.getParameters();
+        Map<String, CommandParameter> parameters = new LinkedHashMap<>(pArray.length);
+        for (int methodIndex = 0; methodIndex < pArray.length; methodIndex++) {
+            Parameter parameter = pArray[methodIndex];
+            AnnotationList parameterAnnotations = AnnotationList.create(parameter)
+                    .replaceAnnotations(parameter, lamp.annotationReplacers());
+            String name = Strings.getOverriddenName(parameter)
+                    .orElseGet(() -> lamp.parameterNamingStrategy().getName(parameter));
+            FunctionParameter fnParameter = new FunctionParameter(parameter, name, parameterAnnotations, methodIndex);
+            parameters.put(fnParameter.name(), fnParameter);
+        }
+        parameters = Collections.unmodifiableMap(parameters);
+        ResponseHandler<?, Object> handler = lamp.responseHandler(method.getGenericReturnType(), annotations);
+        return new CommandFunctionImpl(lamp, method, parameters, annotations, caller, handler);
+    }
+
     @Override
     public <A extends CommandActor> Lamp<A> lamp() {
         return (Lamp<A>) lamp;
@@ -100,28 +122,6 @@ final class CommandFunctionImpl implements CommandFunction {
     public @NotNull <T> ResponseHandler<?, T> responseHandler() {
         //noinspection unchecked
         return (ResponseHandler<?, T>) responseHandler;
-    }
-
-    public static @NotNull CommandFunction create(
-            @NotNull Method method,
-            @NotNull AnnotationList annotations,
-            @NotNull Lamp<?> lamp,
-            @NotNull BoundMethodCaller caller
-    ) {
-        Parameter[] pArray = method.getParameters();
-        Map<String, CommandParameter> parameters = new LinkedHashMap<>(pArray.length);
-        for (int methodIndex = 0; methodIndex < pArray.length; methodIndex++) {
-            Parameter parameter = pArray[methodIndex];
-            AnnotationList parameterAnnotations = AnnotationList.create(parameter)
-                    .replaceAnnotations(parameter, lamp.annotationReplacers());
-            String name = Strings.getOverriddenName(parameter)
-                    .orElseGet(() -> lamp.parameterNamingStrategy().getName(parameter));
-            FunctionParameter fnParameter = new FunctionParameter(parameter, name, parameterAnnotations, methodIndex);
-            parameters.put(fnParameter.name(), fnParameter);
-        }
-        parameters = Collections.unmodifiableMap(parameters);
-        ResponseHandler<?, Object> handler = lamp.responseHandler(method.getGenericReturnType(), annotations);
-        return new CommandFunctionImpl(lamp, method, parameters, annotations, caller, handler);
     }
 
     @Override

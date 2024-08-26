@@ -37,13 +37,6 @@ import revxrsal.commands.command.CommandActor;
 public interface LampBuilderVisitor<A extends CommandActor> {
 
     /**
-     * Visits the given builder
-     *
-     * @param builder Builder to visit.
-     */
-    void visit(@NotNull Lamp.Builder<A> builder);
-
-    /**
      * Returns a {@link LampBuilderVisitor} that does nothing
      *
      * @param <A> The actor type
@@ -52,4 +45,11 @@ public interface LampBuilderVisitor<A extends CommandActor> {
     static <A extends CommandActor> @NotNull LampBuilderVisitor<A> nothing() {
         return builder -> {};
     }
+
+    /**
+     * Visits the given builder
+     *
+     * @param builder Builder to visit.
+     */
+    void visit(@NotNull Lamp.Builder<A> builder);
 }

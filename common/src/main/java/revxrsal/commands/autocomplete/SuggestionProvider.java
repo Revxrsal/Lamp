@@ -56,7 +56,6 @@ import revxrsal.commands.stream.StringStream;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -64,19 +63,6 @@ import java.util.List;
  */
 @FunctionalInterface
 public interface SuggestionProvider<A extends CommandActor> {
-
-    /**
-     * Returns the suggestions
-     *
-     * @param input   The user input. This may end in a trailing space.
-     * @param actor   The command actor
-     * @param context The execution context. This will try to parse
-     *                arguments inputted by the user and store them
-     *                to provide context-aware suggestions.
-     * @return The command suggestions.
-     */
-    @NotNull
-    List<String> getSuggestions(@NotNull StringStream input, @NotNull A actor, @NotNull ExecutionContext<A> context);
 
     /**
      * Returns a {@link SuggestionProvider} that always gives empty suggestions.
@@ -115,6 +101,19 @@ public interface SuggestionProvider<A extends CommandActor> {
             return empty();
         return (input, sender, context) -> suggestions;
     }
+
+    /**
+     * Returns the suggestions
+     *
+     * @param input   The user input. This may end in a trailing space.
+     * @param actor   The command actor
+     * @param context The execution context. This will try to parse
+     *                arguments inputted by the user and store them
+     *                to provide context-aware suggestions.
+     * @return The command suggestions.
+     */
+    @NotNull
+    List<String> getSuggestions(@NotNull StringStream input, @NotNull A actor, @NotNull ExecutionContext<A> context);
 
     /**
      * Represents a factory that creates {@link SuggestionProvider}s dynamically. This

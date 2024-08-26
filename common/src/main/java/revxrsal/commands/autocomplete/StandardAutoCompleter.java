@@ -58,6 +58,29 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
         this.lamp = lamp;
     }
 
+    private static @NotNull List<String> filterWithSpaces(Collection<String> suggestions, String consumed) {
+        return suggestions
+                .stream()
+                .filter(suggestion -> startsWithIgnoreCase(suggestion, consumed))
+                .map(s -> getRemainingContent(s, consumed))
+                .toList();
+    }
+
+    private static boolean startsWithIgnoreCase(String a, String b) {
+        return a.toLowerCase().startsWith(b.toLowerCase());
+    }
+
+    public static String getRemainingContent(String suggestion, String consumed) {
+        // Find the index where they match until
+        int matchIndex = consumed.length();
+
+        // Find the first space after the matching part
+        int spaceIndex = suggestion.lastIndexOf(' ', matchIndex - 1);
+
+        // Return the content after the first space
+        return suggestion.substring(spaceIndex + 1);
+    }
+
     @Override
     public @NotNull List<String> complete(@NotNull A actor, @NotNull String input) {
         return complete(actor, StringStream.create(input));
@@ -151,29 +174,6 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
             }
         }
         return List.of();
-    }
-
-    private static @NotNull List<String> filterWithSpaces(Collection<String> suggestions, String consumed) {
-        return suggestions
-                .stream()
-                .filter(suggestion -> startsWithIgnoreCase(suggestion, consumed))
-                .map(s -> getRemainingContent(s, consumed))
-                .toList();
-    }
-
-    private static boolean startsWithIgnoreCase(String a, String b) {
-        return a.toLowerCase().startsWith(b.toLowerCase());
-    }
-
-    public static String getRemainingContent(String suggestion, String consumed) {
-        // Find the index where they match until
-        int matchIndex = consumed.length();
-
-        // Find the first space after the matching part
-        int spaceIndex = suggestion.lastIndexOf(' ', matchIndex - 1);
-
-        // Return the content after the first space
-        return suggestion.substring(spaceIndex + 1);
     }
 
     private @NotNull List<String> promptWith(CommandNode<A> child, A actor, ExecutionContext<A> context, StringStream input) {

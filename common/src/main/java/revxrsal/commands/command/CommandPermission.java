@@ -64,15 +64,6 @@ import java.util.function.Function;
 public interface CommandPermission<A extends CommandActor> {
 
     /**
-     * Returns whether the sender has permission to use this command
-     * or not.
-     *
-     * @param actor Actor to test against
-     * @return {@code true} if they can use it, false if otherwise.
-     */
-    boolean isExecutableBy(@NotNull A actor);
-
-    /**
      * Returns a {@link CommandPermission} that always returns true for
      * all actors.
      *
@@ -82,6 +73,15 @@ public interface CommandPermission<A extends CommandActor> {
     static <A extends CommandActor> CommandPermission<A> alwaysTrue() {
         return actor -> true;
     }
+
+    /**
+     * Returns whether the sender has permission to use this command
+     * or not.
+     *
+     * @param actor Actor to test against
+     * @return {@code true} if they can use it, false if otherwise.
+     */
+    boolean isExecutableBy(@NotNull A actor);
 
     /**
      * Represents a convenient way to register custom {@link CommandPermission}

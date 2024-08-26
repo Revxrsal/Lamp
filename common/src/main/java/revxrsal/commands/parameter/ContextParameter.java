@@ -69,19 +69,6 @@ public interface ContextParameter<A extends CommandActor, T> {
     interface Factory<A extends CommandActor> extends ParameterFactory {
 
         /**
-         * Dynamically creates a {@link ContextParameter}
-         *
-         * @param <T>           The parameter type
-         * @param parameterType The command parameter to create for
-         * @param annotations   The parameter annotations
-         * @param lamp          The Lamp instance (for referencing other parameter types)
-         * @return The newly created {@link ContextParameter}, or {@code null} if this factory
-         * cannot deal with it.
-         */
-        @Nullable
-        <T> ContextParameter<A, T> create(@NotNull Type parameterType, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp);
-
-        /**
          * Creates a new {@link Factory} that returns a {@link ContextParameter} for all
          * parameters that <em>exactly</em> have a certain class.
          *
@@ -110,5 +97,18 @@ public interface ContextParameter<A extends CommandActor, T> {
         static <A extends CommandActor, T> @NotNull Factory<A> forTypeAndSubclasses(@NotNull Class<T> type, @NotNull ContextParameter<A, T> parameterType) {
             return new ClassContextParameterFactory<>(type, parameterType, true);
         }
+
+        /**
+         * Dynamically creates a {@link ContextParameter}
+         *
+         * @param <T>           The parameter type
+         * @param parameterType The command parameter to create for
+         * @param annotations   The parameter annotations
+         * @param lamp          The Lamp instance (for referencing other parameter types)
+         * @return The newly created {@link ContextParameter}, or {@code null} if this factory
+         * cannot deal with it.
+         */
+        @Nullable
+        <T> ContextParameter<A, T> create(@NotNull Type parameterType, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp);
     }
 }

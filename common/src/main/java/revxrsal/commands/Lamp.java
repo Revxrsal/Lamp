@@ -112,6 +112,31 @@ public final class Lamp<A extends CommandActor> {
     }
 
     /**
+     * Creates a new Lamp {@link Builder}
+     *
+     * @param <A> The actor type
+     * @return The newly created builder
+     */
+    public static <A extends CommandActor> @NotNull Builder<A> builder() {
+        return new Builder<>();
+    }
+
+    /**
+     * Creates a new Lamp {@link Builder}. This function is primarily for improving
+     * type-inference and pleasing the Java compiler. The {@code actorType} parameter
+     * is not used.
+     *
+     * @param actorType Actor type. This allows for better type-inference. The parameter is unused.
+     * @param <A>       The actor type
+     * @return The newly created builder
+     */
+    public static <A extends CommandActor> @NotNull Builder<A> builder(
+            @SuppressWarnings("unused") @NotNull Class<A> actorType
+    ) {
+        return new Builder<>();
+    }
+
+    /**
      * Returns the first {@link ParameterType} that can parse the given parameter.
      * <p>
      * Note that this method will never return {@code null}. In cases where no
@@ -534,37 +559,8 @@ public final class Lamp<A extends CommandActor> {
         return this;
     }
 
-    /**
-     * Creates a new Lamp {@link Builder}
-     *
-     * @param <A> The actor type
-     * @return The newly created builder
-     */
-    public static <A extends CommandActor> @NotNull Builder<A> builder() {
-        return new Builder<>();
-    }
-
-    /**
-     * Creates a new Lamp {@link Builder}. This function is primarily for improving
-     * type-inference and pleasing the Java compiler. The {@code actorType} parameter
-     * is not used.
-     *
-     * @param actorType Actor type. This allows for better type-inference. The parameter is unused.
-     * @param <A>       The actor type
-     * @return The newly created builder
-     */
-    public static <A extends CommandActor> @NotNull Builder<A> builder(
-            @SuppressWarnings("unused") @NotNull Class<A> actorType
-    ) {
-        return new Builder<>();
-    }
-
     public static class Builder<A extends CommandActor> {
 
-        private MessageSender<? super A, String> messageSender = CommandActor::sendRawMessage;
-        private MessageSender<? super A, String> errorSender = CommandActor::sendRawError;
-        private CommandExceptionHandler<A> exceptionHandler = new DefaultExceptionHandler<>();
-        private ParameterNamingStrategy namingStrategy = ParameterNamingStrategy.lowerCaseWithSpace();
         private final ParameterTypes.Builder<A> parameterTypes = ParameterTypes.builder();
         private final SuggestionProviders.Builder<A> suggestionProviders = SuggestionProviders.builder();
         private final Hooks.Builder<A> hooks = Hooks.builder();
@@ -575,6 +571,10 @@ public final class Lamp<A extends CommandActor> {
         private final List<CommandCondition<? super A>> conditions = new ArrayList<>();
         private final List<CommandPermission.Factory<A>> permissionFactories = new ArrayList<>();
         private final Map<Class<?>, Supplier<Object>> dependencies = new HashMap<>();
+        private MessageSender<? super A, String> messageSender = CommandActor::sendRawMessage;
+        private MessageSender<? super A, String> errorSender = CommandActor::sendRawError;
+        private CommandExceptionHandler<A> exceptionHandler = new DefaultExceptionHandler<>();
+        private ParameterNamingStrategy namingStrategy = ParameterNamingStrategy.lowerCaseWithSpace();
 
         public Builder() {
             parameterValidator(Number.class, RangeChecker.INSTANCE);

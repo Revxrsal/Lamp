@@ -37,6 +37,16 @@ import revxrsal.commands.Lamp;
 public interface SlashActorFactory<A extends SlashCommandActor> {
 
     /**
+     * Returns the default {@link SlashActorFactory} that returns a simple
+     * {@link SlashCommandActor} implementation
+     *
+     * @return The default {@link SlashActorFactory}.
+     */
+    static @NotNull SlashActorFactory<SlashCommandActor> defaultFactory() {
+        return BasicActorFactory.INSTANCE;
+    }
+
+    /**
      * Creates a new actor based on a user executing a slash command.
      *
      * @param event The event
@@ -53,15 +63,5 @@ public interface SlashActorFactory<A extends SlashCommandActor> {
      * @return The newly created actor
      */
     @NotNull A create(@NotNull CommandAutoCompleteInteractionEvent event, @NotNull Lamp<A> lamp);
-
-    /**
-     * Returns the default {@link SlashActorFactory} that returns a simple
-     * {@link SlashCommandActor} implementation
-     *
-     * @return The default {@link SlashActorFactory}.
-     */
-    static @NotNull SlashActorFactory<SlashCommandActor> defaultFactory() {
-        return BasicActorFactory.INSTANCE;
-    }
 
 }

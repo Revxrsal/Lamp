@@ -73,6 +73,17 @@ public final class SuggestionProviders<A extends CommandActor> {
     }
 
     /**
+     * Creates a new {@link Builder} for {@link SuggestionProviders}.
+     *
+     * @param <A> The actor type
+     * @return The newly created {@link Builder}.
+     */
+    @Contract(value = "-> new", pure = true)
+    public static @NotNull <A extends CommandActor> Builder<A> builder() {
+        return new Builder<>();
+    }
+
+    /**
      * Returns the first {@link SuggestionProvider} that can create suggestions
      * for the given parameter.
      * <p>
@@ -164,21 +175,10 @@ public final class SuggestionProviders<A extends CommandActor> {
         return result;
     }
 
-    /**
-     * Creates a new {@link Builder} for {@link SuggestionProviders}.
-     *
-     * @param <A> The actor type
-     * @return The newly created {@link Builder}.
-     */
-    @Contract(value = "-> new", pure = true)
-    public static @NotNull <A extends CommandActor> Builder<A> builder() {
-        return new Builder<>();
-    }
-
     public static class Builder<A extends CommandActor> {
 
-        private int lastIndex = 0;
         private final List<Factory<? super A>> factories = new ArrayList<>();
+        private int lastIndex = 0;
 
         /**
          * Registers a {@link SuggestionProvider} that matches a specific class. Note

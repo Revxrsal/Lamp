@@ -50,6 +50,19 @@ public final class LampCommandExecutor<A extends BukkitCommandActor> implements 
         this.actorFactory = actorFactory;
     }
 
+    private static String ignoreAfterSpace(String v) {
+        int spaceIndex = v.indexOf(' ');
+        return spaceIndex == -1 ? v : v.substring(0, spaceIndex);
+    }
+
+    private static @NotNull MutableStringStream createInput(String commandName, String[] args) {
+        StringJoiner userInput = new StringJoiner(" ");
+        userInput.add(stripNamespace(commandName));
+        for (@NotNull String arg : args)
+            userInput.add(arg);
+        return StringStream.createMutable(userInput.toString());
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         A actor = actorFactory.create(sender, lamp);
@@ -70,18 +83,5 @@ public final class LampCommandExecutor<A extends BukkitCommandActor> implements 
             // on older versions, we get funny behavior when suggestions contain spaces
             return map(completions, LampCommandExecutor::ignoreAfterSpace);
         }
-    }
-
-    private static String ignoreAfterSpace(String v) {
-        int spaceIndex = v.indexOf(' ');
-        return spaceIndex == -1 ? v : v.substring(0, spaceIndex);
-    }
-
-    private static @NotNull MutableStringStream createInput(String commandName, String[] args) {
-        StringJoiner userInput = new StringJoiner(" ");
-        userInput.add(stripNamespace(commandName));
-        for (@NotNull String arg : args)
-            userInput.add(arg);
-        return StringStream.createMutable(userInput.toString());
     }
 }

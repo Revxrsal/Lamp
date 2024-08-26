@@ -65,6 +65,12 @@ public final class JDAUtils {
 
     private static final Map<Class<? extends Channel>, ChannelType> CHANNEL_TYPES = new HashMap<>();
 
+    static {
+        for (ChannelType value : ChannelType.values()) {
+            CHANNEL_TYPES.put(value.getInterface(), value);
+        }
+    }
+
     private JDAUtils() {
         cannotInstantiate(JDAUtils.class);
     }
@@ -353,11 +359,5 @@ public final class JDAUtils {
      */
     public static @Nullable ChannelType channelType(@NotNull Class<? extends Channel> channelInterface) {
         return CHANNEL_TYPES.get(channelInterface);
-    }
-
-    static {
-        for (ChannelType value : ChannelType.values()) {
-            CHANNEL_TYPES.put(value.getInterface(), value);
-        }
     }
 }

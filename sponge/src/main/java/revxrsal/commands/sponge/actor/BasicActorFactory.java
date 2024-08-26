@@ -24,8 +24,8 @@
 package revxrsal.commands.sponge.actor;
 
 import net.kyori.adventure.text.ComponentLike;
-import org.spongepowered.api.command.CommandCause;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.command.CommandCause;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.process.MessageSender;
 

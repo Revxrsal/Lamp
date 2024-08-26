@@ -15,12 +15,20 @@ import static revxrsal.commands.util.Preconditions.cannotInstantiate;
  */
 public final class BukkitVersion {
 
-    private BukkitVersion() {
-        cannotInstantiate(BukkitVersion.class);
-    }
-
     private static final boolean IS_PAPER;
     private static final int MAJOR_VERSION, MINOR_VERSION, PATCH_NUMBER;
+    /**
+     * The current version string, for example 1_17_R1
+     */
+    private static final String VERSION = fetchVersion();
+    /**
+     * The version where NMS no longer uses versions in the package names
+     */
+    private static final int UNVERSION_NMS = 17;
+    /**
+     * The CraftBukkit package
+     */
+    private static final String CB_PACKAGE = Bukkit.getServer().getClass().getPackage().getName();
 
     static {
         Pattern dot = Pattern.compile(".", Pattern.LITERAL);
@@ -50,20 +58,9 @@ public final class BukkitVersion {
         IS_PAPER = paper;
     }
 
-    /**
-     * The current version string, for example 1_17_R1
-     */
-    private static final String VERSION = fetchVersion();
-
-    /**
-     * The version where NMS no longer uses versions in the package names
-     */
-    private static final int UNVERSION_NMS = 17;
-
-    /**
-     * The CraftBukkit package
-     */
-    private static final String CB_PACKAGE = Bukkit.getServer().getClass().getPackage().getName();
+    private BukkitVersion() {
+        cannotInstantiate(BukkitVersion.class);
+    }
 
     /**
      * Returns the version of the server, e.g. v1_16_R2

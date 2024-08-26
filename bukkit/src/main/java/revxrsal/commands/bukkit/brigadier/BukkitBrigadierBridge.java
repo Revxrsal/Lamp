@@ -38,14 +38,6 @@ import java.util.stream.Stream;
 public interface BukkitBrigadierBridge<A extends BukkitCommandActor> {
 
     /**
-     * Registers the provided argument data to the dispatcher, against all
-     * aliases defined for the {@code command}.
-     *
-     * @param command the command to read aliases from
-     */
-    void register(ExecutableCommand<A> command);
-
-    /**
      * Gets the aliases known for the given command.
      *
      * <p>This will include the main label, as well as defined aliases, and
@@ -72,4 +64,12 @@ public interface BukkitBrigadierBridge<A extends BukkitCommandActor> {
 
         return aliasesStream.distinct().collect(Collectors.toList());
     }
+
+    /**
+     * Registers the provided argument data to the dispatcher, against all
+     * aliases defined for the {@code command}.
+     *
+     * @param command the command to read aliases from
+     */
+    void register(ExecutableCommand<A> command);
 }

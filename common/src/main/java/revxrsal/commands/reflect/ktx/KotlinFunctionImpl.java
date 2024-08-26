@@ -46,16 +46,15 @@ import static revxrsal.commands.util.Lazy.of;
 
 final class KotlinFunctionImpl implements KotlinFunction {
 
+    private final CallableMethod mainMethod;
+    private final Supplier<@Nullable CallableMethod> defaultMethod;
+    private final @Unmodifiable List<Parameter> parameters;
     private final Supplier<@Unmodifiable Map<String, Parameter>> byName = of(() -> {
         Map<String, Parameter> byName = new HashMap<>();
         for (Parameter parameter : getParameters())
             byName.put(parameter.getName(), parameter);
         return Collections.unmodifiableMap(byName);
     });
-
-    private final CallableMethod mainMethod;
-    private final Supplier<@Nullable CallableMethod> defaultMethod;
-    private final @Unmodifiable List<Parameter> parameters;
 
     public KotlinFunctionImpl(Method mainMethod) {
         MethodCaller mainCaller = getCallerForNonDefault(mainMethod);

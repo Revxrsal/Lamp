@@ -62,19 +62,18 @@ import static revxrsal.commands.util.Preconditions.cannotInstantiate;
  */
 public final class Strings {
 
-    private Strings() {
-        cannotInstantiate(Strings.class);
-    }
-
     /**
      * Pattern to split by whitespace
      */
     public static final Pattern SPACE = Pattern.compile(" ", Pattern.LITERAL);
-
     /**
      * Pattern to extract snowflake IDs. Useful for JDA
      */
     public static final Pattern SNOWFLAKE = Pattern.compile("<(@!|@|@&|#)(?<snowflake>\\d{18})>");
+
+    private Strings() {
+        cannotInstantiate(Strings.class);
+    }
 
     public static @Nullable String getSnowflake(String mention) {
         Matcher matcher = SNOWFLAKE.matcher(mention);

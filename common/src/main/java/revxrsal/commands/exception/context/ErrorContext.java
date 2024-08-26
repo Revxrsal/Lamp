@@ -48,6 +48,49 @@ import revxrsal.commands.stream.StringStream;
 public interface ErrorContext<A extends CommandActor> {
 
     /**
+     * Creates a {@link ParsingLiteral} context for the given literal node
+     *
+     * @param node The literal node
+     * @param <A>  The actor type
+     * @return The executionContext
+     */
+    static <A extends CommandActor> @NotNull ParsingLiteral<A> parsingLiteral(@NotNull ExecutionContext<A> context, @NotNull LiteralNode<A> node) {
+        return new ParsingLiteralContext<>(context, node);
+    }
+
+    /**
+     * Creates a {@link ParsingParameter} context for the given parameter node
+     *
+     * @param node  The parameter node
+     * @param input The problematic input
+     * @param <A>   The actor type
+     * @return The executionContext
+     */
+    static <A extends CommandActor> @NotNull ParsingParameter<A> parsingParameter(@NotNull ExecutionContext<A> context, @NotNull ParameterNode<A, ?> node, @NotNull StringStream input) {
+        return new ParsingParameterContext<>(context, node, input);
+    }
+
+    /**
+     * Creates an {@link ExecutingFunction} error executionContext
+     *
+     * @param <A> The actor type
+     * @return The executionContext
+     */
+    static <A extends CommandActor> @NotNull ExecutingFunction<A> executingFunction(@NotNull ExecutionContext<A> context) {
+        return new ExecutingFunctionContext<>(context);
+    }
+
+    /**
+     * Creates an {@link ExecutingFunction} error executionContext
+     *
+     * @param <A> The actor type
+     * @return The executionContext
+     */
+    static <A extends CommandActor> @NotNull UnknownCommand<A> unknownCommand(@NotNull A actor) {
+        return new UnknownCommandContext<>(actor);
+    }
+
+    /**
      * Tests whether this context has a {@link ExecutionContext} or not.
      * <p>
      * All error contexts have an {@link ExecutionContext} except {@link UnknownCommand},
@@ -160,48 +203,5 @@ public interface ErrorContext<A extends CommandActor> {
         default ExecutionContext<A> executionContext() {
             return null;
         }
-    }
-
-    /**
-     * Creates a {@link ParsingLiteral} context for the given literal node
-     *
-     * @param node The literal node
-     * @param <A>  The actor type
-     * @return The executionContext
-     */
-    static <A extends CommandActor> @NotNull ParsingLiteral<A> parsingLiteral(@NotNull ExecutionContext<A> context, @NotNull LiteralNode<A> node) {
-        return new ParsingLiteralContext<>(context, node);
-    }
-
-    /**
-     * Creates a {@link ParsingParameter} context for the given parameter node
-     *
-     * @param node  The parameter node
-     * @param input The problematic input
-     * @param <A>   The actor type
-     * @return The executionContext
-     */
-    static <A extends CommandActor> @NotNull ParsingParameter<A> parsingParameter(@NotNull ExecutionContext<A> context, @NotNull ParameterNode<A, ?> node, @NotNull StringStream input) {
-        return new ParsingParameterContext<>(context, node, input);
-    }
-
-    /**
-     * Creates an {@link ExecutingFunction} error executionContext
-     *
-     * @param <A> The actor type
-     * @return The executionContext
-     */
-    static <A extends CommandActor> @NotNull ExecutingFunction<A> executingFunction(@NotNull ExecutionContext<A> context) {
-        return new ExecutingFunctionContext<>(context);
-    }
-
-    /**
-     * Creates an {@link ExecutingFunction} error executionContext
-     *
-     * @param <A> The actor type
-     * @return The executionContext
-     */
-    static <A extends CommandActor> @NotNull UnknownCommand<A> unknownCommand(@NotNull A actor) {
-        return new UnknownCommandContext<>(actor);
     }
 }

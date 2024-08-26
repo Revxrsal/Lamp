@@ -66,14 +66,6 @@ import java.lang.reflect.Type;
 public interface ResponseHandler<A extends CommandActor, T> {
 
     /**
-     * Handles the response returned from the method
-     *
-     * @param response The response returned from the method. May or may not be null.
-     * @param context  The command execution context
-     */
-    void handleResponse(T response, ExecutionContext<A> context);
-
-    /**
      * Returns a basic {@link ResponseHandler} that does nothing.
      *
      * @param <A> The actor type
@@ -86,6 +78,14 @@ public interface ResponseHandler<A extends CommandActor, T> {
     }
 
     /**
+     * Handles the response returned from the method
+     *
+     * @param response The response returned from the method. May or may not be null.
+     * @param context  The command execution context
+     */
+    void handleResponse(T response, ExecutionContext<A> context);
+
+    /**
      * A factory that allows to create {@link ResponseHandler}s dynamically. This
      * factory can access the response {@link Type} and function annotations, as
      * well as other registered response handlers.
@@ -96,19 +96,6 @@ public interface ResponseHandler<A extends CommandActor, T> {
      * @param <A> Actor type
      */
     interface Factory<A extends CommandActor> {
-
-        /**
-         * Creates a new {@link CommandPermission} for the given type and list of annotations. These
-         * annotations will usually represent the ones on the function
-         * <p>
-         * If this factory is not responsible for the given input, it may return
-         * {@code null}.
-         *
-         * @param annotations The annotation list
-         * @param lamp        The {@link Lamp} instance
-         * @return The permission
-         */
-        @Nullable <T> ResponseHandler<A, T> create(@NotNull Type type, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp);
 
         /**
          * Creates a new {@link ParameterType.Factory} that returns a {@link ParameterType} for all
@@ -139,5 +126,18 @@ public interface ResponseHandler<A extends CommandActor, T> {
         static <A extends CommandActor, T> @NotNull Factory<A> forTypeAndSubclasses(@NotNull Class<T> type, @NotNull ResponseHandler<A, T> responseHandler) {
             return new ClassResponseHandlerFactory<>(type, responseHandler, true);
         }
+
+        /**
+         * Creates a new {@link CommandPermission} for the given type and list of annotations. These
+         * annotations will usually represent the ones on the function
+         * <p>
+         * If this factory is not responsible for the given input, it may return
+         * {@code null}.
+         *
+         * @param annotations The annotation list
+         * @param lamp        The {@link Lamp} instance
+         * @return The permission
+         */
+        @Nullable <T> ResponseHandler<A, T> create(@NotNull Type type, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp);
     }
 }

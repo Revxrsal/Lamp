@@ -59,6 +59,21 @@ public final class Hooks<A extends CommandActor> {
     }
 
     /**
+     * Creates a new hooks {@link Builder}
+     *
+     * @param <A> The actor
+     * @return The newly created builder
+     */
+    @Contract(value = "-> new", pure = true)
+    public static @NotNull <A extends CommandActor> Hooks.Builder<A> builder() {
+        return new Builder<>();
+    }
+
+    private static @NotNull CancelHandle newCancelHandle() {
+        return new BasicCancelHandle();
+    }
+
+    /**
      * Calls all {@link CommandRegisteredHook registration hooks}.
      *
      * @param command The command that was registered
@@ -108,17 +123,6 @@ public final class Hooks<A extends CommandActor> {
                 executedHook.onExecuted(command, context, cancelHandle);
         }
         return cancelHandle.wasCancelled();
-    }
-
-    /**
-     * Creates a new hooks {@link Builder}
-     *
-     * @param <A> The actor
-     * @return The newly created builder
-     */
-    @Contract(value = "-> new", pure = true)
-    public static @NotNull <A extends CommandActor> Hooks.Builder<A> builder() {
-        return new Builder<>();
     }
 
     /**
@@ -175,10 +179,6 @@ public final class Hooks<A extends CommandActor> {
         public @NotNull Hooks<A> build() {
             return new Hooks<>(this);
         }
-    }
-
-    private static @NotNull CancelHandle newCancelHandle() {
-        return new BasicCancelHandle();
     }
 
     private static final class BasicCancelHandle implements CancelHandle {

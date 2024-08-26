@@ -101,6 +101,40 @@ public final class ParameterTypes<A extends CommandActor> {
         this.lastIndex = builder.lastIndex;
     }
 
+    private static boolean consumesInput(@NotNull ParameterFactory factory) {
+        return factory instanceof ParameterType.Factory<?>;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <A extends CommandActor, T> @Nullable ParameterResolver<A, T> toParameterResolver(
+            Type type,
+            AnnotationList annotations,
+            Lamp<A> lamp,
+            ParameterFactory factory
+    ) {
+        if (factory instanceof ParameterType.Factory) {
+            ParameterType<A, T> parameterType = ((ParameterType.Factory<A>) factory).create(type, annotations, lamp);
+            if (parameterType != null)
+                return ParameterResolver.parameterType(parameterType);
+        } else if (factory instanceof ContextParameter.Factory) {
+            ContextParameter<A, T> contextParameter = ((ContextParameter.Factory<A>) factory).create(type, annotations, lamp);
+            if (contextParameter != null)
+                return ParameterResolver.contextParameter(contextParameter);
+        }
+        return null;
+    }
+
+    /**
+     * Creates a new {@link Builder} for {@link ParameterType}s.
+     *
+     * @param <A> The actor type
+     * @return The newly created {@link Builder}.
+     */
+    @Contract(value = "-> new", pure = true)
+    public static <A extends CommandActor> @NotNull Builder<A> builder() {
+        return new Builder<>();
+    }
+
     /**
      * Returns the first {@link ParameterType} that can parse the given type
      * and annotations. This method can be used to create more complex parameter
@@ -162,29 +196,6 @@ public final class ParameterTypes<A extends CommandActor> {
         throw new IllegalArgumentException("Failed to find the next resolver for type " + type + " with annotations " + annotations);
     }
 
-    private static boolean consumesInput(@NotNull ParameterFactory factory) {
-        return factory instanceof ParameterType.Factory<?>;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <A extends CommandActor, T> @Nullable ParameterResolver<A, T> toParameterResolver(
-            Type type,
-            AnnotationList annotations,
-            Lamp<A> lamp,
-            ParameterFactory factory
-    ) {
-        if (factory instanceof ParameterType.Factory) {
-            ParameterType<A, T> parameterType = ((ParameterType.Factory<A>) factory).create(type, annotations, lamp);
-            if (parameterType != null)
-                return ParameterResolver.parameterType(parameterType);
-        } else if (factory instanceof ContextParameter.Factory) {
-            ContextParameter<A, T> contextParameter = ((ContextParameter.Factory<A>) factory).create(type, annotations, lamp);
-            if (contextParameter != null)
-                return ParameterResolver.contextParameter(contextParameter);
-        }
-        return null;
-    }
-
     /**
      * Creates a {@link Builder} that contains the factories registered
      * in this registry.
@@ -203,21 +214,10 @@ public final class ParameterTypes<A extends CommandActor> {
         return result;
     }
 
-    /**
-     * Creates a new {@link Builder} for {@link ParameterType}s.
-     *
-     * @param <A> The actor type
-     * @return The newly created {@link Builder}.
-     */
-    @Contract(value = "-> new", pure = true)
-    public static <A extends CommandActor> @NotNull Builder<A> builder() {
-        return new Builder<>();
-    }
-
     public static class Builder<A extends CommandActor> {
 
-        private int lastIndex = 0;
         private final List<ParameterFactory> factories = new ArrayList<>();
+        private int lastIndex = 0;
 
         /**
          * Registers a {@link ParameterType} that matches a specific class. Note

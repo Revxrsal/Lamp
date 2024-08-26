@@ -57,15 +57,6 @@ import java.lang.reflect.Method;
 public interface MethodCallerFactory {
 
     /**
-     * Creates a new {@link MethodCaller} for the specified method.
-     *
-     * @param method Method to create for
-     * @return The reflective method caller
-     * @throws Throwable Any exceptions during creation
-     */
-    @NotNull MethodCaller createFor(@NotNull Method method) throws Throwable;
-
-    /**
      * Returns a {@link MethodCallerFactory} that uses the new
      * method handles API to create method callers.
      *
@@ -95,5 +86,14 @@ public interface MethodCallerFactory {
     static @NotNull MethodCallerFactory defaultFactory() {
         return DefaultMethodCallerFactory.INSTANCE;
     }
+
+    /**
+     * Creates a new {@link MethodCaller} for the specified method.
+     *
+     * @param method Method to create for
+     * @return The reflective method caller
+     * @throws Throwable Any exceptions during creation
+     */
+    @NotNull MethodCaller createFor(@NotNull Method method) throws Throwable;
 
 }

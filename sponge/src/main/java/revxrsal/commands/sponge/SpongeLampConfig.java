@@ -99,8 +99,8 @@ public final class SpongeLampConfig<A extends SpongeCommandActor> implements Lam
      */
     public static class Builder<A extends SpongeCommandActor> {
 
-        private ActorFactory<A> actorFactory;
         private final @NotNull Object plugin;
+        private ActorFactory<A> actorFactory;
 
         Builder(@NotNull Object plugin) {
             this.plugin = plugin;

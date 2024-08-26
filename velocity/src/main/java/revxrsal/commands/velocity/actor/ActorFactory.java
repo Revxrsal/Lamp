@@ -40,15 +40,6 @@ import revxrsal.commands.process.MessageSender;
 public interface ActorFactory<A extends VelocityCommandActor> {
 
     /**
-     * Creates the actor from the given {@link CommandSource}
-     *
-     * @param sender Sender to create for
-     * @param lamp   The {@link Lamp} instance
-     * @return The created actor
-     */
-    @NotNull A create(@NotNull CommandSource sender, @NotNull Lamp<A> lamp);
-
-    /**
      * Returns the default {@link ActorFactory} that returns a simple {@link VelocityCommandActor}
      * implementation
      *
@@ -70,4 +61,13 @@ public interface ActorFactory<A extends VelocityCommandActor> {
     ) {
         return new BasicActorFactory(messageSender, errorSender);
     }
+
+    /**
+     * Creates the actor from the given {@link CommandSource}
+     *
+     * @param sender Sender to create for
+     * @param lamp   The {@link Lamp} instance
+     * @return The created actor
+     */
+    @NotNull A create(@NotNull CommandSource sender, @NotNull Lamp<A> lamp);
 }
