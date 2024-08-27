@@ -33,7 +33,6 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import com.mojang.brigadier.tree.RootCommandNode;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +55,6 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 import static revxrsal.commands.autocomplete.SuggestionProvider.empty;
 import static revxrsal.commands.brigadier.Nodes.*;
-import static revxrsal.commands.util.Preconditions.notNull;
 import static revxrsal.commands.util.Strings.stripNamespace;
 
 /**
@@ -64,42 +62,6 @@ import static revxrsal.commands.util.Strings.stripNamespace;
  * into {@link CommandNode brigadier CommandNodes}
  */
 public final class BrigadierAdapter {
-
-    /**
-     * Parses all the currently registered commands in the given {@link Lamp} instance
-     *
-     * @param lamp    The {@link Lamp} instance
-     * @param adapter The {@link BrigadierConverter} adapter
-     * @param <S>     The brigadier command source type
-     * @param <A>     Lamp's command actor type
-     * @return The parsed {@link RootCommandNode} tree
-     */
-    public static <S, A extends CommandActor> RootCommandNode<S> parse(
-            BrigadierConverter<A, S> adapter,
-            Lamp<A> lamp
-    ) {
-        notNull(lamp, "lamp");
-        notNull(adapter, "brigadier");
-        RootCommandNode<S> root = new RootCommandNode<>();
-        for (ExecutableCommand<A> command : lamp.registry()) {
-            CommandNode<S> firstNode = createNode(command.firstNode(), adapter, lamp);
-            setRequirement(firstNode, createRequirement(command.permission(), adapter, lamp));
-
-            root.addChild(firstNode);
-
-            CommandNode<S> lastNode = firstNode;
-
-            @Unmodifiable List<revxrsal.commands.node.CommandNode<A>> nodes = command.nodes();
-            for (int i = 1; i < nodes.size(); i++) {
-                revxrsal.commands.node.CommandNode<A> node = nodes.get(i);
-                CommandNode<S> elementNode = createNode(node, adapter, lamp);
-                lastNode.addChild(elementNode);
-                lastNode = elementNode;
-            }
-        }
-
-        return root;
-    }
 
     /**
      * Creates a Brigadier {@link CommandNode} based on the given {@link ExecutableCommand}
@@ -110,7 +72,10 @@ public final class BrigadierAdapter {
      * @param <A>     Lamp sender type
      * @return The equivalent node
      */
-    public static <S, A extends CommandActor> @NotNull LiteralCommandNode<S> createNode(@NotNull ExecutableCommand<A> command, @NotNull BrigadierConverter<A, S> adapter) {
+    public static <S, A extends CommandActor> @NotNull LiteralCommandNode<S> createNode(
+            @NotNull ExecutableCommand<A> command,
+            @NotNull BrigadierConverter<A, S> adapter
+    ) {
         final CommandNode<S> firstNode = createNode(command.firstNode(), adapter, command.lamp());
         setRequirement(firstNode, createRequirement(command.permission(), adapter, command.lamp()));
 
@@ -120,8 +85,14 @@ public final class BrigadierAdapter {
         for (int i = 1; i < nodes.size(); i++) {
             revxrsal.commands.node.CommandNode<A> node = nodes.get(i);
             CommandNode<S> elementNode = createNode(node, adapter, command.lamp());
+            if (node.isLast())
+                setCommand(elementNode, createAction(adapter, command.lamp()));
+            if (node instanceof ParameterNode<?, ?> p && p.isOptional())
+                setCommand(lastNode, createAction(adapter, command.lamp()));
+
             lastNode.addChild(elementNode);
             lastNode = elementNode;
+
         }
         return (LiteralCommandNode<S>) firstNode;
     }
@@ -151,8 +122,6 @@ public final class BrigadierAdapter {
         else
             throw new IllegalArgumentException("Unsupported node type: " + node);
 
-        if (node.hasAction())
-            setCommand(brigadierNode, createAction(adapter, lamp));
         if (node instanceof ParameterNode<A, ?> parameter) {
             setRequirement(brigadierNode, createRequirement(parameter.permission(), adapter, lamp));
             if (brigadierNode instanceof ArgumentCommandNode<S, ?> arg)
