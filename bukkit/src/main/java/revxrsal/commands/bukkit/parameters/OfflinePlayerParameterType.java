@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
+import revxrsal.commands.bukkit.util.BukkitVersion;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
@@ -49,7 +50,6 @@ public final class OfflinePlayerParameterType implements ParameterType<BukkitCom
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public OfflinePlayer parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
         String name = input.readString();
         if (name.equals("self") || name.equals("me") || name.equals("@s"))
@@ -61,6 +61,9 @@ public final class OfflinePlayerParameterType implements ParameterType<BukkitCom
     }
 
     @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
+        // Brigadier's entity type will handle auto-completions for us :)
+        if (BukkitVersion.isBrigadierSupported())
+            return SuggestionProvider.empty();
         return (input, actor, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }
 }

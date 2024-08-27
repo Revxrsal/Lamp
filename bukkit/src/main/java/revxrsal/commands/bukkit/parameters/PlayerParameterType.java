@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.exception.InvalidPlayerException;
+import revxrsal.commands.bukkit.util.BukkitVersion;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
@@ -55,6 +56,9 @@ public final class PlayerParameterType implements ParameterType<BukkitCommandAct
     }
 
     @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
+        // Brigadier's entity type will handle auto-completions for us :)
+        if (BukkitVersion.isBrigadierSupported())
+            return SuggestionProvider.empty();
         return (input, actor, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }
 }
