@@ -243,7 +243,12 @@ public final class BrigadierAdapter {
             A actor = adapter.createActor(context.getSource(), lamp);
             Message tooltip = new LiteralMessage(tooltipMessage);
             String input = context.getInput();
-            lamp.autoCompleter().complete(actor, input.startsWith("/") ? input.substring(1) : input)
+            MutableStringStream stream = StringStream.createMutable(
+                    input.startsWith("/") ? input.substring(1) : input
+            );
+            if (stream.peekUnquotedString().indexOf(':') != -1)
+                stream = StringStream.createMutable(stripNamespace(input));
+            lamp.autoCompleter().complete(actor, stream)
                     .stream()
                     .sorted(String.CASE_INSENSITIVE_ORDER)
                     .distinct()
