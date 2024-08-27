@@ -308,6 +308,6 @@ If Lamp has made your life significantly easier or you're feeling particularly g
 
 Huge thanks to those who donated! 😄
 
-*If I missed you or you would like to remain anonymous, feel free to shoot me a DM on Discord)*
+*If I missed you, or you would like to remain anonymous, feel free to shoot me a DM on Discord)*
 
 - Demeng ($50)
