@@ -39,7 +39,7 @@ public class SpongeHandler extends BaseCommandHandler implements SpongeCommandHa
 
     @SuppressWarnings("rawtypes")
     public SpongeHandler(Object plugin) {
-        super();
+        super(plugin);
 
         this.plugin = notNull(plugin, "plugin");
         registerSenderResolver(SpongeSenderResolver.INSTANCE);

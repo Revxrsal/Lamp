@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.CommandHandler;
 import revxrsal.commands.CommandHandlerVisitor;
+import revxrsal.commands.annotation.AutoRegister;
 import revxrsal.commands.annotation.Dependency;
 import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.Range;
@@ -46,13 +47,16 @@ import revxrsal.commands.orphan.Orphans;
 import revxrsal.commands.process.*;
 import revxrsal.commands.process.ParameterResolver.ParameterResolverContext;
 import revxrsal.commands.process.ValueResolver.ValueResolverContext;
+import revxrsal.commands.reflection.ReflectionUtils;
 import revxrsal.commands.util.ClassMap;
 import revxrsal.commands.util.Primitives;
 import revxrsal.commands.util.StackTraceSanitizer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -104,8 +108,13 @@ public abstract class BaseCommandHandler implements CommandHandler {
     final List<CommandCondition> conditions = new ArrayList<>();
     private final Translator translator = Translator.create();
 
+    private ReflectionUtils reflectionUtils = new ReflectionUtils();
+    private final Object plugin;
+
     @SuppressWarnings("rawtypes")
-    public BaseCommandHandler() {
+    public BaseCommandHandler(Object plugin) {
+        this.plugin = plugin;
+
         registerContextResolverFactory(new SenderContextResolverFactory(senderResolvers));
         registerContextResolverFactory(DependencyResolverFactory.INSTANCE);
         registerValueResolverFactory(EitherValueResolverFactory.INSTANCE);
@@ -155,6 +164,8 @@ public abstract class BaseCommandHandler implements CommandHandler {
         });
         registerCondition((actor, command, arguments) -> command.checkPermission(actor));
         registerAnnotationReplacer(Description.class, new LocalesAnnotationReplacer(this));
+
+        autoRegister();
     }
 
     @Override
@@ -618,6 +629,30 @@ public abstract class BaseCommandHandler implements CommandHandler {
                 return;
             }
             handler.handleException(throwable, actor);
+        }
+    }
+
+
+    /**
+     * Loops through all classes and if the class is annotated with {@link AutoRegister},
+     * it gets automatically registered.
+     */
+    private final void autoRegister() {
+        String packageName = reflectionUtils.getPackageName(plugin.getClass());
+
+        Set<Class<?>> classes = reflectionUtils.getClasses(packageName);
+
+        for(Class<?> clazz : classes) {
+            if(clazz.isAnnotationPresent(AutoRegister.class)) {
+                try {
+                    Constructor<?> constructor = clazz.getConstructor();
+                    Object object = constructor.newInstance();
+                    register(object);
+                } catch (NoSuchMethodException | IllegalAccessException | InstantiationException |
+                         InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

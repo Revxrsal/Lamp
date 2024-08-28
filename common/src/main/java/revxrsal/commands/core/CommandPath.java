@@ -50,7 +50,11 @@ public class CommandPath implements Iterable<String>, Comparable<CommandPath> {
      * @param path Path to wrap
      * @return The command path
      */
-    public static @NotNull CommandPath parse(@NotNull String path) {
+    public static @NotNull CommandPath parse(@NotNull Object obj) {
+
+        String path = "";
+        if(obj instanceof String) path = (String) obj;
+
         Preconditions.notEmpty(path, "Path cannot be empty!");
         return get(splitBySpace(path));
     }

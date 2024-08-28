@@ -29,7 +29,7 @@ public final class BungeeHandler extends BaseCommandHandler implements BungeeCom
     private final Plugin plugin;
 
     public BungeeHandler(Plugin plugin) {
-        super();
+        super(plugin);
         this.plugin = notNull(plugin, "plugin");
         registerSenderResolver(BungeeSenderResolver.INSTANCE);
         registerDependency((Class) plugin.getClass(), plugin);

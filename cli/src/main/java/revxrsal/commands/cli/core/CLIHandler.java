@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.cli.ConsoleActor;
 import revxrsal.commands.cli.ConsoleCommandHandler;
 import revxrsal.commands.core.BaseCommandHandler;
+import revxrsal.commands.reflection.ReflectionUtils;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -21,7 +22,7 @@ public final class CLIHandler extends BaseCommandHandler implements ConsoleComma
     private final ConsoleActor actor;
 
     public CLIHandler(InputStream inputStream, PrintStream outputStream, PrintStream errorStream) {
-        super();
+        super(ReflectionUtils.getMainClass());
         this.inputStream = notNull(inputStream, "input stream");
         this.outputStream = notNull(outputStream, "output stream");
         this.errorStream = notNull(errorStream, "error stream");

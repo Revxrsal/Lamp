@@ -30,6 +30,7 @@ import revxrsal.commands.jda.annotation.GuildOnly;
 import revxrsal.commands.jda.exception.JDAExceptionAdapter;
 import revxrsal.commands.process.ContextResolver;
 import revxrsal.commands.process.ValueResolver;
+import revxrsal.commands.reflection.ReflectionUtils;
 
 import static revxrsal.commands.jda.core.SnowflakeResolvers.*;
 import static revxrsal.commands.jda.core.SnowflakeResolvers.UserResolver.USER;
@@ -42,7 +43,7 @@ public final class JDAHandler extends BaseCommandHandler implements JDACommandHa
     private final JDA jda;
 
     public JDAHandler(@NotNull JDA jda, @NotNull String prefix) {
-        super();
+        super(ReflectionUtils.getMainClass());
         notNull(prefix, "prefix");
         this.jda = notNull(jda, "JDA");
         registerSenderResolver(JDASenderResolver.INSTANCE);

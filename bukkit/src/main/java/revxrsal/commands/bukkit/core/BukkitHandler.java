@@ -62,7 +62,7 @@ public final class BukkitHandler extends BaseCommandHandler implements BukkitCom
 
     @SuppressWarnings("rawtypes")
     public BukkitHandler(@NotNull Plugin plugin) {
-        super();
+        super(plugin);
         this.plugin = notNull(plugin, "plugin");
         try {
             brigadier = Optional.of(new CommodoreBukkitBrigadier(this));

@@ -34,7 +34,7 @@ public final class VelocityHandler extends BaseCommandHandler implements Velocit
 //    private final DummyVelocityBrigadier brigadier = new DummyVelocityBrigadier(this);
 
     public VelocityHandler(@Nullable Object plugin, @NotNull ProxyServer server) {
-        super();
+        super(plugin);
         this.plugin = plugin == null ? Optional.empty() : server.getPluginManager().fromInstance(plugin);
         this.server = notNull(server, "proxy server");
         registerPermissionReader(VelocityPermissionReader.INSTANCE);
