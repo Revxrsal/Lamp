@@ -636,6 +636,8 @@ public abstract class BaseCommandHandler implements CommandHandler {
     /**
      * Loops through all classes and if the class is annotated with {@link AutoRegister},
      * it gets automatically registered.
+     *
+     * The class' only constructor must be a No Args Constructor.
      */
     private final void autoRegister() {
         String packageName = reflectionUtils.getPackageName(plugin.getClass());
