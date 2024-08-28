@@ -27,6 +27,7 @@ package revxrsal.commands.bukkit.brigadier;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.Bukkit;
@@ -105,7 +106,7 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
     private final ArgumentTypes<A> types;
     private final ActorFactory<A> factory;
 
-    private final List<LiteralCommandNode<?>> registeredNodes = new ArrayList<>();
+    private final RootCommandNode<Object> registeredNodes = new RootCommandNode<>();
 
     ByReflection(JavaPlugin plugin, ArgumentTypes<A> types, ActorFactory<A> factory) {
         this.plugin = plugin;
@@ -133,7 +134,7 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
 
         BrigadierUtil.removeChild(root, node.getName());
         root.addChild(node);
-        registeredNodes.add(node);
+        registeredNodes.addChild(node);
     }
 
     @Override public void register(ExecutableCommand<A> command) {
@@ -196,7 +197,7 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
             CommandDispatcher dispatcher = getDispatcher();
             RootCommandNode root = dispatcher.getRoot();
 
-            for (LiteralCommandNode<?> node : registeredNodes) {
+            for (CommandNode<?> node : registeredNodes.getChildren()) {
                 removeChild(root, node.getName());
                 root.addChild(node);
             }
@@ -209,7 +210,7 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
             CommandDispatcher dispatcher = getDispatcher();
             RootCommandNode root = dispatcher.getRoot();
 
-            for (LiteralCommandNode<?> node : registeredNodes) {
+            for (CommandNode<?> node : registeredNodes.getChildren()) {
                 removeChild(root, node.getName());
             }
         }

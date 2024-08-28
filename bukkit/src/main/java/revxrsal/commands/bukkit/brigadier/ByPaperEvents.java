@@ -27,6 +27,7 @@ package revxrsal.commands.bukkit.brigadier;
 import com.destroystokyo.paper.event.brigadier.CommandRegisteredEvent;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.EventHandler;
@@ -60,7 +61,7 @@ import static revxrsal.commands.util.Strings.stripNamespace;
 @SuppressWarnings({"rawtypes"})
 final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierConverter<A, Object>, Listener {
 
-    private final Map<String, LiteralCommandNode<?>> commands = new HashMap<>();
+    private final RootCommandNode<Object> rootNode = new RootCommandNode<>();
     private final String fallbackPrefix;
 
     private final ArgumentTypes<A> types;
@@ -105,12 +106,12 @@ final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadi
 
         for (String alias : aliases) {
             if (node.getLiteral().equals(alias)) {
-                commands.put(node.getLiteral(), node);
+                rootNode.addChild(node);
             } else {
                 LiteralCommandNode<Object> redirectNode = literal(alias)
                         .redirect(node)
                         .build();
-                commands.put(redirectNode.getLiteral(), redirectNode);
+                rootNode.addChild(redirectNode);
             }
         }
     }
@@ -129,7 +130,7 @@ final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadi
             MutableStringStream input = StringStream.createMutable(
                     stripNamespace(fallbackPrefix, event.getCommandLine())
             );
-            if (commands.containsKey(input.peekUnquotedString())) {
+            if (rootNode.getChild(input.peekUnquotedString()) != null) {
                 event.setMessage(null);
                 A actor = actorFactory.create(event.getSender(), lamp);
                 // This will automatically fail, we can then easily get the
@@ -149,7 +150,7 @@ final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadi
             if (!(pCommand.getExecutor() instanceof LampCommandExecutor<?>)) {
                 return;
             }
-            LiteralCommandNode node = commands.get(event.getCommandLabel());
+            LiteralCommandNode node = (LiteralCommandNode) rootNode.getChild(event.getCommandLabel());
             if (node != null) {
                 event.setLiteral(node);
             }

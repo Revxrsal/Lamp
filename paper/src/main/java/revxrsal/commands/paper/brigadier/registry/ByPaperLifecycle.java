@@ -24,7 +24,9 @@
 package revxrsal.commands.paper.brigadier.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -45,17 +47,22 @@ public final class ByPaperLifecycle<A extends BukkitCommandActor> implements Buk
     private final ArgumentTypes<A> types;
     private final ActorFactory<A> actorFactory;
 
+    private final RootCommandNode<CommandSourceStack> root = new RootCommandNode<>();
+
     public ByPaperLifecycle(JavaPlugin plugin, ArgumentTypes<A> types, ActorFactory<A> actorFactory) {
         this.plugin = plugin;
         this.types = types;
         this.actorFactory = actorFactory;
+        plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            for (CommandNode<CommandSourceStack> node : root.getChildren()) {
+                event.registrar().register(((LiteralCommandNode<CommandSourceStack>) node));
+            }
+        });
     }
 
     @Override public void register(ExecutableCommand<A> command) {
         LiteralCommandNode<CommandSourceStack> node = BrigadierAdapter.createNode(command, this);
-        plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
-                event -> event.registrar().register(node, command.description())
-        );
+        root.addChild(node);
     }
 
     @Override public @NotNull ArgumentType<?> getArgumentType(@NotNull ParameterNode<A, ?> parameter) {
