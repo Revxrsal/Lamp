@@ -83,10 +83,10 @@ public final class ParameterTypes<A extends CommandActor> {
             ParameterType.Factory.forType(boolean.class, new BooleanParameterType()),
             ParameterType.Factory.forType(UUID.class, new UUIDParameterType()),
             ParameterType.Factory.forType(String.class, StringParameterType.single()),
-            ContextParameter.Factory.forType(StringStream.class, (parameter, input, context) -> input),
-            ContextParameter.Factory.forType(ExecutableCommand.class, (parameter, input, context) -> context.command()),
-            ContextParameter.Factory.forType(Lamp.class, (parameter, input, context) -> context.lamp()),
-            ContextParameter.Factory.forTypeAndSubclasses(CommandActor.class, (parameter, input, context) -> context.actor())
+            ContextParameter.Factory.forType(StringStream.class, (parameter, context) -> context.input()),
+            ContextParameter.Factory.forType(ExecutableCommand.class, (parameter, context) -> context.command()),
+            ContextParameter.Factory.forType(Lamp.class, (parameter, context) -> context.lamp()),
+            ContextParameter.Factory.forTypeAndSubclasses(CommandActor.class, (parameter, context) -> context.actor())
     );
 
     private final List<ParameterFactory> factories;

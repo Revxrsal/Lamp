@@ -51,8 +51,8 @@ public final class CLIVisitors {
      */
     public static @NotNull <A extends ConsoleActor> LampBuilderVisitor<A> consoleContextParameters() {
         return builder -> builder.parameterTypes()
-                .addContextParameterLast(Scanner.class, (parameter, input, context) -> context.actor().scanner())
-                .addContextParameterLast(PrintStream.class, (parameter, input, context) -> context.actor().outputStream());
+                .addContextParameterLast(Scanner.class, (parameter, context) -> context.actor().scanner())
+                .addContextParameterLast(PrintStream.class, (parameter, context) -> context.actor().outputStream());
     }
 
     /**

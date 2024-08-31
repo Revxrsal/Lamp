@@ -129,16 +129,16 @@ public final class JDAVisitors {
      */
     public static <A extends SlashCommandActor> @NotNull LampBuilderVisitor<A> jdaContextParameters() {
         return builder -> builder.parameterTypes()
-                .addContextParameterLast(SelfUser.class, (parameter, input, context) -> {
+                .addContextParameterLast(SelfUser.class, (parameter, context) -> {
                     return context.actor().selfUser();
                 })
-                .addContextParameterLast(JDA.class, (parameter, input, context) -> {
+                .addContextParameterLast(JDA.class, (parameter, context) -> {
                     return context.actor().jda();
                 })
-                .addContextParameterLast(Guild.class, (parameter, input, context) -> {
+                .addContextParameterLast(Guild.class, (parameter, context) -> {
                     return context.actor().guild();
                 })
-                .addContextParameterLast(SlashCommandInteractionEvent.class, (parameter, input, context) -> {
+                .addContextParameterLast(SlashCommandInteractionEvent.class, (parameter, context) -> {
                     return context.actor().commandEvent();
                 });
     }

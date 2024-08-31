@@ -137,8 +137,8 @@ public final class BungeeVisitors {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <A extends BungeeCommandActor> @NotNull LampBuilderVisitor<A> pluginContextParameters(Plugin plugin) {
         return builder -> {
-            builder.parameterTypes().addContextParameterLast(Plugin.class, (parameter, input, context) -> plugin);
-            builder.parameterTypes().addContextParameterLast(plugin.getClass(), (ContextParameter) (parameter, input, context) -> plugin);
+            builder.parameterTypes().addContextParameterLast(Plugin.class, (parameter, context) -> plugin);
+            builder.parameterTypes().addContextParameterLast(plugin.getClass(), (ContextParameter) (parameter, context) -> plugin);
             builder.dependency(Plugin.class, plugin);
             builder.dependency((Class) plugin.getClass(), plugin);
         };

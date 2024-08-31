@@ -32,7 +32,6 @@ import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.builtins.ClassContextParameterFactory;
 import revxrsal.commands.stream.MutableStringStream;
-import revxrsal.commands.stream.StringStream;
 
 import java.lang.reflect.Type;
 
@@ -51,13 +50,11 @@ public interface ContextParameter<A extends CommandActor, T> {
      * exceptions if needed.
      *
      * @param parameter The parameter
-     * @param input     The input stream. This argument type is free to consume as much as it needs
      * @param context   The command execution context, as well as arguments that have been resolved
      * @return The parsed object. This should never be null.
      */
     T resolve(
             @NotNull CommandParameter parameter,
-            @NotNull StringStream input,
             @NotNull ExecutionContext<A> context
     );
 

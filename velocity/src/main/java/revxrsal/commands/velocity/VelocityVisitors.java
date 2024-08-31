@@ -125,7 +125,7 @@ public final class VelocityVisitors {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <A extends VelocityCommandActor> @NotNull LampBuilderVisitor<A> pluginContextParameters(Object plugin) {
         return builder -> {
-            builder.parameterTypes().addContextParameterLast(plugin.getClass(), (ContextParameter) (parameter, input, context) -> plugin);
+            builder.parameterTypes().addContextParameterLast(plugin.getClass(), (ContextParameter) (parameter, context) -> plugin);
             builder.dependency((Class) plugin.getClass(), plugin);
         };
     }

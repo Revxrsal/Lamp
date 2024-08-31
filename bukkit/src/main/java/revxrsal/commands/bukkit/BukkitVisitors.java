@@ -155,8 +155,8 @@ public final class BukkitVisitors {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> pluginContextParameters(JavaPlugin plugin) {
         return builder -> {
-            builder.parameterTypes().addContextParameterLast(Plugin.class, (parameter, input, context) -> plugin);
-            builder.parameterTypes().addContextParameterLast(plugin.getClass(), (ContextParameter) (parameter, input, context) -> plugin);
+            builder.parameterTypes().addContextParameterLast(Plugin.class, (parameter, context) -> plugin);
+            builder.parameterTypes().addContextParameterLast(plugin.getClass(), (ContextParameter) (parameter, context) -> plugin);
             builder.dependency(Plugin.class, plugin);
             builder.dependency((Class) plugin.getClass(), plugin);
         };

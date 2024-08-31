@@ -29,7 +29,6 @@ import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ContextParameter;
 import revxrsal.commands.process.SenderResolver;
-import revxrsal.commands.stream.StringStream;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
@@ -38,7 +37,7 @@ public record SenderContextParameter<A extends CommandActor, T>(
 ) implements ContextParameter<A, T> {
 
     @Override
-    public T resolve(@NotNull CommandParameter parameter, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
+    public T resolve(@NotNull CommandParameter parameter, @NotNull ExecutionContext<A> context) {
         A actor = context.actor();
         Object sender = resolver.getSender(parameter.type(), actor, context.command());
         notNull(sender, "SenderResolver#getSender()");
