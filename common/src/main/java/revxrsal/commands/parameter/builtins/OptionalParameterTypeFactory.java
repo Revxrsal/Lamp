@@ -55,7 +55,7 @@ public enum OptionalParameterTypeFactory implements ParameterType.Factory<Comman
         if (rawType != Optional.class)
             return null;
         Type delegateType = getFirstGeneric(parameterType, Object.class);
-        ParameterType<?, ?> delegate = lamp.findNextResolver(delegateType, annotations, this)
+        ParameterType<?, ?> delegate = lamp.resolver(delegateType, annotations)
                 .requireParameterType();
         return (input, context) -> (T) Optional.of(delegate.parse(input, ((ExecutionContext) context)));
     }
