@@ -66,11 +66,11 @@ public final class BukkitArgumentTypes {
     public static @NotNull <A extends CommandActor> ArgumentTypes.Builder<A> builder() {
         ArgumentTypes.Builder<A> builder = ArgumentTypes.builder();
         return builder
-                .addType(UUID.class, MinecraftArgumentType.UUID.get())
-                .addType(OfflinePlayer.class, SINGLE_PLAYER)
-                .addType(Player.class, SINGLE_PLAYER)
-                .addType(Entity.class, SINGLE_ENTITY)
-                .addTypeFactory((parameter) -> {
+                .addTypeLast(UUID.class, MinecraftArgumentType.UUID.get())
+                .addTypeLast(OfflinePlayer.class, SINGLE_PLAYER)
+                .addTypeLast(Player.class, SINGLE_PLAYER)
+                .addTypeLast(Entity.class, SINGLE_ENTITY)
+                .addTypeFactoryLast((parameter) -> {
                     if (parameter.type() != EntitySelector.class)
                         return null;
                     Class<? extends Entity> entityType = getRawType(getFirstGeneric(parameter.fullType(), Entity.class))
