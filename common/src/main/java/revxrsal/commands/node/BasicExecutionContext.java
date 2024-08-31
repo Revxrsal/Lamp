@@ -21,62 +21,56 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.node.parser;
+package revxrsal.commands.node;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.node.ExecutionContext;
+import revxrsal.commands.stream.StringStream;
 import revxrsal.commands.util.Classes;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
-/**
- * Represents a basic, mutable implementation of {@link ExecutionContext}.
- *
- * @param <A> The actor type
- */
-@SuppressWarnings("unchecked")
-public final class BasicExecutionContext<A extends CommandActor> implements ExecutionContext<A> {
+class BasicExecutionContext<A extends CommandActor> implements ExecutionContext<A> {
+    protected final ExecutableCommand<A> command;
+    protected final StringStream input;
+    protected final A actor;
+    protected final Map<String, Object> resolvedArguments = new LinkedHashMap<>();
 
-    private final Lamp<A> lamp;
-    private final ExecutableCommand<A> command;
-    private final A actor;
-    private final Map<String, Object> resolvedArguments = new LinkedHashMap<>();
-
-    public BasicExecutionContext(Lamp<A> lamp, ExecutableCommand<A> command, A actor) {
-        this.lamp = lamp;
+    public BasicExecutionContext(ExecutableCommand<A> command, StringStream input, A actor) {
         this.command = command;
+        this.input = input;
         this.actor = actor;
     }
 
-    @Override
-    public @NotNull A actor() {
+    @Override public @NotNull A actor() {
         return actor;
     }
 
-    @Override
-    public @NotNull Lamp<A> lamp() {
-        return lamp;
+    @Override public @NotNull Lamp<A> lamp() {
+        return command.lamp();
     }
 
-    @Override
-    public @NotNull ExecutableCommand<A> command() {
+    @Override public @NotNull ExecutableCommand<A> command() {
         return command;
     }
 
-    @Override
-    public @NotNull Map<String, Object> resolvedArguments() {
-        return Collections.unmodifiableMap(resolvedArguments);
+    @Override public @NotNull @UnmodifiableView Map<String, Object> resolvedArguments() {
+        return resolvedArguments;
+    }
+
+    @Override public @NotNull StringStream input() {
+        return input;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> @Nullable T getResolvedArgumentOrNull(@NotNull Class<T> argumentType) {
         notNull(argumentType, "argument type");
         argumentType = Classes.wrap(argumentType);
@@ -90,17 +84,9 @@ public final class BasicExecutionContext<A extends CommandActor> implements Exec
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> @Nullable T getResolvedArgumentOrNull(@NotNull String argumentName) {
         notNull(argumentName, "argument name");
         return (T) resolvedArguments.get(argumentName);
     }
-
-    public void addResolvedArgument(@NotNull String name, Object result) {
-        resolvedArguments.put(name, result);
-    }
-
-    public void clearResolvedArguments() {
-        resolvedArguments.clear();
-    }
-
 }

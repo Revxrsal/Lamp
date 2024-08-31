@@ -31,7 +31,6 @@ import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.node.CommandAction;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ContextParameter;
-import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,12 +44,13 @@ public final class ReflectionAction<A extends CommandActor> implements CommandAc
         this.function = function;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void execute(ExecutionContext<A> context, MutableStringStream input) {
+    public void execute(ExecutionContext<A> context) {
         try {
             Object[] arguments = new Object[function.method().getParameterCount()];
             parameters.forEach((index, parameter) -> {
-                arguments[index] = parameter.get(context, input);
+                arguments[index] = parameter.get(context);
             });
             context.resolvedArguments().forEach((parameterName, value) -> {
                 int index = function.parameter(parameterName).methodIndex();
@@ -59,7 +59,8 @@ public final class ReflectionAction<A extends CommandActor> implements CommandAc
 
             Object result = function.call(arguments);
             if (result != null) {
-                function.responseHandler().handleResponse(result, (BasicExecutionContext) context);
+                //noinspection rawtypes
+                function.responseHandler().handleResponse(result, (ExecutionContext) context);
             }
         } catch (Throwable t) {
             context.lamp().handleException(t, ErrorContext.executingFunction(context));
@@ -67,10 +68,10 @@ public final class ReflectionAction<A extends CommandActor> implements CommandAc
     }
 
     void addContextParameter(CommandParameter parameter, ContextParameter<A, ?> contextParameter) {
-        parameters.put(parameter.methodIndex(), (context, stream) -> contextParameter.resolve(parameter, stream, context));
+        parameters.put(parameter.methodIndex(), context -> contextParameter.resolve(parameter, context));
     }
 
     private interface ParameterSupplier<A extends CommandActor> {
-        Object get(@NotNull ExecutionContext<A> context, @NotNull MutableStringStream input);
+        Object get(@NotNull ExecutionContext<A> context);
     }
 }

@@ -26,7 +26,6 @@ package revxrsal.commands.node;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.context.ErrorContext;
-import revxrsal.commands.stream.MutableStringStream;
 
 /**
  * Represents an action that gets executed by a {@link CommandNode}.
@@ -44,8 +43,7 @@ public interface CommandAction<A extends CommandActor> {
      * {@link Lamp#handleException(Throwable, ErrorContext)}.
      *
      * @param context The command execution context
-     * @param input   The user input
      */
-    void execute(ExecutionContext<A> context, MutableStringStream input);
+    void execute(ExecutionContext<A> context);
 
 }

@@ -27,11 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.ExecutionContext;
-import revxrsal.commands.node.LiteralNode;
-import revxrsal.commands.node.ParameterNode;
-import revxrsal.commands.node.parser.BasicExecutionContext;
+import revxrsal.commands.node.*;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
@@ -107,7 +103,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
     }
 
     private List<String> complete(ExecutableCommand<A> possible, MutableStringStream input, A actor) {
-        BasicExecutionContext<A> context = new BasicExecutionContext<>(lamp, possible, actor);
+        MutableExecutionContext<A> context = ExecutionContext.createMutable(possible, actor, input.toImmutableCopy());
         for (CommandNode<A> child : possible.nodes()) {
             if (input.remaining() == 1 && input.peek() == ' ') {
                 input.moveForward();

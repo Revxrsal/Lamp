@@ -21,47 +21,31 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.node.parser;
+package revxrsal.commands.node;
 
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.node.CommandAction;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.ExecutionContext;
-import revxrsal.commands.stream.MutableStringStream;
 
 /**
- * Represents a node in a command tree. This can either be a {@link LiteralNodeImpl}
+ * Represents the context of the execution of the command. This
+ * is a mutable variant of {@link ExecutionContext} as it allows modifying
+ * the arguments that have been resolved.
  *
- * @param <A>
+ * @param <A> The actor type
  */
-@RequiredArgsConstructor
-abstract class BaseCommandNode<A extends CommandActor> implements CommandNode<A> {
+public interface MutableExecutionContext<A extends CommandActor> extends ExecutionContext<A> {
 
-    private final @NotNull String name;
-    private final @Nullable CommandAction<A> action;
-    private final boolean isLast;
+    /**
+     * Adds the given parameter name to this context
+     *
+     * @param name  The parameter name
+     * @param value The parameter value
+     */
+    void addResolvedArgument(@NotNull String name, Object value);
 
-    @Override
-    public void execute(@NotNull ExecutionContext<A> context, @NotNull MutableStringStream input) {
-        if (action != null)
-            action.execute(context);
-    }
-
-    @Override
-    public @NotNull String name() {
-        return name;
-    }
-
-    @Override
-    public @Nullable CommandAction<A> action() {
-        return action;
-    }
-
-    @Override
-    public boolean isLast() {
-        return isLast;
-    }
+    /**
+     * Clears all the resolved arguments. Useful for reusing the same context
+     * for multiple commands
+     */
+    void clearResolvedArguments();
 }

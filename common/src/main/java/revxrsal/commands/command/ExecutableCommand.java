@@ -173,6 +173,17 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
     }
 
     /**
+     * Executes this command with the given context. It is the caller's
+     * responsibility to ensure that all required parameters are
+     * supplied in the context
+     *
+     * @param context The context to execute with
+     */
+    default void execute(@NotNull ExecutionContext<A> context) {
+        action().execute(context);
+    }
+
+    /**
      * Returns the action of this command.
      *
      * @return The command action

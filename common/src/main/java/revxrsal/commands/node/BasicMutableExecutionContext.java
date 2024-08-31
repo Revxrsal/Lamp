@@ -21,47 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.node.parser;
+package revxrsal.commands.node;
 
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.node.CommandAction;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.ExecutionContext;
-import revxrsal.commands.stream.MutableStringStream;
+import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.stream.StringStream;
 
 /**
- * Represents a node in a command tree. This can either be a {@link LiteralNodeImpl}
+ * Represents a basic, mutable implementation of {@link ExecutionContext}.
  *
- * @param <A>
+ * @param <A> The actor type
  */
-@RequiredArgsConstructor
-abstract class BaseCommandNode<A extends CommandActor> implements CommandNode<A> {
+final class BasicMutableExecutionContext<A extends CommandActor> extends BasicExecutionContext<A>
+        implements MutableExecutionContext<A> {
 
-    private final @NotNull String name;
-    private final @Nullable CommandAction<A> action;
-    private final boolean isLast;
-
-    @Override
-    public void execute(@NotNull ExecutionContext<A> context, @NotNull MutableStringStream input) {
-        if (action != null)
-            action.execute(context);
+    public BasicMutableExecutionContext(ExecutableCommand<A> command, StringStream input, A actor) {
+        super(command, input, actor);
     }
 
-    @Override
-    public @NotNull String name() {
-        return name;
+    public void addResolvedArgument(@NotNull String name, Object result) {
+        Object old = resolvedArguments.put(name, result);
+        if (old != null)
+            throw new IllegalArgumentException("A parameter with name '" + name + "' already exists!");
     }
 
-    @Override
-    public @Nullable CommandAction<A> action() {
-        return action;
-    }
-
-    @Override
-    public boolean isLast() {
-        return isLast;
+    public void clearResolvedArguments() {
+        resolvedArguments.clear();
     }
 }

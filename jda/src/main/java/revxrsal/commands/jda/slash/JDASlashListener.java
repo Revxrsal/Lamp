@@ -37,8 +37,8 @@ import revxrsal.commands.jda.JDAUtils;
 import revxrsal.commands.jda.actor.SlashActorFactory;
 import revxrsal.commands.jda.actor.SlashCommandActor;
 import revxrsal.commands.node.ExecutionContext;
+import revxrsal.commands.node.MutableExecutionContext;
 import revxrsal.commands.node.ParameterNode;
-import revxrsal.commands.node.parser.BasicExecutionContext;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
@@ -62,8 +62,14 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
         A actor = actorFactory.create(event, lamp);
         String fullPath = event.getFullCommandName();
         ExecutableCommand<A> command = findCommand(lamp, fullPath, event.getOptions()).orElseThrow();
-        ExecutionContext<A> context = readArgumentsIntoContext(actor, command, event.getOptions(), false);
-        command.action().execute(context, StringStream.createMutable(""));
+        ExecutionContext<A> context = readArgumentsIntoContext(
+                actor,
+                command,
+                event.getOptions(),
+                event.getCommandString(),
+                false
+        );
+        command.execute(context);
     }
 
     private void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
@@ -74,7 +80,13 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
             event.replyChoices().queue();
             return;
         }
-        ExecutionContext<A> context = readArgumentsIntoContext(actor, command, event.getOptions(), true);
+        ExecutionContext<A> context = readArgumentsIntoContext(
+                actor,
+                command,
+                event.getOptions(),
+                event.getCommandString(),
+                true
+        );
         ParameterNode<A, ?> node = getParameters(command).get(event.getFocusedOption().getName());
         var suggestions = node.suggestions().getSuggestions(StringStream.createMutable(""), actor, context);
 
@@ -86,9 +98,10 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
             @NotNull A actor,
             @NotNull ExecutableCommand<A> command,
             @NotNull List<OptionMapping> options,
+            @NotNull String input,
             boolean ignoreExceptions
     ) {
-        BasicExecutionContext<A> context = new BasicExecutionContext<>(lamp, command, actor);
+        MutableExecutionContext<A> context = ExecutionContext.createMutable(command, actor, StringStream.create(input));
         Map<String, ParameterNode<A, ?>> parameters = getParameters(command);
         for (OptionMapping option : options) {
             if (option.getType() == OptionType.SUB_COMMAND || option.getType() == OptionType.SUB_COMMAND_GROUP)

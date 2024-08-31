@@ -34,10 +34,7 @@ import revxrsal.commands.command.*;
 import revxrsal.commands.exception.ExpectedLiteralException;
 import revxrsal.commands.exception.InputParseException;
 import revxrsal.commands.exception.context.ErrorContext;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.ExecutionContext;
-import revxrsal.commands.node.LiteralNode;
-import revxrsal.commands.node.ParameterNode;
+import revxrsal.commands.node.*;
 import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.*;
@@ -194,7 +191,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     static final class ParseResult<A extends CommandActor> implements Potential<A> {
         private final Execution<A> execution;
-        private final BasicExecutionContext<A> context;
+        private final MutableExecutionContext<A> context;
         private final MutableStringStream input;
         private final boolean testResult;
         private boolean consumedAllInput = false;
@@ -203,7 +200,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
         public ParseResult(Execution<A> execution, A actor, MutableStringStream input) {
             this.execution = execution;
-            this.context = new BasicExecutionContext<>(execution.function.lamp(), execution, actor);
+            this.context = ExecutionContext.createMutable(execution, actor, input.toImmutableCopy());
             this.input = input;
             this.testResult = test();
         }
@@ -288,7 +285,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         private boolean tryParse(
                 CommandNode<A> node,
                 MutableStringStream input,
-                BasicExecutionContext<A> context
+                MutableExecutionContext<A> context
         ) {
             if (input.hasRemaining() && input.peek() == ' ')
                 input.moveForward();
