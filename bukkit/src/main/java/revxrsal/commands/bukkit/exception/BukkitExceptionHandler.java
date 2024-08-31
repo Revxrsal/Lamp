@@ -39,6 +39,16 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
         actor.error(legacyColorize("&cYour entity selector (&e" + e.input() + "&c) only allows players, but it contains non-player entities too."));
     }
 
+    @HandleException
+    public void onMoreThanOnePlayer(MoreThanOnePlayerException e, BukkitCommandActor actor) {
+        actor.error(legacyColorize("&cYour entity selector (&e" + e.input() + "&c) contains more than one player, however only one is allowed"));
+    }
+
+    @HandleException
+    public void onEmptyEntitySelector(EmptyEntitySelectorException e, BukkitCommandActor actor) {
+        actor.error(legacyColorize("&cNo entities were found."));
+    }
+
     @Override public void onEnumNotFound(@NotNull EnumNotFoundException e, @NotNull BukkitCommandActor actor) {
         actor.error(legacyColorize("&cInvalid choice: &e" + e.input() + "&c. Please enter a valid option from the available values."));
     }

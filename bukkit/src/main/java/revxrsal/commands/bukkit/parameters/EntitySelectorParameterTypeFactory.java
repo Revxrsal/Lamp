@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
+import revxrsal.commands.bukkit.exception.EmptyEntitySelectorException;
 import revxrsal.commands.bukkit.exception.MalformedEntitySelectorException;
 import revxrsal.commands.exception.CommandErrorException;
 import revxrsal.commands.node.ExecutionContext;
@@ -72,6 +73,8 @@ public final class EntitySelectorParameterTypeFactory implements ParameterType.F
             try {
                 List<Entity> c = new ArrayList<>(Bukkit.getServer().selectEntities(context.actor().sender(), selector));
                 c.removeIf(obj -> !entityType.isInstance(obj));
+                if (c.isEmpty())
+                    throw new EmptyEntitySelectorException(selector);
                 return new SelectorList<>(c);
             } catch (IllegalArgumentException e) {
                 throw new MalformedEntitySelectorException(selector, e.getCause().getMessage());

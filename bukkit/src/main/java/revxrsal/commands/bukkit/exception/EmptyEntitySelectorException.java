@@ -21,21 +21,19 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package com.example.plugin;
+package revxrsal.commands.bukkit.exception;
 
-import org.bukkit.entity.Player;
-import revxrsal.commands.annotation.Command;
-import revxrsal.commands.annotation.Default;
-import revxrsal.commands.annotation.Description;
-import revxrsal.commands.bukkit.actor.BukkitCommandActor;
-import revxrsal.commands.bukkit.annotation.CommandPermission;
+import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.bukkit.parameters.EntitySelector;
+import revxrsal.commands.exception.InvalidValueException;
 
-public class GreetCommands {
+/**
+ * Thrown when an {@link EntitySelector} does not match any entity.
+ */
+public class EmptyEntitySelectorException extends InvalidValueException {
 
-    @Command("greet")
-    @Description("Greets the specified player")
-    @CommandPermission("test.plugin.greet")
-    public void greet(BukkitCommandActor actor, @Default("me") Player target) {
-        target.sendMessage("Welcome, " + target.getName() + "!");
+    public EmptyEntitySelectorException(@NotNull String input) {
+        super(input);
     }
 }
+
