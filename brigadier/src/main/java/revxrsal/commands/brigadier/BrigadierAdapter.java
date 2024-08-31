@@ -86,9 +86,9 @@ public final class BrigadierAdapter {
             revxrsal.commands.node.CommandNode<A> node = nodes.get(i);
             CommandNode<S> elementNode = createNode(node, adapter, command.lamp());
             if (node.isLast())
-                setCommand(elementNode, createAction(adapter, command.lamp()));
+                setCommand(elementNode, createAction(adapter, command));
             if (node instanceof ParameterNode<?, ?> p && p.isOptional())
-                setCommand(lastNode, createAction(adapter, command.lamp()));
+                setCommand(lastNode, createAction(adapter, command));
 
             lastNode.addChild(elementNode);
             lastNode = elementNode;
@@ -174,6 +174,30 @@ public final class BrigadierAdapter {
 
             A actor = adapter.createActor(a.getSource(), lamp);
             lamp.dispatch(actor, input);
+            return Command.SINGLE_SUCCESS;
+        };
+    }
+
+    /**
+     * Returns a Brigadier {@link Command} action that always delegates
+     * the execution to the supplied {@link Lamp} instance.
+     *
+     * @param adapter The {@link BrigadierConverter} adapter
+     * @param command The {@link ExecutableCommand} to run
+     * @param <S>     The Brigadier sender type
+     * @param <A>     The Lamp actor type
+     * @return The wrapped {@link Command}
+     */
+    public static <S, A extends CommandActor> @NotNull Command<S> createAction(
+            BrigadierConverter<A, S> adapter,
+            ExecutableCommand<A> command
+    ) {
+        return a -> {
+            MutableStringStream input = StringStream.createMutable(a.getInput());
+            if (input.peekUnquotedString().contains(":"))
+                input = StringStream.createMutable(stripNamespace(a.getInput()));
+            A actor = adapter.createActor(a.getSource(), command.lamp());
+            command.execute(actor, input);
             return Command.SINGLE_SUCCESS;
         };
     }

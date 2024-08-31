@@ -163,6 +163,16 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
     void unregister();
 
     /**
+     * Executes this command with the given actor and input.
+     *
+     * @param actor Actor to execute the command as
+     * @param input The input to execute with
+     */
+    default void execute(@NotNull A actor, @NotNull MutableStringStream input) {
+        lamp().registry().execute(actor, this, input);
+    }
+
+    /**
      * Returns the action of this command.
      *
      * @return The command action

@@ -137,6 +137,14 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
         Collections.sort(children);
     }
 
+    public void execute(@NotNull A actor, @NotNull ExecutableCommand<A> command, @NotNull MutableStringStream input) {
+        Potential<A> potential = command.test(actor, input);
+        if (potential.failed())
+            potential.handleException();
+        else
+            potential.execute();
+    }
+
     public void execute(@NotNull A actor, @NotNull MutableStringStream input) {
         LinkedList<Potential<A>> conflicts = new LinkedList<>();
         LinkedList<Potential<A>> failed = new LinkedList<>();
