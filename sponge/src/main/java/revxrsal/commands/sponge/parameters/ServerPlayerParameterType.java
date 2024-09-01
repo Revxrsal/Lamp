@@ -58,6 +58,6 @@ public final class ServerPlayerParameterType implements ParameterType<SpongeComm
 
     @Override
     public @NotNull SuggestionProvider<SpongeCommandActor> defaultSuggestions() {
-        return (input, actor, context) -> map(Sponge.server().onlinePlayers(), ServerPlayer::name);
+        return (input, context) -> map(Sponge.server().onlinePlayers(), ServerPlayer::name);
     }
 }

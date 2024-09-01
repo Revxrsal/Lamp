@@ -86,7 +86,7 @@ public interface SuggestionProvider<A extends CommandActor> {
         if (suggestions == null || suggestions.length == 0)
             return empty();
         List<String> list = List.of(suggestions);
-        return (input, sender, context) -> list;
+        return (input, context) -> list;
     }
 
     /**
@@ -99,21 +99,20 @@ public interface SuggestionProvider<A extends CommandActor> {
     static <A extends CommandActor> @NotNull SuggestionProvider<A> of(@NotNull List<String> suggestions) {
         if (suggestions.isEmpty())
             return empty();
-        return (input, sender, context) -> suggestions;
+        return (input, context) -> suggestions;
     }
 
     /**
      * Returns the suggestions
      *
      * @param input   The user input. This may end in a trailing space.
-     * @param actor   The command actor
      * @param context The execution context. This will try to parse
      *                arguments inputted by the user and store them
      *                to provide context-aware suggestions.
      * @return The command suggestions.
      */
     @NotNull
-    List<String> getSuggestions(@NotNull StringStream input, @NotNull A actor, @NotNull ExecutionContext<A> context);
+    List<String> getSuggestions(@NotNull StringStream input, @NotNull ExecutionContext<A> context);
 
     /**
      * Represents a factory that creates {@link SuggestionProvider}s dynamically. This

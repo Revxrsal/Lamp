@@ -137,15 +137,15 @@ abstract class CollectionParameterTypeFactory implements ParameterType.Factory<C
             SuggestionProvider<CommandActor> paramSuggestions = componentType.defaultSuggestions();
             if (paramSuggestions.equals(empty()))
                 return empty();
-            return (input, actor, context) -> {
+            return (input, context) -> {
                 List<String> inputted = List.of(input.peekRemaining().split(Character.toString(delimiter)));
                 if (preventsDuplicates()) {
                     return filter(
-                            paramSuggestions.getSuggestions(input, actor, context),
+                            paramSuggestions.getSuggestions(input, context),
                             c -> !inputted.contains(c)
                     );
                 }
-                return paramSuggestions.getSuggestions(input, actor, context);
+                return paramSuggestions.getSuggestions(input, context);
             };
         }
 

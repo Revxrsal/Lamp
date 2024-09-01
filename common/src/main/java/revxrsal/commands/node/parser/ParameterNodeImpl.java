@@ -161,7 +161,7 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
 
     @Override
     public @NotNull List<String> complete(@NotNull A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
-        return suggestions.getSuggestions(input, actor, context);
+        return suggestions.getSuggestions(input, context);
     }
 
     @Override

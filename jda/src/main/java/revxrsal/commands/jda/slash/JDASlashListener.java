@@ -88,7 +88,7 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
                 true
         );
         ParameterNode<A, ?> node = getParameters(command).get(event.getFocusedOption().getName());
-        var suggestions = node.suggestions().getSuggestions(StringStream.createMutable(""), actor, context);
+        var suggestions = node.suggestions().getSuggestions(StringStream.createMutable(""), context);
 
         List<Command.Choice> choices = toChoices(suggestions, event.getFocusedOption().getType());
         event.replyChoices(choices).queue();

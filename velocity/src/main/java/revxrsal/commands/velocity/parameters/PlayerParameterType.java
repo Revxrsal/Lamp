@@ -58,6 +58,6 @@ public record PlayerParameterType(@NotNull ProxyServer server) implements Parame
     }
 
     @Override public @NotNull SuggestionProvider<VelocityCommandActor> defaultSuggestions() {
-        return (input, actor, context) -> map(server.getAllPlayers(), Player::getUsername);
+        return (input, context) -> map(server.getAllPlayers(), Player::getUsername);
     }
 }

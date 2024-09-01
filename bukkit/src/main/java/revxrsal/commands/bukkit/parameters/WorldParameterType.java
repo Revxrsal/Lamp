@@ -55,6 +55,6 @@ public final class WorldParameterType implements ParameterType<BukkitCommandActo
     }
 
     @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
-        return (input, actor, context) -> map(Bukkit.getWorlds(), World::getName);
+        return (input, context) -> map(Bukkit.getWorlds(), World::getName);
     }
 }

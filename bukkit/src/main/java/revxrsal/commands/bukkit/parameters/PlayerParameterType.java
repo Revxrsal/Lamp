@@ -67,7 +67,7 @@ public final class PlayerParameterType implements ParameterType<BukkitCommandAct
         // Brigadier's entity type will handle auto-completions for us :)
         if (BukkitVersion.isBrigadierSupported())
             return SuggestionProvider.empty();
-        return (input, actor, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
+        return (input, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }
 
     public static @NotNull Player fromSelector(@NotNull CommandSender sender, @NotNull String selector) {
