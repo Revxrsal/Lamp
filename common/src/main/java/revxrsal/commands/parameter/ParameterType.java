@@ -61,7 +61,7 @@ import java.lang.reflect.Type;
  * @see ParameterTypes
  */
 @FunctionalInterface
-public interface ParameterType<A extends CommandActor, T> extends BaseParameterType {
+public interface ParameterType<A extends @NotNull CommandActor, T> extends BaseParameterType {
 
     /**
      * Reads input from the given {@link MutableStringStream}, parses the object, or throws
