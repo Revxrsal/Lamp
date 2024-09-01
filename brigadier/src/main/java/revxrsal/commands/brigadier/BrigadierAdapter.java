@@ -96,13 +96,25 @@ public final class BrigadierAdapter {
             generatedNodes.add(elementNode);
             lastNode = elementNode;
         }
-        return chain(generatedNodes);
+        return (LiteralCommandNode<S>) chain(generatedNodes);
     }
 
-    private static <S> @NotNull LiteralCommandNode<S> chain(@NotNull LinkedList<ArgumentBuilder<S, ?>> list) {
-        final LiteralCommandNode<S> firstNode = (LiteralCommandNode<S>) list.pop().build();
+    /**
+     * Creates a single {@link CommandNode} tree with the elements in the
+     * list in the order they are defined.
+     *
+     * @param list List to read
+     * @param <S>  The sender type
+     * @return The command node
+     * @throws IllegalArgumentException if the list is empty
+     */
+    private static <S> @NotNull CommandNode<S> chain(@NotNull List<ArgumentBuilder<S, ?>> list) {
+        if (list.isEmpty())
+            throw new IllegalArgumentException("Cannot chain an empty list.");
+        final CommandNode<S> firstNode = list.get(0).build();
         CommandNode<S> lastNode = firstNode;
-        for (ArgumentBuilder<S, ?> builder : list) {
+        for (int i = 1; i < list.size(); i++) {
+            ArgumentBuilder<S, ?> builder = list.get(i);
             CommandNode<S> built = builder.build();
             lastNode.addChild(built);
             lastNode = built;
