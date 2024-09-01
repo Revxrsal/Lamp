@@ -73,7 +73,7 @@ public interface ParameterType<A extends CommandActor, T> extends BaseParameterT
      */
     T parse(
             @NotNull MutableStringStream input,
-            @NotNull ExecutionContext<A> context
+            @NotNull ExecutionContext<@NotNull A> context
     );
 
     /**
@@ -83,7 +83,7 @@ public interface ParameterType<A extends CommandActor, T> extends BaseParameterT
      *
      * @return The default type suggestions
      */
-    @NotNull default SuggestionProvider<A> defaultSuggestions() {
+    @NotNull default SuggestionProvider<@NotNull A> defaultSuggestions() {
         return SuggestionProvider.empty();
     }
 
