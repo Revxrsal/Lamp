@@ -40,8 +40,8 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
     }
 
     @HandleException
-    public void onMoreThanOnePlayer(MoreThanOnePlayerException e, BukkitCommandActor actor) {
-        actor.error(legacyColorize("&cYour entity selector (&e" + e.input() + "&c) contains more than one player, however only one is allowed"));
+    public void onMoreThanOneEntity(MoreThanOneEntityException e, BukkitCommandActor actor) {
+        actor.error(legacyColorize("&cOnly one entity is allowed, but the provided selector allows more than one"));
     }
 
     @HandleException
@@ -117,6 +117,6 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
     }
 
     @Override public void onUnknownCommand(@NotNull UnknownCommandException e, @NotNull BukkitCommandActor actor) {
-        actor.error(legacyColorize("Unknown command: &e" + e.input() + "&c."));
+        actor.error(legacyColorize("&cUnknown command: &e" + e.input() + "&c."));
     }
 }

@@ -30,7 +30,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
-import revxrsal.commands.bukkit.exception.*;
+import revxrsal.commands.bukkit.exception.EmptyEntitySelectorException;
+import revxrsal.commands.bukkit.exception.MalformedEntitySelectorException;
+import revxrsal.commands.bukkit.exception.MoreThanOneEntityException;
 import revxrsal.commands.bukkit.util.BukkitVersion;
 import revxrsal.commands.exception.CommandErrorException;
 import revxrsal.commands.node.ExecutionContext;
@@ -47,20 +49,12 @@ import static revxrsal.commands.util.Collections.map;
  * If the player inputs {@code me} or {@code self}, the parser will return the
  * executing player (or give an error if the sender is not a player)
  */
-public final class PlayerParameterType implements ParameterType<BukkitCommandActor, Player> {
+public final class EntityParameterType implements ParameterType<BukkitCommandActor, Entity> {
 
     @Override
-    public Player parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
+    public Entity parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
         String value = input.readString();
-        if (BukkitVersion.isBrigadierSupported()) {
-            return fromSelector(context.actor().sender(), value);
-        }
-        if (value.equals("self") || value.equals("me") || value.equals("@s"))
-            return context.actor().requirePlayer();
-        Player player = Bukkit.getPlayerExact(value);
-        if (player != null)
-            return player;
-        throw new InvalidPlayerException(value);
+        return fromSelector(context.actor().sender(), value);
     }
 
     @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
@@ -70,17 +64,14 @@ public final class PlayerParameterType implements ParameterType<BukkitCommandAct
         return (input, actor, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }
 
-    public static @NotNull Player fromSelector(@NotNull CommandSender sender, @NotNull String selector) {
+    public static @NotNull Entity fromSelector(@NotNull CommandSender sender, @NotNull String selector) {
         try {
             List<Entity> entityList = Bukkit.selectEntities(sender, selector);
             if (entityList.isEmpty())
                 throw new EmptyEntitySelectorException(selector);
             if (entityList.size() != 1)
                 throw new MoreThanOneEntityException(selector);
-            Entity entity = entityList.get(0);
-            if (!(entity instanceof Player player))
-                throw new NonPlayerEntitiesException(selector);
-            return player;
+            return entityList.get(0);
         } catch (IllegalArgumentException e) {
             throw new MalformedEntitySelectorException(selector, e.getCause().getMessage());
         } catch (NoSuchMethodError e) {

@@ -27,6 +27,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -44,6 +45,7 @@ import revxrsal.commands.bukkit.hooks.BukkitCommandHooks;
 import revxrsal.commands.bukkit.parameters.*;
 import revxrsal.commands.bukkit.sender.BukkitPermissionFactory;
 import revxrsal.commands.bukkit.sender.BukkitSenderResolver;
+import revxrsal.commands.bukkit.util.BukkitVersion;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.parameter.ContextParameter;
@@ -107,11 +109,16 @@ public final class BukkitVisitors {
      * @return The visitor
      */
     public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> bukkitParameterTypes() {
-        return builder -> builder.parameterTypes()
-                .addParameterTypeLast(Player.class, new PlayerParameterType())
-                .addParameterTypeLast(OfflinePlayer.class, new OfflinePlayerParameterType())
-                .addParameterTypeLast(World.class, new WorldParameterType())
-                .addParameterTypeFactoryLast(new EntitySelectorParameterTypeFactory());
+        return builder -> {
+            builder.parameterTypes()
+                    .addParameterTypeLast(Player.class, new PlayerParameterType())
+                    .addParameterTypeLast(OfflinePlayer.class, new OfflinePlayerParameterType())
+                    .addParameterTypeLast(World.class, new WorldParameterType())
+                    .addParameterTypeFactoryLast(new EntitySelectorParameterTypeFactory());
+            if (BukkitVersion.isBrigadierSupported())
+                builder.parameterTypes()
+                        .addParameterTypeLast(Entity.class, new EntityParameterType());
+        };
     }
 
     /**

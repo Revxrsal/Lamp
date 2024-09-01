@@ -23,16 +23,18 @@
  */
 package revxrsal.commands.bukkit.exception;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.exception.InvalidValueException;
 
 /**
- * Thrown when a {@link org.bukkit.entity.Player} selector contains more than 1 player
- * entities (e.g. @e[type=players] will include all players)
+ * Thrown when a {@link Player} or {@link Entity} selector contains more than
+ * 1 entity (e.g. @e[type=players] will include all players)
  */
-public class MoreThanOnePlayerException extends InvalidValueException {
+public class MoreThanOneEntityException extends InvalidValueException {
 
-    public MoreThanOnePlayerException(@NotNull String input) {
+    public MoreThanOneEntityException(@NotNull String input) {
         super(input);
     }
 }

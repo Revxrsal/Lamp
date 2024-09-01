@@ -29,6 +29,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.annotation.Single;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.parameters.EntitySelector;
 import revxrsal.commands.command.CommandActor;
@@ -75,7 +76,11 @@ public final class BukkitArgumentTypes {
                         return null;
                     Class<? extends Entity> entityType = getRawType(getFirstGeneric(parameter.fullType(), Entity.class))
                             .asSubclass(Entity.class);
-                    return entityType == Player.class ? PLAYERS : ENTITIES;
+                    boolean single = parameter.annotations().contains(Single.class);
+                    if (entityType == Player.class)
+                        return single ? SINGLE_PLAYER : PLAYERS;
+                    else
+                        return single ? SINGLE_ENTITY : ENTITIES;
                 });
     }
 }
