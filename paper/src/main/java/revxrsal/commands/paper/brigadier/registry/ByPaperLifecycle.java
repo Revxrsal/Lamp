@@ -43,14 +43,12 @@ import revxrsal.commands.node.ParameterNode;
 
 public final class ByPaperLifecycle<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierConverter<A, CommandSourceStack> {
 
-    private final JavaPlugin plugin;
     private final ArgumentTypes<A> types;
     private final ActorFactory<A> actorFactory;
 
     private final RootCommandNode<CommandSourceStack> root = new RootCommandNode<>();
 
     public ByPaperLifecycle(JavaPlugin plugin, ArgumentTypes<A> types, ActorFactory<A> actorFactory) {
-        this.plugin = plugin;
         this.types = types;
         this.actorFactory = actorFactory;
         plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
