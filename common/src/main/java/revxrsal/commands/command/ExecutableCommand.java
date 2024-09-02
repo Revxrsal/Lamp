@@ -25,6 +25,7 @@ package revxrsal.commands.command;
 
 import org.jetbrains.annotations.*;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.annotation.CommandPriority;
 import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.SecretCommand;
 import revxrsal.commands.annotation.Usage;
@@ -34,6 +35,7 @@ import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  * Represents an immutable, full, separate command path that may be executed.
@@ -148,6 +150,15 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
     @NotNull
     @Unmodifiable
     List<CommandNode<A>> nodes();
+
+
+    /**
+     * Returns the explicit priority defined by {@link CommandPriority}.
+     *
+     * @return The command priority
+     */
+    @NotNull
+    OptionalInt commandPriority();
 
     /**
      * Tests whether this command is secret or not. Secret

@@ -23,11 +23,11 @@
  */
 package revxrsal.commands.util;
 
+import revxrsal.commands.annotation.CommandPriority;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static java.util.Collections.addAll;
 import static revxrsal.commands.util.Preconditions.cannotInstantiate;
@@ -40,17 +40,40 @@ public final class Reflections {
 
     /**
      * Finds all {@link Method}s defined by a class, including private ones
-     * and ones that are inherited from classes.
+     * and ones that are inherited from classes. This will
+     * not respect {@link CommandPriority @CommandPriority}
      *
      * @param c Class to get for
      * @return A list of all methods
      */
-    public static Set<Method> getAllMethods(Class<?> c) {
-        Set<Method> methods = new HashSet<>();
+    public static List<Method> getAllMethods(Class<?> c) {
+        return getAllMethods(c, false);
+    }
+
+    /**
+     * Finds all {@link Method}s defined by a class, including private ones
+     * and ones that are inherited from classes.
+     *
+     * @param c    Class to get for
+     * @param sort If it should sort them according to the {@link CommandPriority @CommandPriority}
+     *             annotation
+     * @return A list of all methods
+     */
+    public static List<Method> getAllMethods(Class<?> c, boolean sort) {
+        List<Method> methods = new ArrayList<>();
         Class<?> current = c;
         while (current != null && current != Object.class) {
             addAll(methods, current.getDeclaredMethods());
             current = current.getSuperclass();
+        }
+        if (sort) {
+            methods.sort((o1, o2) -> {
+                CommandPriority a1 = o1.getAnnotation(CommandPriority.class);
+                CommandPriority a2 = o2.getAnnotation(CommandPriority.class);
+                if (a1 != null && a2 != null)
+                    return Integer.compare(a1.value(), a2.value());
+                return 0;
+            });
         }
         return methods;
     }

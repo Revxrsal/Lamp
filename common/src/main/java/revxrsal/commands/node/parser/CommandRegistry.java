@@ -79,7 +79,7 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
     public @Unmodifiable List<ExecutableCommand<A>> register(@NotNull Class<?> containerClass, Object instance, @Nullable List<String> orphanPaths) {
         injectDependencies(containerClass, instance);
         List<ExecutableCommand<A>> registered = new ArrayList<>();
-        for (Method method : getAllMethods(containerClass)) {
+        for (Method method : getAllMethods(containerClass, true)) {
             AnnotationList annotations = AnnotationList.create(method)
                     .replaceAnnotations(method, lamp.annotationReplacers());
             if (annotations.isEmpty())
@@ -110,7 +110,7 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
                 }
             }
         }
-        return Collections.unmodifiableList(registered);
+        return List.copyOf(registered);
     }
 
     private boolean isCommandMethod(AnnotationList annotations) {

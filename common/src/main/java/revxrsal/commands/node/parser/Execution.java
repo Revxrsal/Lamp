@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.annotation.CommandPriority;
 import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.SecretCommand;
 import revxrsal.commands.annotation.Usage;
@@ -39,6 +40,7 @@ import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.*;
 
+import static java.lang.Integer.compare;
 import static revxrsal.commands.util.Collections.unmodifiableIterator;
 
 final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
@@ -50,6 +52,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final boolean isSecret;
     private final String description, usage;
     private int optionalParameters, requiredInput;
+    private final OptionalInt priority;
 
     public Execution(CommandFunction function, LinkedList<CommandNode<A>> nodes) {
         this.function = function;
@@ -66,6 +69,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         this.isSecret = function.annotations().contains(SecretCommand.class);
         this.description = function.annotations().map(Description.class, Description::value);
         this.usage = function.annotations().mapOrGet(Usage.class, Usage::value, this::path);
+        this.priority = function.annotations()
+                .mapOr(CommandPriority.class, c -> OptionalInt.of(c.value()), OptionalInt.empty());
     }
 
     private static boolean isOptional(@NotNull CommandNode<? extends CommandActor> node) {
@@ -162,11 +167,17 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         return Collections.unmodifiableList(nodes);
     }
 
+    @Override public @NotNull OptionalInt commandPriority() {
+        return priority;
+    }
+
     @Override
     public int compareTo(@NotNull ExecutableCommand<A> o) {
         if (!(o instanceof Execution<A> exec)) {
             return 0;
         }
+        if (commandPriority().isPresent() && o.commandPriority().isPresent())
+            return compare(commandPriority().getAsInt(), o.commandPriority().getAsInt());
         if (size - requiredInput == exec.size) {
             if (isOptional(lastNode()) != isOptional(o.lastNode()))
                 return isOptional(lastNode()) ? 1 : -1;
@@ -174,7 +185,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         // notice that we do exec.size first, then our size. this
         // reverses the order which is mostly what we want
         // (higher size = higher priority)
-        int result = Integer.compare(exec.size, size);
+        int result = compare(exec.size, size);
         if (result == 0) {
             CommandNode<A> ourLeaf = lastNode();
             CommandNode<A> theirs = o.lastNode();
