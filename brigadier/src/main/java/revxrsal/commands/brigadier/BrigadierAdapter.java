@@ -42,6 +42,7 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandPermission;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.command.Potential;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.node.LiteralNode;
 import revxrsal.commands.node.ParameterNode;
@@ -78,7 +79,7 @@ public final class BrigadierAdapter {
     ) {
         LinkedList<ArgumentBuilder<S, ?>> generatedNodes = new LinkedList<>();
 
-        final ArgumentBuilder<S, ?> firstNode = createNode(command.firstNode(), adapter, command.lamp());
+        final ArgumentBuilder<S, ?> firstNode = createNode(command, command.firstNode(), adapter, command.lamp());
         firstNode.requires(createRequirement(command.permission(), adapter, command.lamp()));
 
         ArgumentBuilder<S, ?> lastNode = firstNode;
@@ -87,7 +88,7 @@ public final class BrigadierAdapter {
         @Unmodifiable List<revxrsal.commands.node.CommandNode<A>> nodes = command.nodes();
         for (int i = 1; i < nodes.size(); i++) {
             revxrsal.commands.node.CommandNode<A> node = nodes.get(i);
-            ArgumentBuilder<S, ?> elementNode = createNode(node, adapter, command.lamp());
+            ArgumentBuilder<S, ?> elementNode = createNode(command, node, adapter, command.lamp());
             if (node.isLast())
                 elementNode.executes(createAction(adapter, command));
             if (node instanceof ParameterNode<?, ?> p && p.isOptional())
@@ -134,6 +135,7 @@ public final class BrigadierAdapter {
      */
     @SuppressWarnings({"unchecked"})
     public static <S, A extends CommandActor> ArgumentBuilder<S, ?> createNode(
+            ExecutableCommand<A> command,
             revxrsal.commands.node.CommandNode<A> node,
             BrigadierConverter<A, S> adapter,
             Lamp<A> lamp
@@ -144,7 +146,7 @@ public final class BrigadierAdapter {
             brigadierNode = literal(node.name());
         else if (node instanceof ParameterNode<A, ?> p) {
             brigadierNode = RequiredArgumentBuilder.<S, Object>argument(node.name(), (ArgumentType) adapter.getArgumentType(p))
-                    .suggests(createSuggestionProvider(p, adapter, lamp))
+                    .suggests(createSuggestionProvider(command, p, adapter, lamp))
                     .requires(createRequirement(p.permission(), adapter, lamp));
         } else
             throw new IllegalArgumentException("Unsupported node type: " + node);
@@ -242,6 +244,7 @@ public final class BrigadierAdapter {
      * @return The wrapped {@link Command}
      */
     public static <S, A extends CommandActor> @Nullable SuggestionProvider<S> createSuggestionProvider(
+            ExecutableCommand<A> command,
             ParameterNode<A, ?> parameter,
             BrigadierConverter<A, S> adapter,
             Lamp<A> lamp
@@ -262,7 +265,9 @@ public final class BrigadierAdapter {
             );
             if (stream.peekUnquotedString().indexOf(':') != -1)
                 stream = StringStream.createMutable(stripNamespace(input));
-            lamp.autoCompleter().complete(actor, stream)
+
+            Potential<A> test = command.test(actor, stream.toMutableCopy());
+            parameter.complete(actor, stream, test.context())
                     .stream()
                     .sorted(String.CASE_INSENSITIVE_ORDER)
                     .distinct()
