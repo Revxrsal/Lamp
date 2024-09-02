@@ -143,7 +143,6 @@ public final class TreeParser<A extends CommandActor> {
 
     private boolean isGreedy(MutableParameterNode<A, Object> argument) {
         return argument.isLast()
-                && argument.type().isGreedy()
                 && !argument.parameter().annotations().contains(Single.class);
     }
 
