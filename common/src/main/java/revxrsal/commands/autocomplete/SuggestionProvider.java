@@ -57,12 +57,13 @@ import revxrsal.commands.stream.StringStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * An interface that supplies completions for the user depending on their input.
  */
 @FunctionalInterface
-public interface SuggestionProvider<A extends CommandActor> {
+public interface SuggestionProvider<A extends CommandActor> extends BaseSuggestionProvider {
 
     /**
      * Returns a {@link SuggestionProvider} that always gives empty suggestions.
@@ -120,7 +121,7 @@ public interface SuggestionProvider<A extends CommandActor> {
      *
      * @param <A> The actor type
      */
-    interface Factory<A extends CommandActor> {
+    interface Factory<A extends CommandActor> extends BaseSuggestionProvider {
 
         /**
          * Returns a {@link Factory} that returns a suggestion provider for
@@ -158,10 +159,11 @@ public interface SuggestionProvider<A extends CommandActor> {
          * @param <A>            The actor type
          * @return The newly created {@link Factory}.
          */
-        static @NotNull <A extends CommandActor> SuggestionProvider.@NotNull Factory<? super A> forAnnotation(@NotNull Class<? extends Annotation> annotationType, @NotNull SuggestionProvider<A> provider) {
+        static @NotNull <A extends CommandActor, L extends Annotation> SuggestionProvider.@NotNull Factory<? super A> forAnnotation(@NotNull Class<L> annotationType, @NotNull Function<L, SuggestionProvider<A>> provider) {
             return (type, annotations, lamp) -> {
-                if (annotations.contains(annotationType))
-                    return provider;
+                L annotation = annotations.get(annotationType);
+                if (annotation != null)
+                    return provider.apply(annotation);
                 return null;
             };
         }

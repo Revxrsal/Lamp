@@ -36,6 +36,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
@@ -222,7 +223,7 @@ public final class SuggestionProviders<A extends CommandActor> {
          * @param provider The provider
          * @return This builder instance
          */
-        public Builder<A> addProviderForAnnotation(@NotNull Class<? extends Annotation> type, @NotNull SuggestionProvider<A> provider) {
+        public <L extends Annotation> Builder<A> addProviderForAnnotation(@NotNull Class<L> type, @NotNull Function<L, SuggestionProvider<A>> provider) {
             addProviderFactory(Factory.forAnnotation(type, provider));
             return this;
         }
@@ -237,7 +238,7 @@ public final class SuggestionProviders<A extends CommandActor> {
          * @param provider The provider
          * @return This builder instance
          */
-        public Builder<A> addProviderForAnnotationLast(@NotNull Class<? extends Annotation> type, @NotNull SuggestionProvider<A> provider) {
+        public <L extends Annotation> Builder<A> addProviderForAnnotationLast(@NotNull Class<L> type, @NotNull Function<L, SuggestionProvider<A>> provider) {
             addProviderFactoryLast(Factory.forAnnotation(type, provider));
             return this;
         }
