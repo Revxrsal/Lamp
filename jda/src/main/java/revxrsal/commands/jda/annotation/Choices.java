@@ -39,7 +39,9 @@ import java.lang.annotation.Target;
  * <ul>
  *     <li>The {@link OptionType} must {@link OptionType#canSupportChoices() support choices}</li>
  *     <li>The parameter type is a number type (integer, long, double, etc.), or a {@link String}</li>
+ *     <li>The number of choices must not exceed 25</li>
  * </ul>
+ * Note that if a parameter has choices, it cannot have auto-completions.
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
