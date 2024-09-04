@@ -1,21 +1,26 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import xyz.jpenilla.resourcefactory.bukkit.BukkitPluginYaml
+
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        maven("https://repo.papermc.io/repository/maven-public/")
+    }
+}
 
 plugins {
     id("java")
     kotlin("jvm") version "2.0.10"
+    id("io.papermc.paperweight.userdev") version "1.7.2"
+    id("xyz.jpenilla.run-paper") version "2.2.4" // Adds runServer and runMojangMappedServer tasks for testing
+    id("xyz.jpenilla.resource-factory-bukkit-convention") version "1.1.1" // Generates plugin.yml based on the Gradle config
     id("com.gradleup.shadow") version "8.3.0"
 }
 
-group = "com.example"
-version = "1.0.0"
+group = "io.github.revxrsal"
+version = "4.0.0-beta.1"
 
 repositories {
     mavenCentral()
-    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
-    maven(url = "https://hub.spigotmc.org/nexus/content/groups/public/")
-    maven(url = "https://libraries.minecraft.net")
-    maven(url = "https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -24,23 +29,17 @@ dependencies {
     implementation(project(":bukkit"))
     implementation(project(":paper"))
     implementation(kotlin("stdlib-jdk8"))
-    compileOnly("com.mojang:brigadier:1.0.18")
-    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-}
-
-tasks.getByName<ShadowJar>("shadowJar") {
-    archiveClassifier.set("")
-}
-
-tasks.withType<JavaCompile> {
-    // Preserve parameter names in the bytecode
-    options.compilerArgs.add("-parameters")
-}
-
-tasks.withType<KotlinJvmCompile> { // optional: if you're using Kotlin
-    compilerOptions {
-        javaParameters = true
-    }
+    paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
 }
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+
+// Generate our plugin.yml
+bukkitPluginYaml {
+    main = "com.example.plugin.TestPlugin"
+    load = BukkitPluginYaml.PluginLoadOrder.STARTUP
+    authors.add("Revxrsal")
+    apiVersion = "1.20.5"
+}
+
+tasks["build"].dependsOn(tasks.shadowJar)

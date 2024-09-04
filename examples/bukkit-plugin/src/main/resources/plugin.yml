@@ -1,6 +1,0 @@
-name: TestPlugin
-version: 1.0.0
-description: A test plugin for Lamp
-author: Revxrsal
-main: com.example.plugin.TestPlugin
-api-version: 1.13

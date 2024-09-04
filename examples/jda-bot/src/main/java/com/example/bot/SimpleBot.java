@@ -38,9 +38,8 @@ public class SimpleBot {
         // register all our commands here
         lamp.register(new PunishmentCommands());
 
-        // after we register all commands, call this to
+        // after we register all commands, we *must* call this to
         // send our commands as slash commands
         lamp.accept(slashCommands(jda));
     }
-
 }
