@@ -291,25 +291,29 @@ public final class Lamp<A extends CommandActor> {
      * Registers the given instance to the command handler. This
      * can deal with {@link Orphans orphan commands} as well as {@link Class} objects.
      *
-     * @param instance The instance to register
+     * @param instances The instance to register
      * @return The newly registered commands (as an immutable list).
      */
-    public @NotNull @Unmodifiable List<ExecutableCommand<A>> register(Object instance) {
-        Class<?> commandClass = instance instanceof Class ? (Class<?>) instance : instance.getClass();
-        if (instance instanceof OrphanCommand) {
-            throw new IllegalArgumentException("You cannot register an OrphanCommand directly! " +
-                    "You must wrap it using Orphans.path(...).handler(OrphanCommand)");
-        }
-        if (instance instanceof Orphans) {
-            throw new IllegalArgumentException("You forgot to call .handler(OrphanCommand) in your Orphans.path(...)!");
-        }
-        if (instance instanceof OrphanRegistry registry) {
-            commandClass = registry.handler().getClass();
-            instance = registry.handler();
-            return tree.register(commandClass, instance, registry.paths());
-        }
+    public @NotNull @Unmodifiable List<ExecutableCommand<A>> register(Object... instances) {
+        List<ExecutableCommand<A>> registered = new ArrayList<>();
+        for (Object instance : instances) {
+            Class<?> commandClass = instance instanceof Class ? (Class<?>) instance : instance.getClass();
+            if (instance instanceof OrphanCommand) {
+                throw new IllegalArgumentException("You cannot register an OrphanCommand directly! " +
+                        "You must wrap it using Orphans.path(...).handler(OrphanCommand)");
+            }
+            if (instance instanceof Orphans) {
+                throw new IllegalArgumentException("You forgot to call .handler(OrphanCommand) in your Orphans.path(...)!");
+            }
+            if (instance instanceof OrphanRegistry registry) {
+                commandClass = registry.handler().getClass();
+                instance = registry.handler();
+                return tree.register(commandClass, instance, registry.paths());
+            }
 
-        return tree.register(commandClass, instance);
+            registered.addAll(tree.register(commandClass, instance));
+        }
+        return registered;
     }
 
     /**
