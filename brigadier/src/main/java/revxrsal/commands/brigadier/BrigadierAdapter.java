@@ -111,14 +111,14 @@ public final class BrigadierAdapter {
         for (int i = 1; i < nodes.size(); i++) {
             revxrsal.commands.node.CommandNode<A> node = nodes.get(i);
             ArgumentBuilder<S, ?> elementNode = createNode(command, node, converter, command.lamp());
-            if (node.isLast())
-                elementNode.executes(createAction(converter, command));
             if (node instanceof ParameterNode<?, ?> p && p.isOptional())
                 lastNode.executes(createAction(converter, command));
 
             generatedNodes.add(elementNode);
             lastNode = elementNode;
         }
+        lastNode.executes(createAction(converter, command));
+
         return (LiteralCommandNode<S>) chain(generatedNodes);
     }
 
