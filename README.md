@@ -4,8 +4,9 @@
 [![Maven Central](https://img.shields.io/maven-metadata/v/https/repo1.maven.org/maven2/io/github/revxrsal/lamp.common/maven-metadata.xml.svg?label=maven%20central&colorB=brightgreen)](https://search.maven.org/artifact/io.github.revxrsal/lamp.common)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://github.com/Revxrsal/Lamp/actions/workflows/build.yml/badge.svg)](https://github.com/Revxrsal/Lamp/actions/workflows/build.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/revxrsal/lamp/badge)](https://www.codefactor.io/repository/github/revxrsal/lamp)
 
-# Lamp Library
+[**Documentation**](https://foxhut.gitbook.io/lamp-docs)
 
 Welcome to Lamp, the versatile and powerful command framework designed for modern Java and Kotlin applications. Whether
 you're building plugins for Minecraft servers, integrating with Discord, or creating command-line tools, Lamp provides a
