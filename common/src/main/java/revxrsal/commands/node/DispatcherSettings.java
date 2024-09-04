@@ -94,11 +94,26 @@ public final class DispatcherSettings<A extends CommandActor> {
     }
 
     /**
+     * Creates a new {@link Builder} based on this {@link DispatcherSettings}
+     * instance
+     *
+     * @return The newly created builder
+     */
+    @SuppressWarnings("unchecked")
+    @Contract(value = "-> new", pure = true)
+    public @NotNull Builder<A> toBuilder() {
+        return new Builder<>()
+                .maximumFailedAttempts(maximumFailedAttempts)
+                .failureHandler((FailureHandler) failureHandler);
+    }
+
+    /**
      * Builder class for {@link DispatcherSettings}
      *
      * @param <A> The actor type
      */
     public static final class Builder<A extends CommandActor> {
+
 
         /**
          * The number of failed attempts after which Lamp will stop testing out commands
@@ -149,6 +164,7 @@ public final class DispatcherSettings<A extends CommandActor> {
         @Contract(value = "-> new", pure = true) public @NotNull DispatcherSettings<A> build() {
             return new DispatcherSettings<>(maximumFailedAttempts, failureHandler);
         }
+
     }
 
 }

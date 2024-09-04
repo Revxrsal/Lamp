@@ -585,7 +585,7 @@ public final class Lamp<A extends CommandActor> {
         private final List<CommandCondition<? super A>> conditions = new ArrayList<>();
         private final List<CommandPermission.Factory<A>> permissionFactories = new ArrayList<>();
         private final Map<Class<?>, Supplier<Object>> dependencies = new HashMap<>();
-        private final DispatcherSettings.Builder<A> dispatcherSettings = DispatcherSettings.builder();
+        private DispatcherSettings.Builder<A> dispatcherSettings = DispatcherSettings.builder();
         private MessageSender<? super A, String> messageSender = CommandActor::sendRawMessage;
         private MessageSender<? super A, String> errorSender = CommandActor::sendRawError;
         private CommandExceptionHandler<A> exceptionHandler = new DefaultExceptionHandler<>();
@@ -683,6 +683,20 @@ public final class Lamp<A extends CommandActor> {
          */
         public @NotNull DispatcherSettings.Builder<A> dispatcherSettings() {
             return dispatcherSettings;
+        }
+
+        /**
+         * Sets the {@link DispatcherSettings} that is used by this {@link Lamp}
+         * instance
+         *
+         * @param settings The settings to set
+         * @return This builder
+         * @see DispatcherSettings
+         */
+        public @NotNull Builder<A> dispatcherSettings(@NotNull DispatcherSettings<A> settings) {
+            notNull(settings, "dispatcher settings");
+            dispatcherSettings = settings.toBuilder();
+            return this;
         }
 
         /**
