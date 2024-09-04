@@ -373,7 +373,7 @@ public final class JDAUtils {
      * @param type        The suggestions type
      * @return The list of choices
      */
-    public static @NotNull List<Choice> toChoices(@NotNull List<String> suggestions, @NotNull OptionType type) {
+    public static @NotNull List<Choice> toChoices(@NotNull Collection<String> suggestions, @NotNull OptionType type) {
         return map(suggestions, s -> toChoice(s, type));
     }
 
