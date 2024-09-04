@@ -50,6 +50,10 @@ final class EmptySuggestionProvider implements SuggestionProvider<CommandActor> 
         return "SuggestionProvider.empty()";
     }
 
+    @Override public int hashCode() {
+        return EmptySuggestionProvider.class.hashCode();
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof EmptySuggestionProvider;
