@@ -55,7 +55,7 @@ public final class SuggestWithProviderFactory implements SuggestionProvider.Fact
         }
     }
 
-    private @Nullable BaseSuggestionProvider construct(Class<? extends BaseSuggestionProvider> value) {
+    private @NotNull BaseSuggestionProvider construct(Class<? extends BaseSuggestionProvider> value) {
         if (value.isInterface())
             throw new IllegalArgumentException("@SuggestWith cannot take an interface!");
         try {

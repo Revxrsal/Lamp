@@ -176,7 +176,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
         if (child instanceof LiteralNode<A> l)
             return List.of(l.name());
         else if (child instanceof ParameterNode<A, ?> p)
-            return p.complete(actor, input, context);
+            return List.copyOf(p.complete(actor, input, context));
         else
             return List.of();
     }

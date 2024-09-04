@@ -24,6 +24,7 @@
 package revxrsal.commands.exception;
 
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.node.ParameterNode;
 
 /**
@@ -33,13 +34,19 @@ import revxrsal.commands.node.ParameterNode;
 public class MissingArgumentException extends RuntimeException {
 
     private final ParameterNode<CommandActor, Object> node;
+    private final ExecutableCommand<CommandActor> command;
 
-    public MissingArgumentException(ParameterNode<CommandActor, Object> node) {
+    public MissingArgumentException(ParameterNode<CommandActor, Object> node, ExecutableCommand<CommandActor> command) {
         this.node = node;
+        this.command = command;
     }
 
     public <A extends CommandActor> ParameterNode<A, Object> node() {
         //noinspection unchecked
         return (ParameterNode<A, Object>) node;
+    }
+
+    public ExecutableCommand<CommandActor> command() {
+        return command;
     }
 }

@@ -34,6 +34,7 @@ import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.CommandPermission;
+import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.exception.MissingArgumentException;
 import revxrsal.commands.exception.NoPermissionException;
 import revxrsal.commands.node.CommandAction;
@@ -45,6 +46,7 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.MutableStringStreamImpl;
 import revxrsal.commands.stream.StringStream;
 
+import java.util.Collection;
 import java.util.List;
 
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
@@ -100,7 +102,9 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
                 else
                     return (T) defaultPrimitiveValue(parameter.type());
             } else {
-                throw new MissingArgumentException((ParameterNode<CommandActor, Object>) this);
+                throw new MissingArgumentException(
+                        (ParameterNode<CommandActor, Object>) this, (ExecutableCommand<CommandActor>) context.command()
+                );
             }
         }
         return type.parse(input, context);
@@ -160,7 +164,7 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     }
 
     @Override
-    public @NotNull List<String> complete(@NotNull A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
+    public @NotNull Collection<String> complete(@NotNull A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
         return suggestions.getSuggestions(input, context);
     }
 

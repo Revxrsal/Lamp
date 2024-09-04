@@ -38,7 +38,7 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Represents a parameter node. This node has a specific {@link #parameterType()} that
@@ -148,7 +148,7 @@ public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>
      * @return The
      */
     @Contract(pure = true)
-    @NotNull List<String> complete(A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context);
+    @NotNull Collection<String> complete(A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context);
 
     /**
      * Returns the parameter Java type

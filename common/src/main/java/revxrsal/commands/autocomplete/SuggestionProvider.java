@@ -56,6 +56,7 @@ import revxrsal.commands.stream.StringStream;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -113,7 +114,7 @@ public interface SuggestionProvider<A extends CommandActor> extends BaseSuggesti
      * @return The command suggestions.
      */
     @NotNull
-    List<String> getSuggestions(@NotNull StringStream input, @NotNull ExecutionContext<A> context);
+    Collection<String> getSuggestions(@NotNull StringStream input, @NotNull ExecutionContext<A> context);
 
     /**
      * Represents a factory that creates {@link SuggestionProvider}s dynamically. This
