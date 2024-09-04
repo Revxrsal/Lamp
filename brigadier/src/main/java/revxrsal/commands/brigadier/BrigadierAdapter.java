@@ -155,7 +155,7 @@ public final class BrigadierAdapter {
      * @param <A>       Lamp sender type
      * @return The equivalent node
      */
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static <S, A extends CommandActor> ArgumentBuilder<S, ?> createNode(
             ExecutableCommand<A> command,
             revxrsal.commands.node.CommandNode<A> node,
