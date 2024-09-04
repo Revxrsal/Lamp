@@ -2,10 +2,14 @@ pluginManagement {
     plugins {
         kotlin("jvm") version "2.0.10"
     }
+    repositories {
+        gradlePluginPortal()
+        maven("https://maven.fabricmc.net/")
+    }
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
 rootProject.name = "lamp"
@@ -19,6 +23,7 @@ include("velocity")
 include("cli")
 include("sponge")
 include("jda")
+include("fabric")
 
 /* example projects */
 include("examples")
