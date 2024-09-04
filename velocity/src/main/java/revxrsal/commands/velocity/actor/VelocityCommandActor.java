@@ -98,7 +98,7 @@ public interface VelocityCommandActor extends CommandActor {
      * otherwise throws a {@link SenderNotConsoleException}.
      *
      * @return The actor as a player
-     * @throws SenderNotPlayerException if not a player
+     * @throws SenderNotPlayerException if not a console
      */
     @NotNull
     default ConsoleCommandSource requireConsole() throws SenderNotConsoleException {

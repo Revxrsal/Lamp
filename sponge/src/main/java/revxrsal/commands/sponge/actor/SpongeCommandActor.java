@@ -118,7 +118,7 @@ public interface SpongeCommandActor extends CommandActor {
      * otherwise throws a {@link SenderNotConsoleException}.
      *
      * @return The actor as console
-     * @throws SenderNotConsoleException if not a player
+     * @throws SenderNotConsoleException if not a console
      */
     default @NotNull SystemSubject requireConsole() throws SenderNotConsoleException {
         if (!isConsole())

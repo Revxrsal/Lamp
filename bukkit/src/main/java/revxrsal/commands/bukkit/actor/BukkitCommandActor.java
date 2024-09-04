@@ -94,7 +94,7 @@ public interface BukkitCommandActor extends CommandActor {
      * otherwise throws a {@link SenderNotConsoleException}.
      *
      * @return The actor as console
-     * @throws SenderNotConsoleException if not a player
+     * @throws SenderNotConsoleException if not a console
      */
     @NotNull default ConsoleCommandSender requireConsole() throws SenderNotConsoleException {
         if (!isConsole())
