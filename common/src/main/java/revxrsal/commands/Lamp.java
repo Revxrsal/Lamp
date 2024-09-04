@@ -34,6 +34,7 @@ import revxrsal.commands.command.*;
 import revxrsal.commands.exception.*;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.hook.Hooks;
+import revxrsal.commands.node.DispatcherSettings;
 import revxrsal.commands.node.ParameterNamingStrategy;
 import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.node.parser.CommandRegistry;
@@ -86,7 +87,7 @@ public final class Lamp<A extends CommandActor> {
     private final MessageSender<? super A, String> messageSender, errorSender;
     private final Map<Class<?>, Supplier<Object>> dependencies;
     private final CommandExceptionHandler<A> exceptionHandler;
-
+    private final DispatcherSettings<A> dispatcherSettings;
     private final CommandRegistry<A> tree;
     private final AutoCompleter<A> autoCompleter;
 
@@ -105,6 +106,7 @@ public final class Lamp<A extends CommandActor> {
         this.suggestionProviders = builder.suggestionProviders.build();
         this.hooks = builder.hooks.build();
         this.exceptionHandler = builder.exceptionHandler;
+        this.dispatcherSettings = builder.dispatcherSettings.build();
         this.tree = new CommandRegistry<>(this);
         this.autoCompleter = AutoCompleter.create(this);
     }
@@ -548,6 +550,17 @@ public final class Lamp<A extends CommandActor> {
     }
 
     /**
+     * Returns the {@link DispatcherSettings} that are used by
+     * Lamp under the hood to customize the dispatcher settings.
+     *
+     * @return The dispatcher settings
+     * @see DispatcherSettings
+     */
+    public @NotNull DispatcherSettings<A> dispatcherSettings() {
+        return dispatcherSettings;
+    }
+
+    /**
      * Accepts the given visitor by calling {@link LampVisitor#visit(Lamp)} on
      * this {@link Lamp} instance
      *
@@ -572,6 +585,7 @@ public final class Lamp<A extends CommandActor> {
         private final List<CommandCondition<? super A>> conditions = new ArrayList<>();
         private final List<CommandPermission.Factory<A>> permissionFactories = new ArrayList<>();
         private final Map<Class<?>, Supplier<Object>> dependencies = new HashMap<>();
+        private final DispatcherSettings.Builder<A> dispatcherSettings = DispatcherSettings.builder();
         private MessageSender<? super A, String> messageSender = CommandActor::sendRawMessage;
         private MessageSender<? super A, String> errorSender = CommandActor::sendRawError;
         private CommandExceptionHandler<A> exceptionHandler = new DefaultExceptionHandler<>();
@@ -645,6 +659,30 @@ public final class Lamp<A extends CommandActor> {
             notNull(consumer, "consumer");
             consumer.accept(suggestionProviders);
             return this;
+        }
+
+        /**
+         * Performs the given {@code consumer} on the {@link #dispatcherSettings()} builder.
+         * This allows for easier chaining of the {@link Builder} instance
+         *
+         * @param consumer The consumer to perform
+         * @return This builder instance
+         * @see DispatcherSettings
+         */
+        public @NotNull Builder<A> dispatcherSettings(@NotNull Consumer<DispatcherSettings.Builder<A>> consumer) {
+            notNull(consumer, "consumer");
+            consumer.accept(dispatcherSettings);
+            return this;
+        }
+
+        /**
+         * Returns the {@link DispatcherSettings} builder
+         *
+         * @return The dispatcher settings builder
+         * @see DispatcherSettings
+         */
+        public @NotNull DispatcherSettings.Builder<A> dispatcherSettings() {
+            return dispatcherSettings;
         }
 
         /**

@@ -24,10 +24,7 @@
 package revxrsal.commands.node.parser;
 
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
-import org.jetbrains.annotations.UnmodifiableView;
+import org.jetbrains.annotations.*;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.CommandPlaceholder;
@@ -54,9 +51,8 @@ import java.util.*;
 import static revxrsal.commands.util.Collections.unmodifiableIterator;
 import static revxrsal.commands.util.Reflections.getAllMethods;
 
+@ApiStatus.Internal
 public final class CommandRegistry<A extends CommandActor> implements Iterable<ExecutableCommand<A>> {
-
-    private static final int MAX_CANDIDATES = 5;
 
     private final List<ExecutableCommand<A>> children;
     private final Lamp<A> lamp;
@@ -157,7 +153,7 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
             MutableStringStream in = input.toMutableCopy();
             Potential<A> potential = execution.test(actor, in);
 
-            if (conflicts.size() >= MAX_CANDIDATES)
+            if (conflicts.size() >= lamp.dispatcherSettings().maximumFailedAttempts())
                 break;
 
             if (potential.successful()) {
@@ -171,9 +167,7 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
                 lamp.handleException(new UnknownCommandException(firstWord), ErrorContext.unknownCommand(actor));
                 return;
             }
-            for (Potential<A> potential : failed) {
-                potential.handleException();
-            }
+            lamp.dispatcherSettings().failureHandler().handleFailedAttempts(Collections.unmodifiableList(failed));
             return;
         }
         Collections.sort(conflicts);
