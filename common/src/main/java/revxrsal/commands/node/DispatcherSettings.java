@@ -25,6 +25,7 @@ package revxrsal.commands.node;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.Potential;
 
@@ -88,7 +89,7 @@ public final class DispatcherSettings<A extends CommandActor> {
      *
      * @return the failure handler
      */
-    public FailureHandler<A> failureHandler() {
+    public @NotNull FailureHandler<A> failureHandler() {
         return failureHandler;
     }
 
@@ -117,7 +118,9 @@ public final class DispatcherSettings<A extends CommandActor> {
          * @param maximumFailedAttempts the maximum number of failed attempts
          * @return This builder
          */
-        public @NotNull Builder<A> maximumFailedAttempts(int maximumFailedAttempts) {
+        public @NotNull Builder<A> maximumFailedAttempts(
+                @Range(from = 1, to = Integer.MAX_VALUE) int maximumFailedAttempts
+        ) {
             if (maximumFailedAttempts < 0)
                 throw new IllegalArgumentException("Maximum failed attempts cannot be a negative number!");
             this.maximumFailedAttempts = maximumFailedAttempts;
@@ -130,7 +133,8 @@ public final class DispatcherSettings<A extends CommandActor> {
          * @param failureHandler the failure handler
          * @return This builder
          */
-        public @NotNull Builder<A> failureHandler(@NotNull FailureHandler<? super A> failureHandler) {
+        @Contract("null -> fail")
+        public @NotNull Builder<A> failureHandler(FailureHandler<? super A> failureHandler) {
             notNull(failureHandler, "failure handler");
             //noinspection unchecked
             this.failureHandler = (FailureHandler<A>) failureHandler;

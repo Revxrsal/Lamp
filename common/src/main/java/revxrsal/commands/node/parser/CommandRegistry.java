@@ -141,7 +141,7 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
             potential.execute();
     }
 
-    public void execute(@NotNull A actor, @NotNull MutableStringStream input) {
+    public void execute(@NotNull A actor, @NotNull StringStream input) {
         LinkedList<Potential<A>> conflicts = new LinkedList<>();
         LinkedList<Potential<A>> failed = new LinkedList<>();
         String firstWord = input.peekUnquotedString();
@@ -167,7 +167,7 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
                 lamp.handleException(new UnknownCommandException(firstWord), ErrorContext.unknownCommand(actor));
                 return;
             }
-            lamp.dispatcherSettings().failureHandler().handleFailedAttempts(Collections.unmodifiableList(failed));
+            lamp.dispatcherSettings().failureHandler().handleFailedAttempts(actor, Collections.unmodifiableList(failed), input);
             return;
         }
         Collections.sort(conflicts);

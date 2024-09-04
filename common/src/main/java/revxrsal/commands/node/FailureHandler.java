@@ -27,11 +27,31 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.Potential;
+import revxrsal.commands.stream.StringStream;
 
 import java.util.List;
 
+/**
+ * A functional interface that handles all failed {@link Potential}s that
+ * failed to parse the given input.
+ *
+ * @param <A> The actor type
+ */
+@FunctionalInterface
 public interface FailureHandler<A extends CommandActor> {
 
-    void handleFailedAttempts(@NotNull @Unmodifiable List<Potential<A>> failedAttempts);
+    /**
+     * Handles all the given failed attempts
+     *
+     * @param actor          The actor
+     * @param failedAttempts The list of failed attempts. This is guaranteed to
+     *                       be non-empty.
+     * @param input          The user input
+     */
+    void handleFailedAttempts(
+            @NotNull A actor,
+            @NotNull @Unmodifiable List<Potential<A>> failedAttempts,
+            @NotNull StringStream input
+    );
 
 }
