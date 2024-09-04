@@ -51,20 +51,7 @@ import static revxrsal.commands.util.Collections.map;
  */
 public final class EntityParameterType implements ParameterType<BukkitCommandActor, Entity> {
 
-    @Override
-    public Entity parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
-        String value = input.readString();
-        return fromSelector(context.actor().sender(), value);
-    }
-
-    @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
-        // Brigadier's entity type will handle auto-completions for us :)
-        if (BukkitVersion.isBrigadierSupported())
-            return SuggestionProvider.empty();
-        return (input, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
-    }
-
-    public static @NotNull Entity fromSelector(@NotNull CommandSender sender, @NotNull String selector) {
+    private static @NotNull Entity fromSelector(@NotNull CommandSender sender, @NotNull String selector) {
         try {
             List<Entity> entityList = Bukkit.selectEntities(sender, selector);
             if (entityList.isEmpty())
@@ -77,5 +64,18 @@ public final class EntityParameterType implements ParameterType<BukkitCommandAct
         } catch (NoSuchMethodError e) {
             throw new CommandErrorException("Entity selectors on legacy versions are not supported yet!");
         }
+    }
+
+    @Override
+    public Entity parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
+        String value = input.readString();
+        return fromSelector(context.actor().sender(), value);
+    }
+
+    @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
+        // Brigadier's entity type will handle auto-completions for us :)
+        if (BukkitVersion.isBrigadierSupported())
+            return SuggestionProvider.empty();
+        return (input, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }
 }

@@ -114,7 +114,6 @@ public final class DispatcherSettings<A extends CommandActor> {
      */
     public static final class Builder<A extends CommandActor> {
 
-
         /**
          * The number of failed attempts after which Lamp will stop testing out commands
          * (for efficiency) and invoke the {@link #failureHandler()}.

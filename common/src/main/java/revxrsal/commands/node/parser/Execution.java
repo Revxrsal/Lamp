@@ -51,8 +51,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final int size;
     private final boolean isSecret;
     private final String description, usage;
-    private int optionalParameters, requiredInput;
     private final OptionalInt priority;
+    private int optionalParameters, requiredInput;
 
     public Execution(CommandFunction function, LinkedList<CommandNode<A>> nodes) {
         this.function = function;

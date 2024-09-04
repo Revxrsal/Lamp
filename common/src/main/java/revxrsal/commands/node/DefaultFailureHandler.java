@@ -22,6 +22,11 @@ final class DefaultFailureHandler<A extends CommandActor> implements FailureHand
     private static final int MAX_NUMBER_OF_SUGGESTIONS = 6;
     private static final DefaultFailureHandler<CommandActor> INSTANCE = new DefaultFailureHandler<>();
 
+    @SuppressWarnings("unchecked")
+    public static <A extends CommandActor> FailureHandler<A> defaultFailureHandler() {
+        return (FailureHandler<A>) INSTANCE;
+    }
+
     @Override
     public void handleFailedAttempts(@NotNull A actor, @NotNull @Unmodifiable List<Potential<A>> failedAttempts, @NotNull StringStream input) {
         actor.error("Failed to find a suitable command for your input (\"" + input.source() + "\"). Did you mean:");
@@ -31,10 +36,5 @@ final class DefaultFailureHandler<A extends CommandActor> implements FailureHand
             Potential<A> failedAttempt = failedAttempts.get(i);
             actor.reply("- " + failedAttempt.context().command().path());
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <A extends CommandActor> FailureHandler<A> defaultFailureHandler() {
-        return (FailureHandler<A>) INSTANCE;
     }
 }

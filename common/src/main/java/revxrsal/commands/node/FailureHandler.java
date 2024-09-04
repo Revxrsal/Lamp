@@ -53,5 +53,4 @@ public interface FailureHandler<A extends CommandActor> {
             @NotNull @Unmodifiable List<Potential<A>> failedAttempts,
             @NotNull StringStream input
     );
-
 }

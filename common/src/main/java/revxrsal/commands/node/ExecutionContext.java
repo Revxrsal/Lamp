@@ -47,6 +47,52 @@ import static revxrsal.commands.util.Preconditions.notNull;
 public interface ExecutionContext<A extends CommandActor> {
 
     /**
+     * Creates a new {@link MutableExecutionContext} for the given command, actor
+     * and input. This can be modified and used to generate execution contexts from
+     * different platforms.
+     *
+     * @param command The executed command
+     * @param actor   The actor executing the command
+     * @param input   The command input.
+     * @param <A>     The actor type
+     * @return The context
+     */
+    @Contract("_,_,_ -> new")
+    static @NotNull <A extends CommandActor> MutableExecutionContext<A> createMutable(
+            @NotNull ExecutableCommand<A> command,
+            @NotNull A actor,
+            @NotNull StringStream input
+    ) {
+        notNull(command, "command");
+        notNull(actor, "actor");
+        notNull(input, "input");
+        return new BasicMutableExecutionContext<>(command, input, actor);
+    }
+
+    /**
+     * Creates a new {@link MutableExecutionContext} for the given command, actor
+     * and input. This can be modified and used to generate execution contexts from
+     * different platforms.
+     *
+     * @param command The executed command
+     * @param actor   The actor executing the command
+     * @param input   The command input.
+     * @param <A>     The actor type
+     * @return The context
+     */
+    @Contract("_,_,_ -> new")
+    static @NotNull <A extends CommandActor> ExecutionContext<A> create(
+            @NotNull ExecutableCommand<A> command,
+            @NotNull A actor,
+            @NotNull StringStream input
+    ) {
+        notNull(command, "command");
+        notNull(actor, "actor");
+        notNull(input, "input");
+        return new BasicExecutionContext<>(command, input, actor);
+    }
+
+    /**
      * Returns the actor executing this command
      *
      * @return The actor
@@ -144,51 +190,5 @@ public interface ExecutionContext<A extends CommandActor> {
             throw new IllegalArgumentException("Couldn't find an argument that matches the type " + argumentType + ". Available types: " + types);
         }
         return argument;
-    }
-
-    /**
-     * Creates a new {@link MutableExecutionContext} for the given command, actor
-     * and input. This can be modified and used to generate execution contexts from
-     * different platforms.
-     *
-     * @param command The executed command
-     * @param actor   The actor executing the command
-     * @param input   The command input.
-     * @param <A>     The actor type
-     * @return The context
-     */
-    @Contract("_,_,_ -> new")
-    static @NotNull <A extends CommandActor> MutableExecutionContext<A> createMutable(
-            @NotNull ExecutableCommand<A> command,
-            @NotNull A actor,
-            @NotNull StringStream input
-    ) {
-        notNull(command, "command");
-        notNull(actor, "actor");
-        notNull(input, "input");
-        return new BasicMutableExecutionContext<>(command, input, actor);
-    }
-
-    /**
-     * Creates a new {@link MutableExecutionContext} for the given command, actor
-     * and input. This can be modified and used to generate execution contexts from
-     * different platforms.
-     *
-     * @param command The executed command
-     * @param actor   The actor executing the command
-     * @param input   The command input.
-     * @param <A>     The actor type
-     * @return The context
-     */
-    @Contract("_,_,_ -> new")
-    static @NotNull <A extends CommandActor> ExecutionContext<A> create(
-            @NotNull ExecutableCommand<A> command,
-            @NotNull A actor,
-            @NotNull StringStream input
-    ) {
-        notNull(command, "command");
-        notNull(actor, "actor");
-        notNull(input, "input");
-        return new BasicExecutionContext<>(command, input, actor);
     }
 }

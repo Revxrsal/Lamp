@@ -63,6 +63,12 @@ final class KotlinFunctionImpl implements KotlinFunction {
         this.defaultMethod = of(() -> findDefaultFunction(mainMethod));
     }
 
+    private static void checkCallableStatic(@Nullable Object instance, @NotNull Method method) {
+        if (instance == null && !isStatic(method.getModifiers()))
+            throw new IllegalArgumentException("The given method is not static, and no instance was provided. "
+                    + "Either mark the function as static with @JvmStatic, or pass the object/companion object value for the instance.");
+    }
+
     @Override
     public @NotNull CallableMethod getMethod() {
         return mainMethod;
@@ -203,11 +209,5 @@ final class KotlinFunctionImpl implements KotlinFunction {
     @Override
     public @NotNull Parameter getParameter(int index) {
         return parameters.get(index);
-    }
-
-    private static void checkCallableStatic(@Nullable Object instance, @NotNull Method method) {
-        if (instance == null && !isStatic(method.getModifiers()))
-            throw new IllegalArgumentException("The given method is not static, and no instance was provided. "
-                    + "Either mark the function as static with @JvmStatic, or pass the object/companion object value for the instance.");
     }
 }

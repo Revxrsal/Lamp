@@ -49,8 +49,6 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;

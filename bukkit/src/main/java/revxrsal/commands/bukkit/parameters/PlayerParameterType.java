@@ -49,6 +49,24 @@ import static revxrsal.commands.util.Collections.map;
  */
 public final class PlayerParameterType implements ParameterType<BukkitCommandActor, Player> {
 
+    private static @NotNull Player fromSelector(@NotNull CommandSender sender, @NotNull String selector) {
+        try {
+            List<Entity> entityList = Bukkit.selectEntities(sender, selector);
+            if (entityList.isEmpty())
+                throw new EmptyEntitySelectorException(selector);
+            if (entityList.size() != 1)
+                throw new MoreThanOneEntityException(selector);
+            Entity entity = entityList.get(0);
+            if (!(entity instanceof Player player))
+                throw new NonPlayerEntitiesException(selector);
+            return player;
+        } catch (IllegalArgumentException e) {
+            throw new MalformedEntitySelectorException(selector, e.getCause().getMessage());
+        } catch (NoSuchMethodError e) {
+            throw new CommandErrorException("Entity selectors on legacy versions are not supported yet!");
+        }
+    }
+
     @Override
     public Player parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
         String value = input.readString();
@@ -68,23 +86,5 @@ public final class PlayerParameterType implements ParameterType<BukkitCommandAct
         if (BukkitVersion.isBrigadierSupported())
             return SuggestionProvider.empty();
         return (input, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
-    }
-
-    public static @NotNull Player fromSelector(@NotNull CommandSender sender, @NotNull String selector) {
-        try {
-            List<Entity> entityList = Bukkit.selectEntities(sender, selector);
-            if (entityList.isEmpty())
-                throw new EmptyEntitySelectorException(selector);
-            if (entityList.size() != 1)
-                throw new MoreThanOneEntityException(selector);
-            Entity entity = entityList.get(0);
-            if (!(entity instanceof Player player))
-                throw new NonPlayerEntitiesException(selector);
-            return player;
-        } catch (IllegalArgumentException e) {
-            throw new MalformedEntitySelectorException(selector, e.getCause().getMessage());
-        } catch (NoSuchMethodError e) {
-            throw new CommandErrorException("Entity selectors on legacy versions are not supported yet!");
-        }
     }
 }
