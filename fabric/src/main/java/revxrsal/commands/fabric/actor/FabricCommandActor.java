@@ -44,7 +44,7 @@ public interface FabricCommandActor extends CommandActor {
     /**
      * Returns the underlying {@link ServerCommandSource} of this actor
      *
-     * @return The revxrsal.commands.bungee.sender
+     * @return The sender
      */
     @NotNull ServerCommandSource source();
 

@@ -41,7 +41,7 @@ public interface BungeeCommandActor extends CommandActor {
     /**
      * Returns the underlying {@link CommandSender} of this actor
      *
-     * @return The revxrsal.commands.bungee.sender
+     * @return The sender
      */
     @NotNull CommandSender sender();
 

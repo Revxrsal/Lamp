@@ -46,7 +46,7 @@ public interface VelocityCommandActor extends CommandActor {
     /**
      * Returns the underlying {@link CommandSource} of this actor
      *
-     * @return The revxrsal.commands.bungee.sender
+     * @return The sender
      */
     @NotNull CommandSource source();
 
