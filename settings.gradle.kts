@@ -24,6 +24,7 @@ include("cli")
 include("sponge")
 include("jda")
 include("fabric")
+include("minestom")
 
 /* example projects */
 include("examples")

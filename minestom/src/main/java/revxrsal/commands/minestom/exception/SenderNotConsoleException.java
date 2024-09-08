@@ -1,0 +1,11 @@
+package revxrsal.commands.minestom.exception;
+
+import revxrsal.commands.exception.ThrowableFromCommand;
+
+/**
+ * Thrown when a player-only command is executed by a non-player
+ */
+@ThrowableFromCommand
+public class SenderNotConsoleException extends RuntimeException {
+
+}
