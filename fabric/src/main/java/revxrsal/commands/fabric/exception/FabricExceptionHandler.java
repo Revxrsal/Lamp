@@ -2,8 +2,8 @@ package revxrsal.commands.fabric.exception;
 
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.exception.*;
-import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.fabric.actor.FabricCommandActor;
+import revxrsal.commands.node.ParameterNode;
 
 import static revxrsal.commands.fabric.util.FabricUtils.legacyColorize;
 

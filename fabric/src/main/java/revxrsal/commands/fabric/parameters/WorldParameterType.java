@@ -46,6 +46,15 @@ import java.util.List;
  */
 public class WorldParameterType implements ParameterType<FabricCommandActor, World> {
 
+    private static @Nullable World getWorld(@NotNull MinecraftServer server, @NotNull String name) {
+        for (RegistryKey<World> key : server.getWorldRegistryKeys()) {
+            if (key.getValue().toString().equalsIgnoreCase(name) || key.getValue().getPath().equalsIgnoreCase(name)) {
+                return server.getWorld(key);
+            }
+        }
+        return null;
+    }
+
     @Override
     public World parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<FabricCommandActor> context) {
         String name = input.readString();
@@ -56,15 +65,6 @@ public class WorldParameterType implements ParameterType<FabricCommandActor, Wor
         if (world == null)
             throw new InvalidWorldException(name);
         return world;
-    }
-
-    private static @Nullable World getWorld(@NotNull MinecraftServer server, @NotNull String name) {
-        for (RegistryKey<World> key : server.getWorldRegistryKeys()) {
-            if (key.getValue().toString().equalsIgnoreCase(name) || key.getValue().getPath().equalsIgnoreCase(name)) {
-                return server.getWorld(key);
-            }
-        }
-        return null;
     }
 
     @Override public @NotNull SuggestionProvider<FabricCommandActor> defaultSuggestions() {
