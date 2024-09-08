@@ -39,7 +39,6 @@ import revxrsal.commands.fabric.parameters.PlayerParameterType;
 import revxrsal.commands.fabric.parameters.WorldParameterType;
 import revxrsal.commands.fabric.sender.FabricPermissionFactory;
 import revxrsal.commands.fabric.sender.FabricSenderResolver;
-import revxrsal.commands.parameter.ContextParameter;
 
 import static revxrsal.commands.fabric.util.FabricUtils.legacyColorize;
 

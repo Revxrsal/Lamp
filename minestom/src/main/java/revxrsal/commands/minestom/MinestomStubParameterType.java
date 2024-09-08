@@ -49,15 +49,15 @@ public final class MinestomStubParameterType<A extends MinestomCommandActor> imp
 
     private static final MinestomStubParameterType<MinestomCommandActor> INSTANCE = new MinestomStubParameterType<>();
 
+    @SuppressWarnings("unchecked")
+    public static <A extends MinestomCommandActor, T> @NotNull ParameterType<A, T> stubParameterType() {
+        return (ParameterType<A, T>) INSTANCE;
+    }
+
     @Override public Object parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<@NotNull A> context) {
         throw new UnsupportedOperationException("This is a stub to tell Lamp that we can parse a certain parameter type. " +
                 "Real argument parsing is done in Minestom's 'Argument' classes. This method should never be called, and this " +
                 "ParameterType should only be used for types that have corresponding Arguments registered in MinestomArgumentTypes.");
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <A extends MinestomCommandActor, T> @NotNull ParameterType<A, T> stubParameterType() {
-        return (ParameterType<A, T>) INSTANCE;
     }
 
 }
