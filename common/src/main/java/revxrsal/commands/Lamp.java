@@ -122,21 +122,6 @@ public final class Lamp<A extends CommandActor> {
     }
 
     /**
-     * Creates a new Lamp {@link Builder}. This function is primarily for improving
-     * type-inference and pleasing the Java compiler. The {@code actorType} parameter
-     * is not used.
-     *
-     * @param actorType Actor type. This allows for better type-inference. The parameter is unused.
-     * @param <A>       The actor type
-     * @return The newly created builder
-     */
-    public static <A extends CommandActor> @NotNull Builder<A> builder(
-            @SuppressWarnings("unused") @NotNull Class<A> actorType
-    ) {
-        return new Builder<>();
-    }
-
-    /**
      * Returns the first {@link ParameterType} that can parse the given parameter.
      * <p>
      * Note that this method will never return {@code null}. In cases where no

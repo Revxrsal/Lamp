@@ -49,20 +49,12 @@ public final class BukkitArgumentTypes {
     private static final ArgumentType<?> ENTITIES = MinecraftArgumentType.ENTITY.create(false, false);
 
     /**
-     * Creates a new {@link ArgumentTypes.Builder}. This function is primarily for improving
-     * type-inference and pleasing the Java compiler. The {@code actorType} parameter
-     * is not used.
+     * Returns a {@link ArgumentTypes.Builder} that contains the default argument
+     * types for the Bukkit platform
      *
-     * @param actorType Actor type. This allows for better type-inference. The parameter is unused.
-     * @param <A>       The actor type
-     * @return The newly created builder
+     * @param <A> The actor type
+     * @return The builder
      */
-    public static @NotNull <A extends CommandActor> ArgumentTypes.Builder<A> builder(
-            @SuppressWarnings("unused") Class<A> actorType
-    ) {
-        return builder();
-    }
-
     @Contract(value = "-> new", pure = true)
     public static @NotNull <A extends CommandActor> ArgumentTypes.Builder<A> builder() {
         ArgumentTypes.Builder<A> builder = ArgumentTypes.builder();
