@@ -26,11 +26,19 @@ include("jda")
 include("fabric")
 include("minestom")
 
-/* example projects */
+/*
+ * -------- Example projects --------
+ */
+
 include("examples")
 
-include("examples:bukkit-plugin")
-findProject(":examples:bukkit-plugin")?.name = "bukkit-plugin"
+val exampleProjects = listOf(
+    "bukkit-plugin",
+    "jda-bot",
+    "minestom-server"
+)
 
-include("examples:jda-bot")
-findProject(":examples:jda-bot")?.name = "jda-bot"
+exampleProjects.forEach { project ->
+    include("examples:$project")
+    findProject(":examples:$project")?.name = project
+}
