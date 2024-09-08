@@ -75,7 +75,6 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
             return c;
         });
         addCommand(command, minestomCommand);
-        System.out.println("Adding command " + command);
     }
 
     /**
