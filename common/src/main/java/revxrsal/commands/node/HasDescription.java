@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.node;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -37,6 +38,6 @@ public interface HasDescription {
      *
      * @return The description
      */
-    @Nullable String description();
+    @Nullable @Contract(pure = true) String description();
 
 }

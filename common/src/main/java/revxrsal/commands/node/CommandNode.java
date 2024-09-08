@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.node;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.command.CommandActor;
@@ -52,7 +53,7 @@ public interface CommandNode<A extends CommandActor> extends Comparable<CommandN
      * @return The action of this node, or {@code null} if none
      * is registered.
      */
-    @Nullable CommandAction<A> action();
+    @Nullable @Contract(pure = true) CommandAction<A> action();
 
     /**
      * Tests whether is this node the last one in the command tree
