@@ -114,7 +114,7 @@ public final class TreeParser<A extends CommandActor> {
         last.setAction(action);
         if (isParameter(last))
             setIfGreedy(p(last));
-        LinkedList<CommandNode<A>> executionNodes = new LinkedList<>();
+        List<CommandNode<A>> executionNodes = new ArrayList<>();
         for (MutableCommandNode<A> node : nodes) {
             if (isParameter(node) && p(node).type().isGreedy() && !node.isLast()) {
                 throw new IllegalArgumentException("Found a greedy parameter (" + node.getName() + ") in the middle of the command. " +

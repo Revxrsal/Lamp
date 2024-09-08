@@ -151,7 +151,6 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
     @Unmodifiable
     List<CommandNode<A>> nodes();
 
-
     /**
      * Returns the explicit priority defined by {@link CommandPriority}.
      *

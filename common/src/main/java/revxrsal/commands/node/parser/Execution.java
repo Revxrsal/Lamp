@@ -46,7 +46,7 @@ import static revxrsal.commands.util.Collections.unmodifiableIterator;
 final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     private final CommandFunction function;
-    private final LinkedList<CommandNode<A>> nodes;
+    private final List<CommandNode<A>> nodes;
     private final CommandPermission<A> permission;
     private final int size;
     private final boolean isSecret;
@@ -54,7 +54,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final OptionalInt priority;
     private int optionalParameters, requiredInput;
 
-    public Execution(CommandFunction function, LinkedList<CommandNode<A>> nodes) {
+    public Execution(CommandFunction function, List<CommandNode<A>> nodes) {
         this.function = function;
         this.nodes = nodes;
         this.size = nodes.size();
@@ -129,12 +129,12 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     @Override
     public @NotNull CommandNode<A> lastNode() {
-        return nodes.getLast();
+        return nodes.get(nodes.size() - 1);
     }
 
     @Override
     public @NotNull LiteralNodeImpl<A> firstNode() {
-        return ((LiteralNodeImpl<A>) nodes.getFirst());
+        return ((LiteralNodeImpl<A>) nodes.get(0));
     }
 
     @Override
@@ -196,7 +196,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     }
 
     @Override
-    public Iterator<CommandNode<A>> iterator() {
+    public @NotNull Iterator<CommandNode<A>> iterator() {
         return unmodifiableIterator(nodes.iterator());
     }
 
@@ -293,6 +293,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
             return execution.compareTo(result.execution);
         }
 
+        @SuppressWarnings("unchecked")
         private boolean tryParse(
                 CommandNode<A> node,
                 MutableStringStream input,
