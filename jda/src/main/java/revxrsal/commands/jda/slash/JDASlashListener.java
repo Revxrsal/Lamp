@@ -115,8 +115,8 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
                 } catch (Throwable t) {
                     if (!ignoreExceptions)
                         lamp.handleException(t, parsingParameter(context, parameter, stream));
-                    continue;
                 }
+                continue;
             }
             try {
                 Object value = JDAUtils.fromOption(option, parameter);
