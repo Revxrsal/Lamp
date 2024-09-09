@@ -162,8 +162,7 @@ To get started with Lamp, follow the instructions in our [setup guide](https://f
 you're using Gradle or
 Maven, integrating Lamp into your project is straightforward.
 
-For more detailed documentation on each feature, please refer to our *
-*[detailed book](https://foxhut.gitbook.io/lamp-docs)** that outlines all features and APIs in Lamp
+For more detailed documentation on each feature, please refer to our **[detailed book](https://foxhut.gitbook.io/lamp-docs)** that outlines all features and APIs in Lamp
 
 Happy coding with Lamp! 🚀
 
