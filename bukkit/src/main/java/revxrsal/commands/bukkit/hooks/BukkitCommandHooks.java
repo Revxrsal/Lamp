@@ -28,6 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
+import revxrsal.commands.bukkit.annotation.FallbackPrefix;
 import revxrsal.commands.bukkit.util.PluginCommands;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.hook.CancelHandle;
@@ -44,10 +45,12 @@ public final class BukkitCommandHooks<A extends BukkitCommandActor> implements C
 
     private final JavaPlugin plugin;
     private final ActorFactory<A> actorFactory;
+    private final String defaultFallbackPrefix;
 
-    public BukkitCommandHooks(JavaPlugin plugin, ActorFactory<A> actorFactory) {
+    public BukkitCommandHooks(JavaPlugin plugin, ActorFactory<A> actorFactory, @NotNull String defaultFallbackPrefix, String defaultFallbackPrefix1) {
         this.plugin = plugin;
         this.actorFactory = actorFactory;
+        this.defaultFallbackPrefix = defaultFallbackPrefix1;
     }
 
     @Override
@@ -55,8 +58,8 @@ public final class BukkitCommandHooks<A extends BukkitCommandActor> implements C
         String name = command.firstNode().name();
         if (registeredRootNames.add(name)) {
             // command wasn't registered before. register it.
-
-            PluginCommand cmd = PluginCommands.create(command.firstNode().name(), plugin);
+            String fallbackPrefix = command.annotations().mapOr(FallbackPrefix.class, FallbackPrefix::value, defaultFallbackPrefix);
+            PluginCommand cmd = PluginCommands.create(fallbackPrefix, command.firstNode().name(), plugin);
 
             LampCommandExecutor<A> executor = new LampCommandExecutor<>(command.lamp(), actorFactory);
             cmd.setExecutor(executor);

@@ -52,12 +52,20 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
     private final ActorFactory<A> actorFactory;
     private final Supplier<ArgumentTypes<A>> argumentTypes;
     private final JavaPlugin plugin;
+    private final String fallbackPrefix;
     private final boolean disableBrigadier;
 
-    private BukkitLampConfig(ActorFactory<A> actorFactory, Supplier<ArgumentTypes<A>> argumentTypes, JavaPlugin plugin, boolean disableBrigadier) {
+    public BukkitLampConfig(
+            ActorFactory<A> actorFactory,
+            Supplier<ArgumentTypes<A>> argumentTypes,
+            JavaPlugin plugin,
+            String fallbackPrefix,
+            boolean disableBrigadier
+    ) {
         this.actorFactory = actorFactory;
         this.argumentTypes = argumentTypes;
         this.plugin = plugin;
+        this.fallbackPrefix = fallbackPrefix;
         this.disableBrigadier = disableBrigadier;
     }
 
@@ -82,7 +90,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
      */
     public static BukkitLampConfig<BukkitCommandActor> createDefault(@NotNull JavaPlugin plugin) {
         notNull(plugin, "plugin");
-        return new BukkitLampConfig<>(ActorFactory.defaultFactory(), () -> BukkitArgumentTypes.<BukkitCommandActor>builder().build(), plugin, false);
+        return new BukkitLampConfig<>(ActorFactory.defaultFactory(), () -> BukkitArgumentTypes.<BukkitCommandActor>builder().build(), plugin, plugin.getName(), false);
     }
 
     @Override public void visit(Lamp.@NotNull Builder<A> builder) {
@@ -91,7 +99,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
                 .accept(bukkitParameterTypes())
                 .accept(bukkitExceptionHandler())
                 .accept(bukkitPermissions())
-                .accept(registrationHooks(plugin))
+                .accept(registrationHooks(plugin, actorFactory, fallbackPrefix))
                 .accept(pluginContextParameters(plugin));
         if (BukkitVersion.isBrigadierSupported() && !disableBrigadier)
             builder.accept(brigadier(plugin, argumentTypes.get(), actorFactory));
@@ -108,9 +116,11 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
         private final @NotNull JavaPlugin plugin;
         private ActorFactory<A> actorFactory = (ActorFactory<A>) ActorFactory.defaultFactory();
         private boolean disableBrigadier;
+        private String fallbackPrefix;
 
         Builder(@NotNull JavaPlugin plugin) {
             this.plugin = plugin;
+            this.fallbackPrefix = plugin.getName();
         }
 
         /**
@@ -167,13 +177,29 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
         }
 
         /**
+         * Disables brigadier integration
+         *
+         * @return This builder
+         */
+        public @NotNull Builder<A> fallbackPrefix(String fallbackPrefix) {
+            this.fallbackPrefix = fallbackPrefix;
+            return this;
+        }
+
+        /**
          * Returns a new {@link BukkitLampConfig} from this builder
          *
          * @return The newly created config
          */
         @Contract("-> new")
         public @NotNull BukkitLampConfig<A> build() {
-            return new BukkitLampConfig<>(this.actorFactory, Lazy.of(() -> argumentTypes.get().build()), this.plugin, disableBrigadier);
+            return new BukkitLampConfig<>(
+                    this.actorFactory,
+                    Lazy.of(() -> argumentTypes.get().build()),
+                    this.plugin,
+                    fallbackPrefix,
+                    disableBrigadier
+            );
         }
     }
 }

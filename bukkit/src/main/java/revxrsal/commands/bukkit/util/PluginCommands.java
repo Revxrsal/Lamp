@@ -86,11 +86,17 @@ public final class PluginCommands {
     @SneakyThrows
     @CheckReturnValue
     public static @NotNull PluginCommand create(String name, @NotNull JavaPlugin plugin) {
+        return create(plugin.getName(), name, plugin);
+    }
+
+    @SneakyThrows
+    @CheckReturnValue
+    public static @NotNull PluginCommand create(String fallbackPrefix, String name, @NotNull JavaPlugin plugin) {
         PluginCommand command = plugin.getCommand(name);
         if (command != null)
             return command;
         command = COMMAND_CONSTRUCTOR.newInstance(name, plugin);
-        COMMAND_MAP.register(plugin.getName(), command);
+        COMMAND_MAP.register(fallbackPrefix, command);
         return command;
     }
 

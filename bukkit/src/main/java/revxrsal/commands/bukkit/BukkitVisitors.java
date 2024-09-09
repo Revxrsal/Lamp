@@ -38,6 +38,7 @@ import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
+import revxrsal.commands.bukkit.annotation.FallbackPrefix;
 import revxrsal.commands.bukkit.brigadier.BrigadierRegistryHook;
 import revxrsal.commands.bukkit.brigadier.BukkitArgumentTypes;
 import revxrsal.commands.bukkit.exception.BukkitExceptionHandler;
@@ -131,22 +132,33 @@ public final class BukkitVisitors {
         return registrationHooks(plugin, ActorFactory.defaultFactory());
     }
 
+    public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> registrationHooks(
+            @NotNull JavaPlugin plugin,
+            @NotNull ActorFactory<A> actorFactory
+    ) {
+        return registrationHooks(plugin, actorFactory, plugin.getName());
+    }
+
     /**
      * Adds a registration hook that injects Lamp commands into Bukkit.
      * <p>
      * This function allows to specify a custom {@link ActorFactory} to
      * use custom implementations of {@link BukkitCommandActor}
      *
-     * @param plugin       The plugin instance to bind commands to
-     * @param actorFactory The actor factory. This allows for creating custom {@link BukkitCommandActor}
-     *                     implementations
+     * @param plugin                The plugin instance to bind commands to
+     * @param actorFactory          The actor factory. This allows for creating custom {@link BukkitCommandActor}
+     *                              implementations
+     * @param defaultFallbackPrefix The default fallback prefix to use (which Bukkit uses to
+     *                              prevent conflicts). Note that this can be
+     *                              overridden on a per-command basis using {@link FallbackPrefix @FallbackPrefix}
      * @return The visitor
      */
     public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> registrationHooks(
             @NotNull JavaPlugin plugin,
-            @NotNull ActorFactory<A> actorFactory
+            @NotNull ActorFactory<A> actorFactory,
+            @NotNull String defaultFallbackPrefix
     ) {
-        BukkitCommandHooks<A> hooks = new BukkitCommandHooks<>(plugin, actorFactory);
+        BukkitCommandHooks<A> hooks = new BukkitCommandHooks<>(plugin, actorFactory, defaultFallbackPrefix);
         return builder -> builder.hooks()
                 .onCommandRegistered(hooks)
                 .onCommandUnregistered(hooks);
