@@ -88,7 +88,7 @@ fun teleportToWorld(
 
 ![Brigadier integration](https://github.com/Revxrsal/lamp-docs/blob/main/.gitbook/assets/image%20(4).png?raw=true)
 
-### Custom parameter types and dependency injection
+### Custom parameter types
 
 ```kt
 @CommandPermission("quests.command")
@@ -113,6 +113,15 @@ class QuestCommands {
   @Subcommand("clear")
   fun clearQuests(sender: CommandSender) {
   }
+}
+```
+
+### Custom permission annotations
+```java
+@RequiresGroup("admin")
+@Command("admin command")
+public void adminCommand(BukkitCommandActor actor) {
+    actor.reply("You are authorized to use this command!")
 }
 ```
 
@@ -142,6 +151,8 @@ Lamp supports the following platforms out of the box:
 - BungeeCord
 - Velocity
 - Sponge
+- Minestom
+- Fabric
 - JDA slash commands
 - Command-line applications
 
