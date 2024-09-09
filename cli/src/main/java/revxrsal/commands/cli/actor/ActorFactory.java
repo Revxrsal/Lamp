@@ -67,4 +67,14 @@ public interface ActorFactory<A extends ConsoleActor> {
             @NotNull Scanner scanner,
             @NotNull Lamp<A> lamp
     );
+
+    /**
+     * Creates the actor from Java's standard input and output streams
+     *
+     * @param lamp The Lamp instance
+     * @return The created actor
+     */
+    default @NotNull A createForStdIo(@NotNull Lamp<A> lamp) {
+        return create(System.in, System.out, System.err, new Scanner(System.in), lamp);
+    }
 }

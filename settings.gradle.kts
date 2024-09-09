@@ -35,7 +35,8 @@ include("examples")
 val exampleProjects = listOf(
     "bukkit-plugin",
     "jda-bot",
-    "minestom-server"
+    "minestom-server",
+    "cli-app"
 )
 
 exampleProjects.forEach { project ->
