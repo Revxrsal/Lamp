@@ -52,6 +52,7 @@ import revxrsal.commands.response.ResponseHandler;
 import revxrsal.commands.response.SupplierResponseHandler;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
+import revxrsal.commands.util.StackTraceSanitizer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -336,7 +337,7 @@ public final class Lamp<A extends CommandActor> {
     /**
      * Returns the command registry. Most users should avoid
      * interacting with this object, and instead register commands
-     * with {@link #register(Object)} and {@link #unregister(ExecutableCommand)}
+     * with {@link #register(Object...)} and {@link #unregister(ExecutableCommand)}
      *
      * @return The command registry
      */
@@ -491,10 +492,12 @@ public final class Lamp<A extends CommandActor> {
                 SelfHandledException<A> she = (SelfHandledException<A>) throwable;
                 she.handle(errorContext);
             }
-            if (throwable.getClass().isAnnotationPresent(ThrowableFromCommand.class))
+            if (throwable.getClass().isAnnotationPresent(ThrowableFromCommand.class)) {
                 exceptionHandler.handleException(throwable, errorContext);
-            else
+            } else {
+                StackTraceSanitizer.defaultSanitizer().sanitize(throwable);
                 exceptionHandler.handleException(new CommandInvocationException(throwable), errorContext);
+            }
         } catch (Throwable t) {
             throw new IllegalStateException("The CommandExceptionHandler threw an exception", t);
         }
