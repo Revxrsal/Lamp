@@ -48,7 +48,7 @@ public final class CLIApp {
 
         @Command("ping")
         public void ping(ConsoleActor actor) {
-            actor.reply(Integer.toString(1 / 0));
+            actor.reply("Pong");
         }
     }
 }
