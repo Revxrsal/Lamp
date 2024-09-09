@@ -26,6 +26,7 @@ package revxrsal.commands.jda.exception;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.exception.CommandInvocationException;
 import revxrsal.commands.exception.DefaultExceptionHandler;
+import revxrsal.commands.exception.NoPermissionException;
 import revxrsal.commands.jda.actor.SlashCommandActor;
 
 import java.util.Locale;
@@ -56,6 +57,10 @@ public class SlashJDAExceptionHandler<A extends SlashCommandActor> extends Defau
         actor.commandEvent().reply("🛑 An error has occurred while executing this command. Please contact the developers." +
                 " Errors have been printed to the console.").queue();
         e.cause().printStackTrace();
+    }
+
+    @Override public void onNoPermission(@NotNull NoPermissionException e, @NotNull A actor) {
+        actor.replyToInteraction("🛑 You do not have permission to execute this command!").queue();
     }
 
     @HandleException
