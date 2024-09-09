@@ -38,7 +38,7 @@ import static revxrsal.commands.bukkit.BukkitLampConfig.Builder;
  * command method or class.
  * <p>
  * Bukkit uses this fallback prefix when two commands conflict with their main label,
- * in which Bukkit would register it as {@code /(fallback_prefix):command} instead.
+ * in which Bukkit would register it as {@code /(fallback prefix):command} instead.
  * <p>
  * It is possible to set a default one with {@link Builder#fallbackPrefix(String)}
  */
