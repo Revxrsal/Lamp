@@ -41,6 +41,7 @@ import revxrsal.commands.stream.MutableStringStream;
 import java.util.*;
 
 import static java.lang.Integer.compare;
+import static revxrsal.commands.exception.context.ErrorContext.executingFunction;
 import static revxrsal.commands.util.Collections.unmodifiableIterator;
 
 final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
@@ -147,6 +148,17 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         lamp().unregister(this);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override public void execute(@NotNull ExecutionContext<A> context) {
+        try {
+            for (var condition : context.lamp().commandConditions())
+                condition.test((ExecutionContext) context);
+            action().execute(context);
+        } catch (Throwable t) {
+            lamp().handleException(t, executingFunction(context));
+        }
+    }
+
     @Override
     public boolean isSecret() {
         return isSecret;
@@ -234,7 +246,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         private boolean testConditions() {
             try {
                 for (var condition : context.lamp().commandConditions()) {
-                    condition.test(((ExecutionContext) context), input);
+                    condition.test(((ExecutionContext) context));
                 }
                 return true;
             } catch (Throwable t) {

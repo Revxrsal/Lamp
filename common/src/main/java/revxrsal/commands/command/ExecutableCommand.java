@@ -31,6 +31,7 @@ import revxrsal.commands.annotation.SecretCommand;
 import revxrsal.commands.annotation.Usage;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.node.*;
+import revxrsal.commands.process.CommandCondition;
 import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.List;
@@ -185,13 +186,14 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
     /**
      * Executes this command with the given context. It is the caller's
      * responsibility to ensure that all required parameters are
-     * supplied in the context
+     * supplied in the context.
+     * <p>
+     * Note that this will check all {@link CommandCondition} registered
+     * in the {@link #lamp()} instance.
      *
      * @param context The context to execute with
      */
-    default void execute(@NotNull ExecutionContext<A> context) {
-        action().execute(context);
-    }
+    void execute(@NotNull ExecutionContext<A> context);
 
     /**
      * Returns the action of this command.
