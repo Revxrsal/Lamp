@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.exception.NoPermissionException;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.process.CommandCondition;
-import revxrsal.commands.stream.StringStream;
 
 @ApiStatus.Internal
 public enum PermissionConditionChecker implements CommandCondition<CommandActor> {
@@ -36,7 +35,7 @@ public enum PermissionConditionChecker implements CommandCondition<CommandActor>
     INSTANCE;
 
     @Override
-    public void test(@NotNull ExecutionContext<CommandActor> context, @NotNull StringStream input) {
+    public void test(@NotNull ExecutionContext<CommandActor> context) {
         if (!context.command().permission().isExecutableBy(context.actor()))
             throw new NoPermissionException(context.command());
     }

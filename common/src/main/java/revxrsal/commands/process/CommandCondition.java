@@ -28,7 +28,6 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.node.ExecutionContext;
-import revxrsal.commands.stream.StringStream;
 
 /**
  * Represents a condition that must be met in order for the command
@@ -46,8 +45,7 @@ public interface CommandCondition<A extends CommandActor> {
      * them get handled by the {@link CommandExceptionHandler}.
      *
      * @param context The command context
-     * @param input   An immutable view of the user input
      */
-    void test(@NotNull ExecutionContext<A> context, @NotNull StringStream input);
+    void test(@NotNull ExecutionContext<A> context);
 
 }
