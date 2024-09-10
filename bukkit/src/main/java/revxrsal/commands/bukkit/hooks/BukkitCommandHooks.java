@@ -47,10 +47,10 @@ public final class BukkitCommandHooks<A extends BukkitCommandActor> implements C
     private final ActorFactory<A> actorFactory;
     private final String defaultFallbackPrefix;
 
-    public BukkitCommandHooks(JavaPlugin plugin, ActorFactory<A> actorFactory, @NotNull String defaultFallbackPrefix, String defaultFallbackPrefix1) {
+    public BukkitCommandHooks(JavaPlugin plugin, ActorFactory<A> actorFactory, @NotNull String defaultFallbackPrefix) {
         this.plugin = plugin;
         this.actorFactory = actorFactory;
-        this.defaultFallbackPrefix = defaultFallbackPrefix1;
+        this.defaultFallbackPrefix = defaultFallbackPrefix;
     }
 
     @Override
