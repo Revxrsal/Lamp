@@ -31,7 +31,6 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":brigadier"))
     implementation(project(":bukkit"))
-    implementation(project(":paper"))
     implementation(kotlin("stdlib-jdk8"))
     paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
 }
@@ -43,7 +42,6 @@ bukkitPluginYaml {
     main = "com.example.plugin.TestPlugin"
     load = BukkitPluginYaml.PluginLoadOrder.STARTUP
     authors.add("Revxrsal")
-    apiVersion = "1.20.5"
 }
 
 tasks["build"].dependsOn(tasks.shadowJar)
