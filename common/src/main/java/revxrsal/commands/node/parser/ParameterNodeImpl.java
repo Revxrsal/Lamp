@@ -47,7 +47,6 @@ import revxrsal.commands.stream.MutableStringStreamImpl;
 import revxrsal.commands.stream.StringStream;
 
 import java.util.Collection;
-import java.util.List;
 
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
 
@@ -118,14 +117,20 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     @Override
     public int compareTo(@NotNull CommandNode<A> o) {
         if (o instanceof LiteralNodeImpl)
-            return -1;
+            return 1;
         else {
             ParameterNodeImpl<?, A> n = (ParameterNodeImpl<?, A>) o;
             if (isOptional && !n.isOptional)
                 return 1;
             else if (n.isOptional && !isOptional)
                 return -1;
-            return type.parsePriority().comparator().compare(parameterType(), n.parameterType());
+            int compare = type.parsePriority().comparator().compare(parameterType(), n.parameterType());
+            if (compare != 0) {
+                return compare;
+            } else {
+                compare = n.parameterType().parsePriority().comparator().compare(n.parameterType(), parameterType());
+                return compare == 0 ? 0 : -compare;
+            }
         }
     }
 

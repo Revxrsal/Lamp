@@ -40,7 +40,6 @@ import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.*;
 
-import static java.lang.Integer.compare;
 import static revxrsal.commands.exception.context.ErrorContext.executingFunction;
 import static revxrsal.commands.util.Collections.unmodifiableIterator;
 
@@ -186,25 +185,27 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     @Override
     public int compareTo(@NotNull ExecutableCommand<A> o) {
         if (!(o instanceof Execution<A> exec)) {
-            return 0;
+            return 0; // Handle the case where o is not an instance of Execution
         }
-        if (commandPriority().isPresent() && o.commandPriority().isPresent())
-            return compare(commandPriority().getAsInt(), o.commandPriority().getAsInt());
-        if (size - requiredInput == exec.size) {
-            if (isOptional(lastNode()) != isOptional(o.lastNode()))
-                return isOptional(lastNode()) ? 1 : -1;
-        }
-        // notice that we do exec.size first, then our size. this
-        // reverses the order which is mostly what we want
-        // (higher size = higher priority)
-        int result = compare(exec.size, size);
-        if (result == 0) {
-            CommandNode<A> ourLeaf = lastNode();
-            CommandNode<A> theirs = o.lastNode();
 
-            return ourLeaf.compareTo(theirs);
+        // Compare by priority if both have priorities
+        if (commandPriority().isPresent() && o.commandPriority().isPresent()) {
+            return Integer.compare(commandPriority().getAsInt(), o.commandPriority().getAsInt());
         }
-        return result;
+
+        // Compare by size if priorities are not present
+        int sizeComparison = Integer.compare(size, exec.size);
+        if (sizeComparison != 0) {
+            return sizeComparison; // Higher size = higher priority
+        }
+
+        // Compare optional status of the last node if sizes are equal
+        if (isOptional(lastNode()) != isOptional(o.lastNode())) {
+            return isOptional(lastNode()) ? 1 : -1;
+        }
+
+        // Compare the last node if everything else is equal
+        return lastNode().compareTo(o.lastNode());
     }
 
     @Override
