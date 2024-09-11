@@ -41,7 +41,7 @@ public final class InstanceCreator {
         cannotInstantiate(InstanceCreator.class);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked", "RedundantCast"})
     public static <T> @NotNull T create(@NotNull Class<? extends T> type) {
         if (type.isAnnotation())
             throw new IllegalArgumentException("Cannot construct annotation types");
