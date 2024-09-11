@@ -30,6 +30,8 @@ import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.SecretCommand;
 import revxrsal.commands.annotation.Usage;
 import revxrsal.commands.annotation.list.AnnotationList;
+import revxrsal.commands.help.Help;
+import revxrsal.commands.help.Help.RelatedCommands;
 import revxrsal.commands.node.*;
 import revxrsal.commands.process.CommandCondition;
 import revxrsal.commands.stream.MutableStringStream;
@@ -211,6 +213,65 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
      */
     default @NotNull AnnotationList annotations() {
         return function().annotations();
+    }
+
+    /**
+     * Returns all related commands of this command. This includes
+     * all sibling commands as well as children commands.
+     *
+     * @return The related commands
+     */
+    @NotNull RelatedCommands<A> relatedCommands();
+
+    /**
+     * Returns all children commands of this command.
+     *
+     * @return All children commands.
+     */
+    @NotNull Help.ChildrenCommands<A> childrenCommands();
+
+    /**
+     * Returns all siblings of this command
+     *
+     * @return All siblings
+     */
+    @NotNull Help.SiblingCommands<A> siblingCommands();
+
+    /**
+     * Tests whether are these two commands siblings.
+     *
+     * @param command Command to compare with
+     * @return true if they are siblings, false if otherwise.
+     */
+    boolean isSiblingOf(@NotNull ExecutableCommand<A> command);
+
+    /**
+     * Tests whether this command is a child of the provided command.
+     *
+     * @param command Command to compare with
+     * @return true if it is a child, false if otherwise.
+     */
+    boolean isChildOf(@NotNull ExecutableCommand<A> command);
+
+    /**
+     * Tests whether the provided command is a child of this command.
+     *
+     * @param command Command to compare with
+     * @return true if it is a child, false if otherwise.
+     */
+    default boolean isParentOf(@NotNull ExecutableCommand<A> command) {
+        return command.isChildOf(this);
+    }
+
+    /**
+     * Tests whether is the provided command related to this command
+     * or not. This tests if it is a sibling or a child.
+     *
+     * @param command Command to test
+     * @return true if related, false if otherwise.
+     */
+    default boolean isRelatedTo(@NotNull ExecutableCommand<A> command) {
+        return isParentOf(command) || isSiblingOf(command);
     }
 
     /**

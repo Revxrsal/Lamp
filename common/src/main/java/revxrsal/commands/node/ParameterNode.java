@@ -202,4 +202,18 @@ public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>
     default @NotNull LiteralNode<A> requireLiteralNode() {
         throw new IllegalStateException("Expected a LiteralNode, found a ParameterNode");
     }
+
+    /**
+     * Returns the node string representation. This is defined as:
+     * <ul>
+     *     <li>The node name if it's literal</li>
+     *     <li>{@code <name>} if it's a required parameter</li>
+     *     <li>{@code [name]} if it's an optional parameter</li>
+     * </ul>
+     *
+     * @return The node's string representation
+     */
+    @Override default @NotNull String representation() {
+        return isRequired() ? "<" + name() + ">" : "[" + name() + "]";
+    }
 }

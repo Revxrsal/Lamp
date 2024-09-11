@@ -86,6 +86,13 @@ public class BungeeExceptionHandler extends DefaultExceptionHandler<BungeeComman
             actor.error(legacyColorize("&c" + parameter.name() + " too large &e(" + fmt(e.input()) + ")&c. Must be at most &e" + fmt(e.maximum()) + "&c."));
     }
 
+    @Override public void onInvalidHelpPage(@NotNull InvalidHelpPageException e, @NotNull BungeeCommandActor actor) {
+        if (e.numberOfPages() == 1)
+            actor.error(legacyColorize("Invalid help page: &e" + e.page() + "&c. Must be 1."));
+        else
+            actor.error(legacyColorize("Invalid help page: &e" + e.page() + "&c. Must be between &e1 &cand &e" + e.numberOfPages()));
+    }
+
     @Override public void onUnknownCommand(@NotNull UnknownCommandException e, @NotNull BungeeCommandActor actor) {
         actor.error(legacyColorize("&cUnknown command: &e" + e.input() + "&c."));
     }

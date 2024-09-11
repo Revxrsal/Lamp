@@ -31,6 +31,10 @@ import revxrsal.commands.annotation.ParseWith;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.help.Help;
+import revxrsal.commands.help.Help.ChildrenCommands;
+import revxrsal.commands.help.Help.RelatedCommands;
+import revxrsal.commands.help.Help.SiblingCommands;
 import revxrsal.commands.parameter.builtins.*;
 import revxrsal.commands.parameter.primitives.*;
 import revxrsal.commands.stream.StringStream;
@@ -86,7 +90,10 @@ public final class ParameterTypes<A extends CommandActor> {
             ContextParameter.Factory.forType(StringStream.class, (parameter, context) -> context.input()),
             ContextParameter.Factory.forType(ExecutableCommand.class, (parameter, context) -> context.command()),
             ContextParameter.Factory.forType(Lamp.class, (parameter, context) -> context.lamp()),
-            ContextParameter.Factory.forTypeAndSubclasses(CommandActor.class, (parameter, context) -> context.actor())
+            ContextParameter.Factory.forTypeAndSubclasses(CommandActor.class, (parameter, context) -> context.actor()),
+            ContextParameter.Factory.forType(RelatedCommands.class, (parameter, context) -> context.command().relatedCommands()),
+            ContextParameter.Factory.forType(SiblingCommands.class, (parameter, context) -> context.command().siblingCommands()),
+            ContextParameter.Factory.forType(ChildrenCommands.class, (parameter, context) -> context.command().childrenCommands())
     );
 
     private final List<ParameterFactory> factories;

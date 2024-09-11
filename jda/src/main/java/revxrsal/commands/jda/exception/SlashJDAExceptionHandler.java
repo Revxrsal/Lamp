@@ -26,6 +26,7 @@ package revxrsal.commands.jda.exception;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.exception.CommandInvocationException;
 import revxrsal.commands.exception.DefaultExceptionHandler;
+import revxrsal.commands.exception.InvalidHelpPageException;
 import revxrsal.commands.exception.NoPermissionException;
 import revxrsal.commands.jda.actor.SlashCommandActor;
 
@@ -66,6 +67,14 @@ public class SlashJDAExceptionHandler<A extends SlashCommandActor> extends Defau
     @HandleException
     public void onInvalidCategory(InvalidCategoryException e, SlashCommandActor actor) {
         actor.error("**Invalid role:** " + e.input());
+    }
+
+    @Override
+    public void onInvalidHelpPage(@NotNull InvalidHelpPageException e, @NotNull A actor) {
+        if (e.numberOfPages() == 1)
+            actor.replyToInteraction("🛑 Invalid help page: **" + e.page() + "**. Must be 1.").queue();
+        else
+            actor.replyToInteraction("🛑 Invalid help page: **" + e.page() + "**. Must be between 1 and " + e.numberOfPages()).queue();
     }
 
     @HandleException

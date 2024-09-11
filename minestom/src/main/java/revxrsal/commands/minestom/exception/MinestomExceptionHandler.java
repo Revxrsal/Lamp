@@ -102,6 +102,13 @@ public class MinestomExceptionHandler extends DefaultExceptionHandler<MinestomCo
             actor.error(legacyColorize("&c" + parameter.name() + " too large &e(" + fmt(e.input()) + ")&c. Must be at most &e" + fmt(e.maximum()) + "&c."));
     }
 
+    @Override public void onInvalidHelpPage(@NotNull InvalidHelpPageException e, @NotNull MinestomCommandActor actor) {
+        if (e.numberOfPages() == 1)
+            actor.error(legacyColorize("Invalid help page: &e" + e.page() + "&c. Must be 1."));
+        else
+            actor.error(legacyColorize("Invalid help page: &e" + e.page() + "&c. Must be between &e1 &cand &e" + e.numberOfPages()));
+    }
+
     @Override
     public void onCommandInvocation(@NotNull CommandInvocationException e, @NotNull MinestomCommandActor actor) {
         actor.error(legacyColorize("&cAn error has occurred while executing this command. Please contact the developers. Errors have been printed to the console."));

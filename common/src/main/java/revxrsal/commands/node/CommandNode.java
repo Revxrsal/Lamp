@@ -114,4 +114,16 @@ public interface CommandNode<A extends CommandActor> extends Comparable<CommandN
      */
     @NotNull <T> ParameterNode<A, T> requireParameterNode();
 
+    /**
+     * Returns the node string representation. This is defined as:
+     * <ul>
+     *     <li>The node name if it's literal</li>
+     *     <li>{@code <name>} if it's a required parameter</li>
+     *     <li>{@code [name]} if it's an optional parameter</li>
+     * </ul>
+     *
+     * @return The node's string representation
+     */
+    @NotNull String representation();
+
 }

@@ -70,6 +70,17 @@ public interface LiteralNode<A extends CommandActor> extends CommandNode<A> {
     }
 
     /**
+     * Returns the string representation. This is the same as the
+     * node name in cases of literals.
+     *
+     * @return The node string representation
+     */
+    @Override @NotNull
+    default String representation() {
+        return name();
+    }
+
+    /**
      * Requires this node to be a {@link ParameterNode}. This will throw
      * a {@link IllegalStateException}.
      *

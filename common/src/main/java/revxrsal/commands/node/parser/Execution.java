@@ -35,12 +35,14 @@ import revxrsal.commands.command.*;
 import revxrsal.commands.exception.ExpectedLiteralException;
 import revxrsal.commands.exception.InputParseException;
 import revxrsal.commands.exception.context.ErrorContext;
+import revxrsal.commands.help.Help;
 import revxrsal.commands.node.*;
 import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.*;
 
 import static revxrsal.commands.exception.context.ErrorContext.executingFunction;
+import static revxrsal.commands.util.Collections.filter;
 import static revxrsal.commands.util.Collections.unmodifiableIterator;
 
 final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
@@ -52,6 +54,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final boolean isSecret;
     private final String description, usage;
     private final OptionalInt priority;
+    private final String siblingPath;
+    private final String path;
     private int optionalParameters, requiredInput;
 
     public Execution(CommandFunction function, List<CommandNode<A>> nodes) {
@@ -68,9 +72,36 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         }
         this.isSecret = function.annotations().contains(SecretCommand.class);
         this.description = function.annotations().map(Description.class, Description::value);
+        this.path = computePath();
         this.usage = function.annotations().mapOrGet(Usage.class, Usage::value, this::path);
         this.priority = function.annotations()
                 .mapOr(CommandPriority.class, c -> OptionalInt.of(c.value()), OptionalInt.empty());
+        this.siblingPath = computeSiblingPath();
+    }
+
+    private String computePath() {
+        StringJoiner joiner = new StringJoiner(" ");
+        for (CommandNode<A> n : nodes) {
+            joiner.add(n.representation());
+        }
+        return joiner.toString();
+    }
+
+    private @NotNull String computeSiblingPath() {
+        StringJoiner joiner = new StringJoiner(" ");
+        int index = 0;
+        for (int i = nodes.size() - 1; i >= 0; i--) {
+            CommandNode<A> n = nodes.get(i);
+            if (n.isLiteral()) {
+                index = i;
+                break;
+            }
+        }
+        for (int i = 0; i < index; i++) {
+            CommandNode<A> n = nodes.get(i);
+            joiner.add(n.representation());
+        }
+        return joiner.toString();
     }
 
     private static boolean isOptional(@NotNull CommandNode<? extends CommandActor> node) {
@@ -99,17 +130,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     @Override
     public @NotNull String path() {
-        StringJoiner joiner = new StringJoiner(" ");
-        for (CommandNode<A> n : nodes) {
-            if (n.isParameter())
-                if (n.requireParameterNode().isOptional())
-                    joiner.add("[" + n.name() + "]");
-                else
-                    joiner.add("<" + n.name() + ">");
-            else
-                joiner.add(n.name());
-        }
-        return joiner.toString();
+        return path;
     }
 
     @Override
@@ -156,6 +177,34 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         } catch (Throwable t) {
             lamp().handleException(t, executingFunction(context));
         }
+    }
+
+    @Override public Help.@NotNull RelatedCommands<A> relatedCommands() {
+        return new HelpImpl.RelatedCommandsImpl<>(
+                filter(lamp().registry().children(), command -> {
+                    return command != this && isRelatedTo(command);
+                })
+        );
+    }
+
+    @Override public Help.@NotNull ChildrenCommands<A> childrenCommands() {
+        return new HelpImpl.ChildrenCommandsImpl<>(
+                filter(lamp().registry().children(), command -> command != this && isParentOf(command))
+        );
+    }
+
+    @Override public Help.@NotNull SiblingCommands<A> siblingCommands() {
+        return new HelpImpl.SiblingCommandsImpl<>(
+                filter(lamp().registry().children(), command -> command != this && isSiblingOf(command))
+        );
+    }
+
+    @Override public boolean isSiblingOf(@NotNull ExecutableCommand<A> command) {
+        return siblingPath.equalsIgnoreCase(((Execution<A>) command).siblingPath);
+    }
+
+    @Override public boolean isChildOf(@NotNull ExecutableCommand<A> command) {
+        return path().startsWith(command.path());
     }
 
     @Override
@@ -252,7 +301,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                 return true;
             } catch (Throwable t) {
                 error = t;
-                errorContext = ErrorContext.executingFunction(context);
+                errorContext = executingFunction(context);
                 return false;
             }
         }

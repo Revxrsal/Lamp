@@ -101,6 +101,13 @@ public class SpongeExceptionHandler extends DefaultExceptionHandler<SpongeComman
             actor.error(legacyColorize("&c" + parameter.name() + " too large &e(" + fmt(e.input()) + ")&c. Must be at most &e" + fmt(e.maximum()) + "&c."));
     }
 
+    @Override public void onInvalidHelpPage(@NotNull InvalidHelpPageException e, @NotNull SpongeCommandActor actor) {
+        if (e.numberOfPages() == 1)
+            actor.error(legacyColorize("Invalid help page: &e" + e.page() + "&c. Must be 1."));
+        else
+            actor.error(legacyColorize("Invalid help page: &e" + e.page() + "&c. Must be between &e1 &cand &e" + e.numberOfPages()));
+    }
+
     @Override public void onUnknownCommand(@NotNull UnknownCommandException e, @NotNull SpongeCommandActor actor) {
         actor.error(legacyColorize("Unknown command: &e" + e.input() + "&c."));
     }

@@ -108,14 +108,22 @@ public class DefaultExceptionHandler<A extends CommandActor> extends RuntimeExce
     }
 
     @HandleException
-    public void onSendable(@NotNull SendableException e, @NotNull A actor) {
-        e.sendTo(actor);
+    public void onInvalidHelpPage(@NotNull InvalidHelpPageException e, @NotNull A actor) {
+        if (e.numberOfPages() == 1)
+            actor.error("Invalid help page: " + e.page() + ". Must be 1.");
+        else
+            actor.error("Invalid help page: " + e.page() + ". Must be between 1 and " + e.numberOfPages());
     }
 
     @HandleException
     public void onCommandInvocation(@NotNull CommandInvocationException e, @NotNull A actor) {
         actor.error("An error has occurred while executing this command. Please contact the developers. Errors have been printed to the console.");
         e.cause().printStackTrace();
+    }
+
+    @HandleException
+    public void onSendable(@NotNull SendableException e, @NotNull A actor) {
+        e.sendTo(actor);
     }
 
 }
