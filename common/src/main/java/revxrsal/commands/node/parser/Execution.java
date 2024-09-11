@@ -291,7 +291,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         @Override
         public void execute() {
             if (error == null) {
-                if (!execution.lamp().hooks().onCommandExecuted(execution, context))
+                if (execution.lamp().hooks().onCommandExecuted(execution, context))
                     execution.lastNode().execute(context, input);
             }
         }

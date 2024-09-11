@@ -82,7 +82,7 @@ public final class Hooks<A extends CommandActor> {
      * Calls all {@link CommandRegisteredHook registration hooks}.
      *
      * @param command The command that was registered
-     * @return whether any of the hooks cancelled the registration
+     * @return if none of the hooks cancelled the registration
      */
     @ApiStatus.Internal
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -92,14 +92,14 @@ public final class Hooks<A extends CommandActor> {
             if (hook instanceof CommandRegisteredHook registeredHook)
                 registeredHook.onRegistered(command, cancelHandle);
         }
-        return cancelHandle.wasCancelled();
+        return !cancelHandle.wasCancelled();
     }
 
     /**
      * Calls all {@link CommandUnregisteredHook un-registration hooks}.
      *
      * @param command The command that was unregistered
-     * @return whether any of the hooks cancelled the un-registration
+     * @return if none of the hooks cancelled the un-registration
      */
     @ApiStatus.Internal
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -109,7 +109,7 @@ public final class Hooks<A extends CommandActor> {
             if (hook instanceof CommandUnregisteredHook unregisteredHook)
                 unregisteredHook.onUnregistered(command, cancelHandle);
         }
-        return cancelHandle.wasCancelled();
+        return !cancelHandle.wasCancelled();
     }
 
     /**
@@ -117,7 +117,7 @@ public final class Hooks<A extends CommandActor> {
      *
      * @param command The command that was executed
      * @param context The execution context
-     * @return whether any of the hooks cancelled the execution
+     * @return if none of the hooks cancelled the execution
      */
     @ApiStatus.Internal
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -127,7 +127,7 @@ public final class Hooks<A extends CommandActor> {
             if (hook instanceof CommandExecutedHook executedHook)
                 executedHook.onExecuted(command, context, cancelHandle);
         }
-        return cancelHandle.wasCancelled();
+        return !cancelHandle.wasCancelled();
     }
 
     /**

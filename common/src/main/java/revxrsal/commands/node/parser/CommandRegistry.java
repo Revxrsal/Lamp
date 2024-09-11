@@ -47,6 +47,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static revxrsal.commands.util.Collections.unmodifiableIterator;
 import static revxrsal.commands.util.Reflections.getAllMethods;
@@ -100,7 +101,7 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
             for (String path : CommandPaths.parseCommandAnnotations(containerClass, fn)) {
                 MutableStringStream stream = StringStream.createMutable(path);
                 ExecutableCommand<A> target = TreeParser.parse(fn, lamp, stream);
-                if (!lamp.hooks().onCommandRegistered(target)) {
+                if (lamp.hooks().onCommandRegistered(target)) {
                     add(target);
                     registered.add(target);
                 }
@@ -180,6 +181,10 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
 
     public void unregister(ExecutableCommand<A> execution) {
         children.remove(execution);
+    }
+
+    public void unregisterIf(Predicate<ExecutableCommand<A>> matches) {
+        children.removeIf(matches);
     }
 
     @Override public @NotNull Iterator<ExecutableCommand<A>> iterator() {

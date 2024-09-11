@@ -59,6 +59,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static revxrsal.commands.util.Classes.wrap;
@@ -307,9 +308,24 @@ public final class Lamp<A extends CommandActor> {
      *
      * @param execution The command to unregister.
      */
-    public void unregister(ExecutableCommand<A> execution) {
-        if (!hooks.onCommandUnregistered(execution))
+    public void unregister(@NotNull ExecutableCommand<A> execution) {
+        if (hooks.onCommandUnregistered(execution))
             tree.unregister(execution);
+    }
+
+    /**
+     * Unregisters all the commands in this Lamp instance
+     */
+    public void unregisterAllCommands() {
+        tree.unregisterIf(hooks::onCommandUnregistered);
+    }
+
+    /**
+     * Unregisters all the commands in this Lamp instance that match
+     * the given predicate
+     */
+    public void unregisterIf(@NotNull Predicate<ExecutableCommand<A>> commandPredicate) {
+        tree.unregisterIf(command -> commandPredicate.test(command) && hooks.onCommandUnregistered(command));
     }
 
     /**
