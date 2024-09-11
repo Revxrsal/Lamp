@@ -140,7 +140,7 @@ public void ban(
 }
 ```
 
-![JDA slahs commands](https://github.com/Revxrsal/lamp-docs/blob/main/.gitbook/assets/image%20(3).png?raw=true)
+![JDA slash commands](https://github.com/Revxrsal/lamp-docs/blob/main/.gitbook/assets/image%20(3).png?raw=true)
 
 ### Multi-platform support
 
