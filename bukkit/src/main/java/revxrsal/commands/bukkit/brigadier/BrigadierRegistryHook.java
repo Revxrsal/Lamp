@@ -32,8 +32,6 @@ import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.hook.CancelHandle;
 import revxrsal.commands.hook.CommandRegisteredHook;
 
-import java.lang.reflect.InvocationTargetException;
-
 import static revxrsal.commands.bukkit.util.BukkitVersion.isPaper;
 import static revxrsal.commands.bukkit.util.BukkitVersion.supports;
 
@@ -54,15 +52,7 @@ public final class BrigadierRegistryHook<A extends BukkitCommandActor> implement
     private BukkitBrigadierBridge<A> createBridge() {
         if (isPaper()) {
             if (supports(1, 20, 6)) {
-                try {
-                    //noinspection unchecked
-                    return Class.forName("revxrsal.commands.paper.brigadier.registry.ByPaperLifecycle")
-                            .asSubclass(BukkitBrigadierBridge.class)
-                            .getDeclaredConstructor(JavaPlugin.class, ArgumentTypes.class, ActorFactory.class)
-                            .newInstance(plugin, argumentTypes, actorFactory);
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                         NoSuchMethodException | ClassNotFoundException ignored) {
-                }
+                return new ByPaperLifecycle<>(plugin, argumentTypes, actorFactory);
             }
             if (supports(1, 19)) {
                 return new ByPaperEvents<>(plugin, argumentTypes, actorFactory);

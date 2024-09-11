@@ -10,16 +10,8 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":common"))
-    implementation(project(":brigadier"))
-    compileOnly(project(":internal-paper-stubs")) {
-        exclude(module = "spigot-api")
-        exclude(module = "brigadier")
-    }
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.mojang:brigadier:1.0.18")
-    compileOnly("io.papermc.paper:paper-mojangapi:1.19.1-R0.1-SNAPSHOT")
-    compileOnly("io.papermc.paper:paper-api:1.19.1-R0.1-SNAPSHOT")
 }
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
