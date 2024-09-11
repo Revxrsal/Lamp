@@ -179,23 +179,39 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         }
     }
 
-    @Override public Help.@NotNull RelatedCommands<A> relatedCommands() {
+    @Override public Help.@NotNull RelatedCommands<A> relatedCommands(@Nullable A filterFor) {
         return new HelpImpl.RelatedCommandsImpl<>(
                 filter(lamp().registry().children(), command -> {
-                    return command != this && isRelatedTo(command);
+                    return command != this
+                            && !command.isSecret()
+                            && isRelatedTo(command)
+                            && (filterFor == null || command.permission().isExecutableBy(filterFor)
+                    );
                 })
         );
     }
 
-    @Override public Help.@NotNull ChildrenCommands<A> childrenCommands() {
+    @Override public Help.@NotNull ChildrenCommands<A> childrenCommands(@Nullable A filterFor) {
         return new HelpImpl.ChildrenCommandsImpl<>(
-                filter(lamp().registry().children(), command -> command != this && isParentOf(command))
+                filter(lamp().registry().children(), command -> {
+                    return command != this
+                            && !command.isSecret()
+                            && isParentOf(command)
+                            && (filterFor == null || command.permission().isExecutableBy(filterFor)
+                    );
+                })
         );
     }
 
-    @Override public Help.@NotNull SiblingCommands<A> siblingCommands() {
+    @Override public Help.@NotNull SiblingCommands<A> siblingCommands(@Nullable A filterFor) {
         return new HelpImpl.SiblingCommandsImpl<>(
-                filter(lamp().registry().children(), command -> command != this && isSiblingOf(command))
+                filter(lamp().registry().children(), command -> {
+                    return command != this
+                            && !command.isSecret()
+                            && isSiblingOf(command)
+                            && (filterFor == null || command.permission().isExecutableBy(filterFor)
+                    );
+                })
         );
     }
 

@@ -219,23 +219,54 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
      * Returns all related commands of this command. This includes
      * all sibling commands as well as children commands.
      *
+     * @param filterFor Actor to filter entries for, by checking permissions
      * @return The related commands
      */
-    @NotNull RelatedCommands<A> relatedCommands();
+    @NotNull RelatedCommands<A> relatedCommands(@Nullable A filterFor);
+
+    /**
+     * Returns all related commands of this command. This includes
+     * all sibling commands as well as children commands.
+     *
+     * @return The related commands
+     */
+    @NotNull default RelatedCommands<A> relatedCommands() {
+        return relatedCommands(null);
+    }
+
+    /**
+     * Returns all children commands of this command.
+     *
+     * @param filterFor Actor to filter entries for, by checking permissions
+     * @return All children commands.
+     */
+    @NotNull Help.ChildrenCommands<A> childrenCommands(@Nullable A filterFor);
 
     /**
      * Returns all children commands of this command.
      *
      * @return All children commands.
      */
-    @NotNull Help.ChildrenCommands<A> childrenCommands();
+    @NotNull default Help.ChildrenCommands<A> childrenCommands() {
+        return childrenCommands(null);
+    }
+
+    /**
+     * Returns all siblings of this command
+     *
+     * @param filterFor Actor to filter entries for, by checking permissions
+     * @return All siblings
+     */
+    @NotNull Help.SiblingCommands<A> siblingCommands(@Nullable A filterFor);
 
     /**
      * Returns all siblings of this command
      *
      * @return All siblings
      */
-    @NotNull Help.SiblingCommands<A> siblingCommands();
+    @NotNull default Help.SiblingCommands<A> siblingCommands() {
+        return siblingCommands(null);
+    }
 
     /**
      * Tests whether are these two commands siblings.
