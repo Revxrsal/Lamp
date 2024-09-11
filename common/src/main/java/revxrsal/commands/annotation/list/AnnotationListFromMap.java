@@ -85,7 +85,7 @@ final class AnnotationListFromMap implements AnnotationList {
         while (top != null) {
             for (Annotation annotation : top.getAnnotations()) {
                 if (annotation.annotationType().isAnnotationPresent(DistributeOnMethods.class))
-                    annotations.put(annotation.annotationType(), annotation);
+                    annotations.putIfAbsent(annotation.annotationType(), annotation);
             }
             top = top.getDeclaringClass();
         }
