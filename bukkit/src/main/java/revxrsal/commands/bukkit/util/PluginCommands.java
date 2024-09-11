@@ -116,6 +116,5 @@ public final class PluginCommands {
         if (KNOWN_COMMANDS != null)
             return (Map<String, Command>) KNOWN_COMMANDS.get(COMMAND_MAP);
         return null;
-
     }
 }

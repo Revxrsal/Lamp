@@ -39,7 +39,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public final class BukkitCommandHooks<A extends BukkitCommandActor> implements CommandRegisteredHook<A>, CommandUnregisteredHook<A> {
+public final class BukkitCommandHooks<A extends BukkitCommandActor> implements CommandRegisteredHook<A> {
 
     private final Set<String> registeredRootNames = new HashSet<>();
 
@@ -70,14 +70,5 @@ public final class BukkitCommandHooks<A extends BukkitCommandActor> implements C
             if (cmd.getUsage().isEmpty())
                 cmd.setUsage(command.usage());
         }
-    }
-
-    @Override
-    public void onUnregistered(@NotNull ExecutableCommand<A> command, @NotNull CancelHandle cancelHandle) {
-        String name = command.firstNode().name();
-        PluginCommand cmd = plugin.getCommand(name);
-        if (cmd == null)
-            return;
-        PluginCommands.unregister(cmd, plugin);
     }
 }

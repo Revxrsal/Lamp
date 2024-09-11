@@ -160,8 +160,7 @@ public final class BukkitVisitors {
     ) {
         BukkitCommandHooks<A> hooks = new BukkitCommandHooks<>(plugin, actorFactory, defaultFallbackPrefix);
         return builder -> builder.hooks()
-                .onCommandRegistered(hooks)
-                .onCommandUnregistered(hooks);
+                .onCommandRegistered(hooks);
     }
 
     /**
