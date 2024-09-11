@@ -23,18 +23,75 @@
  */
 package revxrsal.commands.help;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.exception.InvalidHelpPageException;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Contains useful interfaces for generating help commands
  */
 public interface Help {
+
+    /**
+     * Returns the list of commands that belong to a specific page after paginating
+     * this list.
+     * <p>
+     * Note that the list returned by this method is immutable.
+     *
+     * @param commands        The list of commands to paginate
+     * @param page            The page number
+     * @param elementsPerPage The elements to include in each page
+     * @return The pages list.
+     * @throws InvalidHelpPageException if {@code pageNumber} is greater than
+     *                                  {@link #numberOfPages(int, int)} or less than 1
+     */
+    static <A extends CommandActor> @NotNull @Unmodifiable List<ExecutableCommand<A>> paginate(
+            @NotNull List<ExecutableCommand<A>> commands,
+            @Range(from = 1, to = Integer.MAX_VALUE) int page,
+            @Range(from = 1, to = Integer.MAX_VALUE) int elementsPerPage
+    ) throws InvalidHelpPageException {
+        if (commands.isEmpty())
+            return List.of();
+        int size = numberOfPages(commands.size(), elementsPerPage);
+        if (page <= 0)
+            throw new InvalidHelpPageException(commands, page, elementsPerPage, size);
+        List<ExecutableCommand<A>> list = new ArrayList<>();
+        if (page > size)
+            throw new InvalidHelpPageException(commands, page, elementsPerPage, size);
+        int listIndex = page - 1;
+        int l = Math.min(page * elementsPerPage, commands.size());
+        for (int i = listIndex * elementsPerPage; i < l; ++i) {
+            list.add(commands.get(i));
+        }
+        return Collections.unmodifiableList(list);
+    }
+
+    /**
+     * Returns the number of pages this list would generate if
+     * it were to be split pages where each page contains {@code elementsPerPage}
+     * elements.
+     *
+     * @param numberOfEntries The number of entries
+     * @param elementsPerPage Maximum number of elements to include in each page. Note
+     *                        that the last page may contain less than this number (it will
+     *                        be the remainder)
+     * @return The number of pages
+     */
+    static @Range(from = 1, to = Long.MAX_VALUE) int numberOfPages(
+            @Range(from = 0, to = Integer.MAX_VALUE) int numberOfEntries,
+            @Range(from = 1, to = Integer.MAX_VALUE) int elementsPerPage
+    ) {
+        if (elementsPerPage < 1)
+            throw new IllegalArgumentException("Elements per page cannot be less than 1! (Found " + elementsPerPage + ")");
+        return (numberOfEntries / elementsPerPage) + (numberOfEntries % elementsPerPage == 0 ? 0 : 1);
+    }
 
     /**
      * Represents a generic list of {@link ExecutableCommand ExecutableCommands} that can be

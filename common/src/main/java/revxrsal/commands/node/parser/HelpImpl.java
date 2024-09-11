@@ -28,38 +28,14 @@ import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.exception.InvalidHelpPageException;
 import revxrsal.commands.help.Help;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static revxrsal.commands.help.Help.paginate;
+
 final class HelpImpl {
-
-    static <A extends CommandActor> List<ExecutableCommand<A>> paginate(List<ExecutableCommand<A>> commands, int page, int elementsPerPage) throws InvalidHelpPageException {
-        if (commands.isEmpty())
-            return List.of();
-        int size = getNumberOfPages(commands.size(), elementsPerPage);
-        if (page <= 0)
-            throw new InvalidHelpPageException(commands, page, elementsPerPage, size);
-        List<ExecutableCommand<A>> list = new ArrayList<>();
-        if (page > size)
-            throw new InvalidHelpPageException(commands, page, elementsPerPage, size);
-        int listIndex = page - 1;
-        int l = Math.min(page * elementsPerPage, commands.size());
-        for (int i = listIndex * elementsPerPage; i < l; ++i) {
-            list.add(commands.get(i));
-        }
-        return Collections.unmodifiableList(list);
-    }
-
-    static @Range(from = 1, to = Long.MAX_VALUE) int getNumberOfPages(int size, int elementsPerPage) {
-        if (elementsPerPage < 1)
-            throw new IllegalArgumentException("Elements per page cannot be less than 1! (Found " + elementsPerPage + ")");
-        return (size / elementsPerPage) + (size % elementsPerPage == 0 ? 0 : 1);
-    }
 
     static abstract class CommandListImpl<A extends CommandActor> implements Help.CommandList<A> {
         private final @Unmodifiable List<ExecutableCommand<A>> commands;
@@ -69,7 +45,7 @@ final class HelpImpl {
         }
 
         @Override public @Range(from = 1, to = Integer.MAX_VALUE) int numberOfPages(int elementsPerPage) {
-            return getNumberOfPages(commands.size(), elementsPerPage);
+            return Help.numberOfPages(commands.size(), elementsPerPage);
         }
 
         @Override public @Unmodifiable List<ExecutableCommand<A>> all() {
@@ -77,7 +53,7 @@ final class HelpImpl {
         }
 
         @Override public @Unmodifiable List<ExecutableCommand<A>> asPage(int pageNumber, int elementsPerPage) {
-            return HelpImpl.paginate(commands, pageNumber, elementsPerPage);
+            return paginate(commands, pageNumber, elementsPerPage);
         }
 
         @Override public @NotNull Iterator<ExecutableCommand<A>> iterator() {
