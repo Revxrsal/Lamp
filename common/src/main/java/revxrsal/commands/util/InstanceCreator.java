@@ -41,7 +41,7 @@ public final class InstanceCreator {
         cannotInstantiate(InstanceCreator.class);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> @NotNull T create(@NotNull Class<? extends T> type) {
         if (type.isAnnotation())
             throw new IllegalArgumentException("Cannot construct annotation types");
@@ -50,7 +50,7 @@ public final class InstanceCreator {
         if (type.isArray())
             return (T) Array.newInstance(type, 0);
         if (type.isEnum())
-            return firstEnum(type.asSubclass(Enum.class));
+            return (T) firstEnum(type.asSubclass(Enum.class));
         if (type.isInterface()) {
             T singleton = fromSingletonField(type);
             if (singleton != null)
