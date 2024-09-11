@@ -62,7 +62,7 @@ public final class SuggestWithProviderFactory implements SuggestionProvider.Fact
             Constructor<? extends BaseSuggestionProvider> constructor = value.getDeclaredConstructor();
             return constructor.newInstance();
         } catch (Throwable t) {
-            throw new IllegalArgumentException("Failed to construct the parameter type inside @ParseAs (" + value + ")", t);
+            throw new IllegalArgumentException("Failed to construct the parameter type inside @SuggestWith (" + value + ")", t);
         }
     }
 
