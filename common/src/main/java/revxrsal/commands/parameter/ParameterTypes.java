@@ -91,9 +91,9 @@ public final class ParameterTypes<A extends CommandActor> {
             ContextParameter.Factory.forType(ExecutableCommand.class, (parameter, context) -> context.command()),
             ContextParameter.Factory.forType(Lamp.class, (parameter, context) -> context.lamp()),
             ContextParameter.Factory.forTypeAndSubclasses(CommandActor.class, (parameter, context) -> context.actor()),
-            ContextParameter.Factory.forType(RelatedCommands.class, (parameter, context) -> context.command().relatedCommands()),
-            ContextParameter.Factory.forType(SiblingCommands.class, (parameter, context) -> context.command().siblingCommands()),
-            ContextParameter.Factory.forType(ChildrenCommands.class, (parameter, context) -> context.command().childrenCommands())
+            ContextParameter.Factory.forType(RelatedCommands.class, (parameter, context) -> context.command().relatedCommands(context.actor())),
+            ContextParameter.Factory.forType(SiblingCommands.class, (parameter, context) -> context.command().siblingCommands(context.actor())),
+            ContextParameter.Factory.forType(ChildrenCommands.class, (parameter, context) -> context.command().childrenCommands(context.actor()))
     );
 
     private final List<ParameterFactory> factories;
