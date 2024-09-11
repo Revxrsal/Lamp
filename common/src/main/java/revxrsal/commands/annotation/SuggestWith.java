@@ -35,8 +35,15 @@ import java.lang.annotation.Target;
  * An annotation that instructs Lamp that certain parameters should produce
  * suggestions using a specific {@link SuggestionProvider} or a {@link SuggestionProvider.Factory}.
  * <p>
- * Note that the supplied type <em>must</em> be a concrete class (not an interface)
- * that has a no-arg constructor. This class must either implement {@link SuggestionProvider}
+ * Note that the supplied type <em>must</em> be either:
+ * <ul>
+ *     <li>A class with a no-arg constructor</li>
+ *     <li>An enum with at least 1 constant field</li>
+ *     <li>A class or interface with static fields of the same type (i.e. INSTANCE-like fields)</li>
+ *     <li>A class or interface with no-arg methods that return the same type (i.e. getInstance()-like methods)</li>
+ * </ul>
+ * <p>
+ * The supplied class must either implement {@link SuggestionProvider}
  * or {@link SuggestionProvider.Factory}.
  */
 @Target(ElementType.PARAMETER)

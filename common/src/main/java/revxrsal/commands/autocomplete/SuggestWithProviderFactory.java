@@ -29,8 +29,8 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.SuggestWith;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.util.InstanceCreator;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 
 /**
@@ -45,7 +45,7 @@ public final class SuggestWithProviderFactory implements SuggestionProvider.Fact
         SuggestWith suggestWith = annotations.get(SuggestWith.class);
         if (suggestWith == null)
             return null;
-        BaseSuggestionProvider type = construct(suggestWith.value());
+        BaseSuggestionProvider type = InstanceCreator.create(suggestWith.value());
         if (type instanceof SuggestionProvider<?> pType) {
             return (SuggestionProvider<CommandActor>) pType;
         } else if (type instanceof SuggestionProvider.Factory<?> factory) {
@@ -54,16 +54,4 @@ public final class SuggestWithProviderFactory implements SuggestionProvider.Fact
             throw new IllegalArgumentException("Don't know how to create a SuggestionProvider from " + type);
         }
     }
-
-    private @NotNull BaseSuggestionProvider construct(Class<? extends BaseSuggestionProvider> value) {
-        if (value.isInterface())
-            throw new IllegalArgumentException("@SuggestWith cannot take an interface!");
-        try {
-            Constructor<? extends BaseSuggestionProvider> constructor = value.getDeclaredConstructor();
-            return constructor.newInstance();
-        } catch (Throwable t) {
-            throw new IllegalArgumentException("Failed to construct the parameter type inside @SuggestWith (" + value + ")", t);
-        }
-    }
-
 }

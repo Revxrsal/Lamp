@@ -31,35 +31,26 @@ import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.parameter.BaseParameterType;
 import revxrsal.commands.parameter.ParameterType;
+import revxrsal.commands.util.InstanceCreator;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 
 public enum ParseWithParameterTypeFactory implements ParameterType.Factory<CommandActor> {
     INSTANCE;
 
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public @Nullable <T> ParameterType<CommandActor, T> create(@NotNull Type parameterType, @NotNull AnnotationList annotations, @NotNull Lamp<CommandActor> lamp) {
         ParseWith parseWith = annotations.get(ParseWith.class);
         if (parseWith == null)
             return null;
-        BaseParameterType type = construct(parseWith.value());
+        BaseParameterType type = InstanceCreator.create(parseWith.value());
         if (type instanceof ParameterType<?, ?> pType) {
             return (ParameterType<CommandActor, T>) pType;
         } else if (type instanceof ParameterType.Factory<?> factory) {
             return factory.create(parameterType, annotations, (Lamp) lamp);
         } else {
             throw new IllegalArgumentException("Don't know how to create a ParameterType from " + type);
-        }
-    }
-
-    private @Nullable BaseParameterType construct(Class<? extends BaseParameterType> value) {
-        try {
-            Constructor<? extends BaseParameterType> constructor = value.getDeclaredConstructor();
-            return constructor.newInstance();
-        } catch (Throwable t) {
-            throw new IllegalArgumentException("Failed to construct the parameter type inside @ParseAs (" + value + ")", t);
         }
     }
 }

@@ -29,8 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.brigadier.annotations.BType;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ParameterNode;
-
-import java.lang.reflect.Constructor;
+import revxrsal.commands.util.InstanceCreator;
 
 /**
  * An {@link ArgumentTypeFactory} for dealing with {@link BType @BType} annotations
@@ -39,25 +38,18 @@ enum BTypeFactory implements ArgumentTypeFactory<CommandActor> {
 
     INSTANCE;
 
-    @Override public @Nullable ArgumentType<?> getArgumentType(@NotNull ParameterNode<CommandActor, ?> parameter) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public @Nullable ArgumentType<?> getArgumentType(@NotNull ParameterNode<CommandActor, ?> parameter) {
         BType b = parameter.annotations().get(BType.class);
         if (b == null)
             return null;
-        Object v = construct(b.value());
+        Object v = InstanceCreator.create(b.value());
         if (v instanceof ArgumentTypeFactory<?> factory)
             //noinspection rawtypes
             return factory.getArgumentType(((ParameterNode) parameter));
         if (v instanceof ArgumentType<?> type)
             return type;
-        throw new IllegalArgumentException("Don't know how to create an ArgumentType from @BType(" + v + ")");
-    }
-
-    private @NotNull Object construct(Class<?> value) {
-        try {
-            Constructor<?> constructor = value.getDeclaredConstructor();
-            return constructor.newInstance();
-        } catch (Throwable t) {
-            throw new IllegalArgumentException("Failed to construct the parameter type inside @BType (" + value + ")", t);
-        }
+        throw new IllegalArgumentException("Don't know how to create an ArgumentType from @BType(" + b.value().getName() + ".class)");
     }
 }
