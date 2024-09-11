@@ -36,6 +36,11 @@ dependencies {
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 
+tasks.withType<JavaCompile> {
+    // Preserve parameter names in the bytecode
+    options.compilerArgs.add("-parameters")
+}
+
 // Generate our plugin.yml
 bukkitPluginYaml {
     main = "com.example.plugin.TestPlugin"
