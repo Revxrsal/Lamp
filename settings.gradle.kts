@@ -25,6 +25,7 @@ include("sponge")
 include("jda")
 include("fabric")
 include("minestom")
+include("internal-paper-stubs")
 
 /*
  * -------- Example projects --------
