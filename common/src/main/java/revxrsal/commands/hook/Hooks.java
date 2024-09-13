@@ -169,6 +169,12 @@ public final class Hooks<A extends CommandActor> {
             return hook(hook);
         }
 
+        /**
+         * Adds the given hook.
+         *
+         * @param hook Hook to add
+         * @return This builder
+         */
         private @NotNull Builder<A> hook(@NotNull Hook hook) {
             notNull(hook, "hook");
             hooks.add(hook);
