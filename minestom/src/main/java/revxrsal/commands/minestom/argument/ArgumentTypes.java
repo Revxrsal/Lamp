@@ -109,7 +109,6 @@ public final class ArgumentTypes<A extends CommandActor> {
         return Optional.empty();
     }
 
-
     /**
      * Creates a {@link SuggestionProviders.Builder} that contains the providers registered
      * in this registry.

@@ -43,7 +43,11 @@ import revxrsal.commands.hook.CommandRegisteredHook;
 import revxrsal.commands.minestom.actor.ActorFactory;
 import revxrsal.commands.minestom.actor.MinestomCommandActor;
 import revxrsal.commands.minestom.argument.ArgumentTypes;
-import revxrsal.commands.node.*;
+import revxrsal.commands.minestom.util.ArgumentRenamer;
+import revxrsal.commands.node.CommandNode;
+import revxrsal.commands.node.ExecutionContext;
+import revxrsal.commands.node.LiteralNode;
+import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
@@ -85,6 +89,7 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
      */
     @Contract(mutates = "param2")
     private void addCommand(@NotNull ExecutableCommand<A> command, @NotNull Command minestomCommand) {
+        Set<String> usedLiterals = new HashSet<>();
         if (command.size() == 1) {
             minestomCommand.setDefaultExecutor((sender, context) -> {
                 A actor = actorFactory.create(sender, command.lamp());
@@ -95,6 +100,11 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
             List<Argument<?>> arguments = new ArrayList<>();
             for (int i = 1; i < command.nodes().size(); i++) {
                 CommandNode<A> node = command.nodes().get(i);
+                if (node.isLiteral())
+                    usedLiterals.add(node.name());
+                else if (usedLiterals.contains(node.name()))
+                    throw new IllegalArgumentException("You cannot have an argument named '" + node.name() + "' because it is used in the literal command path. " +
+                            "Pick a different name!");
                 if (node instanceof ParameterNode<?, ?> p && p.isOptional()) {
                     minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
                 }
@@ -175,6 +185,8 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
     ) {
         Argument<T> argument = (Argument) argumentTypes.type(parameter)
                 .orElseGet(() -> adaptFromString(command, parameter));
+        if (!argument.getId().equals(parameter.name())) // for safety and consistency
+            argument = ArgumentRenamer.rename(argument, parameter.name());
         if (!parameter.suggestions().equals(SuggestionProvider.empty())) {
             argument.setSuggestionCallback(createSuggestionCallback(command, parameter));
         }
@@ -230,10 +242,8 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
         Component tooltipMessage = Component.text(parameter.description() == null ? parameter.name() : parameter.description());
         return (sender, context, suggestion) -> {
             A actor = actorFactory.create(sender, command.lamp());
-            StringStream input = StringStream.create(context.getInput());
-            MutableExecutionContext<A> executionContext = ExecutionContext.createMutable(command, actor, input);
-            context.getMap().forEach(executionContext::addResolvedArgument);
-            Collection<String> suggestions = parameter.suggestions().getSuggestions(input, executionContext);
+            ExecutionContext<A> executionContext = toLampContext(context, command, actor);
+            Collection<String> suggestions = parameter.suggestions().getSuggestions(executionContext.input(), executionContext);
             for (String s : suggestions)
                 suggestion.addEntry(new SuggestionEntry(s, tooltipMessage));
         };

@@ -28,6 +28,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.command.builder.CommandContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.command.CommandParameter;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.minestom.actor.MinestomCommandActor;
 import revxrsal.commands.node.ExecutionContext;
@@ -72,6 +73,11 @@ public final class MinestomUtils {
         notNull(context, "context");
         StringStream input = StringStream.create(context.getInput());
         MutableExecutionContext<A> executionContext = ExecutionContext.createMutable(command, actor, input);
+        for (CommandParameter parameter : command.function().parametersByName().values()) {
+            Object o = context.get(parameter.name());
+            if (o != null)
+                executionContext.addResolvedArgument(parameter.name(), o);
+        }
         context.getMap().forEach(executionContext::addResolvedArgument);
         return executionContext;
     }
