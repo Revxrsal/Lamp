@@ -59,8 +59,8 @@ public final class Strings {
         return null;
     }
 
-    public static Optional<String> getOverriddenName(@NotNull Parameter parameter) {
-        Named named = parameter.getAnnotation(Named.class);
+    public static Optional<String> getOverriddenName(@NotNull AnnotationList parameter) {
+        Named named = parameter.get(Named.class);
         if (named != null) {
             return Optional.of(named.value());
         }

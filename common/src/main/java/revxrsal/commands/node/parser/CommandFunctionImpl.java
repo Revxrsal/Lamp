@@ -64,7 +64,7 @@ final class CommandFunctionImpl implements CommandFunction {
             Parameter parameter = pArray[methodIndex];
             AnnotationList parameterAnnotations = AnnotationList.create(parameter)
                     .replaceAnnotations(parameter, lamp.annotationReplacers());
-            String name = Strings.getOverriddenName(parameter)
+            String name = Strings.getOverriddenName(parameterAnnotations)
                     .orElseGet(() -> lamp.parameterNamingStrategy().getName(parameter));
             FunctionParameter fnParameter = new FunctionParameter(parameter, name, parameterAnnotations, methodIndex);
             parameters.put(fnParameter.name(), fnParameter);
