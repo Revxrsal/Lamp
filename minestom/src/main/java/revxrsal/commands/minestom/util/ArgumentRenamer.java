@@ -33,12 +33,25 @@ import org.jetbrains.annotations.Nullable;
 import static revxrsal.commands.util.Preconditions.cannotInstantiate;
 import static revxrsal.commands.util.Preconditions.notNull;
 
+/**
+ * A utility for cloning {@link Argument}s but with different
+ * IDs.
+ */
 public final class ArgumentRenamer {
 
     private ArgumentRenamer() {
         cannotInstantiate(ArgumentRenamer.class);
     }
 
+    /**
+     * Creates a new {@link Argument} that is a clone of the given one, but with
+     * the given ID.
+     *
+     * @param argument Argument to rename
+     * @param id       The new ID
+     * @param <T>      The argument type
+     * @return The renamed argument
+     */
     @Contract(pure = true)
     public static <T> @NotNull Argument<T> rename(@NotNull Argument<T> argument, @NotNull String id) {
         notNull(argument, "argument");
