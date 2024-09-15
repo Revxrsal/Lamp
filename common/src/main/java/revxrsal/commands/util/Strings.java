@@ -26,6 +26,7 @@ package revxrsal.commands.util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.annotation.Named;
+import revxrsal.commands.annotation.list.AnnotationList;
 
 import java.lang.reflect.Parameter;
 import java.util.Optional;
