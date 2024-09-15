@@ -41,15 +41,31 @@ public class MinestomServerTest {
 
     private static void createServer() {
         MinecraftServer minecraftServer = MinecraftServer.init();
-        /*...*/
+
+        // Create the instance
+        InstanceManager instanceManager = MinecraftServer.getInstanceManager();
+        InstanceContainer instanceContainer = instanceManager.createInstanceContainer();
+
+        // Set the ChunkGenerator
+        instanceContainer.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.GRASS_BLOCK));
+
+        // Add an event callback to specify the spawning instance (and the spawn position)
+        GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
+        globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
+            final Player player = event.getPlayer();
+            event.setSpawningInstance(instanceContainer);
+            player.setRespawnPoint(new Pos(0, 42, 0));
+        });
+
+        // Start the server on port 25565
         minecraftServer.start("0.0.0.0", 25565);
     }
 
     public static class TestCommands {
 
-        @Command("nbt")
-        public void sendNBT(MinestomCommandActor actor, BinaryTag nbt) {
-            actor.reply("NBT: " + nbt);
+        @Command("nbt test")
+        public void sendNBT(MinestomCommandActor actor, BinaryTag tag) {
+            actor.reply("NBT: " + tag);
         }
     }
 }
