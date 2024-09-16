@@ -30,12 +30,34 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a (strictly) {@code boolean} parameter as a "switch", whose value will be
+ * set by "flags", such as "--silent", which will represent a boolean parameter
+ * annotated with {@code @Switch("silent")}.
+ * <p>
+ * Switches can have a long form and a short form. The long form is prefixed by {@code --},
+ * while the short one is prefixed by {@code -}, i.e. {@code --silent} and {@code -s}.
+ * <p>
+ * Switches may have their short form combined in a Unix-like style:
+ * {@code --silent --permanent} can be {@code -s -p} and {@code -sp}.
+ */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Switch {
 
-    @NotNull String value();
+    /**
+     * The long form of the switch. If left empty, the parameter name will
+     * be used.
+     *
+     * @return The switch name
+     */
+    @NotNull String value() default "";
 
+    /**
+     * Returns the short form of the switch name
+     *
+     * @return The switch's long form
+     */
     char shorthand() default '\0';
 
 }

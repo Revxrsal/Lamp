@@ -209,11 +209,15 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     }
 
     @Override public @Nullable String switchName() {
-        return switchAnn != null ? switchAnn.value() : null;
+        if (switchAnn != null)
+            return switchAnn.value().isEmpty() ? name() : switchAnn.value();
+        return null;
     }
 
     @Override public @Nullable String flagName() {
-        return flagAnn != null ? flagAnn.value() : null;
+        if (flagAnn != null)
+            return flagAnn.value().isEmpty() ? name() : flagAnn.value();
+        return null;
     }
 
     @Override public Character shorthand() {

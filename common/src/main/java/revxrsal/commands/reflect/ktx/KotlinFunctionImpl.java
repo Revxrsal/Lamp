@@ -160,13 +160,15 @@ final class KotlinFunctionImpl implements KotlinFunction {
 
         CallableMethod defaultMethod = this.defaultMethod.get();
 
-        if (defaultMethod == null)
+        if (defaultMethod == null) {
             throw new IllegalArgumentException("""
                     Unable to invoke function with default parameters.\s
                     This may happen because you have an @Optional non-null primitive type (e.g. Int) \
                     with no default value using @Default or a Kotlin-default value.
+                    It may also occur if you have @Switch with no default value. (@Switch param: Boolean = ...)
                     Either mark it as nullable, add a default value (@Optional param: Type = ...), or use @Default"""
             );
+        }
 
         masks.add(mask);
         args.addAll(masks);
