@@ -65,8 +65,8 @@ final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadi
     private final ArgumentTypes<A> types;
     private final ActorFactory<A> actorFactory;
     private final JavaPlugin plugin;
-    private boolean unknownCommandListenerRegistered = false;
     private final BrigadierParser<Object, A> parser = new BrigadierParser<>(this);
+    private boolean unknownCommandListenerRegistered = false;
 
     ByPaperEvents(@NotNull JavaPlugin plugin, ArgumentTypes<A> types, @NotNull ActorFactory<A> actorFactory) {
         this.plugin = plugin;

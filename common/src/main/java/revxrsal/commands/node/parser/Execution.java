@@ -57,8 +57,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final OptionalInt priority;
     private final String siblingPath;
     private final String path;
-    private int optionalParameters, requiredInput;
     private final boolean containsFlags;
+    private int optionalParameters, requiredInput;
 
     public Execution(CommandFunction function, List<CommandNode<A>> nodes) {
         this.function = function;
@@ -81,6 +81,10 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                 .mapOr(CommandPriority.class, c -> OptionalInt.of(c.value()), OptionalInt.empty());
         this.siblingPath = computeSiblingPath();
         this.containsFlags = any(nodes, n -> n instanceof ParameterNode<?, ?> p && (p.isFlag() || p.isSwitch()));
+    }
+
+    private static boolean isOptional(@NotNull CommandNode<? extends CommandActor> node) {
+        return node instanceof ParameterNodeImpl && ((ParameterNode<? extends CommandActor, ?>) node).isOptional();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -116,10 +120,6 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
             joiner.add(n.representation());
         }
         return joiner.toString();
-    }
-
-    private static boolean isOptional(@NotNull CommandNode<? extends CommandActor> node) {
-        return node instanceof ParameterNodeImpl && ((ParameterNode<? extends CommandActor, ?>) node).isOptional();
     }
 
     @Override
@@ -303,8 +303,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     static final class ParseResult<A extends CommandActor> implements Potential<A> {
         private final Execution<A> execution;
         private final MutableExecutionContext<A> context;
-        private MutableStringStream input;
         private final boolean testResult;
+        private MutableStringStream input;
         private boolean consumedAllInput = false;
         private @Nullable Throwable error;
         private @Nullable ErrorContext<A> errorContext;

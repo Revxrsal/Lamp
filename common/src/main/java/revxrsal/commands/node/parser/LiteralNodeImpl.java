@@ -25,9 +25,7 @@ package revxrsal.commands.node.parser;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.node.CommandAction;
 import revxrsal.commands.node.CommandNode;
 import revxrsal.commands.node.LiteralNode;

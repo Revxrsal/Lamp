@@ -33,7 +33,6 @@ import revxrsal.commands.bukkit.util.PluginCommands;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.hook.CancelHandle;
 import revxrsal.commands.hook.CommandRegisteredHook;
-import revxrsal.commands.hook.CommandUnregisteredHook;
 
 import java.util.HashSet;
 import java.util.Objects;

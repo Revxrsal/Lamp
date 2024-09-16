@@ -58,10 +58,10 @@ public final class TreeParser<A extends CommandActor> {
     private final @NotNull CommandFunction fn;
     private final Lamp<A> lamp;
     private final Map<String, CommandParameter> methodParameters;
-    private boolean requireOptionals;
-    private boolean requireFlags;
     private final Set<String> usedLongNames = new HashSet<>();
     private final Set<Character> usedShortNames = new HashSet<>();
+    private boolean requireOptionals;
+    private boolean requireFlags;
 
     private TreeParser(@NotNull CommandFunction fn, @NotNull Lamp<A> lamp) {
         this.fn = fn;

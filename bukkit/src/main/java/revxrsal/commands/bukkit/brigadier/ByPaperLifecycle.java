@@ -35,7 +35,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.brigadier.BrigadierAdapter;
 import revxrsal.commands.brigadier.BrigadierConverter;
 import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
@@ -47,35 +46,6 @@ import revxrsal.commands.node.ParameterNode;
 import java.lang.reflect.Method;
 
 final class ByPaperLifecycle<A extends BukkitCommandActor> implements BukkitBrigadierBridge<A>, BrigadierConverter<A, CommandSourceStack> {
-
-    private final ArgumentTypes<A> types;
-    private final ActorFactory<A> actorFactory;
-
-    private final RootCommandNode<CommandSourceStack> root = new RootCommandNode<>();
-    private final BrigadierParser<CommandSourceStack, A> parser = new BrigadierParser<>(this);
-
-    public ByPaperLifecycle(JavaPlugin plugin, ArgumentTypes<A> types, ActorFactory<A> actorFactory) {
-        this.types = types;
-        this.actorFactory = actorFactory;
-        getLifecycleManager(plugin).registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-            for (CommandNode<CommandSourceStack> node : root.getChildren()) {
-                event.registrar().register(((LiteralCommandNode<CommandSourceStack>) node));
-            }
-        });
-    }
-
-    @Override public void register(ExecutableCommand<A> command) {
-        LiteralCommandNode<CommandSourceStack> node = parser.createNode(command);
-        root.addChild(node);
-    }
-
-    @Override public @NotNull ArgumentType<?> getArgumentType(@NotNull ParameterNode<A, ?> parameter) {
-        return types.type(parameter);
-    }
-
-    @Override public @NotNull A createActor(@NotNull CommandSourceStack sender, @NotNull Lamp<A> lamp) {
-        return actorFactory.create(sender.getExecutor() == null ? sender.getSender() : sender.getExecutor(), lamp);
-    }
 
     private static final Method GET_LIFECYCLE_MANAGER;
 
@@ -89,11 +59,39 @@ final class ByPaperLifecycle<A extends BukkitCommandActor> implements BukkitBrig
         GET_LIFECYCLE_MANAGER = getLifecycleManager;
     }
 
+    private final ArgumentTypes<A> types;
+    private final ActorFactory<A> actorFactory;
+    private final RootCommandNode<CommandSourceStack> root = new RootCommandNode<>();
+    private final BrigadierParser<CommandSourceStack, A> parser = new BrigadierParser<>(this);
+
+    public ByPaperLifecycle(JavaPlugin plugin, ArgumentTypes<A> types, ActorFactory<A> actorFactory) {
+        this.types = types;
+        this.actorFactory = actorFactory;
+        getLifecycleManager(plugin).registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            for (CommandNode<CommandSourceStack> node : root.getChildren()) {
+                event.registrar().register(((LiteralCommandNode<CommandSourceStack>) node));
+            }
+        });
+    }
+
     @SneakyThrows private static LifecycleEventManager<Plugin> getLifecycleManager(JavaPlugin plugin) {
         if (GET_LIFECYCLE_MANAGER == null)
             throw new IllegalArgumentException("getLifecycleManager is not available.");
         //noinspection unchecked
         return (LifecycleEventManager<Plugin>) GET_LIFECYCLE_MANAGER.invoke(plugin);
+    }
+
+    @Override public void register(ExecutableCommand<A> command) {
+        LiteralCommandNode<CommandSourceStack> node = parser.createNode(command);
+        root.addChild(node);
+    }
+
+    @Override public @NotNull ArgumentType<?> getArgumentType(@NotNull ParameterNode<A, ?> parameter) {
+        return types.type(parameter);
+    }
+
+    @Override public @NotNull A createActor(@NotNull CommandSourceStack sender, @NotNull Lamp<A> lamp) {
+        return actorFactory.create(sender.getExecutor() == null ? sender.getSender() : sender.getExecutor(), lamp);
     }
 
 }
