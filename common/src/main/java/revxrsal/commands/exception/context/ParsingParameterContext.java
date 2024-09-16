@@ -31,17 +31,17 @@ import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.stream.StringStream;
 
 record ParsingParameterContext<A extends CommandActor>(
-        @NotNull ExecutionContext<A> executionContext,
+        @NotNull ExecutionContext<A> context,
         @NotNull ParameterNode<A, ?> parameter,
         @NotNull StringStream input
 ) implements ErrorContext.ParsingParameter<A> {
     @Override
     public @NotNull A actor() {
-        return executionContext.actor();
+        return context.actor();
     }
 
     @Override
     public @NotNull Lamp<A> lamp() {
-        return executionContext.lamp();
+        return context.lamp();
     }
 }

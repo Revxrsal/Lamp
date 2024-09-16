@@ -87,5 +87,4 @@ public final class CommandPaths {
         }
         return paths;
     }
-
 }

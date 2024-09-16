@@ -30,8 +30,8 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.brigadier.BrigadierAdapter;
 import revxrsal.commands.brigadier.BrigadierConverter;
+import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.fabric.FabricLampConfig;
 import revxrsal.commands.fabric.actor.FabricCommandActor;
@@ -50,6 +50,7 @@ public final class FabricCommandHooks<A extends FabricCommandActor> implements C
 
     private final FabricLampConfig<A> config;
     private final RootCommandNode<ServerCommandSource> root = new RootCommandNode<>();
+    private final BrigadierParser<ServerCommandSource, A> parser = new BrigadierParser<>(this);
 
     public FabricCommandHooks(FabricLampConfig<A> config) {
         this.config = config;
@@ -62,7 +63,7 @@ public final class FabricCommandHooks<A extends FabricCommandActor> implements C
 
     @Override
     public void onRegistered(@NotNull ExecutableCommand<A> command, @NotNull CancelHandle cancelHandle) {
-        LiteralCommandNode<ServerCommandSource> node = BrigadierAdapter.createNode(command, this);
+        LiteralCommandNode<ServerCommandSource> node = parser.createNode(command);
         root.addChild(node);
     }
 

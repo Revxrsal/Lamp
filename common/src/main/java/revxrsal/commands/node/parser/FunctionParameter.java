@@ -24,10 +24,7 @@
 package revxrsal.commands.node.parser;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.annotation.Default;
-import revxrsal.commands.annotation.Length;
-import revxrsal.commands.annotation.Optional;
-import revxrsal.commands.annotation.Sized;
+import revxrsal.commands.annotation.*;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandParameter;
 
@@ -76,7 +73,7 @@ record FunctionParameter(
     public boolean isOptional() {
         if (type() == java.util.Optional.class)
             return true;
-        if (annotations.contains(Optional.class) || annotations.contains(Default.class))
+        if (annotations.contains(Optional.class) || annotations.contains(Default.class) || annotations.contains(Switch.class))
             return true;
         Sized sized = annotations.get(Sized.class);
         if (sized != null)

@@ -143,7 +143,7 @@ public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandE
             } else if (ExecutionContext.class.isAssignableFrom(type)) {
                 /* handler an ExecutionContext parameter */
                 conditions.add((throwable, errorContext) -> errorContext.hasExecutionContext());
-                suppliers[i] = (throwable, errorContext) -> errorContext.executionContext();
+                suppliers[i] = (throwable, errorContext) -> errorContext.context();
             } else if (ErrorContext.class.isAssignableFrom(type)) {
                 /* handler an ErrorContext parameter */
                 conditions.add((throwable, errorContext) -> type.isAssignableFrom(errorContext.getClass()));
@@ -157,11 +157,11 @@ public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandE
             } else if (ExecutableCommand.class.isAssignableFrom(type)) {
                 /* handler an ExecutableCommand parameter */
                 conditions.add((throwable, errorContext) -> errorContext.hasExecutionContext());
-                suppliers[i] = (throwable, errorContext) -> errorContext.executionContext().command();
+                suppliers[i] = (throwable, errorContext) -> errorContext.context().command();
             } else if (CommandFunction.class.isAssignableFrom(type)) {
                 /* handle a CommandFunction parameter */
                 conditions.add((throwable, errorContext) -> errorContext.hasExecutionContext());
-                suppliers[i] = (throwable, errorContext) -> errorContext.executionContext().command().function();
+                suppliers[i] = (throwable, errorContext) -> errorContext.context().command().function();
             } else if (CommandParameter.class.isAssignableFrom(type)) {
                 /* handle a CommandParameter parameter */
                 conditions.add((throwable, errorContext) -> errorContext instanceof ParsingParameter<A>);

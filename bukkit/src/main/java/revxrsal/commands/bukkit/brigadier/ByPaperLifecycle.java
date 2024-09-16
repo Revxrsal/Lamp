@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.brigadier.BrigadierAdapter;
 import revxrsal.commands.brigadier.BrigadierConverter;
+import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
@@ -51,6 +52,7 @@ final class ByPaperLifecycle<A extends BukkitCommandActor> implements BukkitBrig
     private final ActorFactory<A> actorFactory;
 
     private final RootCommandNode<CommandSourceStack> root = new RootCommandNode<>();
+    private final BrigadierParser<CommandSourceStack, A> parser = new BrigadierParser<>(this);
 
     public ByPaperLifecycle(JavaPlugin plugin, ArgumentTypes<A> types, ActorFactory<A> actorFactory) {
         this.types = types;
@@ -63,7 +65,7 @@ final class ByPaperLifecycle<A extends BukkitCommandActor> implements BukkitBrig
     }
 
     @Override public void register(ExecutableCommand<A> command) {
-        LiteralCommandNode<CommandSourceStack> node = BrigadierAdapter.createNode(command, this);
+        LiteralCommandNode<CommandSourceStack> node = parser.createNode(command);
         root.addChild(node);
     }
 

@@ -28,7 +28,8 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.annotation.Named;
 import revxrsal.commands.annotation.list.AnnotationList;
 
-import java.lang.reflect.Parameter;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,5 +84,30 @@ public final class Strings {
             return command;
         return command.substring(colon + 1);
     }
+
+    public static @NotNull String removeRanges(
+            @NotNull String input,
+            @NotNull List<StringRange> ranges
+    ) {
+        ranges.sort(Comparator.comparingInt(StringRange::start));
+
+        StringBuilder builder = new StringBuilder();
+        int currentIndex = 0;  // Tracks the current index in the input string
+
+        for (StringRange range : ranges) {
+            if (currentIndex < range.start()) {
+                builder.append(input, currentIndex, range.start());
+            }
+            currentIndex = range.end();
+        }
+
+        if (currentIndex < input.length()) {
+            builder.append(input, currentIndex, input.length());
+        }
+
+        return builder.toString();
+    }
+
+    public record StringRange(int start, int end) {}
 
 }

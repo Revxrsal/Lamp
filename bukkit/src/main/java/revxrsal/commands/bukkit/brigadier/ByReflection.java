@@ -43,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.brigadier.BrigadierAdapter;
 import revxrsal.commands.brigadier.BrigadierConverter;
+import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
@@ -108,6 +109,7 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
     private final JavaPlugin plugin;
     private final ArgumentTypes<A> types;
     private final ActorFactory<A> factory;
+    private final BrigadierParser<Object, A> parser = new BrigadierParser<>(this);
 
     private final RootCommandNode<Object> registeredNodes = new RootCommandNode<>();
 
@@ -142,7 +144,7 @@ final class ByReflection<A extends BukkitCommandActor> implements BukkitBrigadie
 
     @Override public void register(ExecutableCommand<A> command) {
         Objects.requireNonNull(command, "command");
-        LiteralCommandNode<Object> node = BrigadierAdapter.createNode(command, this);
+        LiteralCommandNode<Object> node = parser.createNode(command);
 
         PluginCommand bCommand = plugin.getCommand(command.firstNode().name());
         Collection<String> aliases = BukkitBrigadierBridge.getAliases(bCommand);

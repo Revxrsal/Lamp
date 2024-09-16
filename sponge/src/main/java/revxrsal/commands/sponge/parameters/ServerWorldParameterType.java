@@ -59,6 +59,6 @@ public final class ServerWorldParameterType implements ParameterType<SpongeComma
 
     @Override
     public @NotNull SuggestionProvider<SpongeCommandActor> defaultSuggestions() {
-        return (input, context) -> map(Sponge.server().worldManager().worlds(), world -> world.key().value());
+        return (context) -> map(Sponge.server().worldManager().worlds(), world -> world.key().value());
     }
 }

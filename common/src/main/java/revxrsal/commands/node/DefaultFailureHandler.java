@@ -29,6 +29,10 @@ final class DefaultFailureHandler<A extends CommandActor> implements FailureHand
 
     @Override
     public void handleFailedAttempts(@NotNull A actor, @NotNull @Unmodifiable List<Potential<A>> failedAttempts, @NotNull StringStream input) {
+        if (failedAttempts.size() == 1) {
+            failedAttempts.get(0).handleException();
+            return;
+        }
         actor.error("Failed to find a suitable command for your input (\"" + input.source() + "\"). Did you mean:");
         for (int i = 0; i < failedAttempts.size(); i++) {
             if (i >= MAX_NUMBER_OF_SUGGESTIONS)

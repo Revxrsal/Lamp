@@ -53,6 +53,11 @@ public final class ReflectionAction<A extends CommandActor> implements CommandAc
                 arguments[index] = parameter.get(context);
             });
             context.resolvedArguments().forEach((parameterName, value) -> {
+                context.lamp().validate(
+                        context.actor(),
+                        value,
+                        context.command().parameter(parameterName)
+                );
                 int index = function.parameter(parameterName).methodIndex();
                 arguments[index] = value;
             });

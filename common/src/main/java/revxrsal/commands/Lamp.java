@@ -52,7 +52,6 @@ import revxrsal.commands.response.ResponseHandler;
 import revxrsal.commands.response.SupplierResponseHandler;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
-import revxrsal.commands.util.StackTraceSanitizer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -473,10 +472,11 @@ public final class Lamp<A extends CommandActor> {
      * @param value     The value to validate
      * @param parameter The parameter to validate for
      */
+    @SuppressWarnings("unchecked")
     @ApiStatus.Internal
-    public void validate(A actor, Object value, ParameterNode<A, Object> parameter) {
+    public <T> void validate(A actor, T value, ParameterNode<A, T> parameter) {
         for (ParameterValidator<A, Object> validator : parameterValidators()) {
-            validator.validate(actor, value, parameter, this);
+            validator.validate(actor, value, (ParameterNode<A, Object>) parameter, this);
         }
     }
 
@@ -511,7 +511,7 @@ public final class Lamp<A extends CommandActor> {
             if (throwable.getClass().isAnnotationPresent(ThrowableFromCommand.class)) {
                 exceptionHandler.handleException(throwable, errorContext);
             } else {
-                StackTraceSanitizer.defaultSanitizer().sanitize(throwable);
+                dispatcherSettings.stackTraceSanitizer().sanitize(throwable);
                 exceptionHandler.handleException(new CommandInvocationException(throwable), errorContext);
             }
         } catch (Throwable t) {

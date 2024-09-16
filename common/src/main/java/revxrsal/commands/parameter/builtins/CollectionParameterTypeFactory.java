@@ -79,7 +79,6 @@ abstract class CollectionParameterTypeFactory implements ParameterType.Factory<C
         if (sized != null) {
             min = sized.min();
             max = sized.max();
-            //noinspection ConstantValue
             if (min < 0 || max < 0 || max < min)
                 throw new IllegalArgumentException("Illegal range input in @Sized");
         }
@@ -137,15 +136,15 @@ abstract class CollectionParameterTypeFactory implements ParameterType.Factory<C
             SuggestionProvider<CommandActor> paramSuggestions = componentType.defaultSuggestions();
             if (paramSuggestions.equals(empty()))
                 return empty();
-            return (input, context) -> {
-                List<String> inputted = List.of(input.peekRemaining().split(Character.toString(delimiter)));
+            return (context) -> {
+                List<String> inputted = List.of(context.input().peekRemaining().split(Character.toString(delimiter)));
                 if (preventsDuplicates()) {
                     return filter(
-                            paramSuggestions.getSuggestions(input, context),
+                            paramSuggestions.getSuggestions(context),
                             c -> !inputted.contains(c)
                     );
                 }
-                return paramSuggestions.getSuggestions(input, context);
+                return paramSuggestions.getSuggestions(context);
             };
         }
 

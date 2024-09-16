@@ -64,6 +64,6 @@ public final class OfflinePlayerParameterType implements ParameterType<BukkitCom
         // Brigadier's entity type will handle auto-completions for us :)
         if (BukkitVersion.isBrigadierSupported())
             return SuggestionProvider.empty();
-        return (input, context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
+        return (context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }
 }

@@ -33,15 +33,15 @@ import revxrsal.commands.node.ExecutionContext;
  * a singleton for it
  */
 record ExecutingFunctionContext<A extends CommandActor>(
-        ExecutionContext<A> executionContext
+        ExecutionContext<A> context
 ) implements ErrorContext.ExecutingFunction<A> {
     @Override
     public @NotNull A actor() {
-        return executionContext.actor();
+        return context.actor();
     }
 
     @Override
     public @NotNull Lamp<A> lamp() {
-        return executionContext.lamp();
+        return context.lamp();
     }
 }

@@ -40,7 +40,7 @@ record UnknownCommandContext<A extends CommandActor>(@NotNull A actor) implement
     }
 
     @Override
-    public ExecutionContext<A> executionContext() {
+    public ExecutionContext<A> context() {
         return null;
     }
 

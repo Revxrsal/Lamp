@@ -21,38 +21,34 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.node.parser;
+package revxrsal.commands.minestom.hooks;
 
+import net.minestom.server.command.builder.arguments.Argument;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.Lamp;
-import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.node.CommandAction;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.LiteralNode;
 
-final class LiteralNodeImpl<A extends CommandActor> extends BaseCommandNode<A> implements LiteralNode<A> {
+import java.util.ArrayList;
+import java.util.List;
 
-    public LiteralNodeImpl(
-            @NotNull String name,
-            @Nullable CommandAction<A> action,
-            boolean isLast
-    ) {
-        super(name, action, isLast);
+final class ArgumentColl {
+
+    private final List<Argument<?>> arguments;
+
+    public ArgumentColl(Argument<?> first, Argument<?> second) {
+        this.arguments = List.of(first, second);
     }
 
-    @Override
-    public String toString() {
-        return "LiteralNode(name='" + name() + "')";
+    public ArgumentColl(Argument<?> argument) {
+        this.arguments = List.of(argument);
     }
 
-    @Override
-    public int compareTo(@NotNull CommandNode<A> o) {
-        if (o instanceof ParameterNodeImpl)
-            return -1;
-        else
-            return 0;
+    public List<Argument<?>> arguments() {
+        return arguments;
     }
 
+    public @NotNull List<Argument<?>> after(List<Argument<?>> arguments) {
+        List<Argument<?>> list = new ArrayList<>(arguments.size() + this.arguments.size());
+        list.addAll(arguments);
+        list.addAll(this.arguments);
+        return list;
+    }
 }

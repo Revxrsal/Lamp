@@ -128,6 +128,8 @@ public final class Collections {
         throw new IllegalStateException("No element found matching the predicate");
     }
 
+    @Contract(pure = true)
+    @CheckReturnValue
     public static @NotNull <T> List<T> filter(@NotNull Iterable<T> iterator, @NotNull Predicate<T> predicate) {
         List<T> list = new ArrayList<>();
         for (T t : iterator) {
@@ -137,12 +139,22 @@ public final class Collections {
         return list;
     }
 
+    @Contract(pure = true)
+    @CheckReturnValue
     public static @NotNull <U, T> List<T> map(@NotNull Iterable<U> iterator, @NotNull Function<U, T> fn) {
         List<T> list = new ArrayList<>();
         for (U u : iterator) {
             list.add(fn.apply(u));
         }
         return list;
+    }
+
+    public static <T> boolean any(@NotNull Iterable<T> iterator, Predicate<T> predicate) {
+        for (T t : iterator) {
+            if (predicate.test(t))
+                return true;
+        }
+        return false;
     }
 
     public static @NotNull <U, T> LinkedList<T> mapToLinkedList(@NotNull Iterable<U> iterator, @NotNull Function<U, T> fn) {

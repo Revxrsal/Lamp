@@ -44,10 +44,7 @@ import revxrsal.commands.minestom.actor.ActorFactory;
 import revxrsal.commands.minestom.actor.MinestomCommandActor;
 import revxrsal.commands.minestom.argument.ArgumentTypes;
 import revxrsal.commands.minestom.util.ArgumentRenamer;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.ExecutionContext;
-import revxrsal.commands.node.LiteralNode;
-import revxrsal.commands.node.ParameterNode;
+import revxrsal.commands.node.*;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
@@ -98,20 +95,101 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
             });
         } else {
             List<Argument<?>> arguments = new ArrayList<>();
+            List<ArgumentColl> addedOptionals = new ArrayList<>();
             for (int i = 1; i < command.nodes().size(); i++) {
                 CommandNode<A> node = command.nodes().get(i);
-                if (node.isLiteral())
+                if (node.isLiteral()) {
                     usedLiterals.add(node.name());
-                else if (usedLiterals.contains(node.name()))
+                } else if (usedLiterals.contains(node.name())) {
                     throw new IllegalArgumentException("You cannot have an argument named '" + node.name() + "' because it is used in the literal command path. " +
                             "Pick a different name!");
-                if (node instanceof ParameterNode<?, ?> p && p.isOptional()) {
-                    minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
                 }
-                arguments.add(toArgument(command, node));
+
+                if (node.isLiteral())
+                    arguments.add(toArgument(node));
+                else if (node instanceof ParameterNode<A, ?> parameter) {
+                    if (parameter.isSwitch()) {
+                        // add the required
+                        minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
+
+                        // add it to the required and then add that.
+                        ArgumentColl sw = ofSwitch(parameter);
+                        addedOptionals.add(sw);
+                    } else if (parameter.isFlag()) {
+                        ArgumentColl argumentColl = ofFlag(parameter);
+                        if (parameter.isRequired()) {
+                            arguments.addAll(argumentColl.arguments());
+                        } else {
+                            minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
+
+                            ArgumentColl flag = ofFlag(parameter);
+                            addedOptionals.add(flag);
+                        }
+                    } else {
+                        arguments.add(toArgument(node));
+                    }
+                }
             }
-            minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
+            addOptionalFlagsRecursively(command, minestomCommand, addedOptionals, arguments);
+//            List<Argument<?>> requiredArguments = new ArrayList<>();
+//            for (int i = 1; i < command.nodes().size(); i++) {
+//                CommandNode<A> node = command.nodes().get(i);
+//                if (node.isLiteral())
+//                    usedLiterals.add(node.name());
+//                else if (usedLiterals.contains(node.name()))
+//                    throw new IllegalArgumentException("You cannot have an argument named '" + node.name() + "' because it is used in the literal command path. " +
+//                            "Pick a different name!");
+//                if (node instanceof ParameterNode<?, ?> p) {
+//                    if (p.isFlag()) {
+//                        if (p.isOptional())
+//                            minestomCommand.addSyntax(generateAction(command), requiredArguments.toArray(Argument[]::new));
+//                        else
+//                            requiredArguments.add()
+//                    }
+//                    if (p.isSwitch())
+//                        minestomCommand.addSyntax(generateAction(command), requiredArguments.toArray(Argument[]::new));
+//                    if (p.isOptional())
+//                        minestomCommand.addSyntax(generateAction(command), requiredArguments.toArray(Argument[]::new));
+//                }
+//                requiredArguments.add(toArgument(command, node));
+//            }
+//            minestomCommand.addSyntax(generateAction(command), requiredArguments.toArray(Argument[]::new));
         }
+    }
+
+    private void addOptionalFlagsRecursively(
+            @NotNull ExecutableCommand<A> command,
+            @NotNull Command minestomCommand,
+            @NotNull List<ArgumentColl> addedOptionals,
+            @NotNull List<Argument<?>> arguments
+    ) {
+        for (int i = 0; i < addedOptionals.size(); i++) {
+            ArgumentColl o = addedOptionals.get(i);
+            List<Argument<?>> after = o.after(arguments);
+            minestomCommand.addSyntax(generateAction(command), after.toArray(Argument[]::new));
+            for (int j = i + 1; j < addedOptionals.size(); j++) {
+                addOptionalFlagsRecursively(
+                        command,
+                        minestomCommand,
+                        addedOptionals.subList(j, addedOptionals.size()),
+                        after
+                );
+            }
+        }
+    }
+
+    private ArgumentColl ofSwitch(ParameterNode<A, ?> parameter) {
+        return new ArgumentColl(
+                new ArgumentLiteral(DispatcherSettings.LONG_FORMAT_PREFIX + parameter.switchName())
+        );
+    }
+
+    private ArgumentColl ofFlag(ParameterNode<A, ?> parameter) {
+        ArgumentLiteral first = new ArgumentLiteral(DispatcherSettings.LONG_FORMAT_PREFIX + parameter.flagName());
+        return new ArgumentColl(
+                first,
+                toArgument(parameter)
+        );
     }
 
     /**
@@ -132,17 +210,16 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
      * Creates a new {@link Argument} that is equivelant to the given Lamp
      * {@link CommandNode}.
      *
-     * @param command The command that owns the command node
-     * @param node    The node we need to translate
+     * @param node The node we need to translate
      * @return The newly created {@link Argument}.
      */
-    private @NotNull Argument<?> toArgument(ExecutableCommand<A> command, CommandNode<A> node) {
+    private @NotNull Argument<?> toArgument(CommandNode<A> node) {
         Argument<?> argument;
         if (node.isLiteral())
             argument = new ArgumentLiteral(node.name());
         else
-            argument = parameterToArgument(command, node.requireParameterNode());
-        argument.setCallback(createCallback(command, node));
+            argument = parameterToArgument(node.command(), node.requireParameterNode());
+        argument.setCallback(createCallback(node));
         return argument;
     }
 
@@ -150,19 +227,18 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
      * Creates a new {@link ArgumentCallback} that handles errors for the given
      * node.
      *
-     * @param command Command that owns the node
-     * @param node    The node to create for
+     * @param node The node to create for
      * @return The newly created {@link ArgumentCallback}.
      */
-    private @NotNull ArgumentCallback createCallback(ExecutableCommand<A> command, CommandNode<A> node) {
+    private @NotNull ArgumentCallback createCallback(CommandNode<A> node) {
         return (sender, exception) -> {
-            A actor = actorFactory.create(sender, command.lamp());
+            A actor = actorFactory.create(sender, node.lamp());
             StringStream input = StringStream.create(exception.getInput());
-            ExecutionContext<A> context = ExecutionContext.create(command, actor, input);
+            ExecutionContext<A> context = ExecutionContext.create(node.command(), actor, input);
             if (node instanceof LiteralNode<A> literal) {
-                command.lamp().handleException(exception, ErrorContext.parsingLiteral(context, literal));
+                node.lamp().handleException(exception, ErrorContext.parsingLiteral(context, literal));
             } else if (node instanceof ParameterNode<A, ?> parameter) {
-                command.lamp().handleException(exception, ErrorContext.parsingParameter(context, parameter, input));
+                node.lamp().handleException(exception, ErrorContext.parsingParameter(context, parameter, input));
             }
         };
     }
@@ -243,7 +319,7 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
         return (sender, context, suggestion) -> {
             A actor = actorFactory.create(sender, command.lamp());
             ExecutionContext<A> executionContext = toLampContext(context, command, actor);
-            Collection<String> suggestions = parameter.suggestions().getSuggestions(executionContext.input(), executionContext);
+            Collection<String> suggestions = parameter.suggestions().getSuggestions(executionContext);
             for (String s : suggestions)
                 suggestion.addEntry(new SuggestionEntry(s, tooltipMessage));
         };

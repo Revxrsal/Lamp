@@ -42,11 +42,13 @@ import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static revxrsal.commands.exception.context.ErrorContext.parsingParameter;
-import static revxrsal.commands.jda.JDAUtils.*;
+import static revxrsal.commands.jda.JDAUtils.findCommand;
+import static revxrsal.commands.jda.JDAUtils.toChoices;
 
 public final class JDASlashListener<A extends SlashCommandActor> implements EventListener {
 
@@ -87,8 +89,8 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
                 event.getCommandString(),
                 true
         );
-        ParameterNode<A, ?> node = getParameters(command).get(event.getFocusedOption().getName());
-        var suggestions = node.suggestions().getSuggestions(StringStream.createMutable(""), context);
+        ParameterNode<A, ?> node = command.parameter(event.getFocusedOption().getName());
+        var suggestions = node.suggestions().getSuggestions(context);
 
         List<Command.Choice> choices = toChoices(suggestions, event.getFocusedOption().getType());
         event.replyChoices(choices).queue();
@@ -102,7 +104,7 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
             boolean ignoreExceptions
     ) {
         MutableExecutionContext<A> context = ExecutionContext.createMutable(command, actor, StringStream.create(input));
-        Map<String, ParameterNode<A, ?>> parameters = getParameters(command);
+        Map<String, ParameterNode<A, ?>> parameters = new HashMap<>(command.parameters());
         for (OptionMapping option : options) {
             if (option.getType() == OptionType.SUB_COMMAND || option.getType() == OptionType.SUB_COMMAND_GROUP)
                 continue;

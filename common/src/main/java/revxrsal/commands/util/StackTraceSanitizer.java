@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.util;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.Lamp;
@@ -71,7 +72,8 @@ public final class StackTraceSanitizer {
      *
      * @return The default stack trace sanitizer
      */
-    public static StackTraceSanitizer defaultSanitizer() {
+    @Contract(pure = true)
+    public static @NotNull StackTraceSanitizer defaultSanitizer() {
         return DEFAULT_SANITIZER;
     }
 
@@ -80,11 +82,18 @@ public final class StackTraceSanitizer {
      *
      * @return A sanitizer that does not modify the trace
      */
-    public static StackTraceSanitizer empty() {
+    @Contract(pure = true)
+    public static @NotNull StackTraceSanitizer none() {
         return EMPTY;
     }
 
-    public static Builder builder() {
+    /**
+     * Returns a new {@link StackTraceSanitizer.Builder}
+     *
+     * @return A new builder
+     */
+    @Contract("-> new")
+    public static @NotNull Builder builder() {
         return new Builder();
     }
 

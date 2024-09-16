@@ -41,14 +41,15 @@ import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.*;
 
+import static java.util.Collections.unmodifiableMap;
 import static revxrsal.commands.exception.context.ErrorContext.executingFunction;
-import static revxrsal.commands.util.Collections.filter;
-import static revxrsal.commands.util.Collections.unmodifiableIterator;
+import static revxrsal.commands.util.Collections.*;
 
 final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     private final CommandFunction function;
     private final List<CommandNode<A>> nodes;
+    private final @Unmodifiable Map<String, ParameterNode<A, Object>> parameters;
     private final CommandPermission<A> permission;
     private final int size;
     private final boolean isSecret;
@@ -57,10 +58,12 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final String siblingPath;
     private final String path;
     private int optionalParameters, requiredInput;
+    private final boolean containsFlags;
 
     public Execution(CommandFunction function, List<CommandNode<A>> nodes) {
         this.function = function;
         this.nodes = nodes;
+        this.parameters = computeParameters();
         this.size = nodes.size();
         //noinspection unchecked
         this.permission = (CommandPermission<A>) function.lamp().createPermission(function.annotations());
@@ -77,6 +80,17 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         this.priority = function.annotations()
                 .mapOr(CommandPriority.class, c -> OptionalInt.of(c.value()), OptionalInt.empty());
         this.siblingPath = computeSiblingPath();
+        this.containsFlags = any(nodes, n -> n instanceof ParameterNode<?, ?> p && (p.isFlag() || p.isSwitch()));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private @Unmodifiable Map<String, ParameterNode<A, Object>> computeParameters() {
+        Map<String, ParameterNode<A, Object>> parameters = new LinkedHashMap<>();
+        for (CommandNode<A> node : nodes) {
+            if (node instanceof ParameterNode parameter)
+                parameters.put(parameter.name(), parameter);
+        }
+        return unmodifiableMap(parameters);
     }
 
     private String computePath() {
@@ -215,12 +229,20 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         );
     }
 
+    @Override public @NotNull @Unmodifiable Map<String, ParameterNode<A, Object>> parameters() {
+        return parameters;
+    }
+
     @Override public boolean isSiblingOf(@NotNull ExecutableCommand<A> command) {
         return siblingPath.equalsIgnoreCase(((Execution<A>) command).siblingPath);
     }
 
     @Override public boolean isChildOf(@NotNull ExecutableCommand<A> command) {
         return path().startsWith(command.path());
+    }
+
+    @Override public boolean containsFlags() {
+        return containsFlags;
     }
 
     @Override
@@ -281,7 +303,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     static final class ParseResult<A extends CommandActor> implements Potential<A> {
         private final Execution<A> execution;
         private final MutableExecutionContext<A> context;
-        private final MutableStringStream input;
+        private MutableStringStream input;
         private final boolean testResult;
         private boolean consumedAllInput = false;
         private @Nullable Throwable error;
@@ -295,7 +317,16 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         }
 
         private boolean test() {
+            if (execution.containsFlags) {
+                MutableStringStream original = input.toMutableCopy();
+                if (!tryParseFlags()) {
+                    input = original;
+                    return false;
+                }
+            }
             for (CommandNode<A> node : execution.nodes) {
+                if (node instanceof ParameterNode<?, ?> p && (p.isFlag() || p.isSwitch()))
+                    continue;
                 if (!tryParse(node, input, context)) {
                     context.clearResolvedArguments();
                     return false;
@@ -305,6 +336,18 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                 return false;
             }
             consumedAllInput = input.hasFinished();
+            return true;
+        }
+
+        private boolean tryParseFlags() {
+            FlagParser<A> flagParser = new FlagParser<>(context, input);
+            if (!flagParser.tryParse()) {
+                error = flagParser.error();
+                errorContext = flagParser.errorContext();
+                context.clearResolvedArguments();
+                return false;
+            }
+            input = flagParser.strippedInput();
             return true;
         }
 
@@ -395,7 +438,6 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
             try {
                 Object value = parameter.parse(input, context);
                 Lamp<A> lamp = execution.function().lamp();
-                lamp.validate(context.actor(), value, parameter);
                 context.addResolvedArgument(parameter.name(), value);
                 checkForSpace(input);
                 return true;

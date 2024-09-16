@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.Potential;
+import revxrsal.commands.util.StackTraceSanitizer;
 
 import static revxrsal.commands.node.DefaultFailureHandler.defaultFailureHandler;
 import static revxrsal.commands.util.Preconditions.notNull;
@@ -41,6 +42,16 @@ import static revxrsal.commands.util.Preconditions.notNull;
  * @param <A> The actor type
  */
 public final class DispatcherSettings<A extends CommandActor> {
+
+    /**
+     * The default long format for flags and switches
+     */
+    public static final String LONG_FORMAT_PREFIX = "--";
+
+    /**
+     * The default short format for flags and switches
+     */
+    public static final String SHORT_FORMAT_PREFIX = "-";
 
     /**
      * The default number of failed attempts after which Lamp will stop
@@ -57,11 +68,17 @@ public final class DispatcherSettings<A extends CommandActor> {
     /**
      * The failure handler that will consume the failed potentials.
      */
-    private final FailureHandler<A> failureHandler;
+    private final @NotNull FailureHandler<A> failureHandler;
 
-    private DispatcherSettings(int maximumFailedAttempts, FailureHandler<A> failureHandler) {
-        this.maximumFailedAttempts = maximumFailedAttempts;
-        this.failureHandler = failureHandler;
+    /**
+     * The stack-trace sanitizer. See {@link StackTraceSanitizer}
+     */
+    private final @NotNull StackTraceSanitizer stackTraceSanitizer;
+
+    private DispatcherSettings(Builder<A> builder) {
+        this.maximumFailedAttempts = builder.maximumFailedAttempts;
+        this.failureHandler = builder.failureHandler;
+        this.stackTraceSanitizer = builder.stackTraceSanitizer;
     }
 
     /**
@@ -94,12 +111,22 @@ public final class DispatcherSettings<A extends CommandActor> {
     }
 
     /**
+     * The stack trace sanitizer for cleaning up stack-traces of errors
+     * thrown inside commands
+     *
+     * @return The sanitizer
+     */
+    public @NotNull StackTraceSanitizer stackTraceSanitizer() {
+        return stackTraceSanitizer;
+    }
+
+    /**
      * Creates a new {@link Builder} based on this {@link DispatcherSettings}
      * instance
      *
      * @return The newly created builder
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Contract(value = "-> new", pure = true)
     public @NotNull Builder<A> toBuilder() {
         return new Builder<>()
@@ -124,6 +151,11 @@ public final class DispatcherSettings<A extends CommandActor> {
          * The failure handler that will consume the failed potentials.
          */
         private FailureHandler<A> failureHandler = defaultFailureHandler();
+
+        /**
+         * The stack-trace sanitizer. See {@link StackTraceSanitizer}
+         */
+        private @NotNull StackTraceSanitizer stackTraceSanitizer = StackTraceSanitizer.defaultSanitizer();
 
         /**
          * Sets the number of failed attempts after which Lamp will stop testing
@@ -155,13 +187,18 @@ public final class DispatcherSettings<A extends CommandActor> {
             return this;
         }
 
+        public Builder<A> stackTraceSanitizer(@NotNull StackTraceSanitizer stackTraceSanitizer) {
+            this.stackTraceSanitizer = notNull(stackTraceSanitizer, "stack trace sanitizer");
+            return this;
+        }
+
         /**
          * Creates a new {@link DispatcherSettings} based on this builder
          *
          * @return The newly created dispatcher settings.
          */
         @Contract(value = "-> new", pure = true) public @NotNull DispatcherSettings<A> build() {
-            return new DispatcherSettings<>(maximumFailedAttempts, failureHandler);
+            return new DispatcherSettings<>(this);
         }
 
     }

@@ -1,5 +1,5 @@
 /*
- * This file is part of lamp, licensed under the MIT License.
+ * This file is part of sweeper, licensed under the MIT License.
  *
  *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
  *
@@ -21,38 +21,34 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.node.parser;
+package revxrsal.commands.exception.context;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.node.CommandAction;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.LiteralNode;
+import revxrsal.commands.node.ExecutionContext;
 
-final class LiteralNodeImpl<A extends CommandActor> extends BaseCommandNode<A> implements LiteralNode<A> {
+/**
+ * Right now this context stores no information. We can just use
+ * a singleton for it
+ */
+record UnknownParameterContext<A extends CommandActor>(
+        @NotNull ExecutionContext<A> context
 
-    public LiteralNodeImpl(
-            @NotNull String name,
-            @Nullable CommandAction<A> action,
-            boolean isLast
-    ) {
-        super(name, action, isLast);
+) implements ErrorContext.UnknownParameter<A> {
+
+    @Override
+    public boolean hasExecutionContext() {
+        return true;
     }
 
     @Override
-    public String toString() {
-        return "LiteralNode(name='" + name() + "')";
+    public @NotNull A actor() {
+        return context.actor();
     }
 
     @Override
-    public int compareTo(@NotNull CommandNode<A> o) {
-        if (o instanceof ParameterNodeImpl)
-            return -1;
-        else
-            return 0;
+    public @NotNull Lamp<A> lamp() {
+        return context.lamp();
     }
-
 }

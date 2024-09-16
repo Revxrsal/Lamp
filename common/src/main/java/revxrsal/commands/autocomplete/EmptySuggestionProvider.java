@@ -26,7 +26,6 @@ package revxrsal.commands.autocomplete;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
-import revxrsal.commands.stream.StringStream;
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ final class EmptySuggestionProvider implements SuggestionProvider<CommandActor> 
     }
 
     @Override
-    public @NotNull List<String> getSuggestions(@NotNull StringStream input, @NotNull ExecutionContext<CommandActor> context) {
+    public @NotNull List<String> getSuggestions(@NotNull ExecutionContext<CommandActor> context) {
         return List.of();
     }
 

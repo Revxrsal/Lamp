@@ -25,9 +25,11 @@ package revxrsal.commands.node.parser;
 
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.annotation.Flag;
 import revxrsal.commands.annotation.NotSender;
 import revxrsal.commands.annotation.NotSender.ImpliesNotSender;
 import revxrsal.commands.annotation.Single;
+import revxrsal.commands.annotation.Switch;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.CommandFunction;
@@ -57,6 +59,7 @@ public final class TreeParser<A extends CommandActor> {
     private final Lamp<A> lamp;
     private final Map<String, CommandParameter> methodParameters;
     private boolean requireOptionals;
+    private boolean requireFlags;
 
     private TreeParser(@NotNull CommandFunction fn, @NotNull Lamp<A> lamp) {
         this.fn = fn;
@@ -86,7 +89,7 @@ public final class TreeParser<A extends CommandActor> {
                 node.setAction(action);
             }
 
-            checkOptional(node, input);
+            checkOrder(node, input);
             pushNode(node);
         }
         if (!methodParameters.isEmpty()) {
@@ -105,7 +108,7 @@ public final class TreeParser<A extends CommandActor> {
                 MutableParameterNode<A, Object> node = createParameterNode(argument);
                 if (isOptional(node))
                     node.setAction(action);
-                checkOptional(node, input);
+                checkOrder(node, input);
                 pushNode(node);
             }
         }
@@ -122,7 +125,12 @@ public final class TreeParser<A extends CommandActor> {
             }
             executionNodes.add(node.toNode());
         }
-        return new Execution<>(fn, executionNodes);
+        Execution<A> executableCommand = new Execution<>(fn, executionNodes);
+        executableCommand.forEach(node -> {
+            ((BaseCommandNode) node).setCommand(executableCommand);
+            ((BaseCommandNode) node).setLamp(lamp);
+        });
+        return executableCommand;
     }
 
     private boolean addSenderIfFirst(CommandParameter param, ReflectionAction<A> action) {
@@ -146,17 +154,29 @@ public final class TreeParser<A extends CommandActor> {
                 && !argument.parameter().annotations().contains(Single.class);
     }
 
-    private void checkOptional(MutableCommandNode<A> node, @NotNull MutableStringStream src) {
-        if (!requireOptionals)
-            return;
-        if (isLiteral(node))
-            throw new IllegalArgumentException(
-                    "Found a literal path (" + node.getName() + ") sitting between optional parameters (full path: " + src.source() + "). " +
-                            "Optional parameters must all come successively at the end of the command");
-        if (isParameter(node) && !isOptional(node))
-            throw new IllegalArgumentException(
-                    "Found a non-optional parameter (" + node.getName() + ") sitting between optional parameters (full path: " + src.source() + "). " +
-                            "Optional parameters must all come successively at the end of the command");
+    private void checkOrder(MutableCommandNode<A> node, @NotNull MutableStringStream src) {
+        if (requireOptionals) {
+            if (isLiteral(node))
+                throw new IllegalArgumentException(
+                        "Found a literal path (" + node.getName() + ") sitting between optional parameters (full path: " + src.source() + "). " +
+                                "Optional parameters must all come successively at the end of the command");
+            if (isParameter(node) && !isOptional(node))
+                throw new IllegalArgumentException(
+                        "Found a non-optional parameter (" + node.getName() + ") sitting between optional parameters (full path: " + src.source() + "). " +
+                                "Optional parameters must all come successively at the end of the command");
+        }
+        if (requireFlags) {
+            if (isLiteral(node)) {
+                throw new IllegalArgumentException(
+                        "Found a literal path (" + node.getName() + ") sitting between flag/switch parameters (full path: " + src.source() + "). " +
+                                "Flags and switches must all come successively at the end of the command");
+            }
+            if (isParameter(node) && !isFlagOrSwitch(node))
+                throw new IllegalArgumentException(
+                        "Found a non-flag parameter (" + node.getName() + ") sitting between flags/switches parameters (full path: " + src.source() + "). " +
+                                "Flags and switches must all come successively at the end of the command");
+
+        }
     }
 
     private void checkNotEmpty(StringStream input) {
@@ -199,7 +219,13 @@ public final class TreeParser<A extends CommandActor> {
     }
 
     private boolean isOptional(MutableCommandNode<A> node) {
-        return node instanceof MutableParameterNode && ((MutableParameterNode<?, ?>) node).isOptional();
+        return node instanceof MutableParameterNode p && p.isOptional();
+    }
+
+    private boolean isFlagOrSwitch(MutableCommandNode<A> node) {
+        return node instanceof MutableParameterNode p && (
+                p.parameter().hasAnnotation(Switch.class) || p.parameter().hasAnnotation(Flag.class)
+        );
     }
 
     private MutableParameterNode<A, Object> p(@NotNull MutableCommandNode<A> node) {
@@ -234,6 +260,9 @@ public final class TreeParser<A extends CommandActor> {
             argument.setOptional(true);
             requireOptionals = true;
         }
+        if (parameter.hasAnnotation(Flag.class) || parameter.hasAnnotation(Switch.class)) {
+            requireFlags = true;
+        }
         argument.setPermission(lamp.createPermission(parameter.annotations()));
         setSuggestions(argument);
         return argument;
@@ -246,7 +275,7 @@ public final class TreeParser<A extends CommandActor> {
     }
 
     private void setIfGreedy(@NotNull MutableParameterNode<A, Object> argument) {
-        if (isGreedy(argument) && argument.type().equals(StringParameterType.single()))
+        if (isGreedy(argument) && argument.type().equals(StringParameterType.single()) && !argument.parameter().hasAnnotation(Flag.class))
             argument.setType(((ParameterType) StringParameterType.greedy()));
     }
 

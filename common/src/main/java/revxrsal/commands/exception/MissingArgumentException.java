@@ -36,9 +36,10 @@ public class MissingArgumentException extends RuntimeException {
     private final ParameterNode<CommandActor, Object> node;
     private final ExecutableCommand<CommandActor> command;
 
-    public MissingArgumentException(ParameterNode<CommandActor, Object> node, ExecutableCommand<CommandActor> command) {
-        this.node = node;
-        this.command = command;
+    @SuppressWarnings("unchecked")
+    public <A extends CommandActor> MissingArgumentException(ParameterNode<A, ?> node, ExecutableCommand<A> command) {
+        this.node = (ParameterNode<CommandActor, Object>) node;
+        this.command = (ExecutableCommand<CommandActor>) command;
     }
 
     public <A extends CommandActor> ParameterNode<A, Object> node() {

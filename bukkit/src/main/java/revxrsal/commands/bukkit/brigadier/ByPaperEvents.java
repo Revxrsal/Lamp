@@ -37,8 +37,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.brigadier.BrigadierAdapter;
 import revxrsal.commands.brigadier.BrigadierConverter;
+import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
 import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
@@ -66,6 +66,7 @@ final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadi
     private final ActorFactory<A> actorFactory;
     private final JavaPlugin plugin;
     private boolean unknownCommandListenerRegistered = false;
+    private final BrigadierParser<Object, A> parser = new BrigadierParser<>(this);
 
     ByPaperEvents(@NotNull JavaPlugin plugin, ArgumentTypes<A> types, @NotNull ActorFactory<A> actorFactory) {
         this.plugin = plugin;
@@ -94,7 +95,7 @@ final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadi
             Bukkit.getPluginManager().registerEvents(new UnknownCommandListener(command.lamp()), plugin);
             unknownCommandListenerRegistered = true;
         }
-        LiteralCommandNode<Object> node = BrigadierAdapter.createNode(command, this);
+        LiteralCommandNode<Object> node = parser.createNode(command);
         Collection<String> aliases = BukkitBrigadierBridge.getAliases(
                 plugin.getCommand(command.firstNode().name())
         );

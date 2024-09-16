@@ -21,38 +21,27 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.node.parser;
+package revxrsal.commands.exception;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.Lamp;
-import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.node.CommandAction;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.LiteralNode;
 
-final class LiteralNodeImpl<A extends CommandActor> extends BaseCommandNode<A> implements LiteralNode<A> {
+@ThrowableFromCommand
+public class UnknownParameterException extends RuntimeException {
 
-    public LiteralNodeImpl(
-            @NotNull String name,
-            @Nullable CommandAction<A> action,
-            boolean isLast
-    ) {
-        super(name, action, isLast);
+    private final @NotNull String name;
+    private final boolean shorthand;
+
+    public UnknownParameterException(@NotNull String name, boolean shorthand) {
+        this.name = name;
+        this.shorthand = shorthand;
     }
 
-    @Override
-    public String toString() {
-        return "LiteralNode(name='" + name() + "')";
+    public @NotNull String name() {
+        return name;
     }
 
-    @Override
-    public int compareTo(@NotNull CommandNode<A> o) {
-        if (o instanceof ParameterNodeImpl)
-            return -1;
-        else
-            return 0;
+    public boolean shorthand() {
+        return shorthand;
     }
 
 }

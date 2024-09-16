@@ -59,6 +59,6 @@ public final class InstanceParameterType implements ParameterType<MinestomComman
     }
 
     @Override public @NotNull SuggestionProvider<MinestomCommandActor> defaultSuggestions() {
-        return (input, context) -> map(MinecraftServer.getConnectionManager().getOnlinePlayers(), Player::getUsername);
+        return (context) -> map(MinecraftServer.getConnectionManager().getOnlinePlayers(), Player::getUsername);
     }
 }

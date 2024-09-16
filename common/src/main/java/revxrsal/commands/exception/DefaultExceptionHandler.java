@@ -122,6 +122,14 @@ public class DefaultExceptionHandler<A extends CommandActor> extends RuntimeExce
     }
 
     @HandleException
+    public void onUnknownParameter(@NotNull UnknownParameterException e, @NotNull A actor) {
+        if (e.shorthand())
+            actor.error("Unknown shorthand flag: " + e.name());
+        else
+            actor.error("Unknown flag: " + e.name());
+    }
+
+    @HandleException
     public void onSendable(@NotNull SendableException e, @NotNull A actor) {
         e.sendTo(actor);
     }

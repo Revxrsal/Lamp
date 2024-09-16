@@ -26,9 +26,7 @@ package revxrsal.commands.node;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.annotation.Default;
-import revxrsal.commands.annotation.Optional;
-import revxrsal.commands.annotation.Sized;
+import revxrsal.commands.annotation.*;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
@@ -204,16 +202,42 @@ public interface ParameterNode<A extends CommandActor, T> extends CommandNode<A>
     }
 
     /**
-     * Returns the node string representation. This is defined as:
-     * <ul>
-     *     <li>The node name if it's literal</li>
-     *     <li>{@code <name>} if it's a required parameter</li>
-     *     <li>{@code [name]} if it's an optional parameter</li>
-     * </ul>
+     * Tests whether this parameter is a flag
      *
-     * @return The node's string representation
+     * @return if this parameter is a flag
+     * @see Flag
      */
-    @Override default @NotNull String representation() {
-        return isRequired() ? "<" + name() + ">" : "[" + name() + "]";
-    }
+    boolean isFlag();
+
+    /**
+     * Tests whether this parameter is a switch
+     *
+     * @return if this parameter is a switch
+     * @see Switch
+     */
+    boolean isSwitch();
+
+    /**
+     * Gets the shorthand defined from either {@link Flag#shorthand()} or {@link Switch#shorthand()}.
+     * This may return null if this parameter is neither a flag nor a switch.
+     *
+     * @return The shorthand, or {@code null} if not defined.
+     */
+    @Nullable @Contract(pure = true) Character shorthand();
+
+    /**
+     * Gets the switch name defined in {@link Switch#value()}.
+     * This may return null if this parameter is not a switch.
+     *
+     * @return The switch name, or {@code null} if not defined.
+     */
+    @Nullable @Contract(pure = true) String switchName();
+
+    /**
+     * Gets the flag name defined in {@link Flag#value()}.
+     * This may return null if this parameter is not a flag.
+     *
+     * @return The switch name, or {@code null} if not defined.
+     */
+    @Nullable @Contract(pure = true) String flagName();
 }

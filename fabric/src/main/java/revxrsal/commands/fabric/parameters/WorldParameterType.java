@@ -68,7 +68,7 @@ public class WorldParameterType implements ParameterType<FabricCommandActor, Wor
     }
 
     @Override public @NotNull SuggestionProvider<FabricCommandActor> defaultSuggestions() {
-        return (input, context) -> {
+        return (context) -> {
             MinecraftServer server = context.actor().source().getServer();
             return List.of(server.getPlayerManager().getPlayerNames());
         };

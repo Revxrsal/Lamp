@@ -24,9 +24,12 @@
 package revxrsal.commands.node.parser;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.node.CommandAction;
 import revxrsal.commands.node.CommandNode;
 import revxrsal.commands.node.ExecutionContext;
@@ -43,6 +46,12 @@ abstract class BaseCommandNode<A extends CommandActor> implements CommandNode<A>
     private final @NotNull String name;
     private final @Nullable CommandAction<A> action;
     private final boolean isLast;
+
+    @Setter
+    private Lamp<A> lamp;
+
+    @Setter
+    private ExecutableCommand<A> command;
 
     @Override
     public void execute(@NotNull ExecutionContext<A> context, @NotNull MutableStringStream input) {
@@ -63,5 +72,13 @@ abstract class BaseCommandNode<A extends CommandActor> implements CommandNode<A>
     @Override
     public boolean isLast() {
         return isLast;
+    }
+
+    @Override public @NotNull Lamp<A> lamp() {
+        return lamp;
+    }
+
+    @Override public @NotNull ExecutableCommand<A> command() {
+        return command;
     }
 }

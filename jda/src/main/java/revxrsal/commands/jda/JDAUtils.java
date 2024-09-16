@@ -105,9 +105,8 @@ public final class JDAUtils {
             return Optional.of(potential.get(0));
         for (Iterator<ExecutableCommand<A>> iterator = potential.iterator(); iterator.hasNext(); ) {
             ExecutableCommand<A> command = iterator.next();
-            Map<String, ParameterNode<A, ?>> parameters = getParameters(command);
             for (OptionMapping option : options) {
-                if (!parameters.containsKey(option.getName()))
+                if (command.parameterOrNull(option.getName()) == null)
                     iterator.remove();
             }
         }
@@ -395,26 +394,6 @@ public final class JDAUtils {
                 break;
         }
         return joiner.toString();
-    }
-
-    /**
-     * Returns all the parameters in the given command.
-     *
-     * @param command The command to get parameters for
-     * @param <A>     The actor type
-     * @return The parameters, mapped by name
-     */
-    @Contract(pure = true)
-    public static <A extends CommandActor> Map<String, ParameterNode<A, ?>> getParameters(
-            @NotNull ExecutableCommand<A> command
-    ) {
-        Map<String, ParameterNode<A, ?>> nodes = new LinkedHashMap<>();
-        for (CommandNode<A> node : command.nodes()) {
-            if (node instanceof ParameterNode<A, ?> parameter) {
-                nodes.put(node.name(), parameter);
-            }
-        }
-        return nodes;
     }
 
     /**

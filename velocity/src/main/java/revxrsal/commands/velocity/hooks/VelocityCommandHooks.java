@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.brigadier.BrigadierAdapter;
 import revxrsal.commands.brigadier.BrigadierConverter;
+import revxrsal.commands.brigadier.BrigadierParser;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.hook.CancelHandle;
 import revxrsal.commands.hook.CommandRegisteredHook;
@@ -54,6 +55,7 @@ public final class VelocityCommandHooks<A extends VelocityCommandActor> implemen
     private final Set<String> registeredRootNames = new HashSet<>();
 
     private final VelocityLampConfig<A> config;
+    private final BrigadierParser<CommandSource, A> parser = new BrigadierParser<>(this);
 
     public VelocityCommandHooks(VelocityLampConfig<A> config) {
         this.config = config;
@@ -64,7 +66,7 @@ public final class VelocityCommandHooks<A extends VelocityCommandActor> implemen
         String name = command.firstNode().name();
         if (registeredRootNames.add(name)) {
             // command wasn't registered before. register it.
-            LiteralCommandNode<CommandSource> node = BrigadierAdapter.createNode(command, this);
+            LiteralCommandNode<CommandSource> node = parser.createNode(command);
             BrigadierCommand brigadierCommand = new BrigadierCommand(node);
             config.server().getCommandManager().register(brigadierCommand);
         }

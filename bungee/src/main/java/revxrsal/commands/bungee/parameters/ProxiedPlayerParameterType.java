@@ -56,6 +56,6 @@ public final class ProxiedPlayerParameterType implements ParameterType<BungeeCom
     }
 
     @Override public @NotNull SuggestionProvider<BungeeCommandActor> defaultSuggestions() {
-        return (input, context) -> map(ProxyServer.getInstance().getPlayers(), CommandSender::getName);
+        return (context) -> map(ProxyServer.getInstance().getPlayers(), CommandSender::getName);
     }
 }

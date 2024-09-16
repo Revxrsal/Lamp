@@ -25,10 +25,7 @@ package revxrsal.commands.node.parser;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.annotation.Default;
-import revxrsal.commands.annotation.Description;
-import revxrsal.commands.annotation.Length;
-import revxrsal.commands.annotation.Sized;
+import revxrsal.commands.annotation.*;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
@@ -46,8 +43,12 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.MutableStringStreamImpl;
 import revxrsal.commands.stream.StringStream;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import static revxrsal.commands.node.DispatcherSettings.LONG_FORMAT_PREFIX;
+import static revxrsal.commands.node.DispatcherSettings.SHORT_FORMAT_PREFIX;
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
 
 final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode<A> implements ParameterNode<A, T> {
@@ -57,6 +58,8 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     private final @NotNull CommandParameter parameter;
     private final @NotNull CommandPermission<A> permission;
     private final boolean isOptional;
+    private final @Nullable Switch switchAnn;
+    private final @Nullable Flag flagAnn;
 
     public ParameterNodeImpl(
             @NotNull String name,
@@ -74,6 +77,11 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
         this.parameter = parameter;
         this.permission = permission;
         this.isOptional = isOptional;
+        this.switchAnn = parameter.getAnnotation(Switch.class);
+        this.flagAnn = parameter.getAnnotation(Flag.class);
+        if (isSwitch() && isFlag()) {
+            throw new IllegalArgumentException("A parameter cannot have @Switch and @Flag at the same time!");
+        }
     }
 
     private static @Nullable String getDefaultValue(AnnotationList annotations) {
@@ -170,7 +178,24 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
 
     @Override
     public @NotNull Collection<String> complete(@NotNull A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
-        return suggestions.getSuggestions(input, context);
+        Collection<String> parameterSuggestions = suggestions.getSuggestions(context);
+        if (isFlag()) {
+            String longPrefix = LONG_FORMAT_PREFIX + flagName() + ' ';
+            String shortPrefix = SHORT_FORMAT_PREFIX + flagName() + ' ';
+            List<String> s = new ArrayList<>();
+            parameterSuggestions.forEach(suggestion -> {
+                s.add(longPrefix + suggestion);
+                s.add(shortPrefix + suggestion);
+            });
+            return s;
+        }
+        if (isSwitch()) {
+            return List.of(
+                    LONG_FORMAT_PREFIX + switchName(),
+                    SHORT_FORMAT_PREFIX + switchName()
+            );
+        }
+        return suggestions.getSuggestions(context);
     }
 
     @Override
@@ -181,5 +206,46 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
 
     @Override public @Nullable String description() {
         return annotations().map(Description.class, Description::value);
+    }
+
+    @Override public @Nullable String switchName() {
+        return switchAnn != null ? switchAnn.value() : null;
+    }
+
+    @Override public @Nullable String flagName() {
+        return flagAnn != null ? flagAnn.value() : null;
+    }
+
+    @Override public Character shorthand() {
+        char shorthand = '\0';
+        if (isFlag())
+            shorthand = flagAnn.shorthand();
+        else if (isSwitch())
+            shorthand = switchAnn.shorthand();
+        return shorthand == '\0' ? null : shorthand;
+    }
+
+    @Override public @NotNull String representation() {
+        if (isFlag() || isSwitch()) {
+            Character shorthand = shorthand();
+            if (shorthand != null)
+                if (isSwitch()) {
+                    return "[-" + shorthand + " | --" + switchName() + "]";
+                } else if (isFlag()) {
+                    if (isOptional())
+                        return "[-" + shorthand + " <" + name() + "> | --" + flagName() + " <" + name() + ">]";
+                    else
+                        return "<-" + shorthand + " <" + name() + "> | --" + flagName() + " <" + name() + ">]";
+                }
+        }
+        return isRequired() ? "<" + name() + ">" : "[" + name() + "]";
+    }
+
+    @Override public boolean isSwitch() {
+        return switchAnn != null;
+    }
+
+    @Override public boolean isFlag() {
+        return flagAnn != null;
     }
 }

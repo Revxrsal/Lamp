@@ -21,38 +21,21 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package revxrsal.commands.node.parser;
+package revxrsal.commands.annotation;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import revxrsal.commands.Lamp;
-import revxrsal.commands.command.CommandActor;
-import revxrsal.commands.command.ExecutableCommand;
-import revxrsal.commands.node.CommandAction;
-import revxrsal.commands.node.CommandNode;
-import revxrsal.commands.node.LiteralNode;
 
-final class LiteralNodeImpl<A extends CommandActor> extends BaseCommandNode<A> implements LiteralNode<A> {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    public LiteralNodeImpl(
-            @NotNull String name,
-            @Nullable CommandAction<A> action,
-            boolean isLast
-    ) {
-        super(name, action, isLast);
-    }
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Switch {
 
-    @Override
-    public String toString() {
-        return "LiteralNode(name='" + name() + "')";
-    }
+    @NotNull String value();
 
-    @Override
-    public int compareTo(@NotNull CommandNode<A> o) {
-        if (o instanceof ParameterNodeImpl)
-            return -1;
-        else
-            return 0;
-    }
+    char shorthand() default '\0';
 
 }

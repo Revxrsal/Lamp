@@ -26,7 +26,9 @@ package revxrsal.commands.node;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.stream.MutableStringStream;
 
 /**
@@ -39,6 +41,21 @@ import revxrsal.commands.stream.MutableStringStream;
  * @see ParameterNode
  */
 public interface CommandNode<A extends CommandActor> extends Comparable<CommandNode<A>> {
+
+    /**
+     * Returns the {@link Lamp} instance that constructed this node
+     *
+     * @return The Lamp instance
+     */
+    @NotNull Lamp<A> lamp();
+
+    /**
+     * Returns the {@link ExecutableCommand} that this node
+     * belongs to
+     *
+     * @return the command
+     */
+    @NotNull ExecutableCommand<A> command();
 
     /**
      * Returns the name of this node.

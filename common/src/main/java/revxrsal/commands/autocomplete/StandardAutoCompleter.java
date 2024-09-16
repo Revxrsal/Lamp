@@ -137,7 +137,6 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                     return List.of();
                 try {
                     Object value = parameter.parse(input, context);
-                    lamp.validate(context.actor(), value, (ParameterNode<A, Object>) parameter);
                     context.addResolvedArgument(parameter.name(), value);
                     if (input.hasFinished()) {
                         input.setPosition(posBeforeParsing);

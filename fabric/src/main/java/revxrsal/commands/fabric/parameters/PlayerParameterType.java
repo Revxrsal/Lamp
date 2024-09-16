@@ -56,7 +56,7 @@ public class PlayerParameterType implements ParameterType<FabricCommandActor, Se
     }
 
     @Override public @NotNull SuggestionProvider<FabricCommandActor> defaultSuggestions() {
-        return (input, context) -> {
+        return (context) -> {
             MinecraftServer server = context.actor().source().getServer();
             return List.of(server.getPlayerManager().getPlayerNames());
         };

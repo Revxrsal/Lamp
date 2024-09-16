@@ -27,6 +27,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.annotation.Flag;
+import revxrsal.commands.annotation.Switch;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.node.LiteralNode;
@@ -37,11 +39,11 @@ import revxrsal.commands.stream.StringStream;
  * Represents the context in which the error has occurred.
  * <p>
  * For example, if the error was because a parameter was invalid, this
- * will be a {@link ParsingParameter} executionContext,
+ * will be a {@link ParsingParameter} context,
  * which contains information about the parameter being parsed.
  * <p>
  * If, however, it occurred during executing the command function,
- * this will be an {@link ExecutingFunction} executionContext.
+ * this will be an {@link ExecutingFunction} context.
  *
  * @param <A> The actor type
  */
@@ -52,7 +54,7 @@ public interface ErrorContext<A extends CommandActor> {
      *
      * @param node The literal node
      * @param <A>  The actor type
-     * @return The executionContext
+     * @return The context
      */
     static <A extends CommandActor> @NotNull ParsingLiteral<A> parsingLiteral(@NotNull ExecutionContext<A> context, @NotNull LiteralNode<A> node) {
         return new ParsingLiteralContext<>(context, node);
@@ -64,30 +66,40 @@ public interface ErrorContext<A extends CommandActor> {
      * @param node  The parameter node
      * @param input The problematic input
      * @param <A>   The actor type
-     * @return The executionContext
+     * @return The context
      */
     static <A extends CommandActor> @NotNull ParsingParameter<A> parsingParameter(@NotNull ExecutionContext<A> context, @NotNull ParameterNode<A, ?> node, @NotNull StringStream input) {
         return new ParsingParameterContext<>(context, node, input);
     }
 
     /**
-     * Creates an {@link ExecutingFunction} error executionContext
+     * Creates an {@link ExecutingFunction} error context
      *
      * @param <A> The actor type
-     * @return The executionContext
+     * @return The context
      */
     static <A extends CommandActor> @NotNull ExecutingFunction<A> executingFunction(@NotNull ExecutionContext<A> context) {
         return new ExecutingFunctionContext<>(context);
     }
 
     /**
-     * Creates an {@link ExecutingFunction} error executionContext
+     * Creates an {@link UnknownCommand} error context
      *
      * @param <A> The actor type
-     * @return The executionContext
+     * @return The context
      */
     static <A extends CommandActor> @NotNull UnknownCommand<A> unknownCommand(@NotNull A actor) {
         return new UnknownCommandContext<>(actor);
+    }
+
+    /**
+     * Creates an {@link UnknownParameter} error context
+     *
+     * @param <A> The actor type
+     * @return The context
+     */
+    static <A extends CommandActor> @NotNull UnknownParameter<A> unknownParameter(@NotNull ExecutionContext<A> context) {
+        return new UnknownParameterContext<>(context);
     }
 
     /**
@@ -99,7 +111,7 @@ public interface ErrorContext<A extends CommandActor> {
      * @return if this context has an {@link ExecutionContext}
      */
     default boolean hasExecutionContext() {
-        return executionContext() != null;
+        return context() != null;
     }
 
     /**
@@ -110,7 +122,7 @@ public interface ErrorContext<A extends CommandActor> {
      *
      * @return the {@link ExecutionContext} or {@code null} if there's none
      */
-    ExecutionContext<A> executionContext();
+    ExecutionContext<A> context();
 
     /**
      * Returns the actor
@@ -163,7 +175,7 @@ public interface ErrorContext<A extends CommandActor> {
         @NotNull LiteralNode<A> literal();
 
         @Override
-        @NotNull ExecutionContext<A> executionContext();
+        @NotNull ExecutionContext<A> context();
     }
 
     /**
@@ -176,7 +188,7 @@ public interface ErrorContext<A extends CommandActor> {
         @NotNull ParameterNode<A, ?> parameter();
 
         @Override
-        @NotNull ExecutionContext<A> executionContext();
+        @NotNull ExecutionContext<A> context();
     }
 
     /**
@@ -187,7 +199,7 @@ public interface ErrorContext<A extends CommandActor> {
      */
     interface ExecutingFunction<A extends CommandActor> extends ErrorContext<A> {
         @Override
-        @NotNull ExecutionContext<A> executionContext();
+        @NotNull ExecutionContext<A> context();
     }
 
     /**
@@ -200,8 +212,20 @@ public interface ErrorContext<A extends CommandActor> {
         @Override
         @Contract("-> null")
         @Nullable
-        default ExecutionContext<A> executionContext() {
+        default ExecutionContext<A> context() {
             return null;
         }
+    }
+
+    /**
+     * Represents the context for an error due to an unknown parameter. This
+     * is used for {@link Switch} and {@link Flag} parameters
+     *
+     * @param <A> The actor type
+     */
+    interface UnknownParameter<A extends CommandActor> extends ErrorContext<A> {
+
+        @Override
+        @NotNull ExecutionContext<A> context();
     }
 }

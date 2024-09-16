@@ -23,12 +23,10 @@
  */
 package revxrsal.commands.command;
 
+import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.*;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.annotation.CommandPriority;
-import revxrsal.commands.annotation.Description;
-import revxrsal.commands.annotation.SecretCommand;
-import revxrsal.commands.annotation.Usage;
+import revxrsal.commands.annotation.*;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.help.Help;
 import revxrsal.commands.help.Help.RelatedCommands;
@@ -37,8 +35,11 @@ import revxrsal.commands.process.CommandCondition;
 import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
+
+import static revxrsal.commands.util.Preconditions.notNull;
 
 /**
  * Represents an immutable, full, separate command path that may be executed.
@@ -264,8 +265,47 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
      *
      * @return All siblings
      */
-    @NotNull default Help.SiblingCommands<A> siblingCommands() {
+    default @NotNull Help.SiblingCommands<A> siblingCommands() {
         return siblingCommands(null);
+    }
+
+    /**
+     * Returns all the parameters in this command, in the same order
+     * they are declared in the command.
+     *
+     * @return All the parameters
+     */
+    @NotNull @Unmodifiable @Contract(pure = true)
+    Map<String, ParameterNode<A, Object>> parameters();
+
+    /**
+     * Returns the parameter with the given name, or {@code null} if
+     * it does not exist.
+     *
+     * @param name The parameter name
+     * @param <T>  The parameter type, automatically cast.
+     * @return The parameter, or {@code null} if not present.
+     */
+    default <T> @Nullable ParameterNode<A, T> parameterOrNull(@NotNull String name) {
+        notNull(name, "parameter name");
+        //noinspection unchecked
+        return (ParameterNode<A, T>) parameters().get(name);
+    }
+
+    /**
+     * Returns the parameter with the given name, or throws {@link IllegalArgumentException} if
+     * it does not exist.
+     *
+     * @param name The parameter name
+     * @param <T>  The parameter type, automatically cast.
+     * @return The parameter
+     * @throws IllegalArgumentException if it does not exist
+     */
+    default <T> @NotNull ParameterNode<A, T> parameter(@NotNull String name) {
+        ParameterNode<A, T> parameter = parameterOrNull(name);
+        if (parameter == null)
+            throw new IllegalArgumentException("No such parameter: " + name);
+        return parameter;
     }
 
     /**
@@ -321,4 +361,11 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
         return !isSecret() && permission().isExecutableBy(actor);
     }
 
+    /**
+     * Tests whether the command has any {@link Flag} or {@link Switch}
+     * parameters
+     *
+     * @return if the command contains {@link Flag} or {@link Switch}
+     */
+    boolean containsFlags();
 }

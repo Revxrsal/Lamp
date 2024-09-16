@@ -29,7 +29,6 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
-import revxrsal.commands.stream.StringStream;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -65,7 +64,7 @@ public interface SuggestionProvider<A extends CommandActor> extends BaseSuggesti
         if (suggestions == null || suggestions.length == 0)
             return empty();
         List<String> list = List.of(suggestions);
-        return (input, context) -> list;
+        return (context) -> list;
     }
 
     /**
@@ -78,20 +77,19 @@ public interface SuggestionProvider<A extends CommandActor> extends BaseSuggesti
     static <A extends CommandActor> @NotNull SuggestionProvider<A> of(@NotNull List<String> suggestions) {
         if (suggestions.isEmpty())
             return empty();
-        return (input, context) -> suggestions;
+        return (context) -> suggestions;
     }
 
     /**
      * Returns the suggestions
      *
-     * @param input   The user input. This may end in a trailing space.
      * @param context The execution context. This will try to parse
      *                arguments inputted by the user and store them
      *                to provide context-aware suggestions.
      * @return The command suggestions.
      */
     @NotNull
-    Collection<String> getSuggestions(@NotNull StringStream input, @NotNull ExecutionContext<A> context);
+    Collection<String> getSuggestions(@NotNull ExecutionContext<A> context);
 
     /**
      * Represents a factory that creates {@link SuggestionProvider}s dynamically. This
