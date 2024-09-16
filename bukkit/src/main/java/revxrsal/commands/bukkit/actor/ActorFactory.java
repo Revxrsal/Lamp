@@ -23,9 +23,17 @@
  */
 package revxrsal.commands.bukkit.actor;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.process.MessageSender;
+
+import java.util.Optional;
 
 /**
  * Represents a functional interface that allows for creating custom
@@ -43,8 +51,21 @@ public interface ActorFactory<A extends BukkitCommandActor> {
      *
      * @return The default {@link ActorFactory}.
      */
-    static @NotNull ActorFactory<BukkitCommandActor> defaultFactory() {
-        return BasicActorFactory.INSTANCE;
+    static @NotNull ActorFactory<BukkitCommandActor> defaultFactory(
+            @NotNull Plugin plugin,
+            @NotNull Optional<BukkitAudiences> audiences
+    ) {
+        return new BasicActorFactory(plugin, audiences);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    static <A extends BukkitCommandActor> Object defaultFactory(
+            @NotNull JavaPlugin plugin,
+            Optional<BukkitAudiences> audiences,
+            @Nullable MessageSender<? super A, ComponentLike> messageSender,
+            @Nullable MessageSender<? super A, ComponentLike> errorSender
+    ) {
+        return new BasicActorFactory(plugin, audiences, (MessageSender) messageSender, (MessageSender) errorSender);
     }
 
     /**

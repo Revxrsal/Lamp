@@ -23,6 +23,8 @@
  */
 package revxrsal.commands.bukkit.actor;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -33,6 +35,8 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.bukkit.exception.SenderNotConsoleException;
 import revxrsal.commands.bukkit.exception.SenderNotPlayerException;
 import revxrsal.commands.command.CommandActor;
+
+import java.util.Optional;
 
 /**
  * Represents a Bukkit {@link CommandActor} that wraps {@link CommandSender}
@@ -125,6 +129,22 @@ public interface BukkitCommandActor extends CommandActor {
     default void sendRawError(@NotNull String message) {
         sender().sendMessage(ChatColor.RED + message);
     }
+
+    /**
+     * Prints the given component to this actor. This function does
+     * not delegate sending, but invokes {@link CommandSender#sendMessage(String)}
+     * directly
+     *
+     * @param message The message to send
+     */
+    void reply(@NotNull ComponentLike message);
+
+    /**
+     * Returns this actor as an adventure {@link Audience}.
+     *
+     * @return The audience
+     */
+    @NotNull Optional<Audience> audience();
 
     /**
      * Returns the {@link Lamp} instance that constructed this actor.

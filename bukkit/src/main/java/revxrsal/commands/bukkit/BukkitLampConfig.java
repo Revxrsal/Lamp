@@ -23,9 +23,13 @@
  */
 package revxrsal.commands.bukkit;
 
+import lombok.AllArgsConstructor;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.LampBuilderVisitor;
 import revxrsal.commands.brigadier.types.ArgumentTypes;
@@ -33,8 +37,10 @@ import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.brigadier.BukkitArgumentTypes;
 import revxrsal.commands.bukkit.util.BukkitVersion;
+import revxrsal.commands.process.MessageSender;
 import revxrsal.commands.util.Lazy;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -47,6 +53,7 @@ import static revxrsal.commands.util.Preconditions.notNull;
  *
  * @param <A> The actor type.
  */
+@AllArgsConstructor
 public final class BukkitLampConfig<A extends BukkitCommandActor> implements LampBuilderVisitor<A> {
 
     private final ActorFactory<A> actorFactory;
@@ -54,20 +61,9 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
     private final JavaPlugin plugin;
     private final String fallbackPrefix;
     private final boolean disableBrigadier;
-
-    public BukkitLampConfig(
-            ActorFactory<A> actorFactory,
-            Supplier<ArgumentTypes<A>> argumentTypes,
-            JavaPlugin plugin,
-            String fallbackPrefix,
-            boolean disableBrigadier
-    ) {
-        this.actorFactory = actorFactory;
-        this.argumentTypes = argumentTypes;
-        this.plugin = plugin;
-        this.fallbackPrefix = fallbackPrefix;
-        this.disableBrigadier = disableBrigadier;
-    }
+    private final Optional<BukkitAudiences> bukkitAudiences;
+    private final @Nullable MessageSender<A, ComponentLike> messageSender;
+    private final @Nullable MessageSender<A, ComponentLike> errorSender;
 
     /**
      * Returns a new {@link Builder} with the given plugin.
@@ -90,7 +86,16 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
      */
     public static BukkitLampConfig<BukkitCommandActor> createDefault(@NotNull JavaPlugin plugin) {
         notNull(plugin, "plugin");
-        return new BukkitLampConfig<>(ActorFactory.defaultFactory(), () -> BukkitArgumentTypes.<BukkitCommandActor>builder().build(), plugin, plugin.getName(), false);
+        return new BukkitLampConfig<>(
+                ActorFactory.defaultFactory(plugin, Optional.empty()),
+                () -> BukkitArgumentTypes.<BukkitCommandActor>builder().build(),
+                plugin,
+                plugin.getName(),
+                false,
+                Optional.empty(),
+                null,
+                null
+        );
     }
 
     @Override public void visit(Lamp.@NotNull Builder<A> builder) {
@@ -114,9 +119,12 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
 
         private final Supplier<ArgumentTypes.Builder<A>> argumentTypes = Lazy.of(() -> BukkitArgumentTypes.builder());
         private final @NotNull JavaPlugin plugin;
-        private ActorFactory<A> actorFactory = (ActorFactory<A>) ActorFactory.defaultFactory();
+        private ActorFactory<A> actorFactory;
         private boolean disableBrigadier;
         private String fallbackPrefix;
+        private Optional<BukkitAudiences> audiences;
+        private @Nullable MessageSender<A, ComponentLike> messageSender;
+        private @Nullable MessageSender<A, ComponentLike> errorSender;
 
         Builder(@NotNull JavaPlugin plugin) {
             this.plugin = plugin;
@@ -187,18 +195,50 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
         }
 
         /**
+         * Sets the audiences for sending components
+         *
+         * @return This builder
+         */
+        public @NotNull Builder<A> fallbackPrefix(@NotNull BukkitAudiences audiences) {
+            this.audiences = Optional.of(audiences);
+            return this;
+        }
+
+        public Builder<A> messageSender(@Nullable MessageSender<? super A, ComponentLike> messageSender) {
+            //noinspection unchecked
+            this.messageSender = (MessageSender<A, ComponentLike>) messageSender;
+            return this;
+        }
+
+        public Builder<A> errorSender(@Nullable MessageSender<? super A, ComponentLike> errorSender) {
+            //noinspection unchecked
+            this.errorSender = (MessageSender<A, ComponentLike>) errorSender;
+            return this;
+        }
+
+        /**
          * Returns a new {@link BukkitLampConfig} from this builder
          *
          * @return The newly created config
          */
         @Contract("-> new")
         public @NotNull BukkitLampConfig<A> build() {
+            //noinspection unchecked
+            this.actorFactory = (ActorFactory<A>) ActorFactory.defaultFactory(
+                    plugin,
+                    audiences,
+                    messageSender,
+                    errorSender
+            );
             return new BukkitLampConfig<>(
                     this.actorFactory,
                     Lazy.of(() -> argumentTypes.get().build()),
                     this.plugin,
                     fallbackPrefix,
-                    disableBrigadier
+                    disableBrigadier,
+                    audiences,
+                    messageSender,
+                    errorSender
             );
         }
     }

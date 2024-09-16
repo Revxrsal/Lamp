@@ -20,6 +20,8 @@ dependencies {
     compileOnly("com.mojang:brigadier:1.0.18")
     compileOnly("io.papermc.paper:paper-mojangapi:1.19.1-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.19.1-R0.1-SNAPSHOT")
+
+    compileOnly("net.kyori:adventure-platform-bukkit:4.3.4")
 }
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))

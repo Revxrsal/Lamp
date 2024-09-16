@@ -51,6 +51,8 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.parameter.ContextParameter;
 
+import java.util.Optional;
+
 import static revxrsal.commands.bukkit.util.BukkitUtils.legacyColorize;
 import static revxrsal.commands.bukkit.util.BukkitVersion.isBrigadierSupported;
 
@@ -129,7 +131,7 @@ public final class BukkitVisitors {
      * @return The visitor
      */
     public static @NotNull LampBuilderVisitor<BukkitCommandActor> registrationHooks(@NotNull JavaPlugin plugin) {
-        return registrationHooks(plugin, ActorFactory.defaultFactory());
+        return registrationHooks(plugin, ActorFactory.defaultFactory(plugin, Optional.empty()));
     }
 
     public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> registrationHooks(
@@ -204,7 +206,7 @@ public final class BukkitVisitors {
             @NotNull JavaPlugin plugin
     ) {
         ArgumentTypes.Builder<BukkitCommandActor> builder = BukkitArgumentTypes.builder();
-        return brigadier(plugin, builder.build(), ActorFactory.defaultFactory());
+        return brigadier(plugin, builder.build(), ActorFactory.defaultFactory(plugin, Optional.empty()));
     }
 
     /**
@@ -219,7 +221,7 @@ public final class BukkitVisitors {
             @NotNull JavaPlugin plugin,
             @NotNull ArgumentTypes<? super BukkitCommandActor> argumentTypes
     ) {
-        return brigadier(plugin, argumentTypes, ActorFactory.defaultFactory());
+        return brigadier(plugin, argumentTypes, ActorFactory.defaultFactory(plugin, Optional.empty()));
     }
 
     /**

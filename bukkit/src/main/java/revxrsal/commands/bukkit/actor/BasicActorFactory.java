@@ -23,22 +23,44 @@
  */
 package revxrsal.commands.bukkit.actor;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.process.MessageSender;
+
+import java.util.Optional;
 
 /**
  * Default implementation of {@link ActorFactory}
  */
 final class BasicActorFactory implements ActorFactory<BukkitCommandActor> {
 
-    public static final ActorFactory<BukkitCommandActor> INSTANCE = new BasicActorFactory();
+    private final Plugin plugin;
+    private final Optional<BukkitAudiences> bukkitAudiences;
+    private final MessageSender<BukkitCommandActor, ComponentLike> messageSender;
+    private final MessageSender<BukkitCommandActor, ComponentLike> errorSender;
 
-    private BasicActorFactory() {
+    public BasicActorFactory(Plugin plugin, Optional<BukkitAudiences> bukkitAudiences) {
+        this(plugin, bukkitAudiences, null, null);
+    }
+
+    public BasicActorFactory(
+            Plugin plugin,
+            Optional<BukkitAudiences> bukkitAudiences,
+            MessageSender<BukkitCommandActor, ComponentLike> messageSender,
+            MessageSender<BukkitCommandActor, ComponentLike> errorSender
+    ) {
+        this.plugin = plugin;
+        this.bukkitAudiences = bukkitAudiences;
+        this.messageSender = messageSender;
+        this.errorSender = errorSender;
     }
 
     @Override
     public @NotNull BukkitCommandActor create(@NotNull CommandSender sender, @NotNull Lamp<BukkitCommandActor> lamp) {
-        return new BasicBukkitActor(sender, lamp);
+        return new BasicBukkitActor(sender, plugin, bukkitAudiences, messageSender, errorSender, lamp);
     }
 }
