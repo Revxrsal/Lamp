@@ -60,6 +60,8 @@ public final class TreeParser<A extends CommandActor> {
     private final Map<String, CommandParameter> methodParameters;
     private boolean requireOptionals;
     private boolean requireFlags;
+    private final Set<String> usedLongNames = new HashSet<>();
+    private final Set<Character> usedShortNames = new HashSet<>();
 
     private TreeParser(@NotNull CommandFunction fn, @NotNull Lamp<A> lamp) {
         this.fn = fn;
@@ -191,7 +193,31 @@ public final class TreeParser<A extends CommandActor> {
     private void pushNode(MutableCommandNode<A> node) {
         if (nodes.isEmpty() && !isLiteral(node))
             throw new IllegalArgumentException("First node must be a literal.");
+        validateFlagName(node);
         nodes.addLast(node);
+    }
+
+    private void validateFlagName(MutableCommandNode<A> node) {
+        if (!(node instanceof MutableParameterNode<?, ?> parameter)) {
+            return;
+        }
+        Switch switchAnn = parameter.parameter().getAnnotation(Switch.class);
+        Flag flag = parameter.parameter().getAnnotation(Flag.class);
+        if (flag != null)
+            validate(node, flag.value(), flag.shorthand());
+        if (switchAnn != null)
+            validate(node, switchAnn.value(), switchAnn.shorthand());
+    }
+
+    private void validate(MutableCommandNode<A> node, String value, char shorthand) {
+        String name = value.isEmpty() ? node.getName() : value;
+        Character shortcut = shorthand == '\0' ? null : shorthand;
+        if (!usedLongNames.add(name)) {
+            throw new IllegalArgumentException("Duplicate flag name: " + value);
+        }
+        if (shortcut != null && !usedShortNames.add(shortcut)) {
+            throw new IllegalArgumentException("Duplicate flag shorthand name: " + shortcut);
+        }
     }
 
     private MutableCommandNode<A> generateNode(@NotNull Token token) {
