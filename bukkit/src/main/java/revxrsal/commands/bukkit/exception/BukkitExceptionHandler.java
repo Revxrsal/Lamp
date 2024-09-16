@@ -15,7 +15,7 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
     }
 
     @HandleException
-    public void onInvalidPlayer(InvalidWorldException e, BukkitCommandActor actor) {
+    public void onInvalidWorld(InvalidWorldException e, BukkitCommandActor actor) {
         actor.error(legacyColorize("&cInvalid world: &e" + e.input() + "&c."));
     }
 

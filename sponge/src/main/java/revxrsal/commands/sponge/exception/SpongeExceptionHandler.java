@@ -15,7 +15,7 @@ public class SpongeExceptionHandler extends DefaultExceptionHandler<SpongeComman
     }
 
     @HandleException
-    public void onInvalidPlayer(InvalidWorldException e, SpongeCommandActor actor) {
+    public void onInvalidWorld(InvalidWorldException e, SpongeCommandActor actor) {
         actor.error(legacyColorize("&cInvalid world: &e" + e.input() + "&c."));
     }
 
