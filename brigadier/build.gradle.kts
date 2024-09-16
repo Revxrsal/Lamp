@@ -11,11 +11,5 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
-    implementation("com.mojang:brigadier:1.0.18")
-}
-
-
-tasks.withType<JavaCompile> {
-    // Preserve parameter names in the bytecode
-    options.compilerArgs.add("-parameters")
+    compileOnly("com.mojang:brigadier:1.0.18")
 }
