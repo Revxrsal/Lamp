@@ -26,9 +26,7 @@ package revxrsal.commands.minestom.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minestom.server.command.builder.CommandContext;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.exception.MissingArgumentException;
 import revxrsal.commands.minestom.actor.MinestomCommandActor;
 import revxrsal.commands.node.DispatcherSettings;
@@ -60,22 +58,15 @@ public final class MinestomUtils {
     /**
      * Converts a Minestom {@link CommandContext} into a Lamp {@link ExecutionContext}
      *
-     * @param context The Minestom context
-     * @param command The executable command in the context
-     * @param actor   The command actor
      * @param <A>     The actor type
-     * @return The newly created {@link ExecutionContext}
+     * @param context The Minestom context
      */
-    @Contract("_, _, _ -> new")
-    public static <A extends MinestomCommandActor> @NotNull ExecutionContext<A> toLampContext(
-            @NotNull CommandContext context,
-            @NotNull ExecutableCommand<A> command,
-            @NotNull A actor
+    public static <A extends MinestomCommandActor> void readIntoLampContext(
+            @NotNull MutableExecutionContext<A> executionContext,
+            @NotNull CommandContext context
     ) {
         notNull(context, "context");
-        StringStream input = StringStream.create(context.getInput());
-        MutableExecutionContext<A> executionContext = ExecutionContext.createMutable(command, actor, input);
-        for (ParameterNode<A, ?> parameter : command.parameters().values()) {
+        for (ParameterNode<A, ?> parameter : executionContext.command().parameters().values()) {
             Object o;
             if (parameter.isSwitch()) {
                 o = containsFlag(context, parameter.switchName());
@@ -91,7 +82,6 @@ public final class MinestomUtils {
                 executionContext.addResolvedArgument(parameter.name(), def);
             }
         }
-        return executionContext;
     }
 
     private static boolean containsFlag(CommandContext context, String name) {

@@ -51,7 +51,7 @@ import revxrsal.commands.stream.StringStream;
 
 import java.util.*;
 
-import static revxrsal.commands.minestom.util.MinestomUtils.toLampContext;
+import static revxrsal.commands.minestom.util.MinestomUtils.readIntoLampContext;
 
 public final class MinestomCommandHooks<A extends MinestomCommandActor> implements CommandRegisteredHook<A> {
 
@@ -130,30 +130,8 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
                     }
                 }
             }
+             minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
             addOptionalFlagsRecursively(command, minestomCommand, addedOptionals, arguments);
-//            List<Argument<?>> requiredArguments = new ArrayList<>();
-//            for (int i = 1; i < command.nodes().size(); i++) {
-//                CommandNode<A> node = command.nodes().get(i);
-//                if (node.isLiteral())
-//                    usedLiterals.add(node.name());
-//                else if (usedLiterals.contains(node.name()))
-//                    throw new IllegalArgumentException("You cannot have an argument named '" + node.name() + "' because it is used in the literal command path. " +
-//                            "Pick a different name!");
-//                if (node instanceof ParameterNode<?, ?> p) {
-//                    if (p.isFlag()) {
-//                        if (p.isOptional())
-//                            minestomCommand.addSyntax(generateAction(command), requiredArguments.toArray(Argument[]::new));
-//                        else
-//                            requiredArguments.add()
-//                    }
-//                    if (p.isSwitch())
-//                        minestomCommand.addSyntax(generateAction(command), requiredArguments.toArray(Argument[]::new));
-//                    if (p.isOptional())
-//                        minestomCommand.addSyntax(generateAction(command), requiredArguments.toArray(Argument[]::new));
-//                }
-//                requiredArguments.add(toArgument(command, node));
-//            }
-//            minestomCommand.addSyntax(generateAction(command), requiredArguments.toArray(Argument[]::new));
         }
     }
 
@@ -186,6 +164,7 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
 
     private ArgumentColl ofFlag(ParameterNode<A, ?> parameter) {
         ArgumentLiteral first = new ArgumentLiteral(DispatcherSettings.LONG_FORMAT_PREFIX + parameter.flagName());
+        first.setCallback(createCallback(parameter));
         return new ArgumentColl(
                 first,
                 toArgument(parameter)
@@ -202,7 +181,13 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
     private @NotNull CommandExecutor generateAction(@NotNull ExecutableCommand<A> command) {
         return (sender, mContext) -> {
             A actor = actorFactory.create(sender, command.lamp());
-            command.execute(toLampContext(mContext, command, actor));
+            MutableExecutionContext<A> context = ExecutionContext.createMutable(command, actor, StringStream.create(mContext.getInput()));
+            try {
+                readIntoLampContext(context, mContext);
+                command.execute(context);
+            } catch (Throwable t) {
+                command.lamp().handleException(t, ErrorContext.executingFunction(context));
+            }
         };
     }
 
@@ -318,7 +303,15 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
         Component tooltipMessage = Component.text(parameter.description() == null ? parameter.name() : parameter.description());
         return (sender, context, suggestion) -> {
             A actor = actorFactory.create(sender, command.lamp());
-            ExecutionContext<A> executionContext = toLampContext(context, command, actor);
+            MutableExecutionContext<A> executionContext = ExecutionContext.createMutable(
+                    command,
+                    actor,
+                    StringStream.create(context.getInput())
+            );
+            try {
+                readIntoLampContext(executionContext, context);
+            } catch (Throwable ignored) {
+            }
             Collection<String> suggestions = parameter.suggestions().getSuggestions(executionContext);
             for (String s : suggestions)
                 suggestion.addEntry(new SuggestionEntry(s, tooltipMessage));
