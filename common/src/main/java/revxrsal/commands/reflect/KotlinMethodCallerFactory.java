@@ -25,6 +25,7 @@ package revxrsal.commands.reflect;
 
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.Optional;
+import revxrsal.commands.annotation.Switch;
 import revxrsal.commands.reflect.ktx.KotlinFunction;
 
 import java.lang.reflect.Method;
@@ -47,7 +48,7 @@ final class KotlinMethodCallerFactory implements MethodCallerFactory {
             return function.call(
                     instance,
                     list,
-                    parameter -> parameter.isAnnotationPresent(Optional.class)
+                    parameter -> parameter.isAnnotationPresent(Optional.class) || parameter.isAnnotationPresent(Switch.class)
             );
         };
     }
