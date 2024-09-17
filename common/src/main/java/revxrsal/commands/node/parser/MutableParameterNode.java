@@ -67,7 +67,8 @@ final class MutableParameterNode<A extends CommandActor, T> extends MutableComma
 
     public void setType(@NotNull ParameterType<A, T> type) {
         this.type = type;
-        this.suggestions = type.defaultSuggestions();
+        if (suggestions == SuggestionProvider.empty())
+            this.suggestions = type.defaultSuggestions();
     }
 
     @Override
