@@ -34,6 +34,7 @@ import revxrsal.commands.command.*;
 import revxrsal.commands.exception.*;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.hook.Hooks;
+import revxrsal.commands.ktx.KotlinFeatureRegistry;
 import revxrsal.commands.node.CommandRegistry;
 import revxrsal.commands.node.DispatcherSettings;
 import revxrsal.commands.node.ParameterNamingStrategy;
@@ -605,6 +606,7 @@ public final class Lamp<A extends CommandActor> {
             responseHandler(CompletionStageResponseHandler.INSTANCE);
             responseHandler(OptionalResponseHandler.INSTANCE);
             commandCondition(PermissionConditionChecker.INSTANCE);
+            accept(KotlinFeatureRegistry.INSTANCE);
         }
 
         /**
