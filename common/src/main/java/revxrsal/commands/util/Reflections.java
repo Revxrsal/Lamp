@@ -72,7 +72,15 @@ public final class Reflections {
                 CommandPriority a2 = o2.getAnnotation(CommandPriority.class);
                 if (a1 != null && a2 != null)
                     return Integer.compare(a1.value(), a2.value());
-                return 0;
+
+                CommandPriority.Low l1 = o1.getAnnotation(CommandPriority.Low.class);
+                CommandPriority.Low l2 = o2.getAnnotation(CommandPriority.Low.class);
+                if (l1 != null)
+                    return 1;
+                else if (l2 != null)
+                    return -1;
+                else
+                    return 0;
             });
         }
         return methods;

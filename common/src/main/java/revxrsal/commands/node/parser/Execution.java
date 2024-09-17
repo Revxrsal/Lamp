@@ -59,6 +59,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final String path;
     private final boolean containsFlags;
     private int optionalParameters, requiredInput;
+    private final boolean lowPriority;
 
     public Execution(CommandFunction function, List<CommandNode<A>> nodes) {
         this.function = function;
@@ -81,6 +82,10 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                 .mapOr(CommandPriority.class, c -> OptionalInt.of(c.value()), OptionalInt.empty());
         this.siblingPath = computeSiblingPath();
         this.containsFlags = any(nodes, n -> n instanceof ParameterNode<?, ?> p && (p.isFlag() || p.isSwitch()));
+        this.lowPriority = function.annotations().contains(CommandPriority.Low.class);
+        if (lowPriority && priority.isPresent()) {
+            throw new IllegalArgumentException("You cannot have @CommandPriority and @CommandPriority.Low on the same function!");
+        }
     }
 
     private static boolean isOptional(@NotNull CommandNode<? extends CommandActor> node) {
@@ -274,7 +279,9 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         if (!(o instanceof Execution<A> exec)) {
             return 0; // Handle the case where o is not an instance of Execution
         }
-
+        if (lowPriority != exec.lowPriority) {
+            return lowPriority ? 1 : -1;
+        }
         // Compare by priority if both have priorities
         if (commandPriority().isPresent() && o.commandPriority().isPresent()) {
             return Integer.compare(commandPriority().getAsInt(), o.commandPriority().getAsInt());

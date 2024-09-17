@@ -50,7 +50,22 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandPriority {
 
-
+    /**
+     * The priority value
+     *
+     * @return The priority
+     */
     int value();
+
+    /**
+     * Represents a command with a low priority. Unlike {@link CommandPriority}, this
+     * will always be lower than any other command, regardless of whether the other
+     * command has a priority or not.
+     * <p>
+     * Two commands with {@link Low @Low} priority will be of equal priority.
+     */
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Low {}
 
 }
