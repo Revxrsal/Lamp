@@ -41,6 +41,7 @@ import java.util.Objects;
 
 import static revxrsal.commands.node.DispatcherSettings.LONG_FORMAT_PREFIX;
 import static revxrsal.commands.node.DispatcherSettings.SHORT_FORMAT_PREFIX;
+import static revxrsal.commands.reflect.ktx.KotlinConstants.isKotlinClass;
 import static revxrsal.commands.util.Collections.filter;
 import static revxrsal.commands.util.Strings.removeRanges;
 
@@ -92,9 +93,10 @@ final class FlagParser<A extends CommandActor> {
                 }
             }
             for (ParameterNode<A, Object> parameter : parametersLeft) {
-                if (parameter.isSwitch())
-                    context.addResolvedArgument(parameter.name(), false);
-                else if (parameter.isFlag()) {
+                if (parameter.isSwitch()) {
+                    if (!isKotlinClass(parameter.command().function().method().getDeclaringClass()))
+                        context.addResolvedArgument(parameter.name(), false);
+                } else if (parameter.isFlag()) {
                     parseFlag(context, parameter, StringStream.createMutable(""));
                 }
             }

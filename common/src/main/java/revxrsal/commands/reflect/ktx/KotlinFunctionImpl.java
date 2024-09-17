@@ -161,6 +161,10 @@ final class KotlinFunctionImpl implements KotlinFunction {
         CallableMethod defaultMethod = this.defaultMethod.get();
 
         if (defaultMethod == null) {
+            // there's a possibility that our isOptional checker failed.
+            if (mainMethod.method().getParameterCount() == args.size())
+                //noinspection unchecked
+                return (T) mainMethod.caller().call(instance, args.toArray());
             throw new IllegalArgumentException("""
                     Unable to invoke function with default parameters.\s
                     This may happen because you have an @Optional non-null primitive type (e.g. Int) \
