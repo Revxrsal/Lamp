@@ -42,6 +42,7 @@ import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.MutableStringStreamImpl;
 import revxrsal.commands.stream.StringStream;
+import revxrsal.commands.util.Classes;
 
 import java.util.Collection;
 
@@ -75,6 +76,9 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
         this.isOptional = isOptional;
         this.switchAnn = parameter.getAnnotation(Switch.class);
         this.flagAnn = parameter.getAnnotation(Flag.class);
+        if (isSwitch() && Classes.wrap(type()) != Boolean.class) {
+            throw new IllegalArgumentException("@Switch can only be used on boolean types!");
+        }
         if (isSwitch() && isFlag()) {
             throw new IllegalArgumentException("A parameter cannot have @Switch and @Flag at the same time!");
         }
