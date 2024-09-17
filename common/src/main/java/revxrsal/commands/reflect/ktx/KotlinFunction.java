@@ -1,5 +1,5 @@
 /*
- * This file is part of Lamp, licensed under the MIT License.
+ * This file is part of lamp, licensed under the MIT License.
  *
  *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
  *
