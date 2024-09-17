@@ -1,5 +1,15 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.10")
+    }
+}
+
 plugins {
     id("java")
     id("com.vanniktech.maven.publish") version "0.29.0"

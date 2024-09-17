@@ -1,15 +1,8 @@
 import xyz.jpenilla.resourcefactory.bukkit.BukkitPluginYaml
 
-buildscript {
-    repositories {
-        gradlePluginPortal()
-        maven("https://repo.papermc.io/repository/maven-public/")
-    }
-}
-
 plugins {
     id("java")
-    kotlin("jvm") version "2.0.10"
+    kotlin("jvm")
     id("io.papermc.paperweight.userdev") version "1.7.2"
     id("com.gradleup.shadow") version "8.3.0"
 
