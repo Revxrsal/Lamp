@@ -175,7 +175,6 @@ public interface PluginMeta {
      *
      * @return an immutable list of permissions
      */
-    // TODO: Do we even want this? Why not just use the bootstrapper
     @NotNull
     List<Permission> getPermissions();
 
@@ -185,7 +184,6 @@ public interface PluginMeta {
      * @return the bukkit permission default container.
      * @see #getPermissions()
      */
-    // TODO: Do we even want this? Why not just use the bootstrapper
     @NotNull
     PermissionDefault getPermissionDefault();
 
