@@ -43,12 +43,8 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.MutableStringStreamImpl;
 import revxrsal.commands.stream.StringStream;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import static revxrsal.commands.node.DispatcherSettings.LONG_FORMAT_PREFIX;
-import static revxrsal.commands.node.DispatcherSettings.SHORT_FORMAT_PREFIX;
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
 
 final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode<A> implements ParameterNode<A, T> {
@@ -178,23 +174,6 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
 
     @Override
     public @NotNull Collection<String> complete(@NotNull A actor, @NotNull StringStream input, @NotNull ExecutionContext<A> context) {
-        Collection<String> parameterSuggestions = suggestions.getSuggestions(context);
-        if (isFlag()) {
-            String longPrefix = LONG_FORMAT_PREFIX + flagName() + ' ';
-            String shortPrefix = SHORT_FORMAT_PREFIX + flagName() + ' ';
-            List<String> s = new ArrayList<>();
-            parameterSuggestions.forEach(suggestion -> {
-                s.add(longPrefix + suggestion);
-                s.add(shortPrefix + suggestion);
-            });
-            return s;
-        }
-        if (isSwitch()) {
-            return List.of(
-                    LONG_FORMAT_PREFIX + switchName(),
-                    SHORT_FORMAT_PREFIX + switchName()
-            );
-        }
         return suggestions.getSuggestions(context);
     }
 

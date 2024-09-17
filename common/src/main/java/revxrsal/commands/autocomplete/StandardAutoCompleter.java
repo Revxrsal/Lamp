@@ -24,6 +24,7 @@
 package revxrsal.commands.autocomplete;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
@@ -31,12 +32,12 @@ import revxrsal.commands.node.*;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
+import static revxrsal.commands.node.DispatcherSettings.LONG_FORMAT_PREFIX;
+import static revxrsal.commands.node.DispatcherSettings.SHORT_FORMAT_PREFIX;
 import static revxrsal.commands.util.Collections.filter;
+import static revxrsal.commands.util.Collections.map;
 
 /**
  * A basic implementation of {@link AutoCompleter} that respects secret
@@ -104,7 +105,93 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
 
     private List<String> complete(ExecutableCommand<A> possible, MutableStringStream input, A actor) {
         MutableExecutionContext<A> context = ExecutionContext.createMutable(possible, actor, input.toImmutableCopy());
+        List<String> withoutFlags = completeWithoutFlags(possible, input, actor, context);
+        if (!possible.containsFlags())
+            return withoutFlags;
+        List<ParameterNode<A, Object>> flags = filter(possible.parameters().values(), c -> c.isFlag() || c.isSwitch());
+        while (input.hasRemaining()) {
+            if (input.peek() == ' ')
+                input.moveForward();
+            String next = input.peekUnquotedString();
+            if (next.startsWith(LONG_FORMAT_PREFIX)) {
+                String flagName = next.substring(LONG_FORMAT_PREFIX.length());
+                @Nullable ParameterNode<A, Object> parameter = removeParameterNamed(flags, flagName);
+                input.readUnquotedString();
+                if (input.hasFinished())
+                    return List.of();
+                if (input.hasRemaining() && input.peek() == ' ') {
+                    input.moveForward();
+                }
+                if (input.hasFinished() && parameter != null) {
+                    return List.copyOf(parameter.suggestions().getSuggestions(context));
+                } else {
+                    if (parameter != null) {
+                        tryParseFlag(parameter, input, context);
+                        if (input.hasFinished() || input.peek() != ' ') {
+                            return List.of();
+                        }
+                    }
+                    continue;
+                }
+            } else if (next.startsWith(SHORT_FORMAT_PREFIX)) {
+                String shortenedString = next.substring(SHORT_FORMAT_PREFIX.length());
+                char[] spec = shortenedString.toCharArray();
+                input.readUnquotedString();
+                for (char flag : spec) {
+                    @Nullable ParameterNode<A, Object> parameter = removeParameterWithShorthand(flags, flag);
+                    if (parameter == null)
+                        continue;
+                    tryParseFlag(parameter, input, context);
+                    if (input.hasRemaining() && input.peek() == ' ') {
+                        input.moveForward();
+                        return List.copyOf(parameter.suggestions().getSuggestions(context));
+                    } else if (input.hasFinished()) {
+                        return flags.stream().map(f -> {
+                                    if (f.shorthand() != null) {
+                                        String result = SHORT_FORMAT_PREFIX + shortenedString + f.shorthand();
+                                        return f.isFlag() ? result + ' ' : result;
+                                    }
+                                    return null;
+                                }).filter(Objects::nonNull)
+                                .toList();
+                    }
+                }
+            } else {
+                break;
+            }
+        }
+        return map(flags, c -> LONG_FORMAT_PREFIX + (c.isSwitch() ? c.switchName() : c.flagName()));
+    }
+
+    private void tryParseFlag(@NotNull ParameterNode<A, Object> parameter, MutableStringStream input, MutableExecutionContext<A> context) {
+        if (parameter.isSwitch()) {
+            context.addResolvedArgument(parameter.name(), true);
+        } else {
+            try {
+                input.moveForward();
+                if (parameter.isSwitch()) {
+                    context.addResolvedArgument(parameter.name(), true);
+                    return;
+                }
+                Object value = parameter.parse(input, context);
+                context.addResolvedArgument(parameter.name(), value);
+            } catch (Throwable ignored) {
+                input.readUnquotedString();
+            }
+        }
+    }
+
+    private @NotNull List<String> completeWithoutFlags(
+            ExecutableCommand<A> possible,
+            MutableStringStream input,
+            A actor,
+            MutableExecutionContext<A> context
+    ) {
         for (CommandNode<A> child : possible.nodes()) {
+            if (child instanceof ParameterNode<A, ?> parameter) {
+                if (parameter.isFlag() || parameter.isSwitch())
+                    break;
+            }
             if (input.remaining() == 1 && input.peek() == ' ') {
                 input.moveForward();
                 return promptWith(child, actor, context, input);
@@ -171,7 +258,8 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
         return List.of();
     }
 
-    private @NotNull List<String> promptWith(CommandNode<A> child, A actor, ExecutionContext<A> context, StringStream input) {
+    private @NotNull List<String> promptWith(CommandNode<A> child, A
+            actor, ExecutionContext<A> context, StringStream input) {
         if (child instanceof LiteralNode<A> l)
             return List.of(l.name());
         else if (child instanceof ParameterNode<A, ?> p)
@@ -179,4 +267,34 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
         else
             return List.of();
     }
+
+    private @Nullable ParameterNode<A, Object> removeParameterWithShorthand
+            (List<ParameterNode<A, Object>> parametersLeft, char c) {
+        for (Iterator<ParameterNode<A, Object>> iterator = parametersLeft.iterator(); iterator.hasNext(); ) {
+            ParameterNode<A, Object> value = iterator.next();
+            Character shorthand = value.shorthand();
+            if (shorthand != null && shorthand == c) {
+                iterator.remove();
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private @Nullable ParameterNode<A, Object> removeParameterNamed
+            (List<ParameterNode<A, Object>> parametersLeft, String name) {
+        for (Iterator<ParameterNode<A, Object>> iterator = parametersLeft.iterator(); iterator.hasNext(); ) {
+            ParameterNode<A, Object> value = iterator.next();
+            if (value.isFlag() && Objects.equals(value.flagName(), name)) {
+                iterator.remove();
+                return value;
+            }
+            if (value.isSwitch() && Objects.equals(value.switchName(), name)) {
+                iterator.remove();
+                return value;
+            }
+        }
+        return null;
+    }
+
 }
