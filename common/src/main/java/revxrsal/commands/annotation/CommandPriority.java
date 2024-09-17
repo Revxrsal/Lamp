@@ -43,8 +43,12 @@ import java.lang.annotation.Target;
  * Note that this annotation is <em>only</em> considered when two methods
  * both define a {@link CommandPriority}. It is meaningless to compare a method
  * with a priority with a method that has no priority.
+ * <p>
+ * If you would like to make a command universally of low priority,
+ * use {@link Low}
  *
  * @see PrioritySpec
+ * @see Low
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
