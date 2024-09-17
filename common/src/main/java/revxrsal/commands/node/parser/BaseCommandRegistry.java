@@ -37,6 +37,7 @@ import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.command.Potential;
 import revxrsal.commands.exception.UnknownCommandException;
 import revxrsal.commands.exception.context.ErrorContext;
+import revxrsal.commands.node.CommandRegistry;
 import revxrsal.commands.reflect.MethodCaller.BoundMethodCaller;
 import revxrsal.commands.reflect.MethodCallerFactory;
 import revxrsal.commands.stream.MutableStringStream;
@@ -53,17 +54,19 @@ import static revxrsal.commands.util.Collections.unmodifiableIterator;
 import static revxrsal.commands.util.Reflections.getAllMethods;
 
 @ApiStatus.Internal
-public final class CommandRegistry<A extends CommandActor> implements Iterable<ExecutableCommand<A>> {
+public final class BaseCommandRegistry<A extends CommandActor> implements CommandRegistry<A> {
 
     private final List<ExecutableCommand<A>> children;
+    private final List<ExecutableCommand<A>> unmodifiableChildren;
     private final Lamp<A> lamp;
 
-    public CommandRegistry(Lamp<A> lamp, List<ExecutableCommand<A>> children) {
+    public BaseCommandRegistry(Lamp<A> lamp, List<ExecutableCommand<A>> children) {
         this.children = children;
         this.lamp = lamp;
+        unmodifiableChildren = Collections.unmodifiableList(children);
     }
 
-    public CommandRegistry(Lamp<A> lamp) {
+    public BaseCommandRegistry(Lamp<A> lamp) {
         this(lamp, new ArrayList<>());
     }
 
@@ -117,7 +120,8 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
 
     private void injectDependencies(Class<?> commandClass, Object instance) {
         for (Field field : commandClass.getDeclaredFields()) {
-            if (!field.isAnnotationPresent(Dependency.class)) continue;
+            if (!field.isAnnotationPresent(Dependency.class))
+                continue;
             if (!field.isAccessible())
                 field.setAccessible(true);
             Object dependency = lamp.dependency(field.getType());
@@ -129,11 +133,12 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
         }
     }
 
-    public void add(@NotNull ExecutableCommand<A> command) {
+    private void add(@NotNull ExecutableCommand<A> command) {
         children.add(command);
         Collections.sort(children);
     }
 
+    @Override
     public void execute(@NotNull A actor, @NotNull ExecutableCommand<A> command, @NotNull MutableStringStream input) {
         Potential<A> potential = command.test(actor, input);
         if (potential.failed())
@@ -142,6 +147,11 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
             potential.execute();
     }
 
+    @Override public @NotNull Lamp<A> lamp() {
+        return lamp;
+    }
+
+    @Override
     public void execute(@NotNull A actor, @NotNull StringStream input) {
         LinkedList<Potential<A>> conflicts = new LinkedList<>();
         LinkedList<Potential<A>> failed = new LinkedList<>();
@@ -175,15 +185,15 @@ public final class CommandRegistry<A extends CommandActor> implements Iterable<E
         conflicts.getFirst().execute();
     }
 
-    public @NotNull @UnmodifiableView List<ExecutableCommand<A>> children() {
-        return Collections.unmodifiableList(children);
+    @Override public @NotNull @UnmodifiableView List<ExecutableCommand<A>> commands() {
+        return unmodifiableChildren;
     }
 
-    public void unregister(ExecutableCommand<A> execution) {
+    @Override public void unregister(@NotNull ExecutableCommand<A> execution) {
         children.remove(execution);
     }
 
-    public void unregisterIf(Predicate<ExecutableCommand<A>> matches) {
+    @Override public void unregisterIf(@NotNull Predicate<ExecutableCommand<A>> matches) {
         children.removeIf(matches);
     }
 

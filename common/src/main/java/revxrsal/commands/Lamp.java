@@ -34,10 +34,11 @@ import revxrsal.commands.command.*;
 import revxrsal.commands.exception.*;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.hook.Hooks;
+import revxrsal.commands.node.CommandRegistry;
 import revxrsal.commands.node.DispatcherSettings;
 import revxrsal.commands.node.ParameterNamingStrategy;
 import revxrsal.commands.node.ParameterNode;
-import revxrsal.commands.node.parser.CommandRegistry;
+import revxrsal.commands.node.parser.BaseCommandRegistry;
 import revxrsal.commands.orphan.OrphanCommand;
 import revxrsal.commands.orphan.OrphanRegistry;
 import revxrsal.commands.orphan.Orphans;
@@ -89,7 +90,7 @@ public final class Lamp<A extends CommandActor> {
     private final Map<Class<?>, Supplier<Object>> dependencies;
     private final CommandExceptionHandler<A> exceptionHandler;
     private final DispatcherSettings<A> dispatcherSettings;
-    private final CommandRegistry<A> tree;
+    private final BaseCommandRegistry<A> tree;
     private final AutoCompleter<A> autoCompleter;
 
     public Lamp(Builder<A> builder) {
@@ -108,7 +109,7 @@ public final class Lamp<A extends CommandActor> {
         this.hooks = builder.hooks.build();
         this.exceptionHandler = builder.exceptionHandler;
         this.dispatcherSettings = builder.dispatcherSettings.build();
-        this.tree = new CommandRegistry<>(this);
+        this.tree = new BaseCommandRegistry<>(this);
         this.autoCompleter = AutoCompleter.create(this);
     }
 
@@ -350,14 +351,11 @@ public final class Lamp<A extends CommandActor> {
     }
 
     /**
-     * Returns the command registry. Most users should avoid
-     * interacting with this object, and instead register commands
-     * with {@link #register(Object...)} and {@link #unregister(ExecutableCommand)}
+     * Returns the command registry.
      *
      * @return The command registry
      */
-    @ApiStatus.Internal
-    public CommandRegistry<A> registry() {
+    public @NotNull CommandRegistry<A> registry() {
         return tree;
     }
 

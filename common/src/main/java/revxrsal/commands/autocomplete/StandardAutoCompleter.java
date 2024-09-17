@@ -90,7 +90,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
             return Collections.emptyList();
         String firstWord = input.peekUnquotedString();
 
-        for (ExecutableCommand<A> possible : lamp.registry().children()) {
+        for (ExecutableCommand<A> possible : lamp.registry().commands()) {
             if (possible.isSecret())
                 continue;
             if (!possible.firstNode().name().startsWith(firstWord))

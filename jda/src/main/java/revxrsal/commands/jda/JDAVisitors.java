@@ -64,7 +64,7 @@ public final class JDAVisitors {
     public static <A extends SlashCommandActor> @NotNull LampVisitor<A> slashCommands(@NotNull JDA jda, @NotNull SlashActorFactory<A> actorFactory) {
         return lamp -> {
             JDAParser<A> parser = new JDAParser<>();
-            for (ExecutableCommand<A> child : lamp.registry().children()) {
+            for (ExecutableCommand<A> child : lamp.registry().commands()) {
                 parser.parse(child);
             }
             jda.updateCommands().addCommands(parser.commands().values()).queue();

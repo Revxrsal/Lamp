@@ -200,7 +200,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     @Override public Help.@NotNull RelatedCommands<A> relatedCommands(@Nullable A filterFor) {
         return new HelpImpl.RelatedCommandsImpl<>(
-                filter(lamp().registry().children(), command -> {
+                filter(lamp().registry().commands(), command -> {
                     return command != this
                             && !command.isSecret()
                             && isRelatedTo(command)
@@ -212,7 +212,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     @Override public Help.@NotNull ChildrenCommands<A> childrenCommands(@Nullable A filterFor) {
         return new HelpImpl.ChildrenCommandsImpl<>(
-                filter(lamp().registry().children(), command -> {
+                filter(lamp().registry().commands(), command -> {
                     return command != this
                             && !command.isSecret()
                             && isParentOf(command)
@@ -224,7 +224,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     @Override public Help.@NotNull SiblingCommands<A> siblingCommands(@Nullable A filterFor) {
         return new HelpImpl.SiblingCommandsImpl<>(
-                filter(lamp().registry().children(), command -> {
+                filter(lamp().registry().commands(), command -> {
                     return command != this
                             && !command.isSecret()
                             && isSiblingOf(command)

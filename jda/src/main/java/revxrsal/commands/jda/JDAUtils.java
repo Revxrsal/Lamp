@@ -93,7 +93,7 @@ public final class JDAUtils {
             @NotNull List<OptionMapping> options
     ) {
         List<ExecutableCommand<A>> potential = new ArrayList<>();
-        for (ExecutableCommand<A> command : lamp.registry().children()) {
+        for (ExecutableCommand<A> command : lamp.registry().commands()) {
             if (getRequiredPath(command).equals(fullPath)) {
                 potential.add(command);
             }
