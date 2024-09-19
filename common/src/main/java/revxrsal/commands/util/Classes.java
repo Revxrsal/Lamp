@@ -195,7 +195,7 @@ public final class Classes {
      */
     @Deprecated
     @Contract("_,_ -> param2")
-    public static Type getFirstGeneric(Class<?> cl, Type fallback) {
+    public static Type getFirstGeneric(@NotNull Class<?> cl, @NotNull Type fallback) {
         return fallback;
     }
 
@@ -208,7 +208,7 @@ public final class Classes {
      * @param fallback    The fallback to return
      * @return The generic type
      */
-    public static Type getFirstGeneric(Type genericType, Type fallback) {
+    public static Type getFirstGeneric(@NotNull Type genericType, @NotNull Type fallback) {
         try {
             return ((ParameterizedType) genericType).getActualTypeArguments()[0];
         } catch (ClassCastException e) {
@@ -216,6 +216,29 @@ public final class Classes {
         }
     }
 
+    /**
+     * Tests whether the given class is available or not
+     *
+     * @param name Class name to test
+     * @return If the class is present or not
+     */
+    public static boolean isClassPresent(@NotNull String name) {
+        try {
+            Class.forName(name);
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    /**
+     * Puts the primitive type in both maps bi-directionally
+     *
+     * @param forward  Forward map
+     * @param backward Backward type
+     * @param key      Key to put
+     * @param value    Value to put
+     */
     private static void addPrimitive(
             Map<Class<?>, Class<?>> forward,
             Map<Class<?>, Class<?>> backward,
