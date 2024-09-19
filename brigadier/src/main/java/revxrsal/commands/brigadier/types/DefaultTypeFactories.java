@@ -39,6 +39,7 @@ final class DefaultTypeFactories {
             return parameter.isGreedy() ? StringArgumentType.greedyString() : StringArgumentType.string();
         return null;
     };
+
     public static final ArgumentTypeFactory<CommandActor> INTEGER = parameter -> {
         if (wrap(parameter.type()) == Integer.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -48,6 +49,7 @@ final class DefaultTypeFactories {
         }
         return null;
     };
+
     public static final ArgumentTypeFactory<CommandActor> SHORT = parameter -> {
         if (wrap(parameter.type()) == Short.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -57,6 +59,7 @@ final class DefaultTypeFactories {
         }
         return null;
     };
+
     public static final ArgumentTypeFactory<CommandActor> BYTE = parameter -> {
         if (wrap(parameter.type()) == Byte.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -66,6 +69,7 @@ final class DefaultTypeFactories {
         }
         return null;
     };
+
     public static final ArgumentTypeFactory<CommandActor> LONG = parameter -> {
         if (wrap(parameter.type()) == Long.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -75,6 +79,7 @@ final class DefaultTypeFactories {
         }
         return null;
     };
+
     public static final ArgumentTypeFactory<CommandActor> DOUBLE = parameter -> {
         if (wrap(parameter.type()) == Double.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -84,6 +89,7 @@ final class DefaultTypeFactories {
         }
         return null;
     };
+
     public static final ArgumentTypeFactory<CommandActor> FLOAT = parameter -> {
         if (wrap(parameter.type()) == Double.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -93,6 +99,7 @@ final class DefaultTypeFactories {
         }
         return null;
     };
+
     public static final ArgumentTypeFactory<CommandActor> BOOLEAN = ArgumentTypeFactory.forType(boolean.class, BoolArgumentType.bool());
     public static final ArgumentTypeFactory<CommandActor> CHAR = ArgumentTypeFactory.forType(char.class, StringArgumentType.string());
 
