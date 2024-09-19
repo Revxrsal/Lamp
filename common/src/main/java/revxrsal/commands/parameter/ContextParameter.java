@@ -63,6 +63,7 @@ public interface ContextParameter<A extends CommandActor, T> {
      *
      * @param <A> The command actor type
      */
+    @FunctionalInterface
     interface Factory<A extends CommandActor> extends ParameterFactory {
 
         /**
