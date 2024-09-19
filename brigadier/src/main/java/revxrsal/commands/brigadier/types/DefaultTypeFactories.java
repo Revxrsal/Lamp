@@ -34,12 +34,19 @@ import static revxrsal.commands.util.Classes.wrap;
  */
 final class DefaultTypeFactories {
 
+    /**
+     * Creates {@link StringArgumentType} argument types for strings
+     */
     public static final ArgumentTypeFactory<CommandActor> STRING = parameter -> {
         if (parameter.type() == String.class)
             return parameter.isGreedy() ? StringArgumentType.greedyString() : StringArgumentType.string();
         return null;
     };
 
+    /**
+     * Creates {@link IntegerArgumentType} argument types for integers, with optional
+     * range constraints.
+     */
     public static final ArgumentTypeFactory<CommandActor> INTEGER = parameter -> {
         if (wrap(parameter.type()) == Integer.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -50,6 +57,10 @@ final class DefaultTypeFactories {
         return null;
     };
 
+    /**
+     * Creates {@link IntegerArgumentType} argument types for shorts, with optional
+     * range constraints.
+     */
     public static final ArgumentTypeFactory<CommandActor> SHORT = parameter -> {
         if (wrap(parameter.type()) == Short.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -60,6 +71,10 @@ final class DefaultTypeFactories {
         return null;
     };
 
+    /**
+     * Creates {@link IntegerArgumentType} argument types for bytes, with optional
+     * range constraints.
+     */
     public static final ArgumentTypeFactory<CommandActor> BYTE = parameter -> {
         if (wrap(parameter.type()) == Byte.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -70,6 +85,10 @@ final class DefaultTypeFactories {
         return null;
     };
 
+    /**
+     * Creates {@link LongArgumentType} argument types for longs, with optional
+     * range constraints.
+     */
     public static final ArgumentTypeFactory<CommandActor> LONG = parameter -> {
         if (wrap(parameter.type()) == Long.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -80,6 +99,10 @@ final class DefaultTypeFactories {
         return null;
     };
 
+    /**
+     * Creates {@link DoubleArgumentType} argument types for doubles, with optional
+     * range constraints.
+     */
     public static final ArgumentTypeFactory<CommandActor> DOUBLE = parameter -> {
         if (wrap(parameter.type()) == Double.class) {
             Range range = parameter.annotations().get(Range.class);
@@ -90,8 +113,12 @@ final class DefaultTypeFactories {
         return null;
     };
 
+    /**
+     * Creates {@link FloatArgumentType} argument types for floats, with optional
+     * range constraints.
+     */
     public static final ArgumentTypeFactory<CommandActor> FLOAT = parameter -> {
-        if (wrap(parameter.type()) == Double.class) {
+        if (wrap(parameter.type()) == Float.class) {
             Range range = parameter.annotations().get(Range.class);
             if (range == null)
                 return FloatArgumentType.floatArg();
@@ -100,8 +127,17 @@ final class DefaultTypeFactories {
         return null;
     };
 
-    public static final ArgumentTypeFactory<CommandActor> BOOLEAN = ArgumentTypeFactory.forType(boolean.class, BoolArgumentType.bool());
-    public static final ArgumentTypeFactory<CommandActor> CHAR = ArgumentTypeFactory.forType(char.class, StringArgumentType.string());
+    /**
+     * Creates {@link BoolArgumentType} argument types for booleans.
+     */
+    public static final ArgumentTypeFactory<CommandActor> BOOLEAN = ArgumentTypeFactory.forType(boolean.class,
+            BoolArgumentType.bool());
+
+    /**
+     * Creates {@link StringArgumentType} argument types for characters.
+     */
+    public static final ArgumentTypeFactory<CommandActor> CHAR = ArgumentTypeFactory.forType(char.class,
+            StringArgumentType.string());
 
     private DefaultTypeFactories() {}
 
