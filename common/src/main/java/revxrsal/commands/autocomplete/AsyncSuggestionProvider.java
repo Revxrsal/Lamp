@@ -40,7 +40,7 @@ import java.util.concurrent.CompletableFuture;
  * block.
  */
 @FunctionalInterface
-public interface AsyncSuggestionProvider<A extends CommandActor> {
+public interface AsyncSuggestionProvider<A extends CommandActor> extends BaseSuggestionProvider {
 
     /**
      * Returns the suggestions

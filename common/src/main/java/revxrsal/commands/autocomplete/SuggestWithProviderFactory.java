@@ -51,6 +51,8 @@ enum SuggestWithProviderFactory implements SuggestionProvider.Factory<CommandAct
             return (SuggestionProvider<CommandActor>) pType;
         } else if (type instanceof SuggestionProvider.Factory<?> factory) {
             return factory.create(parameterType, annotations, (Lamp) lamp);
+        } else if (type instanceof AsyncSuggestionProvider<?> async) {
+            return (SuggestionProvider<CommandActor>) SuggestionProvider.fromAsync(async);
         } else {
             throw new IllegalArgumentException("Don't know how to create a SuggestionProvider from " + type);
         }
