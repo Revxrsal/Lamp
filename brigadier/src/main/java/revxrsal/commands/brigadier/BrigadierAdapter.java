@@ -29,12 +29,14 @@ import com.mojang.brigadier.Message;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.context.StringRange;
+import com.mojang.brigadier.suggestion.*;
 import com.mojang.brigadier.tree.CommandNode;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
+import revxrsal.commands.autocomplete.AsyncSuggestionProvider;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.Potential;
 import revxrsal.commands.node.ExecutionContext;
@@ -42,6 +44,9 @@ import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
+
+import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 import static revxrsal.commands.autocomplete.SuggestionProvider.empty;
 import static revxrsal.commands.util.Strings.stripNamespace;
@@ -73,7 +78,8 @@ public final class BrigadierAdapter {
             ParameterNode<A, ?> parameter,
             BrigadierConverter<A, S> converter
     ) {
-        if (parameter.suggestions().equals(empty())) {
+        var suggestions = parameter.suggestions();
+        if (suggestions.equals(empty())) {
             if (parameter.parameterType() instanceof BrigadierParameterType<?, ?> brigadierParameterType) {
                 return brigadierParameterType.argumentType::listSuggestions;
             }
@@ -91,13 +97,54 @@ public final class BrigadierAdapter {
                 stream = StringStream.createMutable(stripNamespace(input));
 
             Potential<A> test = parameter.command().test(actor, stream.toMutableCopy());
-            parameter.suggestions().getSuggestions(test.context())
+            if (suggestions instanceof AsyncSuggestionProvider<?>) {
+                //noinspection unchecked
+                return provideAsyncCompletions((AsyncSuggestionProvider<A>) suggestions, builder, test.context(), tooltip);
+            }
+
+            var values = suggestions.getSuggestions(test.context())
                     .stream()
                     .sorted(String.CASE_INSENSITIVE_ORDER)
                     .distinct()
-                    .forEach(c -> builder.suggest(c, tooltip));
-            return builder.buildFuture();
+                    .map(s -> toSuggestion(s, builder, tooltip))
+                    .toList();
+            return CompletableFuture.completedFuture(Suggestions.create(builder.getInput(), values));
         };
+    }
+
+    public static <A extends CommandActor> @NotNull CompletableFuture<Suggestions> provideAsyncCompletions(
+            @NotNull AsyncSuggestionProvider<A> suggestions,
+            @NotNull SuggestionsBuilder builder,
+            @NotNull ExecutionContext<A> context,
+            @Nullable Message tooltip
+    ) {
+        CompletableFuture<Collection<String>> completions = suggestions
+                .getSuggestionsAsync(context);
+        return completions.thenApply(strings -> {
+            return Suggestions.create(builder.getInput(),
+                    strings.stream()
+                            .sorted(String.CASE_INSENSITIVE_ORDER)
+                            .distinct()
+                            .map(v -> toSuggestion(v, builder, tooltip))
+                            .toList());
+        });
+    }
+
+    private static @NotNull Suggestion toSuggestion(
+            @NotNull String value,
+            @NotNull SuggestionsBuilder builder,
+            @Nullable Message tooltip
+    ) {
+        try {
+            int intValue = Integer.parseInt(value);
+            return new IntegerSuggestion(
+                    StringRange.between(builder.getStart(), builder.getInput().length()), intValue, tooltip
+            );
+        } catch (NumberFormatException e) {
+            return new Suggestion(
+                    StringRange.between(builder.getStart(), builder.getInput().length()), value, tooltip
+            );
+        }
     }
 
     /**

@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.autocomplete;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.Lamp;
@@ -51,6 +52,23 @@ public interface SuggestionProvider<A extends CommandActor> extends BaseSuggesti
     static <A extends CommandActor> @NotNull SuggestionProvider<A> empty() {
         //noinspection unchecked
         return (SuggestionProvider<A>) EmptySuggestionProvider.INSTANCE;
+    }
+
+    /**
+     * Creates a {@link SuggestionProvider} that provides suggestions asynchronously.
+     * <p>
+     * Note: The ability to provide asynchronous completions is platform-dependent.
+     * In platforms where such behavior is unsupported, Lamp will fall back to
+     * normal completions, and {@link AsyncSuggestionProvider#getSuggestionsAsync(ExecutionContext)} will
+     * block.
+     *
+     * @param provider The asynchronous provider
+     * @param <A> The actor type
+     * @return The {@link SuggestionProvider}
+     */
+    @Contract("_ -> new")
+    static <A extends CommandActor> @NotNull SuggestionProvider<A> fromAsync(@NotNull AsyncSuggestionProvider<A> provider) {
+        return new WrapperAsyncSuggestionProvider<>(provider);
     }
 
     /**

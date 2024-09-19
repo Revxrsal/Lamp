@@ -192,7 +192,7 @@ public final class SuggestionProviders<A extends CommandActor> {
          * @param provider The provider
          * @return This builder instance
          */
-        public Builder<A> addProvider(@NotNull Class<?> type, @NotNull SuggestionProvider<A> provider) {
+        public @NotNull Builder<A> addProvider(@NotNull Class<?> type, @NotNull SuggestionProvider<A> provider) {
             addProviderFactory(Factory.forType(type, provider));
             return this;
         }
@@ -210,7 +210,7 @@ public final class SuggestionProviders<A extends CommandActor> {
          * @param provider The provider
          * @return This builder instance
          */
-        public Builder<A> addProviderLast(@NotNull Class<?> type, @NotNull SuggestionProvider<A> provider) {
+        public @NotNull Builder<A> addProviderLast(@NotNull Class<?> type, @NotNull SuggestionProvider<A> provider) {
             notNull(type, "type");
             addProviderFactoryLast(Factory.forType(type, provider));
             return this;
@@ -223,7 +223,7 @@ public final class SuggestionProviders<A extends CommandActor> {
          * @param provider The provider
          * @return This builder instance
          */
-        public <L extends Annotation> Builder<A> addProviderForAnnotation(@NotNull Class<L> type, @NotNull Function<L, SuggestionProvider<A>> provider) {
+        public <L extends Annotation> @NotNull Builder<A> addProviderForAnnotation(@NotNull Class<L> type, @NotNull Function<L, SuggestionProvider<A>> provider) {
             addProviderFactory(Factory.forAnnotation(type, provider));
             return this;
         }
@@ -238,7 +238,7 @@ public final class SuggestionProviders<A extends CommandActor> {
          * @param provider The provider
          * @return This builder instance
          */
-        public <L extends Annotation> Builder<A> addProviderForAnnotationLast(@NotNull Class<L> type, @NotNull Function<L, SuggestionProvider<A>> provider) {
+        public <L extends Annotation> @NotNull Builder<A> addProviderForAnnotationLast(@NotNull Class<L> type, @NotNull Function<L, SuggestionProvider<A>> provider) {
             addProviderFactoryLast(Factory.forAnnotation(type, provider));
             return this;
         }
