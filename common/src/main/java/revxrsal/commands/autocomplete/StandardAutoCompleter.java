@@ -105,9 +105,74 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
 
     private List<String> complete(ExecutableCommand<A> possible, MutableStringStream input, A actor) {
         MutableExecutionContext<A> context = ExecutionContext.createMutable(possible, actor, input.toImmutableCopy());
-        List<String> withoutFlags = completeWithoutFlags(possible, input, actor, context);
-        if (!possible.containsFlags())
-            return withoutFlags;
+        for (CommandNode<A> child : possible.nodes()) {
+            if (child instanceof ParameterNode<A, ?> parameter) {
+                if (parameter.isFlag() || parameter.isSwitch())
+                    break;
+            }
+            if (input.remaining() == 1 && input.peek() == ' ') {
+                input.moveForward();
+                return promptWith(child, actor, context, input);
+            }
+
+            if (child instanceof LiteralNode<A> l) {
+                String nextWord = input.readUnquotedString();
+                if (input.hasFinished()) {
+                    if (l.name().startsWith(nextWord)) {
+                        // complete it for the user :)
+                        return List.of(l.name());
+                    } else {
+                        // the user inputted a command that isn't ours. dismiss the operation
+                        return List.of();
+                    }
+                } else {
+                    if (!l.name().equalsIgnoreCase(nextWord)) {
+                        // the user inputted a command that isn't ours. dismiss the operation
+                        return List.of();
+                    }
+                    if (input.canRead(1) && input.peek() == ' ') {
+                        // our literal is just fine. move to the next node
+                        input.moveForward();
+                        continue;
+                    }
+                }
+            } else if (child instanceof ParameterNode<A, ?> parameter) {
+                int posBeforeParsing = input.position();
+                if (!parameter.permission().isExecutableBy(actor))
+                    return List.of();
+                try {
+                    Object value = parameter.parse(input, context);
+                    context.addResolvedArgument(parameter.name(), value);
+                    if (input.hasFinished()) {
+                        input.setPosition(posBeforeParsing);
+                        String consumed = input.peekRemaining();
+                        // user inputted something valid, but we still have some
+                        // suggestions. throw it at them
+                        if (consumed.contains(" ")) {
+                            return filterWithSpaces(parameter.complete(actor, input, context), consumed);
+                        }
+                        return filter(parameter.complete(actor, input, context), s -> startsWithIgnoreCase(s, consumed));
+                    } else if (input.peek() == ' ') {
+                        input.moveForward();
+                    }
+                } catch (Throwable e) {
+                    // user inputted invalid input. what do we do here?
+                    // 1. restore the stream to its previous state
+                    // 2. see what we consumed
+                    // 2.1. if suggestion does not contain spaces, we're cool. just
+                    //      give the same suggestions
+                    // 2.2. if suggestion does contain spaces, pick the part after
+                    //      the space
+                    int finishedAt = input.position();
+                    input.setPosition(posBeforeParsing);
+                    String consumed = input.peek(finishedAt - posBeforeParsing);
+                    if (consumed.contains(" ")) {
+                        return filterWithSpaces(parameter.complete(actor, input, context), consumed);
+                    }
+                    return filter(parameter.complete(actor, input, context), s -> startsWithIgnoreCase(s, consumed));
+                }
+            }
+        }
         List<ParameterNode<A, Object>> flags = filter(possible.parameters().values(), c -> c.isFlag() || c.isSwitch());
         while (input.hasRemaining()) {
             if (input.peek() == ' ')
@@ -179,83 +244,6 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                 input.readUnquotedString();
             }
         }
-    }
-
-    private @NotNull List<String> completeWithoutFlags(
-            ExecutableCommand<A> possible,
-            MutableStringStream input,
-            A actor,
-            MutableExecutionContext<A> context
-    ) {
-        for (CommandNode<A> child : possible.nodes()) {
-            if (child instanceof ParameterNode<A, ?> parameter) {
-                if (parameter.isFlag() || parameter.isSwitch())
-                    break;
-            }
-            if (input.remaining() == 1 && input.peek() == ' ') {
-                input.moveForward();
-                return promptWith(child, actor, context, input);
-            }
-
-            if (child instanceof LiteralNode<A> l) {
-                String nextWord = input.readUnquotedString();
-                if (input.hasFinished()) {
-                    if (l.name().startsWith(nextWord)) {
-                        // complete it for the user :)
-                        return List.of(l.name());
-                    } else {
-                        // the user inputted a command that isn't ours. dismiss the operation
-                        return List.of();
-                    }
-                } else {
-                    if (!l.name().equalsIgnoreCase(nextWord)) {
-                        // the user inputted a command that isn't ours. dismiss the operation
-                        return List.of();
-                    }
-                    if (input.canRead(1) && input.peek() == ' ') {
-                        // our literal is just fine. move to the next node
-                        input.moveForward();
-                        continue;
-                    }
-                }
-            } else if (child instanceof ParameterNode<A, ?> parameter) {
-                int posBeforeParsing = input.position();
-                if (!parameter.permission().isExecutableBy(actor))
-                    return List.of();
-                try {
-                    Object value = parameter.parse(input, context);
-                    context.addResolvedArgument(parameter.name(), value);
-                    if (input.hasFinished()) {
-                        input.setPosition(posBeforeParsing);
-                        String consumed = input.peekRemaining();
-                        // user inputted something valid, but we still have some
-                        // suggestions. throw it at them
-                        if (consumed.contains(" ")) {
-                            return filterWithSpaces(parameter.complete(actor, input, context), consumed);
-                        }
-                        return filter(parameter.complete(actor, input, context), s -> startsWithIgnoreCase(s, consumed));
-                    } else if (input.peek() == ' ') {
-                        input.moveForward();
-                    }
-                } catch (Throwable e) {
-                    // user inputted invalid input. what do we do here?
-                    // 1. restore the stream to its previous state
-                    // 2. see what we consumed
-                    // 2.1. if suggestion does not contain spaces, we're cool. just
-                    //      give the same suggestions
-                    // 2.2. if suggestion does contain spaces, pick the part after
-                    //      the space
-                    int finishedAt = input.position();
-                    input.setPosition(posBeforeParsing);
-                    String consumed = input.peek(finishedAt - posBeforeParsing);
-                    if (consumed.contains(" ")) {
-                        return filterWithSpaces(parameter.complete(actor, input, context), consumed);
-                    }
-                    return filter(parameter.complete(actor, input, context), s -> startsWithIgnoreCase(s, consumed));
-                }
-            }
-        }
-        return List.of();
     }
 
     private @NotNull List<String> promptWith(CommandNode<A> child, A

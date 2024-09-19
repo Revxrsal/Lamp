@@ -63,5 +63,4 @@ public interface AsyncSuggestionProvider<A extends CommandActor> extends BaseSug
     static <A extends CommandActor> @NotNull AsyncSuggestionProvider<A> from(@NotNull SuggestionProvider<A> provider) {
         return context -> CompletableFuture.supplyAsync(() -> provider.getSuggestions(context));
     }
-
 }
