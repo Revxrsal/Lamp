@@ -30,6 +30,7 @@ import revxrsal.commands.annotation.ParseWith;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.CommandActor;
+import revxrsal.commands.exception.CommandErrorException;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.parameter.builtins.ClassParameterTypeFactory;
@@ -59,6 +60,7 @@ import java.lang.reflect.Type;
  * @param <A> The actor type
  * @param <T> The parameter type
  * @see ParameterTypes
+ * @see ParseWith @ParseWith
  */
 @FunctionalInterface
 public interface ParameterType<A extends CommandActor, T> extends BaseParameterType {
@@ -66,6 +68,19 @@ public interface ParameterType<A extends CommandActor, T> extends BaseParameterT
     /**
      * Reads input from the given {@link MutableStringStream}, parses the object, or throws
      * exceptions if needed.
+     * <p>
+     * <strong>Note</strong>: Lamp makes no guarantees about the times it may invoke this method.
+     * It may be called repeatedly for execution, tab completion, finding execution candidates, etc.
+     * <p>
+     * As such, it's important to implement the parse method with the following in mind:
+     * <ul>
+     *     <li>Avoid expensive computations</li>
+     *     <li>Avoid "expensive computations"</li>
+     *     <li>Avoid sending the actor any feedback inside this method. Any feedback should
+     *     <em>only</em> be sent using exceptions (see {@link CommandErrorException})</li>
+     *     <li>Avoid any side-effects in general. Ideally, this method should be
+     *     <a href="https://en.wikipedia.org/wiki/Pure_function">pure</a>.</li>
+     * </ul>
      *
      * @param input   The input stream. This argument type is free to consume as much as it needs
      * @param context The command execution context, as well as arguments that have been resolved
