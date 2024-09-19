@@ -37,7 +37,8 @@ import java.lang.reflect.Type;
  * A {@link SuggestionProvider.Factory} that creates suggestions based on
  * the {@link SuggestWith} annotation
  */
-public final class SuggestWithProviderFactory implements SuggestionProvider.Factory<CommandActor> {
+enum SuggestWithProviderFactory implements SuggestionProvider.Factory<CommandActor> {
+    INSTANCE;
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})

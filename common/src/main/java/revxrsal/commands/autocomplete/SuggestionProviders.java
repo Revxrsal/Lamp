@@ -57,8 +57,8 @@ public final class SuggestionProviders<A extends CommandActor> {
      * These also will not be included in {@link #toBuilder()}.
      */
     private static final List<Factory<?>> DEFAULT_FACTORIES = List.of(
-            new SuggestAnnotationProviderFactory(),
-            new SuggestWithProviderFactory()
+            SuggestAnnotationProviderFactory.INSTANCE,
+            SuggestWithProviderFactory.INSTANCE
     );
 
     private final List<Factory<? super A>> factories;

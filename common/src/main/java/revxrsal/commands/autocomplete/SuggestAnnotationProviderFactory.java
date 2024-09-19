@@ -38,7 +38,9 @@ import static revxrsal.commands.autocomplete.SuggestionProvider.of;
  * A {@link SuggestionProvider.Factory} that creates suggestions based on
  * the {@link Suggest} annotation
  */
-final class SuggestAnnotationProviderFactory implements SuggestionProvider.Factory<CommandActor> {
+enum SuggestAnnotationProviderFactory implements SuggestionProvider.Factory<CommandActor> {
+
+    INSTANCE;
 
     @Override
     public @Nullable SuggestionProvider<CommandActor> create(@NotNull Type type, @NotNull AnnotationList annotations, @NotNull Lamp<CommandActor> lamp) {
