@@ -61,9 +61,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
     private final JavaPlugin plugin;
     private final String fallbackPrefix;
     private final boolean disableBrigadier;
-    private final Optional<BukkitAudiences> bukkitAudiences;
-    private final @Nullable MessageSender<A, ComponentLike> messageSender;
-    private final @Nullable MessageSender<A, ComponentLike> errorSender;
+    private final boolean disableAsyncCompletion;
 
     /**
      * Returns a new {@link Builder} with the given plugin.
@@ -92,9 +90,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
                 plugin,
                 plugin.getName(),
                 false,
-                Optional.empty(),
-                null,
-                null
+                false
         );
     }
 
@@ -106,6 +102,8 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
                 .accept(bukkitPermissions())
                 .accept(registrationHooks(plugin, actorFactory, fallbackPrefix))
                 .accept(pluginContextParameters(plugin));
+        if (!disableAsyncCompletion)
+            builder.accept(asyncTabCompletion(plugin, actorFactory));
         if (BukkitVersion.isBrigadierSupported() && !disableBrigadier)
             builder.accept(brigadier(plugin, argumentTypes.get(), actorFactory));
     }
@@ -117,6 +115,9 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
      */
     public static class Builder<A extends BukkitCommandActor> {
 
+        // avoid loading BukkitArgumentTypes because it may trigger a
+        // ClassNotFoundError
+        @SuppressWarnings("Convert2MethodRef")
         private final Supplier<ArgumentTypes.Builder<A>> argumentTypes = Lazy.of(() -> BukkitArgumentTypes.builder());
         private final @NotNull JavaPlugin plugin;
         private ActorFactory<A> actorFactory;
@@ -125,6 +126,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
         private Optional<BukkitAudiences> audiences;
         private @Nullable MessageSender<A, ComponentLike> messageSender;
         private @Nullable MessageSender<A, ComponentLike> errorSender;
+        private boolean disableAsyncCompletion;
 
         Builder(@NotNull JavaPlugin plugin) {
             this.plugin = plugin;
@@ -179,8 +181,27 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
          *
          * @return This builder
          */
+        public @NotNull Builder<A> disableAsyncCompletion() {
+            return disableAsyncCompletion(true);
+        }
+
+        /**
+         * Disables brigadier integration
+         *
+         * @return This builder
+         */
         public @NotNull Builder<A> disableBrigadier(boolean disabled) {
             this.disableBrigadier = disabled;
+            return this;
+        }
+
+        /**
+         * Disables asynchronous tab completion
+         *
+         * @return This builder
+         */
+        public @NotNull Builder<A> disableAsyncCompletion(boolean disabled) {
+            this.disableAsyncCompletion = disabled;
             return this;
         }
 
@@ -204,13 +225,13 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
             return this;
         }
 
-        public Builder<A> messageSender(@Nullable MessageSender<? super A, ComponentLike> messageSender) {
+        public @NotNull Builder<A> messageSender(@Nullable MessageSender<? super A, ComponentLike> messageSender) {
             //noinspection unchecked
             this.messageSender = (MessageSender<A, ComponentLike>) messageSender;
             return this;
         }
 
-        public Builder<A> errorSender(@Nullable MessageSender<? super A, ComponentLike> errorSender) {
+        public @NotNull Builder<A> errorSender(@Nullable MessageSender<? super A, ComponentLike> errorSender) {
             //noinspection unchecked
             this.errorSender = (MessageSender<A, ComponentLike>) errorSender;
             return this;
@@ -236,9 +257,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
                     this.plugin,
                     fallbackPrefix,
                     disableBrigadier,
-                    audiences,
-                    messageSender,
-                    errorSender
+                    disableAsyncCompletion
             );
         }
     }

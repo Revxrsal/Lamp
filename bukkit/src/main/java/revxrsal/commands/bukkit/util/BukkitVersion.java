@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
+import static revxrsal.commands.util.Classes.isClassPresent;
 import static revxrsal.commands.util.Preconditions.cannotInstantiate;
 
 /**
@@ -16,7 +17,10 @@ import static revxrsal.commands.util.Preconditions.cannotInstantiate;
 public final class BukkitVersion {
 
     private static final boolean IS_PAPER;
+    private static final boolean SUPPORTS_ASYNC_COMPLETION;
+
     private static final int MAJOR_VERSION, MINOR_VERSION, PATCH_NUMBER;
+
     /**
      * The current version string, for example 1_17_R1
      */
@@ -48,14 +52,8 @@ public final class BukkitVersion {
             minorSlice = minorSlice.substring(0, minorSlice.indexOf('-'));
         PATCH_NUMBER = Integer.parseInt(minorSlice);
 
-        boolean paper;
-        try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
-            paper = true;
-        } catch (ClassNotFoundException e) {
-            paper = false;
-        }
-        IS_PAPER = paper;
+        IS_PAPER = isClassPresent("com.destroystokyo.paper.PaperConfig");
+        SUPPORTS_ASYNC_COMPLETION = isClassPresent("com.destroystokyo.paper.event.server.AsyncTabCompleteEvent");
     }
 
     private BukkitVersion() {
@@ -106,7 +104,7 @@ public final class BukkitVersion {
      *
      * @return The current version.
      */
-    public static int getMinorVersion() {
+    public static int minorVersion() {
         return MINOR_VERSION;
     }
 
@@ -116,7 +114,7 @@ public final class BukkitVersion {
      *
      * @return The current version.
      */
-    public static int getPatchNumber() {
+    public static int patchNumber() {
         return PATCH_NUMBER;
     }
 
@@ -145,12 +143,21 @@ public final class BukkitVersion {
     }
 
     /**
-     * Tests whether is this version running PaperSpigot
+     * Tests whether this version is running PaperSpigot
      *
      * @return If this is PaperSpigot
      */
     public static boolean isPaper() {
         return IS_PAPER;
+    }
+
+    /**
+     * Tests whether this version supports asynchronous tab completion
+     *
+     * @return If this version supports asynchronous tab completion
+     */
+    public static boolean supportsAsyncCompletion() {
+        return SUPPORTS_ASYNC_COMPLETION;
     }
 
     /**

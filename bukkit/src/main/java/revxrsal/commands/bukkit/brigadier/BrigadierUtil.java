@@ -38,7 +38,7 @@ import java.util.Objects;
 /**
  * A utility to modify {@link CommandNode}s reflectively.
  */
-public final class BrigadierUtil {
+final class BrigadierUtil {
 
     // CommandNode#children, CommandNode#literals, CommandNode#arguments fields
     private static final Field CHILDREN_FIELD;

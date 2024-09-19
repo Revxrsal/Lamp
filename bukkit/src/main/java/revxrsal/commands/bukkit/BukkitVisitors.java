@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.bukkit;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -39,6 +40,7 @@ import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.bukkit.annotation.FallbackPrefix;
+import revxrsal.commands.bukkit.listener.AsyncPaperTabListener;
 import revxrsal.commands.bukkit.brigadier.BrigadierRegistryHook;
 import revxrsal.commands.bukkit.brigadier.BukkitArgumentTypes;
 import revxrsal.commands.bukkit.exception.BukkitExceptionHandler;
@@ -246,6 +248,38 @@ public final class BukkitVisitors {
         if (isBrigadierSupported()) {
             return builder -> builder.hooks()
                     .onCommandRegistered(new BrigadierRegistryHook<>(((ArgumentTypes) argumentTypes), actorFactory, plugin));
+        }
+        return LampBuilderVisitor.nothing();
+    }
+
+    /**
+     * Enables asynchronous tab completions (Paper only)
+     *
+     * @param plugin       Plugin to register asynchronous tab completions for
+     * @param actorFactory The actor factory
+     * @param <A>          The actor type
+     * @return A {@link LampBuilderVisitor}
+     */
+    public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> asyncTabCompletion(
+            @NotNull JavaPlugin plugin,
+            @NotNull ActorFactory<A> actorFactory
+    ) {
+        if (BukkitVersion.supportsAsyncCompletion()) {
+            return new LampBuilderVisitor<>() {
+                private boolean registered = false;
+
+                @Override public void visit(Lamp.@NotNull Builder<A> builder) {
+                    builder.hooks().onCommandRegistered((command, cancelHandle) -> {
+                        if (registered)
+                            return;
+                        registered = true;
+                        Bukkit.getPluginManager().registerEvents(
+                                new AsyncPaperTabListener<>(command.lamp(), actorFactory),
+                                plugin
+                        );
+                    });
+                }
+            };
         }
         return LampBuilderVisitor.nothing();
     }
