@@ -31,7 +31,8 @@ jobs:
         run: |
           cd lamp-docs
           git config --local user.name "GitHub Action"
-          git config --local user.email "action@github.com"
+          git config --local user.email "${{ secrets.EMAIL }}"
+          git config --local user.password "${{ secrets.GITHUB_TOKEN }}"
           git add README.md
           git commit -m "Update documentation with version ${{ env.VERSION }}"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Revxrsal/lamp-docs.git
