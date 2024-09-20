@@ -25,7 +25,8 @@ jobs:
       - name: Update version in README.md
         run: |
           cd lamp-docs
-          sed -i "s/\[VERSION\]/${{ env.VERSION }}/g" README.md
+          sed -i "s|\[VERSION\]|${{ env.VERSION }}|g" README.md
+
 
       - name: Commit and push changes to GitBook repo
         run: |
