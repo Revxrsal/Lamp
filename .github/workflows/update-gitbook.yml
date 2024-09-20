@@ -1,0 +1,39 @@
+name: Update GitBook Documentation with Latest Version
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  update-gitbook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout core repository
+        uses: actions/checkout@v3
+
+      - name: Get release tag version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Clone GitBook repository
+        run: |
+          git clone https://github.com/Revxrsal/lamp-docs.git
+          cd lamp-docs
+
+      - name: Update version in README.md
+        run: |
+          cd lamp-docs
+          sed -i "s/\[VERSION\]/${{ github.ref_name }}/g" README.md
+
+      - name: Commit and push changes to GitBook repo
+        run: |
+          cd lamp-docs
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add README.md
+          git commit -m "Update documentation with version ${{ github.ref_name }}"
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/Revxrsal/lamp-docs.git HEAD:main
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
