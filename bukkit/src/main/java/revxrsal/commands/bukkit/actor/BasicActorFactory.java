@@ -41,26 +41,23 @@ final class BasicActorFactory implements ActorFactory<BukkitCommandActor> {
     private final Plugin plugin;
     private final Optional<BukkitAudiences> bukkitAudiences;
     private final MessageSender<BukkitCommandActor, ComponentLike> messageSender;
-    private final MessageSender<BukkitCommandActor, ComponentLike> errorSender;
 
     public BasicActorFactory(Plugin plugin, Optional<BukkitAudiences> bukkitAudiences) {
-        this(plugin, bukkitAudiences, null, null);
+        this(plugin, bukkitAudiences, null);
     }
 
     public BasicActorFactory(
             Plugin plugin,
             Optional<BukkitAudiences> bukkitAudiences,
-            MessageSender<BukkitCommandActor, ComponentLike> messageSender,
-            MessageSender<BukkitCommandActor, ComponentLike> errorSender
+            MessageSender<BukkitCommandActor, ComponentLike> messageSender
     ) {
         this.plugin = plugin;
         this.bukkitAudiences = bukkitAudiences;
         this.messageSender = messageSender;
-        this.errorSender = errorSender;
     }
 
     @Override
     public @NotNull BukkitCommandActor create(@NotNull CommandSender sender, @NotNull Lamp<BukkitCommandActor> lamp) {
-        return new BasicBukkitActor(sender, plugin, bukkitAudiences, messageSender, errorSender, lamp);
+        return new BasicBukkitActor(sender, plugin, bukkitAudiences, messageSender, lamp);
     }
 }

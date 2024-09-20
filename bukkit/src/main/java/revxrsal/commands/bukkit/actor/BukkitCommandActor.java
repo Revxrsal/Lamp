@@ -131,9 +131,7 @@ public interface BukkitCommandActor extends CommandActor {
     }
 
     /**
-     * Prints the given component to this actor. This function does
-     * not delegate sending, but invokes {@link CommandSender#sendMessage(String)}
-     * directly
+     * Prints the given component to this actor.
      *
      * @param message The message to send
      */

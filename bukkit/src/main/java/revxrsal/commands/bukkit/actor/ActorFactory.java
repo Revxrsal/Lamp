@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.bukkit.actor;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.command.CommandSender;
@@ -46,9 +47,12 @@ import java.util.Optional;
 public interface ActorFactory<A extends BukkitCommandActor> {
 
     /**
-     * Returns the default {@link ActorFactory} that returns a simple {@link BukkitCommandActor}
-     * implementation
+     * Returns the default {@link ActorFactory} that returns a
+     * simple {@link BukkitCommandActor} implementation
      *
+     * @param plugin    The plugin to create for
+     * @param audiences The {@link BukkitAudiences} instance for
+     *                  consrtucting {@link Audience} objects
      * @return The default {@link ActorFactory}.
      */
     static @NotNull ActorFactory<BukkitCommandActor> defaultFactory(
@@ -58,14 +62,24 @@ public interface ActorFactory<A extends BukkitCommandActor> {
         return new BasicActorFactory(plugin, audiences);
     }
 
+    /**
+     * Returns the default {@link ActorFactory} that returns a
+     * simple {@link BukkitCommandActor} implementation
+     *
+     * @param plugin        The plugin to create for
+     * @param audiences     The {@link BukkitAudiences} instance for
+     *                      consrtucting {@link Audience} objects
+     * @param messageSender How components are sent. This can be used
+     *                      to add custom prefixes to messages, etc.
+     * @return The default {@link ActorFactory}.
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     static <A extends BukkitCommandActor> Object defaultFactory(
             @NotNull JavaPlugin plugin,
-            Optional<BukkitAudiences> audiences,
-            @Nullable MessageSender<? super A, ComponentLike> messageSender,
-            @Nullable MessageSender<? super A, ComponentLike> errorSender
+            @NotNull Optional<BukkitAudiences> audiences,
+            @Nullable MessageSender<? super A, ComponentLike> messageSender
     ) {
-        return new BasicActorFactory(plugin, audiences, (MessageSender) messageSender, (MessageSender) errorSender);
+        return new BasicActorFactory(plugin, audiences, (MessageSender) messageSender);
     }
 
     /**

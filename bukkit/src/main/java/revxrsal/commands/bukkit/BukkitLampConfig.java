@@ -125,7 +125,6 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
         private String fallbackPrefix;
         private Optional<BukkitAudiences> audiences;
         private @Nullable MessageSender<A, ComponentLike> messageSender;
-        private @Nullable MessageSender<A, ComponentLike> errorSender;
         private boolean disableAsyncCompletion;
 
         Builder(@NotNull JavaPlugin plugin) {
@@ -225,15 +224,15 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
             return this;
         }
 
+        /**
+         * Registers the default message sender used by {@link BukkitCommandActor#reply(ComponentLike)}
+         *
+         * @param messageSender The sender to use
+         * @return This builder instance
+         */
         public @NotNull Builder<A> messageSender(@Nullable MessageSender<? super A, ComponentLike> messageSender) {
             //noinspection unchecked
             this.messageSender = (MessageSender<A, ComponentLike>) messageSender;
-            return this;
-        }
-
-        public @NotNull Builder<A> errorSender(@Nullable MessageSender<? super A, ComponentLike> errorSender) {
-            //noinspection unchecked
-            this.errorSender = (MessageSender<A, ComponentLike>) errorSender;
             return this;
         }
 
@@ -248,8 +247,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
             this.actorFactory = (ActorFactory<A>) ActorFactory.defaultFactory(
                     plugin,
                     audiences,
-                    messageSender,
-                    errorSender
+                    messageSender
             );
             return new BukkitLampConfig<>(
                     this.actorFactory,

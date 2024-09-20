@@ -19,7 +19,7 @@ record BasicBukkitActor(
         Plugin plugin,
         Optional<BukkitAudiences> audiences,
         MessageSender<BukkitCommandActor, ComponentLike> messageSender,
-        MessageSender<BukkitCommandActor, ComponentLike> errorSender, Lamp<BukkitCommandActor> lamp
+        Lamp<BukkitCommandActor> lamp
 ) implements BukkitCommandActor {
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
