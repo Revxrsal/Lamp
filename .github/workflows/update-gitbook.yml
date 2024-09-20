@@ -25,7 +25,6 @@ jobs:
       - name: Update version in README.md
         run: |
           cd lamp-docs
-          sed -i "s|\[VERSION\]|${{ env.VERSION }}|g" README.md
           sed -i 's/[VERSION]/${{ github.ref_name }}/g' README.md
 
       - name: Commit and push changes to GitBook repo
@@ -33,10 +32,10 @@ jobs:
           cd lamp-docs
           git config --local user.name "GitHub Action"
           git config --local user.email "${{ secrets.EMAIL }}"
-          git config --local user.password "${{ secrets.GITHUB_TOKEN }}"
+          git config --local user.password "${{ secrets.PAT }}"
           git add README.md
           git commit -m "Update documentation with version ${{ env.VERSION }}"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Revxrsal/lamp-docs.git
+          git remote set-url origin https://x-access-token:${{ secrets.PAT }}@github.com/Revxrsal/lamp-docs.git
           git push origin main
 
     env:
