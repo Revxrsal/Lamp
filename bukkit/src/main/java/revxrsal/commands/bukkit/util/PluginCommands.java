@@ -107,7 +107,6 @@ public final class PluginCommands {
             Command rawAlias = knownCommands.get(command.getName());
             if (rawAlias instanceof PluginCommand && ((PluginCommand) rawAlias).getPlugin() == owningPlugin)
                 knownCommands.remove(command.getName());
-            knownCommands.remove(owningPlugin.getDescription().getName() + ":" + command.getName());
         }
     }
 
