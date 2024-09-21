@@ -37,6 +37,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import static revxrsal.commands.util.Classes.checkRetention;
+
 /**
  * An interface that supplies completions for the user depending on their input.
  */
@@ -154,6 +156,7 @@ public interface SuggestionProvider<A extends CommandActor> extends BaseSuggesti
          * @return The newly created {@link Factory}.
          */
         static @NotNull <A extends CommandActor, L extends Annotation> SuggestionProvider.@NotNull Factory<? super A> forAnnotation(@NotNull Class<L> annotationType, @NotNull Function<L, SuggestionProvider<A>> provider) {
+            checkRetention(annotationType);
             return (type, annotations, lamp) -> {
                 L annotation = annotations.get(annotationType);
                 if (annotation != null)

@@ -63,6 +63,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static revxrsal.commands.util.Classes.checkRetention;
 import static revxrsal.commands.util.Classes.wrap;
 import static revxrsal.commands.util.Preconditions.notNull;
 
@@ -744,6 +745,7 @@ public final class Lamp<A extends CommandActor> {
         public <T extends Annotation> Builder<A> annotationReplacer(@NotNull Class<T> annotationType, @NotNull AnnotationReplacer<T> replacer) {
             notNull(annotationType, "annotation type");
             notNull(replacer, "annotation replacer");
+            checkRetention(annotationType);
             annotationReplacers.computeIfAbsent(annotationType, k -> new HashSet<>()).add(replacer);
             return this;
         }

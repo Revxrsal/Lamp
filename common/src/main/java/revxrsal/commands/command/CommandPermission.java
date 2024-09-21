@@ -31,6 +31,8 @@ import revxrsal.commands.annotation.list.AnnotationList;
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
+import static revxrsal.commands.util.Classes.checkRetention;
+
 /**
  * Represents a permission that is required in order to execute a
  * command.
@@ -82,6 +84,7 @@ public interface CommandPermission<A extends CommandActor> {
                 @NotNull Class<T> annotationType,
                 @NotNull Function<T, @Nullable CommandPermission<A>> permissionCreator
         ) {
+            checkRetention(annotationType);
             return (annotations, lamp) -> {
                 T annotation = annotations.get(annotationType);
                 if (annotation != null)

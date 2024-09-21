@@ -262,6 +262,7 @@ public final class Classes {
      */
     public static void checkRetention(@NotNull Class<? extends Annotation> type) {
         if (!type.isAnnotationPresent(Retention.class) || type.getAnnotation(Retention.class).value() != RetentionPolicy.RUNTIME)
-            throw new IllegalArgumentException("Tried to check for annotation @" + type.getName() + ", but it does not have @Retention(RetentionPolicy.RUNTIME)!");
+            throw new IllegalArgumentException("Tried to check for annotation @" + type.getName() + ", but it does not have @Retention(RetentionPolicy.RUNTIME)! " +
+                    "As such, it may be present but we cannot see it.");
     }
 }
