@@ -87,6 +87,7 @@ public interface AnnotationList extends Iterable<Annotation> {
      *
      * @return The empty {@link AnnotationList} singleton.
      */
+    @Contract(pure = true)
     static @NotNull AnnotationList empty() {
         return EmptyAnnotationList.INSTANCE;
     }
