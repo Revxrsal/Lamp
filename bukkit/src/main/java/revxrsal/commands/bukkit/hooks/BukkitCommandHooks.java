@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.bukkit.hooks;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -33,12 +34,14 @@ import revxrsal.commands.bukkit.util.PluginCommands;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.hook.CancelHandle;
 import revxrsal.commands.hook.CommandRegisteredHook;
+import revxrsal.commands.hook.CommandUnregisteredHook;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public final class BukkitCommandHooks<A extends BukkitCommandActor> implements CommandRegisteredHook<A> {
+public final class BukkitCommandHooks<A extends BukkitCommandActor> implements CommandRegisteredHook<A>,
+        CommandUnregisteredHook<A> {
 
     private final Set<String> registeredRootNames = new HashSet<>();
 
@@ -69,5 +72,26 @@ public final class BukkitCommandHooks<A extends BukkitCommandActor> implements C
             if (cmd.getUsage().isEmpty())
                 cmd.setUsage(command.usage());
         }
+    }
+
+    @Override public void onUnregistered(@NotNull ExecutableCommand<A> command, @NotNull CancelHandle cancelHandle) {
+        String label = command.firstNode().name();
+        String fallbackPrefix = fallbackPrefix(command);
+        PluginCommand cmd = Bukkit.getServer().getPluginCommand(fallbackPrefix + ':' + label);
+        // check there's no other '/fallback_prefix:label' command. if so, unregister.
+        if (!command.lamp().registry().any(c -> c != command && c.firstNode().name().equals(label) && fallbackPrefix(c).equals(fallbackPrefix)))
+            if (cmd != null)
+                PluginCommands.unregister(cmd, plugin);
+
+        // check there's no other '/label' command. if so, unregister.
+        if (!command.lamp().registry().any(c -> c != command && c.firstNode().name().equals(label))) {
+            cmd = plugin.getCommand(label);
+            if (cmd != null)
+                PluginCommands.unregister(cmd, plugin);
+        }
+    }
+
+    private @NotNull String fallbackPrefix(@NotNull ExecutableCommand<A> command) {
+        return command.annotations().mapOr(FallbackPrefix.class, FallbackPrefix::value, defaultFallbackPrefix);
     }
 }

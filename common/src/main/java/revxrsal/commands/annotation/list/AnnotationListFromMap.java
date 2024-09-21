@@ -156,7 +156,6 @@ final class AnnotationListFromMap implements AnnotationList {
         }
         if (element instanceof Method method) {
             distributeAnnotations(annotations, method, replacers);
-            System.out.println(annotations);
         }
         return new AnnotationListFromMap(annotations);
     }

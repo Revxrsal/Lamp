@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.node;
 
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -103,7 +104,26 @@ public interface CommandRegistry<A extends CommandActor> extends Iterable<Execut
      *
      * @param matches Criteria to test for
      */
-    void unregisterIf(@NotNull Predicate<ExecutableCommand<A>> matches);
+    void unregisterIf(@NotNull Predicate<@NotNull ExecutableCommand<A>> matches);
+
+    /**
+     * Tests whether any of the registered commands matches the
+     * given predicate
+     *
+     * @param matches Criteria to test for
+     * @return if any command matches the predicate
+     */
+    boolean any(@NotNull Predicate<@NotNull ExecutableCommand<A>> matches);
+
+    /**
+     * Returns a new list of all commands that match the
+     * given predicate
+     *
+     * @param filterPredicate Criteria to test for
+     * @return a list of all commands that match the predicate
+     */
+    @NotNull @CheckReturnValue @Contract("_ -> new")
+    List<ExecutableCommand<A>> filter(@NotNull Predicate<@NotNull ExecutableCommand<A>> filterPredicate);
 
     /**
      * Returns an immutable iterator of all entries in this registry.

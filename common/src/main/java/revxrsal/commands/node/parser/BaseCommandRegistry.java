@@ -193,6 +193,15 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
         children.remove(execution);
     }
 
+    @Override public boolean any(@NotNull Predicate<@NotNull ExecutableCommand<A>> matches) {
+        return revxrsal.commands.util.Collections.any(children, matches);
+    }
+
+    @Override
+    public @NotNull List<ExecutableCommand<A>> filter(@NotNull Predicate<@NotNull ExecutableCommand<A>> filterPredicate) {
+        return revxrsal.commands.util.Collections.filter(children, filterPredicate);
+    }
+
     @Override public void unregisterIf(@NotNull Predicate<ExecutableCommand<A>> matches) {
         children.removeIf(matches);
     }
