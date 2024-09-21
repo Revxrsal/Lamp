@@ -26,6 +26,7 @@ package revxrsal.commands.util;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Subcommand;
+import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandFunction;
 
 import java.util.ArrayList;
@@ -57,7 +58,9 @@ public final class CommandPaths {
         List<String> parentSubcommandAliases = new ArrayList<>();
 
         for (Class<?> topClass : getTopClasses(container)) {
-            Subcommand ps = topClass.getAnnotation(Subcommand.class);
+            var annotations = AnnotationList.create(topClass)
+                    .replaceAnnotations(topClass, function.lamp().annotationReplacers());
+            Subcommand ps = annotations.get(Subcommand.class);
             if (ps != null) {
                 addAll(parentSubcommandAliases, ps.value());
             }

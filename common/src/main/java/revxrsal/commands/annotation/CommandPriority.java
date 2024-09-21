@@ -23,6 +23,7 @@
  */
 package revxrsal.commands.annotation;
 
+import revxrsal.commands.annotation.dynamic.Annotations;
 import revxrsal.commands.parameter.PrioritySpec;
 
 import java.lang.annotation.ElementType;
@@ -50,6 +51,7 @@ import java.lang.annotation.Target;
  * @see PrioritySpec
  * @see Low
  */
+@Annotations.CannotBeCreated
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandPriority {
@@ -68,6 +70,7 @@ public @interface CommandPriority {
      * <p>
      * Two commands with {@link Low @Low} priority will be of equal priority.
      */
+    @Annotations.CannotBeCreated
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     @interface Low {}

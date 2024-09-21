@@ -26,7 +26,8 @@ package revxrsal.commands.annotation.dynamic;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.util.Preconditions;
 
-import java.lang.annotation.Annotation;
+import java.lang.annotation.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -40,6 +41,14 @@ import java.util.function.Supplier;
  * Re-adapted from Guice.
  */
 public final class Annotations {
+
+    /**
+     * An annotation that implies that the annotated type cannot be dynamically
+     * created using {@link Annotations#create(Class)}
+     */
+    @Target(ElementType.ANNOTATION_TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface CannotBeCreated {}
 
     /**
      * Creates a new annotation with no values. Any default values will
@@ -87,8 +96,10 @@ public final class Annotations {
      * @param <T>  Annotation type
      * @return The newly created annotation
      */
-    public static @NotNull <T extends Annotation> T create(@NotNull Class<T> type,
-                                                           @NotNull Object... members) {
+    public static @NotNull <T extends Annotation> T create(
+            @NotNull Class<T> type,
+            @NotNull Object... members
+    ) {
         Preconditions.notNull(type, "type");
         Preconditions.notNull(members, "members");
         if (members.length % 2 != 0)
@@ -172,6 +183,8 @@ public final class Annotations {
     ) implements InvocationHandler {
 
         private DynamicAnnotationHandler(Class<? extends Annotation> annotationType, Map<String, Object> annotationMembers) {
+            if (annotationType.isAnnotationPresent(CannotBeCreated.class))
+                throw new IllegalArgumentException("Annotation @" + annotationType.getSimpleName() + " cannot be constructed using Annotations.create().");
             this.annotationType = annotationType;
             this.annotationMembers = new HashMap<>(annotationMembers);
             for (Method method : annotationType.getDeclaredMethods()) {
@@ -194,7 +207,21 @@ public final class Annotations {
                     Object v = annotationMembers.get(method.getName());
                     if (v == null)
                         throw new AbstractMethodError(method.getName());
-                    return v instanceof Supplier ? ((Supplier<?>) v).get() : v;
+                    Object o = v instanceof Supplier ? ((Supplier<?>) v).get() : v;
+                    if (o == null)
+                        throw new IllegalArgumentException("Received null for " + method.getName() + "() in Annotations.create()!");
+                    if (method.getReturnType().isInstance(v))
+                        return o;
+                    if (method.getReturnType().isArray()) {
+                        Class<?> componentType = method.getReturnType().getComponentType();
+                        if (componentType.isInstance(o)) {
+                            Object array = Array.newInstance(componentType, 1);
+                            Array.set(array, 0, o);
+                            return array;
+                        }
+                    }
+                    throw new IllegalArgumentException("Invalid value from Annotations.create(): Expected "
+                            + method.getReturnType().getSimpleName() + ", found '" + v + "' of type " + v.getClass().getSimpleName());
                 }
             }
         }

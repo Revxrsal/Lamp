@@ -30,6 +30,8 @@ import revxrsal.commands.annotation.DistributeOnMethods;
 import revxrsal.commands.annotation.dynamic.AnnotationReplacer;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -79,11 +81,14 @@ final class AnnotationListFromMap implements AnnotationList {
 
     private static void distributeAnnotations(
             @NotNull Map<Class<? extends Annotation>, Annotation> annotations,
-            @NotNull Method element
+            @NotNull Method element,
+            @NotNull Map<Class<? extends Annotation>, Set<AnnotationReplacer<?>>> replacers
     ) {
         Class<?> top = element.getDeclaringClass();
         while (top != null) {
-            for (Annotation annotation : top.getAnnotations()) {
+            var classAnnotations = AnnotationList.create(top)
+                    .replaceAnnotations(top, replacers);
+            for (Annotation annotation : classAnnotations) {
                 if (annotation.annotationType().isAnnotationPresent(DistributeOnMethods.class))
                     annotations.putIfAbsent(annotation.annotationType(), annotation);
             }
@@ -93,6 +98,7 @@ final class AnnotationListFromMap implements AnnotationList {
 
     @Override
     public <T extends Annotation> @Nullable T get(@NotNull Class<T> type) {
+        checkRetention(type);
         //noinspection unchecked
         return (T) annotations.get(type);
     }
@@ -131,12 +137,29 @@ final class AnnotationListFromMap implements AnnotationList {
 
     @Override
     public <T extends Annotation> boolean contains(@NotNull Class<T> type) {
+        checkRetention(type);
         return annotations.containsKey(type);
+    }
+
+    /**
+     * Checks whether the given annotation type has {@link Retention}
+     * of {@link RetentionPolicy#RUNTIME}. This helps catch user errors where a
+     * certain annotation is being checked for, that may have been omitted
+     * because it does not have a runtime retention policy.
+     *
+     * @param type Annotation to check
+     */
+    private static void checkRetention(@NotNull Class<? extends Annotation> type) {
+        if (!type.isAnnotationPresent(Retention.class) || type.getAnnotation(Retention.class).value() != RetentionPolicy.RUNTIME)
+            throw new IllegalArgumentException("Tried to check for annotation @" + type.getName() + ", but it does not have @Retention(RetentionPolicy.RUNTIME)!");
     }
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public @NotNull AnnotationList replaceAnnotations(@NotNull AnnotatedElement element, @NotNull Map<Class<? extends Annotation>, Set<AnnotationReplacer<?>>> replacers) {
+    public @NotNull AnnotationList replaceAnnotations(
+            @NotNull AnnotatedElement element,
+            @NotNull Map<Class<? extends Annotation>, Set<AnnotationReplacer<?>>> replacers
+    ) {
         Map<Class<? extends Annotation>, Annotation> annotations = new HashMap<>(this.annotations);
         for (Annotation annotation : this.annotations.values()) {
             for (AnnotationReplacer replacer : replacers.getOrDefault(annotation.annotationType(), emptySet())) {
@@ -145,8 +168,10 @@ final class AnnotationListFromMap implements AnnotationList {
                     annotations.putAll(toMap(newAnnotations));
             }
         }
-        if (element instanceof Method method)
-            distributeAnnotations(annotations, method);
+        if (element instanceof Method method) {
+            distributeAnnotations(annotations, method, replacers);
+            System.out.println(annotations);
+        }
         return new AnnotationListFromMap(annotations);
     }
 
