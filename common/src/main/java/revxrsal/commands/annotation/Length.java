@@ -25,6 +25,11 @@ package revxrsal.commands.annotation;
 
 import org.jetbrains.annotations.Range;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * An annotation that requires {@link String} parameters to have size
  * in the range of {@link Length#min()} and {@link Length#max()} (both inclusive)
@@ -32,6 +37,8 @@ import org.jetbrains.annotations.Range;
  * <em>Note</em>: If a parameter has {@link #min()} == 0, it will automatically be
  * marked as optional.
  */
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Length {
 
     /**
