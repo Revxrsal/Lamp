@@ -76,7 +76,7 @@ public class VelocityExceptionHandler extends DefaultExceptionHandler<VelocityCo
 
     @Override
     public void onMissingArgument(@NotNull MissingArgumentException e, @NotNull VelocityCommandActor actor, @NotNull ParameterNode<VelocityCommandActor, ?> parameter) {
-        actor.error(legacyColorize("&cRequired parameter is missing: &e" + parameter.name() + "&c."));
+        actor.error(legacyColorize("&cRequired parameter is missing: &e" + parameter.name() + "&c. Usage: &e/" + parameter.command().usage() + "&c."));
     }
 
     @Override public void onNoPermission(@NotNull NoPermissionException e, @NotNull VelocityCommandActor actor) {

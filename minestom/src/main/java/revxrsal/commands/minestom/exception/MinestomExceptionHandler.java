@@ -87,7 +87,7 @@ public class MinestomExceptionHandler extends DefaultExceptionHandler<MinestomCo
 
     @Override
     public void onMissingArgument(@NotNull MissingArgumentException e, @NotNull MinestomCommandActor actor, @NotNull ParameterNode<MinestomCommandActor, ?> parameter) {
-        actor.error(legacyColorize("&cRequired parameter is missing: &e" + parameter.name() + "&c."));
+        actor.error(legacyColorize("&cRequired parameter is missing: &e" + parameter.name() + "&c. Usage: &e/" + parameter.command().usage() + "&c."));
     }
 
     @Override public void onNoPermission(@NotNull NoPermissionException e, @NotNull MinestomCommandActor actor) {

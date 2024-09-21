@@ -86,7 +86,7 @@ public class DefaultExceptionHandler<A extends CommandActor> extends RuntimeExce
 
     @HandleException
     public void onMissingArgument(@NotNull MissingArgumentException e, @NotNull A actor, @NotNull ParameterNode<A, ?> parameter) {
-        actor.error("Required parameter is missing: " + parameter.name());
+        actor.error("Required parameter is missing: " + parameter.name() + ". Usage: " + parameter.command().usage());
     }
 
     @HandleException

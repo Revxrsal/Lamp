@@ -81,7 +81,7 @@ public class SpongeExceptionHandler extends DefaultExceptionHandler<SpongeComman
 
     @Override
     public void onMissingArgument(@NotNull MissingArgumentException e, @NotNull SpongeCommandActor actor, @NotNull ParameterNode<SpongeCommandActor, ?> parameter) {
-        actor.error(legacyColorize("&cRequired parameter is missing: &e" + parameter.name() + "&c."));
+        actor.error(legacyColorize("&cRequired parameter is missing: &e" + parameter.name() + "&c. Usage: &e/" + parameter.command().usage() + "&c."));
     }
 
     @Override public void onNoPermission(@NotNull NoPermissionException e, @NotNull SpongeCommandActor actor) {
