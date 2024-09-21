@@ -108,8 +108,11 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
                 String defaultValue = getDefaultValue(parameter.annotations());
                 if (defaultValue != null)
                     ((MutableStringStreamImpl) input).extend(defaultValue);
-                else
+                else {
+                    if (isKotlinClass(context.command().function().method().getDeclaringClass()))
+                        return null;
                     return (T) defaultPrimitiveValue(parameter.type());
+                }
             } else {
                 throw new MissingArgumentException(
                         (ParameterNode<CommandActor, Object>) this, (ExecutableCommand<CommandActor>) context.command()
