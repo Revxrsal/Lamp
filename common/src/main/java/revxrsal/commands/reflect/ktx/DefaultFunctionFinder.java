@@ -64,11 +64,11 @@ import static revxrsal.commands.util.Collections.insertAtBeginning;
  *     </li>
  * </ol>
  */
-final class DefaultFunctionFinder {
+public final class DefaultFunctionFinder {
 
     private DefaultFunctionFinder() {}
 
-    @SneakyThrows static @Nullable CallableMethod findDefaultFunction(
+    @SneakyThrows public static @Nullable CallableMethod findDefaultFunction(
             @NotNull Method method
     ) {
         if (method.getParameterCount() == 0)

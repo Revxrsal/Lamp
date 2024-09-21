@@ -40,11 +40,12 @@ import static revxrsal.commands.reflect.ktx.DefaultFunctionFinder.findDefaultFun
 import static revxrsal.commands.reflect.ktx.KotlinConstants.continuation;
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
 import static revxrsal.commands.reflect.ktx.KotlinSingletons.getCallerForNonDefault;
-import static revxrsal.commands.util.Collections.getOrNull;
-import static revxrsal.commands.util.Collections.mapKeys;
+import static revxrsal.commands.util.Collections.*;
 import static revxrsal.commands.util.Lazy.of;
 
 final class KotlinFunctionImpl implements KotlinFunction {
+
+    private static final String CONTEXT_PARAMETER_PREFIX = "$this$";
 
     private final CallableMethod mainMethod;
     private final Supplier<@Nullable CallableMethod> defaultMethod;
@@ -128,8 +129,12 @@ final class KotlinFunctionImpl implements KotlinFunction {
         int index = 0;
 
         boolean anyOptional = false;
+        boolean hasContextReceiver = false;
 
         for (Parameter parameter : parameters) {
+            if (index == 0 && parameter.getName().startsWith(CONTEXT_PARAMETER_PREFIX)) {
+                hasContextReceiver = true;
+            }
             if (index != 0 && index % Integer.SIZE == 0) {
                 masks.add(mask);
                 mask = 0;
@@ -175,8 +180,10 @@ final class KotlinFunctionImpl implements KotlinFunction {
         }
 
         masks.add(mask);
+        if (hasContextReceiver) {
+            masks.set(0, masks.get(0) / 2);
+        }
         args.addAll(masks);
-
         // DefaultConstructorMarker or MethodHandle
         args.add(null);
 
