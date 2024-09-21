@@ -54,7 +54,8 @@ public @interface Switch {
     @NotNull String value() default "";
 
     /**
-     * Returns the short form of the switch name
+     * Returns the short form of the switch name. If not explicitly specified,
+     * it will be the parameter's first character.
      *
      * @return The switch's long form
      */

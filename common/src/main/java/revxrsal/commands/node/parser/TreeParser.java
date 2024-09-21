@@ -211,11 +211,11 @@ public final class TreeParser<A extends CommandActor> {
 
     private void validate(MutableCommandNode<A> node, String value, char shorthand) {
         String name = value.isEmpty() ? node.getName() : value;
-        Character shortcut = shorthand == '\0' ? null : shorthand;
+        Character shortcut = shorthand == '\0' ? name.charAt(0) : shorthand;
         if (!usedLongNames.add(name)) {
             throw new IllegalArgumentException("Duplicate flag name: " + value);
         }
-        if (shortcut != null && !usedShortNames.add(shortcut)) {
+        if (!usedShortNames.add(shortcut)) {
             throw new IllegalArgumentException("Duplicate flag shorthand name: " + shortcut);
         }
     }

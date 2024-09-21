@@ -45,8 +45,10 @@ import revxrsal.commands.stream.StringStream;
 import revxrsal.commands.util.Classes;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
+import static revxrsal.commands.reflect.ktx.KotlinConstants.isKotlinClass;
 
 final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode<A> implements ParameterNode<A, T> {
 
@@ -204,26 +206,32 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
     }
 
     @Override public Character shorthand() {
-        char shorthand = '\0';
-        if (isFlag())
+        char shorthand;
+        if (isFlag()) {
             shorthand = flagAnn.shorthand();
-        else if (isSwitch())
+            if (shorthand == '\0')
+                shorthand = flagName().charAt(0);
+        } else if (isSwitch()) {
             shorthand = switchAnn.shorthand();
-        return shorthand == '\0' ? null : shorthand;
+            if (shorthand == '\0')
+                shorthand = switchName().charAt(0);
+        } else {
+            return null;
+        }
+        return shorthand;
     }
 
     @Override public @NotNull String representation() {
         if (isFlag() || isSwitch()) {
-            Character shorthand = shorthand();
-            if (shorthand != null)
-                if (isSwitch()) {
-                    return "[-" + shorthand + " | --" + switchName() + "]";
-                } else if (isFlag()) {
-                    if (isOptional())
-                        return "[-" + shorthand + " <" + name() + "> | --" + flagName() + " <" + name() + ">]";
-                    else
-                        return "<-" + shorthand + " <" + name() + "> | --" + flagName() + " <" + name() + ">]";
-                }
+            char shorthand = Objects.requireNonNull(shorthand(), "shorthand() is null for a flag or switch. This is not supposed to happen!");
+            if (isSwitch()) {
+                return "[--" + switchName() + " | -" + shorthand + "]";
+            } else if (isFlag()) {
+                if (isOptional())
+                    return "[--" + flagName() + " <" + name() + "> | -" + shorthand + " <" + name() + ">]";
+                else
+                    return "<--" + flagName() + " <" + name() + "> | -" + shorthand + " <" + name() + ">]";
+            }
         }
         return isRequired() ? "<" + name() + ">" : "[" + name() + "]";
     }
