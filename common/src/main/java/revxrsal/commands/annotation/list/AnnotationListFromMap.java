@@ -30,8 +30,6 @@ import revxrsal.commands.annotation.DistributeOnMethods;
 import revxrsal.commands.annotation.dynamic.AnnotationReplacer;
 
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -40,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static java.util.Collections.emptySet;
+import static revxrsal.commands.util.Classes.checkRetention;
 import static revxrsal.commands.util.Collections.unmodifiableIterator;
 
 final class AnnotationListFromMap implements AnnotationList {
@@ -139,19 +138,6 @@ final class AnnotationListFromMap implements AnnotationList {
     public <T extends Annotation> boolean contains(@NotNull Class<T> type) {
         checkRetention(type);
         return annotations.containsKey(type);
-    }
-
-    /**
-     * Checks whether the given annotation type has {@link Retention}
-     * of {@link RetentionPolicy#RUNTIME}. This helps catch user errors where a
-     * certain annotation is being checked for, that may have been omitted
-     * because it does not have a runtime retention policy.
-     *
-     * @param type Annotation to check
-     */
-    private static void checkRetention(@NotNull Class<? extends Annotation> type) {
-        if (!type.isAnnotationPresent(Retention.class) || type.getAnnotation(Retention.class).value() != RetentionPolicy.RUNTIME)
-            throw new IllegalArgumentException("Tried to check for annotation @" + type.getName() + ", but it does not have @Retention(RetentionPolicy.RUNTIME)!");
     }
 
     @Override

@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.*;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -247,5 +250,18 @@ public final class Classes {
     ) {
         forward.put(key, value);
         backward.put(value, key);
+    }
+
+    /**
+     * Checks whether the given annotation type has {@link Retention}
+     * of {@link RetentionPolicy#RUNTIME}. This helps catch user errors where a
+     * certain annotation is being checked for, that may have been omitted
+     * because it does not have a runtime retention policy.
+     *
+     * @param type Annotation to check
+     */
+    public static void checkRetention(@NotNull Class<? extends Annotation> type) {
+        if (!type.isAnnotationPresent(Retention.class) || type.getAnnotation(Retention.class).value() != RetentionPolicy.RUNTIME)
+            throw new IllegalArgumentException("Tried to check for annotation @" + type.getName() + ", but it does not have @Retention(RetentionPolicy.RUNTIME)!");
     }
 }

@@ -35,37 +35,45 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static revxrsal.commands.util.Classes.checkRetention;
+
 final class EmptyAnnotationList implements AnnotationList {
 
     public static final EmptyAnnotationList INSTANCE = new EmptyAnnotationList();
 
     @Override
     public <T extends Annotation> @Nullable T get(@NotNull Class<T> type) {
+        checkRetention(type);
         return null;
     }
 
     @Override
     public <R, T extends Annotation> @Nullable R map(@NotNull Class<T> type, Function<T, R> function) {
+        checkRetention(type);
         return null;
     }
 
     @Override
     public <R, T extends Annotation> R mapOr(@NotNull Class<T> type, Function<T, R> function, R defaultValue) {
+        checkRetention(type);
         return defaultValue;
     }
 
     @Override
     public <R, T extends Annotation> R mapOrGet(@NotNull Class<T> type, @NotNull Function<T, R> function, @NotNull Supplier<R> defaultValue) {
+        checkRetention(type);
         return defaultValue.get();
     }
 
     @Override
     public <T extends Annotation> @NotNull T require(@NotNull Class<T> type, @NotNull String errorMessage) {
+        checkRetention(type);
         throw new IllegalStateException(errorMessage);
     }
 
     @Override
     public <T extends Annotation> boolean contains(@NotNull Class<T> type) {
+        checkRetention(type);
         return false;
     }
 
