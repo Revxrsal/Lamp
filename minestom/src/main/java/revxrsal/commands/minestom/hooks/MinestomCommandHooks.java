@@ -130,7 +130,7 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
                     }
                 }
             }
-             minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
+            minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
             addOptionalFlagsRecursively(command, minestomCommand, addedOptionals, arguments);
         }
     }
