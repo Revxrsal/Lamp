@@ -37,6 +37,7 @@ final class DefaultTypeFactories {
     public static final ArgumentTypeFactory<CommandActor> STRING = parameter -> {
         if (parameter.type() == String.class)
             return parameter.isGreedy() ? ArgumentType.StringArray(parameter.name())
+                    .map(v -> String.join(" ", v))
                     : ArgumentType.String(parameter.name());
         return null;
     };
