@@ -70,7 +70,7 @@ final class FlagParser<A extends CommandActor> {
             while (input.hasRemaining()) {
                 int start = input.position();
                 if (input.peek() == ' ')
-                    input.moveForward();
+                    input.skipWhitespace();
                 String next = input.peekUnquotedString();
                 if (next.startsWith(LONG_FORMAT_PREFIX)) {
                     String flagName = next.substring(LONG_FORMAT_PREFIX.length());
@@ -113,7 +113,7 @@ final class FlagParser<A extends CommandActor> {
         } else {
             if (input.hasFinished() || input.peek() != ' ')
                 throw new InputParseException(InputParseException.Cause.EXPECTED_WHITESPACE);
-            input.moveForward();
+            input.skipWhitespace();
             parseFlag(context, parameter, input);
         }
     }

@@ -428,7 +428,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                 MutableExecutionContext<A> context
         ) {
             if (input.hasRemaining() && input.peek() == ' ')
-                input.moveForward();
+                input.skipWhitespace();
             int pos = input.position();
             if (node instanceof LiteralNodeImpl<A> l) {
                 String value = input.readUnquotedString();

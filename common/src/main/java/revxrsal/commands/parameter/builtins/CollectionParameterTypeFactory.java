@@ -114,7 +114,7 @@ abstract class CollectionParameterTypeFactory implements ParameterType.Factory<C
                 elements.add(el);
                 if (input.hasRemaining()) {
                     if (input.peek() == delimiter)
-                        input.moveForward();
+                        input.skipWhitespace();
                     else
                         throw new InputParseException(InputParseException.Cause.EXPECTED_WHITESPACE);
                 }
