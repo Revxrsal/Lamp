@@ -69,6 +69,11 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
         moveForward(1);
     }
 
+    @Override public void skipWhitespace() {
+        while (hasRemaining() && peek() == ' ')
+            moveForward();
+    }
+
     public void moveBackward() {
         moveBackward(1);
     }

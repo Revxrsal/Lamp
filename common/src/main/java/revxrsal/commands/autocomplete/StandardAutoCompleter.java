@@ -176,7 +176,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
         List<ParameterNode<A, Object>> flags = filter(possible.parameters().values(), c -> c.isFlag() || c.isSwitch());
         while (input.hasRemaining()) {
             if (input.peek() == ' ')
-                input.moveForward();
+                input.skipWhitespace();
             String next = input.peekUnquotedString();
             if (next.startsWith(LONG_FORMAT_PREFIX)) {
                 String flagName = next.substring(LONG_FORMAT_PREFIX.length());
@@ -185,7 +185,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                 if (input.hasFinished())
                     return List.of();
                 if (input.hasRemaining() && input.peek() == ' ') {
-                    input.moveForward();
+                    input.skipWhitespace();
                 }
                 if (input.hasFinished() && parameter != null) {
                     return List.copyOf(parameter.suggestions().getSuggestions(context));
@@ -208,7 +208,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                         continue;
                     tryParseFlag(parameter, input, context);
                     if (input.hasRemaining() && input.peek() == ' ') {
-                        input.moveForward();
+                        input.skipWhitespace();
                         return List.copyOf(parameter.suggestions().getSuggestions(context));
                     } else if (input.hasFinished()) {
                         return flags.stream().map(f -> {
@@ -256,8 +256,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
             return List.of();
     }
 
-    private @Nullable ParameterNode<A, Object> removeParameterWithShorthand
-            (List<ParameterNode<A, Object>> parametersLeft, char c) {
+    private @Nullable ParameterNode<A, Object> removeParameterWithShorthand(List<ParameterNode<A, Object>> parametersLeft, char c) {
         for (Iterator<ParameterNode<A, Object>> iterator = parametersLeft.iterator(); iterator.hasNext(); ) {
             ParameterNode<A, Object> value = iterator.next();
             Character shorthand = value.shorthand();

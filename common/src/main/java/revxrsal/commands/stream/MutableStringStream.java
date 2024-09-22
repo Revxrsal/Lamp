@@ -52,6 +52,11 @@ public interface MutableStringStream extends StringStream {
     void moveForward();
 
     /**
+     * Skips all the upcoming whitespace
+     */
+    void skipWhitespace();
+
+    /**
      * Moves the cursor 1 step backward
      */
     void moveBackward();
