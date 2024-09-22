@@ -54,9 +54,9 @@ public final class StringParameterType implements ParameterType<CommandActor, St
 
     @Override
     public String parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<CommandActor> context) {
-        if (greedy)
-            return input.consumeRemaining();
-        return input.readString();
+        if (input.peek() == '"' || !greedy)
+            return input.readString();
+        return input.consumeRemaining();
     }
 
     @Override public boolean isGreedy() {
