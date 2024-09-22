@@ -111,7 +111,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                     break;
             }
             if (input.remaining() == 1 && input.peek() == ' ') {
-                input.moveForward();
+                input.skipWhitespace();
                 return promptWith(child, actor, context, input);
             }
 
@@ -132,7 +132,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                     }
                     if (input.canRead(1) && input.peek() == ' ') {
                         // our literal is just fine. move to the next node
-                        input.moveForward();
+                        input.skipWhitespace();
                         continue;
                     }
                 }
@@ -153,7 +153,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                         }
                         return filter(parameter.complete(actor, input, context), s -> startsWithIgnoreCase(s, consumed));
                     } else if (input.peek() == ' ') {
-                        input.moveForward();
+                        input.skipWhitespace();
                     }
                 } catch (Throwable e) {
                     // user inputted invalid input. what do we do here?
@@ -233,7 +233,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
             context.addResolvedArgument(parameter.name(), true);
         } else {
             try {
-                input.moveForward();
+                input.skipWhitespace();
                 if (parameter.isSwitch()) {
                     context.addResolvedArgument(parameter.name(), true);
                     return;
