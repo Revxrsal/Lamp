@@ -45,6 +45,12 @@ import static revxrsal.commands.util.Collections.map;
  */
 public final class OfflinePlayerParameterType implements ParameterType<BukkitCommandActor, OfflinePlayer> {
 
+    private final boolean brigadierEnabled;
+
+    public OfflinePlayerParameterType(boolean brigadierEnabled) {
+        this.brigadierEnabled = brigadierEnabled;
+    }
+
     private static boolean exists(OfflinePlayer player) {
         return player.hasPlayedBefore() || player.isOnline() || player.getFirstPlayed() != 0L;
     }
@@ -62,7 +68,7 @@ public final class OfflinePlayerParameterType implements ParameterType<BukkitCom
 
     @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
         // Brigadier's entity type will handle auto-completions for us :)
-        if (BukkitVersion.isBrigadierSupported())
+        if (BukkitVersion.isBrigadierSupported() && brigadierEnabled)
             return SuggestionProvider.empty();
         return (context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }

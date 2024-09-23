@@ -97,7 +97,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
     @Override public void visit(Lamp.@NotNull Builder<A> builder) {
         builder.accept(legacyColorCodes())
                 .accept(bukkitSenderResolver())
-                .accept(bukkitParameterTypes())
+                .accept(bukkitParameterTypes(!disableBrigadier))
                 .accept(bukkitExceptionHandler())
                 .accept(bukkitPermissions())
                 .accept(registrationHooks(plugin, actorFactory, fallbackPrefix))

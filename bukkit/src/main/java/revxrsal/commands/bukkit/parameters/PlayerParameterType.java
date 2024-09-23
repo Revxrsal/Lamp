@@ -49,6 +49,12 @@ import static revxrsal.commands.util.Collections.map;
  */
 public final class PlayerParameterType implements ParameterType<BukkitCommandActor, Player> {
 
+    private final boolean brigadierEnabled;
+
+    public PlayerParameterType(boolean brigadierEnabled) {
+        this.brigadierEnabled = brigadierEnabled;
+    }
+
     private static @NotNull Player fromSelector(@NotNull CommandSender sender, @NotNull String selector) {
         try {
             List<Entity> entityList = Bukkit.selectEntities(sender, selector);
@@ -83,7 +89,7 @@ public final class PlayerParameterType implements ParameterType<BukkitCommandAct
 
     @Override public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
         // Brigadier's entity type will handle auto-completions for us :)
-        if (BukkitVersion.isBrigadierSupported())
+        if (BukkitVersion.isBrigadierSupported() && brigadierEnabled)
             return SuggestionProvider.empty();
         return (context) -> map(Bukkit.getOnlinePlayers(), Player::getName);
     }

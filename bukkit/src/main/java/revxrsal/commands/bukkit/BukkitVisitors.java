@@ -40,11 +40,11 @@ import revxrsal.commands.bukkit.actor.ActorFactory;
 import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.bukkit.annotation.FallbackPrefix;
-import revxrsal.commands.bukkit.listener.AsyncPaperTabListener;
 import revxrsal.commands.bukkit.brigadier.BrigadierRegistryHook;
 import revxrsal.commands.bukkit.brigadier.BukkitArgumentTypes;
 import revxrsal.commands.bukkit.exception.BukkitExceptionHandler;
 import revxrsal.commands.bukkit.hooks.BukkitCommandHooks;
+import revxrsal.commands.bukkit.listener.AsyncPaperTabListener;
 import revxrsal.commands.bukkit.parameters.*;
 import revxrsal.commands.bukkit.sender.BukkitPermissionFactory;
 import revxrsal.commands.bukkit.sender.BukkitSenderResolver;
@@ -114,10 +114,26 @@ public final class BukkitVisitors {
      * @return The visitor
      */
     public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> bukkitParameterTypes() {
+        return bukkitParameterTypes(BukkitVersion.isBrigadierSupported());
+    }
+
+    /**
+     * Registers the following parameter types:
+     * <ul>
+     *     <li>{@link Player}</li>
+     *     <li>{@link OfflinePlayer}</li>
+     *     <li>{@link World}</li>
+     *     <li>{@link EntitySelector}</li>
+     * </ul>
+     *
+     * @param <A> The actor type
+     * @return The visitor
+     */
+    public static <A extends BukkitCommandActor> @NotNull LampBuilderVisitor<A> bukkitParameterTypes(boolean brigadierEnabled) {
         return builder -> {
             builder.parameterTypes()
-                    .addParameterTypeLast(Player.class, new PlayerParameterType())
-                    .addParameterTypeLast(OfflinePlayer.class, new OfflinePlayerParameterType())
+                    .addParameterTypeLast(Player.class, new PlayerParameterType(brigadierEnabled))
+                    .addParameterTypeLast(OfflinePlayer.class, new OfflinePlayerParameterType(brigadierEnabled))
                     .addParameterTypeLast(World.class, new WorldParameterType())
                     .addParameterTypeFactoryLast(new EntitySelectorParameterTypeFactory());
             if (BukkitVersion.isBrigadierSupported())
