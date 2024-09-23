@@ -169,6 +169,10 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                     if (consumed.contains(" ")) {
                         return filterWithSpaces(parameter.complete(actor, input, context), consumed);
                     }
+                    if (input.canRead(consumed.length() + 1) && input.peekOffset(consumed.length()) == ' ') {
+                        input.read(consumed.length());
+                        continue;
+                    }
                     return filter(parameter.complete(actor, input, context), s -> startsWithIgnoreCase(s, consumed));
                 }
             }
