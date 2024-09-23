@@ -85,7 +85,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
 
     @Override
     public @NotNull List<String> complete(@NotNull A actor, @NotNull StringStream input) {
-        List<String> suggestions = new ArrayList<>();
+        Set<String> suggestions = new LinkedHashSet<>();
         if (input.isEmpty())
             return Collections.emptyList();
         String firstWord = input.peekUnquotedString();
@@ -100,7 +100,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
             suggestions.addAll(complete(possible, input.toMutableCopy(), actor));
         }
 
-        return suggestions;
+        return new ArrayList<>(suggestions);
     }
 
     private List<String> complete(ExecutableCommand<A> possible, MutableStringStream input, A actor) {
