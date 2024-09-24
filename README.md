@@ -1,4 +1,4 @@
-<h1 align="center">Lamp</h1>
+# Lamp
 
 [![Discord](https://discord.com/api/guilds/939962855476846614/widget.png)](https://discord.gg/pEGGF785zp)
 [![Maven Central](https://img.shields.io/maven-metadata/v/https/repo1.maven.org/maven2/io/github/revxrsal/lamp.common/maven-metadata.xml.svg?label=maven%20central&colorB=brightgreen)](https://search.maven.org/artifact/io.github.revxrsal/lamp.common)
@@ -15,8 +15,7 @@ robust solution with a clean, idiomatic API.
 ## Core Features
 
 - **Multi-Platform Support**: Easily integrate with various platforms including Bukkit, BungeeCord, Sponge, Velocity,
-  JDA,
-  and more.
+  JDA, Minestom, and more.
 - **Command Management**:
     - Define commands using simple annotations and manage them effortlessly.
     - Use spaces to define subcommands easily
@@ -24,11 +23,16 @@ robust solution with a clean, idiomatic API.
     - Define parameters that come in the middle of the command
 - **Advanced Parameter Handling**: Support for context-based parameters, custom parameter types, and multiple parameter
   variants.
+- **Optional parameters**: Define optional parameters and default values easily with `@Optional` and `@Default`
+- **Flags and switches**:
+  - Define Unix-style switches (`--switch` and `-s`) and flags (`--value <value>` or `-v <value>`)
+  - Use shorthand-syntax `-s -p -r` as `-spr` 
 - **Response Handling**: Configure how command responses are processed with flexible `ResponseHandlers`.
 - **Dependency Injection**: Inject dependencies directly into command classes using a simple builder pattern.
 - **Context Resolving**: Use context resolvers to handle complex command input scenarios.
-- **Command Permissions**: Apply granular permissions with `@CommandPermission` annotations.
+- **Command Permissions**: Use built-in platform permissions, or define your own permission implementation with custom annotations.
 - **Modular Design with Visitors**: Extend Lamp’s functionality through modular visitors for dynamic feature additions.
+- **Custom annotation support**: Lamp allows you to create custom annotations and customize their behaviors.
 - **Fool-proof**: Lamp has been designed to reduce user error as much as possible. It uses idiomatic APIs, immutability,
   and builders, to ensure you never run into bugs. Combined with extensive compiler annotations that will help you catch
   any problems at compile-time
