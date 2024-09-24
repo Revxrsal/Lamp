@@ -1,5 +1,8 @@
-# Lamp
+<p align="center">
+  <img src="https://images2.imgbox.com/01/4d/zQB0jcY9_o.jpg"></img>
+</p>
 
+# Lamp
 [![Discord](https://discord.com/api/guilds/939962855476846614/widget.png)](https://discord.gg/pEGGF785zp)
 [![Maven Central](https://img.shields.io/maven-metadata/v/https/repo1.maven.org/maven2/io/github/revxrsal/lamp.common/maven-metadata.xml.svg?label=maven%20central&colorB=brightgreen)](https://search.maven.org/artifact/io.github.revxrsal/lamp.common)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
