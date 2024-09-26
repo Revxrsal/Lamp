@@ -187,6 +187,12 @@ public final class DispatcherSettings<A extends CommandActor> {
             return this;
         }
 
+        /**
+         * Sets the stack-trace sanitizer. See {@link StackTraceSanitizer}
+         *
+         * @param stackTraceSanitizer Sanitizer to use
+         * @return This builder
+         */
         public Builder<A> stackTraceSanitizer(@NotNull StackTraceSanitizer stackTraceSanitizer) {
             this.stackTraceSanitizer = notNull(stackTraceSanitizer, "stack trace sanitizer");
             return this;
