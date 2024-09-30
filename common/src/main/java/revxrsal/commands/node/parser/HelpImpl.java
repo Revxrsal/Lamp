@@ -33,8 +33,6 @@ import revxrsal.commands.help.Help;
 import java.util.Iterator;
 import java.util.List;
 
-import static revxrsal.commands.help.Help.paginate;
-
 final class HelpImpl {
 
     static abstract class CommandListImpl<A extends CommandActor> implements Help.CommandList<A> {
@@ -52,8 +50,8 @@ final class HelpImpl {
             return commands;
         }
 
-        @Override public @Unmodifiable List<ExecutableCommand<A>> asPage(int pageNumber, int elementsPerPage) {
-            return paginate(commands, pageNumber, elementsPerPage);
+        @Override public @Unmodifiable List<ExecutableCommand<A>> paginate(int pageNumber, int elementsPerPage) {
+            return Help.paginate(commands, pageNumber, elementsPerPage);
         }
 
         @Override public @NotNull Iterator<ExecutableCommand<A>> iterator() {

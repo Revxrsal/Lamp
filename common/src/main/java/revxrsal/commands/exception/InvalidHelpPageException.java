@@ -31,7 +31,7 @@ import revxrsal.commands.help.Help.CommandList;
 import java.util.List;
 
 /**
- * Thrown when an invalid page is passed to {@link CommandList#asPage(int, int)}
+ * Thrown when an invalid page is passed to {@link CommandList#paginate(int, int)}
  */
 @ThrowableFromCommand
 public class InvalidHelpPageException extends RuntimeException {
