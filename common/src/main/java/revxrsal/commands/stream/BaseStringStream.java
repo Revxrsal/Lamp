@@ -26,6 +26,7 @@ package revxrsal.commands.stream;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import revxrsal.commands.exception.InputParseException;
 
 /**
  * A class that aids in parsing a stream of characters.
@@ -118,12 +119,58 @@ class BaseStringStream implements StringStream {
         return pos;
     }
 
-    protected @NotNull String readUnquotedString() {
+    public @NotNull String readUnquotedString() {
         int start = pos;
         while (hasRemaining() && !Character.isWhitespace(peek())) {
             pos += 1;
         }
         return source.substring(start, pos);
+    }
+
+    public @NotNull String readString() {
+        if (!hasRemaining())
+            return "";
+        char next = read();
+        if (next == DOUBLE_QUOTE) {
+            pos += 1;
+            return readUntil(DOUBLE_QUOTE);
+        }
+        return readUnquotedString();
+    }
+
+    public char read() {
+        return source.charAt(pos++);
+    }
+
+    public @NotNull String readUntil(char delimiter) {
+        StringBuilder result = new StringBuilder();
+        boolean escaped = false;
+        while (hasRemaining()) {
+            char c = read();
+            if (escaped) {
+                if (c == delimiter || c == ESCAPE) {
+                    result.append(c);
+                    escaped = false;
+                } else {
+                    pos--;
+                    throw new InputParseException(InputParseException.Cause.INVALID_ESCAPE_CHARACTER);
+                }
+            } else if (c == ESCAPE) {
+                escaped = true;
+            } else if (c == delimiter) {
+                return result.toString();
+            } else {
+                result.append(c);
+            }
+        }
+        throw new InputParseException(InputParseException.Cause.UNCLOSED_QUOTE);
+    }
+
+    @Override public @NotNull String peekString() {
+        int cursor = pos;
+        String value = readString();
+        pos = cursor;
+        return value;
     }
 
     public @NotNull String peekUnquotedString() {

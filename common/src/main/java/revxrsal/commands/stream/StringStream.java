@@ -160,6 +160,18 @@ public interface StringStream {
     String peekUnquotedString();
 
     /**
+     * Peeks the next string. If the string was quoted, it will
+     * peek the entire string inside the quotes. Otherwise, it will
+     * peek the next string until a whitespace character is encountered.
+     * <p>
+     * This will not move the cursor forward.
+     *
+     * @return The next string.
+     */
+    @NotNull
+    String peekString();
+
+    /**
      * Peeks the remainder of the string stream
      *
      * @return The peeked string

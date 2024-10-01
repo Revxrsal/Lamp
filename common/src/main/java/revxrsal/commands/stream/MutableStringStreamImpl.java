@@ -54,11 +54,6 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
     }
 
     @Override
-    public char read() {
-        return source.charAt(pos++);
-    }
-
-    @Override
     public String read(int characters) {
         if (!canRead(characters))
             return consumeRemaining();
@@ -101,21 +96,6 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
     @ApiStatus.Internal
     public void extend(@NotNull String str) {
         source += str;
-    }
-
-    public @Override @NotNull String readUnquotedString() {
-        return super.readUnquotedString();
-    }
-
-    public @NotNull String readString() {
-        if (!hasRemaining())
-            return "";
-        char next = peek();
-        if (next == DOUBLE_QUOTE) {
-            moveForward();
-            return readUntil(DOUBLE_QUOTE);
-        }
-        return readUnquotedString();
     }
 
     public @NotNull String readUntil(char delimiter) {
