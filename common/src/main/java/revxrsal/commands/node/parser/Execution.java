@@ -243,7 +243,15 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     }
 
     @Override public boolean isChildOf(@NotNull ExecutableCommand<A> command) {
-        return path().startsWith(command.path());
+        if (size() <= command.size())
+            return false;
+        for (int i = 0; i < command.size(); i++) {
+            CommandNode<A> ourNode = nodes.get(i);
+            CommandNode<A> otherNode = command.nodes().get(i);
+            if (!otherNode.representation().equals(ourNode.representation()))
+                return false;
+        }
+        return true;
     }
 
     @Override public boolean containsFlags() {
