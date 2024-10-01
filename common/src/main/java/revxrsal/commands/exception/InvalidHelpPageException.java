@@ -23,7 +23,9 @@
  */
 package revxrsal.commands.exception;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
 import revxrsal.commands.help.Help.CommandList;
@@ -49,21 +51,46 @@ public class InvalidHelpPageException extends RuntimeException {
         this.numberOfPages = numberOfPages;
     }
 
+    /**
+     * Returns the elements to include in each page
+     *
+     * @return The elements to include in each page
+     */
     public int elementsPerPage() {
         return elementsPerPage;
     }
 
+    /**
+     * Returns  the page number
+     *
+     * @return The page number
+     */
     public int page() {
         return page;
     }
 
+    /**
+     * Returns the number of pages this list would generate if
+     * it were to be split pages where each page contains {@link #elementsPerPage()}
+     * elements.
+     *
+     * @return The number of pages
+     */
     public @Range(from = 1, to = Integer.MAX_VALUE) int numberOfPages() {
         return numberOfPages;
     }
 
+    /**
+     * Returns <em>all</em> the commands that belong to this list. This does
+     * not respect pages.
+     * <p>
+     * Note that the returned list is immutable.
+     *
+     * @return All the commands
+     */
     // blame java for not allowing generics in exceptions
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <A extends CommandActor> List<ExecutableCommand<A>> commands() {
+    public <A extends CommandActor> @NotNull @Unmodifiable List<ExecutableCommand<A>> commands() {
         return (List) commands;
     }
 }
