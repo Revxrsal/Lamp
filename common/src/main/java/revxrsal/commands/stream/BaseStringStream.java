@@ -130,7 +130,7 @@ class BaseStringStream implements StringStream {
     public @NotNull String readString() {
         if (!hasRemaining())
             return "";
-        char next = read();
+        char next = peek();
         if (next == DOUBLE_QUOTE) {
             pos += 1;
             return readUntil(DOUBLE_QUOTE);
