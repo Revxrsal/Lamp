@@ -40,10 +40,8 @@ import java.lang.reflect.Method;
 final class PaperLifecycleEvents extends Commodore {
 
     private final RootCommandNode<CommandSourceStack> root = new RootCommandNode<>();
-    private final BukkitCommandHandler handler;
 
     public PaperLifecycleEvents(@NotNull BukkitCommandHandler handler) {
-        this.handler = handler;
         getLifecycleManager(handler.getPlugin()).registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             for (CommandNode<CommandSourceStack> node : root.getChildren()) {
                 event.registrar().register(((LiteralCommandNode<CommandSourceStack>) node));
@@ -52,10 +50,12 @@ final class PaperLifecycleEvents extends Commodore {
     }
 
     @Override void register(Command command, LiteralCommandNode<?> node) {
+        //noinspection unchecked
         root.addChild((LiteralCommandNode<CommandSourceStack>) node);
     }
 
     @Override void register(LiteralCommandNode<?> node) {
+        //noinspection unchecked
         root.addChild((LiteralCommandNode<CommandSourceStack>) node);
     }
 
