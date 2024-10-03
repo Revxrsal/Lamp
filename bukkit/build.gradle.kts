@@ -16,12 +16,12 @@ dependencies {
         exclude(module = "spigot-api")
         exclude(module = "brigadier")
     }
+    compileOnly("com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT") {
+        exclude(module = "spigot-api")
+        exclude(module = "adventure")
+    }
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.mojang:brigadier:1.0.18")
-    compileOnly("io.papermc.paper:paper-mojangapi:1.19.1-R0.1-SNAPSHOT")
-    compileOnly("io.papermc.paper:paper-api:1.19.1-R0.1-SNAPSHOT")
 
     compileOnly("net.kyori:adventure-platform-bukkit:4.3.4")
 }
-
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))

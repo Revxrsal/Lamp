@@ -111,7 +111,8 @@ public final class JDAParser<A extends SlashCommandActor> {
                 if (!canUseLiterals)
                     throw new IllegalArgumentException("You can only have 3 consecutive literals in slash commands!");
             }
-            if (node instanceof ParameterNode<A, ?> parameter) {
+            if (node instanceof ParameterNode) {
+                ParameterNode<A, ?> parameter = (ParameterNode<A, ?>) node;
                 if (parameter.isSwitch())
                     throw new IllegalArgumentException("Switches are not supported in JDA slash commands.");
                 if (parameter.isFlag())

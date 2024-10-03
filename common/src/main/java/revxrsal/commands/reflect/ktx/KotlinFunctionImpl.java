@@ -40,7 +40,8 @@ import static revxrsal.commands.reflect.ktx.DefaultFunctionFinder.findDefaultFun
 import static revxrsal.commands.reflect.ktx.KotlinConstants.continuation;
 import static revxrsal.commands.reflect.ktx.KotlinConstants.defaultPrimitiveValue;
 import static revxrsal.commands.reflect.ktx.KotlinSingletons.getCallerForNonDefault;
-import static revxrsal.commands.util.Collections.*;
+import static revxrsal.commands.util.Collections.getOrNull;
+import static revxrsal.commands.util.Collections.mapKeys;
 import static revxrsal.commands.util.Lazy.of;
 
 final class KotlinFunctionImpl implements KotlinFunction {
@@ -170,13 +171,11 @@ final class KotlinFunctionImpl implements KotlinFunction {
             if (mainMethod.method().getParameterCount() == args.size())
                 //noinspection unchecked
                 return (T) mainMethod.caller().call(instance, args.toArray());
-            throw new IllegalArgumentException("""
-                    Unable to invoke function with default parameters.\s
-                    This may happen because you have an @Optional non-null primitive type (e.g. Int) \
-                    with no default value using @Default or a Kotlin-default value.
-                    It may also occur if you have @Switch with no default value. (@Switch param: Boolean = ...)
-                    Either mark it as nullable, add a default value (@Optional param: Type = ...), or use @Default"""
-            );
+            throw new IllegalArgumentException("Unable to invoke function with default parameters. " +
+                    "This may happen because you have an @Optional non-null primitive type (e.g. Int) " +
+                    "with no default value using @Default or a Kotlin-default value. " +
+                    "It may also occur if you have @Switch with no default value. (@Switch param: Boolean = ...). " +
+                    "Either mark it as nullable, add a default value (@Optional param: Type = ...), or use @Default");
         }
 
         masks.add(mask);

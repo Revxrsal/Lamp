@@ -207,7 +207,8 @@ public interface SpongeCommandActor extends CommandActor {
      */
     @Override @NotNull
     default String name() {
-        if (subject() instanceof Nameable n) {
+        if (subject() instanceof Nameable) {
+            Nameable n = (Nameable) subject();
             return n.name();
         } else if (isConsole()) {
             return "Console";

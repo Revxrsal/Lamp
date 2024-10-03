@@ -12,6 +12,5 @@ repositories {
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     compileOnly("com.mojang:brigadier:1.0.18")
+    compileOnly("net.kyori:adventure-api:4.14.0")
 }
-
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))

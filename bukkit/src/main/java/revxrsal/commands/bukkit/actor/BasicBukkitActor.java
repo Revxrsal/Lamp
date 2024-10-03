@@ -11,18 +11,32 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.process.MessageSender;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-record BasicBukkitActor(
-        CommandSender sender,
-        Plugin plugin,
-        Optional<BukkitAudiences> audiences,
-        MessageSender<BukkitCommandActor, ComponentLike> messageSender,
-        Lamp<BukkitCommandActor> lamp
-) implements BukkitCommandActor {
+final class BasicBukkitActor implements BukkitCommandActor {
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
+    private final CommandSender sender;
+    private final Plugin plugin;
+    private final Optional<BukkitAudiences> audiences;
+    private final MessageSender<BukkitCommandActor, ComponentLike> messageSender;
+    private final Lamp<BukkitCommandActor> lamp;
+
+    BasicBukkitActor(
+            CommandSender sender,
+            Plugin plugin,
+            Optional<BukkitAudiences> audiences,
+            MessageSender<BukkitCommandActor, ComponentLike> messageSender,
+            Lamp<BukkitCommandActor> lamp
+    ) {
+        this.sender = sender;
+        this.plugin = plugin;
+        this.audiences = audiences;
+        this.messageSender = messageSender;
+        this.lamp = lamp;
+    }
 
     @Override public @NotNull CommandSender sender() {
         return sender;
@@ -38,8 +52,8 @@ record BasicBukkitActor(
     @Override public @NotNull Optional<Audience> audience() {
         //noinspection DataFlowIssue
         if (sender instanceof Audience)
-            return Optional.of(sender);
-        if (audiences.isEmpty())
+            return Optional.of((Audience) sender);
+        if (!audiences.isPresent())
             return Optional.empty();
         BukkitAudiences bukkitAudiences = audiences.get();
         return Optional.of(bukkitAudiences.sender(sender()));
@@ -57,4 +71,38 @@ record BasicBukkitActor(
     @Override public Lamp<BukkitCommandActor> lamp() {
         return lamp;
     }
+
+    public Plugin plugin() {return plugin;}
+
+    public Optional<BukkitAudiences> audiences() {return audiences;}
+
+    public MessageSender<BukkitCommandActor, ComponentLike> messageSender() {return messageSender;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        BasicBukkitActor that = (BasicBukkitActor) obj;
+        return Objects.equals(this.sender, that.sender) &&
+                Objects.equals(this.plugin, that.plugin) &&
+                Objects.equals(this.audiences, that.audiences) &&
+                Objects.equals(this.messageSender, that.messageSender) &&
+                Objects.equals(this.lamp, that.lamp);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sender, plugin, audiences, messageSender, lamp);
+    }
+
+    @Override
+    public String toString() {
+        return "BasicBukkitActor[" +
+                "sender=" + sender + ", " +
+                "plugin=" + plugin + ", " +
+                "audiences=" + audiences + ", " +
+                "messageSender=" + messageSender + ", " +
+                "lamp=" + lamp + ']';
+    }
+
 }

@@ -58,7 +58,7 @@ public final class CommandPaths {
         List<String> parentSubcommandAliases = new ArrayList<>();
 
         for (Class<?> topClass : getTopClasses(container)) {
-            var annotations = AnnotationList.create(topClass)
+            AnnotationList annotations = AnnotationList.create(topClass)
                     .replaceAnnotations(topClass, function.lamp().annotationReplacers());
             Subcommand ps = annotations.get(Subcommand.class);
             if (ps != null) {

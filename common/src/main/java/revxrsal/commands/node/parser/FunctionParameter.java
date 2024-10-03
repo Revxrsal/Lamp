@@ -32,14 +32,28 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-record FunctionParameter(
-        @NotNull Parameter parameter,
-        @NotNull String name,
-        @NotNull AnnotationList annotations,
-        int methodIndex
-) implements CommandParameter {
+final class FunctionParameter implements CommandParameter {
+    private final @NotNull Parameter parameter;
+    private final @NotNull String name;
+    private final @NotNull AnnotationList annotations;
+    private final int methodIndex;
+
+    FunctionParameter(
+            @NotNull Parameter parameter,
+            @NotNull String name,
+            @NotNull AnnotationList annotations,
+            int methodIndex
+    ) {
+        this.parameter = parameter;
+        this.name = name;
+        this.annotations = annotations;
+        this.methodIndex = methodIndex;
+    }
 
     @Override
     public boolean isLastInMethod() {
@@ -65,8 +79,8 @@ record FunctionParameter(
     public @NotNull List<Type> generics() {
         Type type = parameter.getParameterizedType();
         if (type instanceof ParameterizedType)
-            return List.of(((ParameterizedType) type).getActualTypeArguments());
-        return List.of();
+            return Arrays.asList(((ParameterizedType) type).getActualTypeArguments());
+        return Collections.emptyList();
     }
 
     @Override
@@ -83,4 +97,38 @@ record FunctionParameter(
             return length.min() == 0;
         return false;
     }
+
+    @Override public @NotNull Parameter parameter() {return parameter;}
+
+    @Override public @NotNull String name() {return name;}
+
+    @Override public @NotNull AnnotationList annotations() {return annotations;}
+
+    @Override public int methodIndex() {return methodIndex;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        FunctionParameter that = (FunctionParameter) obj;
+        return Objects.equals(this.parameter, that.parameter) &&
+                Objects.equals(this.name, that.name) &&
+                Objects.equals(this.annotations, that.annotations) &&
+                this.methodIndex == that.methodIndex;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(parameter, name, annotations, methodIndex);
+    }
+
+    @Override
+    public String toString() {
+        return "FunctionParameter[" +
+                "parameter=" + parameter + ", " +
+                "name=" + name + ", " +
+                "annotations=" + annotations + ", " +
+                "methodIndex=" + methodIndex + ']';
+    }
+
 }

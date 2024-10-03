@@ -7,16 +7,28 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.process.MessageSender;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.UUID;
 
-record BasicFabricActor(
-        ServerCommandSource sender,
-        Lamp<FabricCommandActor> lamp,
-        MessageSender<FabricCommandActor, Text> messageSender,
-        MessageSender<FabricCommandActor, Text> errorSender
-) implements FabricCommandActor {
+final class BasicFabricActor implements FabricCommandActor {
 
     private static final UUID CONSOLE_UUID = new UUID(0, 0);
+    private final ServerCommandSource sender;
+    private final Lamp<FabricCommandActor> lamp;
+    private final MessageSender<FabricCommandActor, Text> messageSender;
+    private final MessageSender<FabricCommandActor, Text> errorSender;
+
+    BasicFabricActor(
+            ServerCommandSource sender,
+            Lamp<FabricCommandActor> lamp,
+            MessageSender<FabricCommandActor, Text> messageSender,
+            MessageSender<FabricCommandActor, Text> errorSender
+    ) {
+        this.sender = sender;
+        this.lamp = lamp;
+        this.messageSender = messageSender;
+        this.errorSender = errorSender;
+    }
 
     @Override public @NotNull ServerCommandSource source() {
         return sender;
@@ -42,4 +54,36 @@ record BasicFabricActor(
     @Override public Lamp<FabricCommandActor> lamp() {
         return lamp;
     }
+
+    public ServerCommandSource sender() {return sender;}
+
+    public MessageSender<FabricCommandActor, Text> messageSender() {return messageSender;}
+
+    public MessageSender<FabricCommandActor, Text> errorSender() {return errorSender;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (BasicFabricActor) obj;
+        return Objects.equals(this.sender, that.sender) &&
+                Objects.equals(this.lamp, that.lamp) &&
+                Objects.equals(this.messageSender, that.messageSender) &&
+                Objects.equals(this.errorSender, that.errorSender);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sender, lamp, messageSender, errorSender);
+    }
+
+    @Override
+    public String toString() {
+        return "BasicFabricActor[" +
+                "sender=" + sender + ", " +
+                "lamp=" + lamp + ", " +
+                "messageSender=" + messageSender + ", " +
+                "errorSender=" + errorSender + ']';
+    }
+
 }

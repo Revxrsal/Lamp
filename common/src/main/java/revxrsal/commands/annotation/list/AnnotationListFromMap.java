@@ -85,7 +85,7 @@ final class AnnotationListFromMap implements AnnotationList {
     ) {
         Class<?> top = element.getDeclaringClass();
         while (top != null) {
-            var classAnnotations = AnnotationList.create(top)
+            AnnotationList classAnnotations = AnnotationList.create(top)
                     .replaceAnnotations(top, replacers);
             for (Annotation annotation : classAnnotations) {
                 if (annotation.annotationType().isAnnotationPresent(DistributeOnMethods.class))
@@ -154,7 +154,8 @@ final class AnnotationListFromMap implements AnnotationList {
                     annotations.putAll(toMap(newAnnotations));
             }
         }
-        if (element instanceof Method method) {
+        if (element instanceof Method) {
+            Method method = (Method) element;
             distributeAnnotations(annotations, method, replacers);
         }
         return new AnnotationListFromMap(annotations);
@@ -186,7 +187,7 @@ final class AnnotationListFromMap implements AnnotationList {
 
     @Override
     public @NotNull AnnotationList withAnnotations(boolean overrideExisting, @NotNull Annotation... annotations) {
-        var map = new HashMap<>(this.annotations);
+        HashMap<Class<? extends Annotation>, Annotation> map = new HashMap<>(this.annotations);
         for (@NotNull Annotation annotation : annotations) {
             if (overrideExisting)
                 map.put(annotation.annotationType(), annotation);

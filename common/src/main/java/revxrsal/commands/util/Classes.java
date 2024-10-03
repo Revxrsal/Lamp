@@ -153,7 +153,8 @@ public final class Classes {
             // type is a normal class.
             return (Class<?>) type;
 
-        } else if (type instanceof ParameterizedType parameterizedType) {
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
 
             // I'm not exactly sure why getRawType() returns Type instead of Class.
             // Neal isn't either but suspects some pathological case related

@@ -281,7 +281,7 @@ public final class BukkitVisitors {
             @NotNull ActorFactory<A> actorFactory
     ) {
         if (BukkitVersion.supportsAsyncCompletion()) {
-            return new LampBuilderVisitor<>() {
+            return new LampBuilderVisitor<A>() {
                 private boolean registered = false;
 
                 @Override public void visit(Lamp.@NotNull Builder<A> builder) {

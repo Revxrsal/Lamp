@@ -1,11 +1,12 @@
 package io.papermc.paper.command.brigadier;
 
-import java.util.Collection;
-import java.util.Collections;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Implementing this interface allows for easily creating "Bukkit-style" {@code String[] args} commands.
@@ -19,7 +20,7 @@ public interface BasicCommand {
      * Executes the command with the given {@link CommandSourceStack} and arguments.
      *
      * @param commandSourceStack the commandSourceStack of the command
-     * @param args the arguments of the command ignoring repeated spaces
+     * @param args               the arguments of the command ignoring repeated spaces
      */
     @ApiStatus.OverrideOnly
     void execute(@NotNull CommandSourceStack commandSourceStack, @NotNull String[] args);
@@ -28,7 +29,7 @@ public interface BasicCommand {
      * Suggests possible completions for the given command {@link CommandSourceStack} and arguments.
      *
      * @param commandSourceStack the commandSourceStack of the command
-     * @param args the arguments of the command including repeated spaces
+     * @param args               the arguments of the command including repeated spaces
      * @return a collection of suggestions
      */
     @ApiStatus.OverrideOnly

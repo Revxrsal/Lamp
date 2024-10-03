@@ -73,7 +73,8 @@ public final class BrigadierParser<S, A extends CommandActor> {
             BNode<S> elementNode;
             if (node.isLiteral()) {
                 elementNode = BNode.literal(node.name());
-            } else if (node instanceof ParameterNode<A, ?> parameter) {
+            } else if (node instanceof ParameterNode) {
+                ParameterNode<A, ?> parameter = (ParameterNode<A, ?>) node;
                 if (parameter.isSwitch() || parameter.isFlag())
                     break;
                 elementNode = BNode.of(ofParameter(parameter));

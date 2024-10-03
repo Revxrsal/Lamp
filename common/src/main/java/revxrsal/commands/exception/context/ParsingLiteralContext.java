@@ -29,10 +29,20 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.node.LiteralNode;
 
-record ParsingLiteralContext<A extends CommandActor>(
-        @NotNull ExecutionContext<A> context,
-        @NotNull LiteralNode<A> literal
-) implements ErrorContext.ParsingLiteral<A> {
+import java.util.Objects;
+
+final class ParsingLiteralContext<A extends CommandActor> implements ErrorContext.ParsingLiteral<A> {
+    private final @NotNull ExecutionContext<A> context;
+    private final @NotNull LiteralNode<A> literal;
+
+    ParsingLiteralContext(
+            @NotNull ExecutionContext<A> context,
+            @NotNull LiteralNode<A> literal
+    ) {
+        this.context = context;
+        this.literal = literal;
+    }
+
     @Override
     public @NotNull A actor() {
         return context().actor();
@@ -42,4 +52,30 @@ record ParsingLiteralContext<A extends CommandActor>(
     public @NotNull Lamp<A> lamp() {
         return context.lamp();
     }
+
+    @Override public @NotNull ExecutionContext<A> context() {return context;}
+
+    @Override public @NotNull LiteralNode<A> literal() {return literal;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        ParsingLiteralContext that = (ParsingLiteralContext) obj;
+        return Objects.equals(this.context, that.context) &&
+                Objects.equals(this.literal, that.literal);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(context, literal);
+    }
+
+    @Override
+    public String toString() {
+        return "ParsingLiteralContext[" +
+                "context=" + context + ", " +
+                "literal=" + literal + ']';
+    }
+
 }

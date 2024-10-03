@@ -169,6 +169,23 @@ public final class Collections {
         return new UnmodifiableIterator<>(iterator);
     }
 
+    @Contract("_ -> new")
+    @CheckReturnValue
+    @Unmodifiable
+    public static <K, V> @NotNull Map<K, V> copyMap(@NotNull Map<K, V> map) {
+        if (map instanceof LinkedHashMap) {
+            return java.util.Collections.unmodifiableMap(new LinkedHashMap<>(map));
+        }
+        return java.util.Collections.unmodifiableMap(new HashMap<>(map));
+    }
+
+    @Contract("_ -> new")
+    @CheckReturnValue
+    @Unmodifiable
+    public static <T> @NotNull List<T> copyList(@NotNull Collection<T> list) {
+        return java.util.Collections.unmodifiableList(new ArrayList<>(list));
+    }
+
     /**
      * UnmodifiableIterator, A wrapper around an iterator instance that
      * disables the remove method.

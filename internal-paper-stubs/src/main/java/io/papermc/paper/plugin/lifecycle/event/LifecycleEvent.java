@@ -9,6 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
  * Lifecycle events are generally fired when the older
  * event system is not available, like during early
  * server initialization.
+ *
  * @see LifecycleEvents
  */
 @ApiStatus.Experimental

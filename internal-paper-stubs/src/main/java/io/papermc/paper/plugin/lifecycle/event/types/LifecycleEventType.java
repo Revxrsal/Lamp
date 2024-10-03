@@ -2,7 +2,6 @@ package io.papermc.paper.plugin.lifecycle.event.types;
 
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEvent;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
-import io.papermc.paper.plugin.lifecycle.event.LifecycleEventOwner;
 import io.papermc.paper.plugin.lifecycle.event.handler.LifecycleEventHandler;
 import io.papermc.paper.plugin.lifecycle.event.handler.configuration.LifecycleEventHandlerConfiguration;
 import io.papermc.paper.plugin.lifecycle.event.handler.configuration.MonitorLifecycleEventHandlerConfiguration;

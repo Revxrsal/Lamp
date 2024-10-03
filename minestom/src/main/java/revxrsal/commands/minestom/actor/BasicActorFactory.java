@@ -29,21 +29,59 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.process.MessageSender;
 
+import java.util.Objects;
+
 /**
  * Default implementation of {@link ActorFactory}
  */
-record BasicActorFactory(
-        MessageSender<MinestomCommandActor, ComponentLike> messageSender,
-        MessageSender<MinestomCommandActor, ComponentLike> errorSender
-) implements ActorFactory<MinestomCommandActor> {
+final class BasicActorFactory implements ActorFactory<MinestomCommandActor> {
 
     public static final ActorFactory<MinestomCommandActor> INSTANCE = new BasicActorFactory(
             MinestomCommandActor::sendRawMessage,
             MinestomCommandActor::sendRawError
     );
+    private final MessageSender<MinestomCommandActor, ComponentLike> messageSender;
+    private final MessageSender<MinestomCommandActor, ComponentLike> errorSender;
+
+    /**
+     *
+     */
+    BasicActorFactory(
+            MessageSender<MinestomCommandActor, ComponentLike> messageSender,
+            MessageSender<MinestomCommandActor, ComponentLike> errorSender
+    ) {
+        this.messageSender = messageSender;
+        this.errorSender = errorSender;
+    }
 
     @Override
     public @NotNull MinestomCommandActor create(@NotNull CommandSender sender, @NotNull Lamp<MinestomCommandActor> lamp) {
         return new BasicMinestomActor(sender, lamp, messageSender, errorSender);
     }
+
+    public MessageSender<MinestomCommandActor, ComponentLike> messageSender() {return messageSender;}
+
+    public MessageSender<MinestomCommandActor, ComponentLike> errorSender() {return errorSender;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (BasicActorFactory) obj;
+        return Objects.equals(this.messageSender, that.messageSender) &&
+                Objects.equals(this.errorSender, that.errorSender);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(messageSender, errorSender);
+    }
+
+    @Override
+    public String toString() {
+        return "BasicActorFactory[" +
+                "messageSender=" + messageSender + ", " +
+                "errorSender=" + errorSender + ']';
+    }
+
 }

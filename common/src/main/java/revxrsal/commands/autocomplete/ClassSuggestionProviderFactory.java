@@ -30,6 +30,7 @@ import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
 
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 import static revxrsal.commands.util.Classes.getRawType;
 import static revxrsal.commands.util.Classes.wrap;
@@ -40,14 +41,12 @@ import static revxrsal.commands.util.Classes.wrap;
  * <p>
  * Create using {@link SuggestionProvider.Factory#forType(Class, SuggestionProvider)}
  * and {@link SuggestionProvider.Factory#forTypeAndSubclasses(Class, SuggestionProvider)}
- *
- * @param <A> The actor type
  */
-record ClassSuggestionProviderFactory<A extends CommandActor>(
-        Class<?> type,
-        SuggestionProvider<A> provider,
-        boolean allowSubclasses
-) implements SuggestionProvider.Factory<A> {
+final class ClassSuggestionProviderFactory<A extends CommandActor> implements SuggestionProvider.Factory<A> {
+    private final Class<?> type;
+    private final SuggestionProvider<A> provider;
+    private final boolean allowSubclasses;
+
 
     ClassSuggestionProviderFactory(Class<?> type, SuggestionProvider<A> provider, boolean allowSubclasses) {
         this.type = wrap(type);
@@ -65,4 +64,34 @@ record ClassSuggestionProviderFactory<A extends CommandActor>(
             return provider;
         return null;
     }
+
+    public Class<?> type() {return type;}
+
+    public SuggestionProvider<A> provider() {return provider;}
+
+    public boolean allowSubclasses() {return allowSubclasses;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        ClassSuggestionProviderFactory that = (ClassSuggestionProviderFactory) obj;
+        return Objects.equals(this.type, that.type) &&
+                Objects.equals(this.provider, that.provider) &&
+                this.allowSubclasses == that.allowSubclasses;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, provider, allowSubclasses);
+    }
+
+    @Override
+    public String toString() {
+        return "ClassSuggestionProviderFactory[" +
+                "type=" + type + ", " +
+                "provider=" + provider + ", " +
+                "allowSubclasses=" + allowSubclasses + ']';
+    }
+
 }

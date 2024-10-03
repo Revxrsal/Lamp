@@ -23,5 +23,32 @@
  */
 package revxrsal.commands.stream.token;
 
-public record LiteralToken(String value) implements Token {
+import java.util.Objects;
+
+public final class LiteralToken implements Token {
+    private final String value;
+
+    public LiteralToken(String value) {this.value = value;}
+
+    public String value() {return value;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        LiteralToken that = (LiteralToken) obj;
+        return Objects.equals(this.value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
+
+    @Override
+    public String toString() {
+        return "LiteralToken[" +
+                "value=" + value + ']';
+    }
+
 }

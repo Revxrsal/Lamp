@@ -39,7 +39,7 @@ import java.util.Set;
  *                     })
  *                     .build(),
  *                 "some bukkit help description string",
- *                 List.of("an-alias")
+ *                 Arrays.asList("an-alias")
  *             );
  *         });
  *     }
@@ -149,7 +149,7 @@ public interface Commands extends Registrar {
      *   <li>The main command/namespaced label will override already existing commands</li>
      * </ul>
      *
-     * @param node the built literal command node
+     * @param node    the built literal command node
      * @param aliases a collection of aliases to register the literal node's command to
      * @return successfully registered root command labels (including aliases and namespaced variants)
      */
@@ -171,7 +171,8 @@ public interface Commands extends Registrar {
      * @param aliases     a collection of aliases to register the literal node's command to
      * @return successfully registered root command labels (including aliases and namespaced variants)
      */
-    @Unmodifiable @NotNull Set<String> register(@NotNull LiteralCommandNode<CommandSourceStack> node, @Nullable String description, @NotNull Collection<String> aliases);
+    @Unmodifiable
+    @NotNull Set<String> register(@NotNull LiteralCommandNode<CommandSourceStack> node, @Nullable String description, @NotNull Collection<String> aliases);
 
     /**
      * Registers a command for a plugin.
@@ -188,7 +189,8 @@ public interface Commands extends Registrar {
      * @param aliases     a collection of aliases to register the literal node's command to
      * @return successfully registered root command labels (including aliases and namespaced variants)
      */
-    @Unmodifiable @NotNull Set<String> register(@NotNull PluginMeta pluginMeta, @NotNull LiteralCommandNode<CommandSourceStack> node, @Nullable String description, @NotNull Collection<String> aliases);
+    @Unmodifiable
+    @NotNull Set<String> register(@NotNull PluginMeta pluginMeta, @NotNull LiteralCommandNode<CommandSourceStack> node, @Nullable String description, @NotNull Collection<String> aliases);
 
     /**
      * Registers a command under the same logic as {@link Commands#register(LiteralCommandNode, String, Collection)}.
@@ -234,7 +236,8 @@ public interface Commands extends Registrar {
      * @param basicCommand the basic command instance to register
      * @return successfully registered root command labels (including aliases and namespaced variants)
      */
-    @Unmodifiable @NotNull Set<String> register(@NotNull String label, @Nullable String description, @NotNull Collection<String> aliases, @NotNull BasicCommand basicCommand);
+    @Unmodifiable
+    @NotNull Set<String> register(@NotNull String label, @Nullable String description, @NotNull Collection<String> aliases, @NotNull BasicCommand basicCommand);
 
     /**
      * Registers a command under the same logic as {@link Commands#register(PluginMeta, LiteralCommandNode, String, Collection)}.
@@ -246,5 +249,6 @@ public interface Commands extends Registrar {
      * @param basicCommand the basic command instance to register
      * @return successfully registered root command labels (including aliases and namespaced variants)
      */
-    @Unmodifiable @NotNull Set<String> register(@NotNull PluginMeta pluginMeta, @NotNull String label, @Nullable String description, @NotNull Collection<String> aliases, @NotNull BasicCommand basicCommand);
+    @Unmodifiable
+    @NotNull Set<String> register(@NotNull PluginMeta pluginMeta, @NotNull String label, @Nullable String description, @NotNull Collection<String> aliases, @NotNull BasicCommand basicCommand);
 }

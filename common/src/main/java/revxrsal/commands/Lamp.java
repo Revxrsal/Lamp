@@ -65,6 +65,8 @@ import java.util.function.Supplier;
 
 import static revxrsal.commands.util.Classes.checkRetention;
 import static revxrsal.commands.util.Classes.wrap;
+import static revxrsal.commands.util.Collections.copyList;
+import static revxrsal.commands.util.Collections.copyMap;
 import static revxrsal.commands.util.Preconditions.notNull;
 
 /**
@@ -95,14 +97,16 @@ public final class Lamp<A extends CommandActor> {
     private final BaseCommandRegistry<A> tree;
     private final AutoCompleter<A> autoCompleter;
 
+    @SuppressWarnings("unchecked")
     public Lamp(Builder<A> builder) {
-        this.annotationReplacers = Map.copyOf(builder.annotationReplacers);
-        this.senderResolvers = List.copyOf(builder.senderResolvers);
-        this.validators = List.copyOf(builder.validators);
-        this.responseHandlers = List.copyOf(builder.responseHandlers);
-        this.commandConditions = List.copyOf(builder.conditions);
-        this.permissionFactories = List.copyOf(builder.permissionFactories);
-        this.dependencies = Map.copyOf(builder.dependencies);
+        this.annotationReplacers = copyMap(builder.annotationReplacers);
+        this.senderResolvers = copyList(builder.senderResolvers);
+        this.validators = copyList(builder.validators);
+        this.responseHandlers = copyList(builder.responseHandlers);
+        this.commandConditions = copyList(builder.conditions);
+        //noinspection rawtypes
+        this.permissionFactories = (List) copyList(builder.permissionFactories);
+        this.dependencies = copyMap(builder.dependencies);
         this.messageSender = builder.messageSender;
         this.errorSender = builder.errorSender;
         this.parameterNamingStrategy = builder.namingStrategy;
@@ -294,7 +298,8 @@ public final class Lamp<A extends CommandActor> {
             if (instance instanceof Orphans) {
                 throw new IllegalArgumentException("You forgot to call .handler(OrphanCommand) in your Orphans.path(...)!");
             }
-            if (instance instanceof OrphanRegistry registry) {
+            if (instance instanceof OrphanRegistry) {
+                OrphanRegistry registry = (OrphanRegistry) instance;
                 commandClass = registry.handler().getClass();
                 instance = registry.handler();
                 return tree.register(commandClass, instance, registry.paths());

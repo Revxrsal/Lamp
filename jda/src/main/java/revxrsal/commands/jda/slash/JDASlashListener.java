@@ -42,6 +42,7 @@ import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,8 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
     private void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         A actor = actorFactory.create(event, lamp);
         String fullPath = event.getFullCommandName();
-        ExecutableCommand<A> command = findCommand(lamp, fullPath, event.getOptions()).orElseThrow();
+        ExecutableCommand<A> command = findCommand(lamp, fullPath, event.getOptions())
+                .orElseThrow(() -> new IllegalArgumentException("No such command"));
         ExecutionContext<A> context = readArgumentsIntoContext(
                 actor,
                 command,
@@ -90,7 +92,7 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
                 true
         );
         ParameterNode<A, ?> node = command.parameter(event.getFocusedOption().getName());
-        var suggestions = node.suggestions().getSuggestions(context);
+        Collection<String> suggestions = node.suggestions().getSuggestions(context);
 
         List<Command.Choice> choices = toChoices(suggestions, event.getFocusedOption().getType());
         event.replyChoices(choices).queue();
@@ -144,9 +146,11 @@ public final class JDASlashListener<A extends SlashCommandActor> implements Even
     }
 
     @Override public void onEvent(@NotNull GenericEvent event) {
-        if (event instanceof SlashCommandInteractionEvent slash) {
+        if (event instanceof SlashCommandInteractionEvent) {
+            SlashCommandInteractionEvent slash = (SlashCommandInteractionEvent) event;
             onSlashCommandInteraction(slash);
-        } else if (event instanceof CommandAutoCompleteInteractionEvent complete) {
+        } else if (event instanceof CommandAutoCompleteInteractionEvent) {
+            CommandAutoCompleteInteractionEvent complete = (CommandAutoCompleteInteractionEvent) event;
             onCommandAutoCompleteInteraction(complete);
         }
     }

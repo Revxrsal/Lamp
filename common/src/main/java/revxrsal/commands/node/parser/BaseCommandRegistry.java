@@ -50,6 +50,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Predicate;
 
+import static revxrsal.commands.util.Collections.copyList;
 import static revxrsal.commands.util.Collections.unmodifiableIterator;
 import static revxrsal.commands.util.Reflections.getAllMethods;
 
@@ -92,7 +93,7 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
             if (orphanPaths != null && !annotations.isEmpty()) {
                 if (orphanPaths.isEmpty())
                     throw new IllegalArgumentException("Cannot have an OrphanCommand with no paths (supplied from .path())");
-                String[] values = orphanPaths.toArray(String[]::new);
+                String[] values = orphanPaths.toArray(new String[0]);
                 annotations = annotations.withAnnotations(false, new DynamicCommand(values));
             }
 
@@ -110,7 +111,7 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
                 }
             }
         }
-        return List.copyOf(registered);
+        return copyList(registered);
     }
 
     private boolean isCommandMethod(AnnotationList annotations) {
@@ -210,11 +211,36 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
         return unmodifiableIterator(children.iterator());
     }
 
-    private record DynamicCommand(String[] value) implements Command {
+    private static final class DynamicCommand implements Command {
+        private final String[] value;
+
+        private DynamicCommand(String[] value) {this.value = value;}
 
         @Override
         public Class<? extends Annotation> annotationType() {
             return Command.class;
         }
+
+        @Override public String[] value() {return value;}
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            DynamicCommand that = (DynamicCommand) obj;
+            return Objects.equals(this.value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash((Object) value);
+        }
+
+        @Override
+        public String toString() {
+            return "DynamicCommand[" +
+                    "value=" + Arrays.toString(value) + ']';
+        }
+
     }
 }

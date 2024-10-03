@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * Represents a priority specification for a certain {@link ParameterType}.
@@ -51,10 +52,8 @@ import java.util.Comparator;
  * will suffice.
  * <p>
  * {@link PrioritySpec} can be created using {@link #toBuilder()}.
- *
- * @param comparator The underlying comparator of this priority specification.
  */
-public record PrioritySpec(Comparator<ParameterType<?, ?>> comparator) {
+public final class PrioritySpec {
 
     /**
      * @see #defaultPriority()
@@ -78,6 +77,12 @@ public record PrioritySpec(Comparator<ParameterType<?, ?>> comparator) {
             return 0;
         return -1;
     });
+    private final Comparator<ParameterType<?, ?>> comparator;
+
+    /**
+     * @param comparator The underlying comparator of this priority specification.
+     */
+    public PrioritySpec(Comparator<ParameterType<?, ?>> comparator) {this.comparator = comparator;}
 
     /**
      * Creates a new {@link Builder}
@@ -136,6 +141,28 @@ public record PrioritySpec(Comparator<ParameterType<?, ?>> comparator) {
     public @NotNull Builder toBuilder() {
         return new Builder(comparator);
     }
+
+    public Comparator<ParameterType<?, ?>> comparator() {return comparator;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        PrioritySpec that = (PrioritySpec) obj;
+        return Objects.equals(this.comparator, that.comparator);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(comparator);
+    }
+
+    @Override
+    public String toString() {
+        return "PrioritySpec[" +
+                "comparator=" + comparator + ']';
+    }
+
 
     /**
      * A builder for creating a {@link PrioritySpec}.

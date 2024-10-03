@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.Lamp;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents an orphan command that has finally found its parent path.
@@ -37,5 +38,42 @@ import java.util.List;
  * <p>
  * This should be constructed using {@link Orphans}'s methods.
  */
-public record OrphanRegistry(@NotNull @Unmodifiable List<String> paths, @NotNull OrphanCommand handler) {
+public final class OrphanRegistry {
+    private final @NotNull
+    @Unmodifiable List<String> paths;
+    private final @NotNull OrphanCommand handler;
+
+    /**
+     *
+     */
+    public OrphanRegistry(@NotNull @Unmodifiable List<String> paths, @NotNull OrphanCommand handler) {
+        this.paths = paths;
+        this.handler = handler;
+    }
+
+    public @NotNull @Unmodifiable List<String> paths() {return paths;}
+
+    public @NotNull OrphanCommand handler() {return handler;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        OrphanRegistry that = (OrphanRegistry) obj;
+        return Objects.equals(this.paths, that.paths) &&
+                Objects.equals(this.handler, that.handler);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(paths, handler);
+    }
+
+    @Override
+    public String toString() {
+        return "OrphanRegistry[" +
+                "paths=" + paths + ", " +
+                "handler=" + handler + ']';
+    }
+
 }

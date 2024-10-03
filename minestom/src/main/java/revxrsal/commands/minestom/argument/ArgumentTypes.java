@@ -31,10 +31,7 @@ import revxrsal.commands.autocomplete.SuggestionProviders;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ParameterNode;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 import static revxrsal.commands.util.Preconditions.notNull;
@@ -52,7 +49,7 @@ public final class ArgumentTypes<A extends CommandActor> {
      * <p>
      * These also will not be included in {@link #toBuilder()}.
      */
-    private static final List<ArgumentTypeFactory<?>> DEFAULT_FACTORIES = List.of(
+    private static final List<ArgumentTypeFactory<?>> DEFAULT_FACTORIES = Arrays.asList(
             DefaultTypeFactories.LONG,
             DefaultTypeFactories.INTEGER,
             DefaultTypeFactories.SHORT,

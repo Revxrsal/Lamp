@@ -30,11 +30,16 @@ import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ContextParameter;
 import revxrsal.commands.process.SenderResolver;
 
+import java.util.Objects;
+
 import static revxrsal.commands.util.Preconditions.notNull;
 
-public record SenderContextParameter<A extends CommandActor, T>(
-        SenderResolver<A> resolver
-) implements ContextParameter<A, T> {
+public final class SenderContextParameter<A extends CommandActor, T> implements ContextParameter<A, T> {
+    private final SenderResolver<A> resolver;
+
+    public SenderContextParameter(
+            SenderResolver<A> resolver
+    ) {this.resolver = resolver;}
 
     @Override
     public T resolve(@NotNull CommandParameter parameter, @NotNull ExecutionContext<A> context) {
@@ -44,4 +49,26 @@ public record SenderContextParameter<A extends CommandActor, T>(
         //noinspection unchecked
         return (T) sender;
     }
+
+    public SenderResolver<A> resolver() {return resolver;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        SenderContextParameter that = (SenderContextParameter) obj;
+        return Objects.equals(this.resolver, that.resolver);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resolver);
+    }
+
+    @Override
+    public String toString() {
+        return "SenderContextParameter[" +
+                "resolver=" + resolver + ']';
+    }
+
 }

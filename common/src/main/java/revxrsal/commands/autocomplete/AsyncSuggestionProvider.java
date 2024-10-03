@@ -43,6 +43,17 @@ import java.util.concurrent.CompletableFuture;
 public interface AsyncSuggestionProvider<A extends CommandActor> extends BaseSuggestionProvider {
 
     /**
+     * Creates a {@link AsyncSuggestionProvider} from the given {@link SuggestionProvider}
+     *
+     * @param provider Provider to wrap
+     * @param <A>      The actor type
+     * @return The {@link AsyncSuggestionProvider}
+     */
+    static <A extends CommandActor> @NotNull AsyncSuggestionProvider<A> from(@NotNull SuggestionProvider<A> provider) {
+        return context -> CompletableFuture.supplyAsync(() -> provider.getSuggestions(context));
+    }
+
+    /**
      * Returns the suggestions
      *
      * @param context The execution context. This will try to parse
@@ -52,15 +63,4 @@ public interface AsyncSuggestionProvider<A extends CommandActor> extends BaseSug
      */
     @NotNull
     CompletableFuture<Collection<String>> getSuggestionsAsync(@NotNull ExecutionContext<A> context);
-
-    /**
-     * Creates a {@link AsyncSuggestionProvider} from the given {@link SuggestionProvider}
-     *
-     * @param provider Provider to wrap
-     * @param <A> The actor type
-     * @return The {@link AsyncSuggestionProvider}
-     */
-    static <A extends CommandActor> @NotNull AsyncSuggestionProvider<A> from(@NotNull SuggestionProvider<A> provider) {
-        return context -> CompletableFuture.supplyAsync(() -> provider.getSuggestions(context));
-    }
 }

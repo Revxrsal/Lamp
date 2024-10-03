@@ -1,6 +1,5 @@
 package io.papermc.paper.plugin.lifecycle.event.handler.configuration;
 
-import io.papermc.paper.plugin.lifecycle.event.LifecycleEventOwner;
 import io.papermc.paper.plugin.lifecycle.event.handler.LifecycleEventHandler;
 import org.jetbrains.annotations.ApiStatus;
 

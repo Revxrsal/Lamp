@@ -25,7 +25,9 @@ package com.example.bot;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import revxrsal.commands.Lamp;
 import revxrsal.commands.jda.JDALamp;
+import revxrsal.commands.jda.actor.SlashCommandActor;
 
 import static revxrsal.commands.jda.JDAVisitors.slashCommands;
 
@@ -33,7 +35,7 @@ public class SimpleBot {
 
     public static void main(String[] args) {
         JDA jda = JDABuilder.createDefault(args[0]).build();
-        var lamp = JDALamp.builder().build();
+        Lamp<SlashCommandActor> lamp = JDALamp.builder().build();
 
         // register all our commands here
         lamp.register(new PunishmentCommands());

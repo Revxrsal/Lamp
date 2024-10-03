@@ -29,22 +29,60 @@ import org.spongepowered.api.command.CommandCause;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.process.MessageSender;
 
+import java.util.Objects;
+
 /**
  * Default implementation of {@link ActorFactory}
  */
-record BasicActorFactory(
-        MessageSender<SpongeCommandActor, ComponentLike> messageSender,
-        MessageSender<SpongeCommandActor, ComponentLike> errorSender
-) implements ActorFactory<SpongeCommandActor> {
+final class BasicActorFactory implements ActorFactory<SpongeCommandActor> {
 
     public static final ActorFactory<SpongeCommandActor> INSTANCE = new BasicActorFactory(
             SpongeCommandActor::sendRawMessage,
             SpongeCommandActor::sendRawError
     );
+    private final MessageSender<SpongeCommandActor, ComponentLike> messageSender;
+    private final MessageSender<SpongeCommandActor, ComponentLike> errorSender;
+
+    /**
+     *
+     */
+    BasicActorFactory(
+            MessageSender<SpongeCommandActor, ComponentLike> messageSender,
+            MessageSender<SpongeCommandActor, ComponentLike> errorSender
+    ) {
+        this.messageSender = messageSender;
+        this.errorSender = errorSender;
+    }
 
 
     @Override
     public @NotNull SpongeCommandActor create(@NotNull CommandCause sender, @NotNull Lamp<SpongeCommandActor> lamp) {
         return new BasicSpongeActor(sender, lamp, messageSender, errorSender);
     }
+
+    public MessageSender<SpongeCommandActor, ComponentLike> messageSender() {return messageSender;}
+
+    public MessageSender<SpongeCommandActor, ComponentLike> errorSender() {return errorSender;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        BasicActorFactory that = (BasicActorFactory) obj;
+        return Objects.equals(this.messageSender, that.messageSender) &&
+                Objects.equals(this.errorSender, that.errorSender);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(messageSender, errorSender);
+    }
+
+    @Override
+    public String toString() {
+        return "BasicActorFactory[" +
+                "messageSender=" + messageSender + ", " +
+                "errorSender=" + errorSender + ']';
+    }
+
 }

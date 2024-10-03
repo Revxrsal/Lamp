@@ -33,6 +33,7 @@ import revxrsal.commands.node.ExecutionContext;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -65,7 +66,7 @@ public interface SuggestionProvider<A extends CommandActor> extends BaseSuggesti
      * block.
      *
      * @param provider The asynchronous provider
-     * @param <A> The actor type
+     * @param <A>      The actor type
      * @return The {@link SuggestionProvider}
      */
     @Contract("_ -> new")
@@ -83,7 +84,7 @@ public interface SuggestionProvider<A extends CommandActor> extends BaseSuggesti
     static <A extends CommandActor> @NotNull SuggestionProvider<A> of(@NotNull String... suggestions) {
         if (suggestions == null || suggestions.length == 0)
             return empty();
-        List<String> list = List.of(suggestions);
+        List<String> list = Arrays.asList(suggestions);
         return (context) -> list;
     }
 

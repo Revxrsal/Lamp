@@ -37,6 +37,7 @@ import revxrsal.commands.exception.InputParseException;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.help.Help;
 import revxrsal.commands.node.*;
+import revxrsal.commands.process.CommandCondition;
 import revxrsal.commands.stream.MutableStringStream;
 
 import java.util.*;
@@ -58,8 +59,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final String siblingPath;
     private final String path;
     private final boolean containsFlags;
-    private int optionalParameters, requiredInput;
     private final boolean lowPriority;
+    private int optionalParameters, requiredInput;
 
     public Execution(CommandFunction function, List<CommandNode<A>> nodes) {
         this.function = function;
@@ -81,7 +82,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         this.priority = function.annotations()
                 .mapOr(CommandPriority.class, c -> OptionalInt.of(c.value()), OptionalInt.empty());
         this.siblingPath = computeSiblingPath();
-        this.containsFlags = any(nodes, n -> n instanceof ParameterNode<?, ?> p && (p.isFlag() || p.isSwitch()));
+        this.containsFlags = any(nodes, n -> n instanceof ParameterNode<?, ?> && (((ParameterNode<?, ?>) n).isFlag() || ((ParameterNode<?, ?>) n).isSwitch()));
         this.lowPriority = function.annotations().contains(CommandPriority.Low.class);
         if (lowPriority && priority.isPresent()) {
             throw new IllegalArgumentException("You cannot have @CommandPriority and @CommandPriority.Low on the same function!");
@@ -96,8 +97,10 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private @Unmodifiable Map<String, ParameterNode<A, Object>> computeParameters() {
         Map<String, ParameterNode<A, Object>> parameters = new LinkedHashMap<>();
         for (CommandNode<A> node : nodes) {
-            if (node instanceof ParameterNode parameter)
+            if (node instanceof ParameterNode) {
+                ParameterNode parameter = (ParameterNode) node;
                 parameters.put(parameter.name(), parameter);
+            }
         }
         return unmodifiableMap(parameters);
     }
@@ -190,7 +193,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override public void execute(@NotNull ExecutionContext<A> context) {
         try {
-            for (var condition : context.lamp().commandConditions())
+            for (CommandCondition<? super A> condition : context.lamp().commandConditions())
                 condition.test((ExecutionContext) context);
             action().execute(context);
         } catch (Throwable t) {
@@ -284,9 +287,10 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
 
     @Override
     public int compareTo(@NotNull ExecutableCommand<A> o) {
-        if (!(o instanceof Execution<A> exec)) {
+        if (!(o instanceof Execution)) {
             return 0; // Handle the case where o is not an instance of Execution
         }
+        Execution<A> exec = (Execution<A>) o;
         if (lowPriority != exec.lowPriority) {
             return lowPriority ? 1 : -1;
         }
@@ -340,8 +344,10 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                 }
             }
             for (CommandNode<A> node : execution.nodes) {
-                if (node instanceof ParameterNode<?, ?> p && (p.isFlag() || p.isSwitch()))
+                if (node instanceof ParameterNode<?, ?> && (((ParameterNode<?, ?>) node).isFlag() || ((ParameterNode<?, ?>) node).isSwitch())) {
+                    ParameterNode<?, ?> p = (ParameterNode<?, ?>) node;
                     continue;
+                }
                 if (!tryParse(node, input, context)) {
                     context.clearResolvedArguments();
                     return false;
@@ -369,7 +375,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         @SuppressWarnings({"rawtypes", "unchecked"})
         private boolean testConditions() {
             try {
-                for (var condition : context.lamp().commandConditions()) {
+                for (CommandCondition<? super A> condition : context.lamp().commandConditions()) {
                     condition.test(((ExecutionContext) context));
                 }
                 return true;
@@ -438,7 +444,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
             if (input.hasRemaining() && input.peek() == ' ')
                 input.skipWhitespace();
             int pos = input.position();
-            if (node instanceof LiteralNodeImpl<A> l) {
+            if (node instanceof LiteralNodeImpl) {
+                LiteralNodeImpl<A> l = (LiteralNodeImpl<A>) node;
                 String value = input.readUnquotedString();
                 if (node.name().equalsIgnoreCase(value)) {
                     checkForSpace(input);

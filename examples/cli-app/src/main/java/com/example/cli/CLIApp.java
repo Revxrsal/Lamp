@@ -23,7 +23,10 @@
  */
 package com.example.cli;
 
+import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Command;
+import revxrsal.commands.annotation.CommandPriority;
+import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.cli.CLILamp;
 import revxrsal.commands.cli.ConsoleActor;
 
@@ -32,9 +35,10 @@ import static revxrsal.commands.cli.CLILamp.pollStdin;
 public final class CLIApp {
 
     public static void main(String[] args) {
-        var lamp = CLILamp.builder()
+        Lamp<ConsoleActor> lamp = CLILamp.builder()
                 .build();
         lamp.register(new PingCommand());
+        System.out.println(lamp.registry().commands());
         /* register all other commands here */
 
         // Call this to continuously read input from the console
@@ -47,8 +51,14 @@ public final class CLIApp {
     static class PingCommand {
 
         @Command("ping")
+        @CommandPriority.Low
         public void ping(ConsoleActor actor) {
             actor.reply("Pong");
+        }
+
+        @Command("ping help")
+        public void pingHelp(ConsoleActor actor) {
+            ping(actor);
         }
     }
 }
