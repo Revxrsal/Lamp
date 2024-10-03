@@ -31,16 +31,17 @@ import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.parameter.ContextParameter;
 
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 import static revxrsal.commands.util.Classes.getRawType;
 import static revxrsal.commands.util.Classes.wrap;
 
 @ApiStatus.Internal
-public record ClassContextParameterFactory<A extends CommandActor, T>(
-        Class<?> type,
-        ContextParameter<A, T> parameterType,
-        boolean allowSubclasses
-) implements ContextParameter.Factory<A> {
+public final class ClassContextParameterFactory<A extends CommandActor, T> implements ContextParameter.Factory<A> {
+    private final Class<?> type;
+    private final ContextParameter<A, T> parameterType;
+    private final boolean allowSubclasses;
+
 
     public ClassContextParameterFactory(
             Class<?> type,
@@ -71,5 +72,27 @@ public record ClassContextParameterFactory<A extends CommandActor, T>(
                 "parameterType=" + parameterType + ", " +
                 "allowSubclasses=" + allowSubclasses + ']';
     }
+
+    public Class<?> type() {return type;}
+
+    public ContextParameter<A, T> parameterType() {return parameterType;}
+
+    public boolean allowSubclasses() {return allowSubclasses;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        ClassContextParameterFactory that = (ClassContextParameterFactory) obj;
+        return Objects.equals(this.type, that.type) &&
+                Objects.equals(this.parameterType, that.parameterType) &&
+                this.allowSubclasses == that.allowSubclasses;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, parameterType, allowSubclasses);
+    }
+
 
 }

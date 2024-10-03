@@ -36,10 +36,7 @@ import revxrsal.commands.parameter.PrioritySpec;
 import revxrsal.commands.stream.MutableStringStream;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static revxrsal.commands.util.Classes.getRawType;
 
@@ -64,10 +61,17 @@ public enum EnumParameterTypeFactory implements ParameterType.Factory<CommandAct
         return new EnumParameterType(byKeys, suggestions);
     }
 
-    private record EnumParameterType<E extends Enum<E>>(
-            Map<String, E> byKeys,
-            List<String> suggestions
-    ) implements ParameterType<CommandActor, E> {
+    private static final class EnumParameterType<E extends Enum<E>> implements ParameterType<CommandActor, E> {
+        private final Map<String, E> byKeys;
+        private final List<String> suggestions;
+
+        private EnumParameterType(
+                Map<String, E> byKeys,
+                List<String> suggestions
+        ) {
+            this.byKeys = byKeys;
+            this.suggestions = suggestions;
+        }
 
         @Override
         public E parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<CommandActor> context) {
@@ -86,5 +90,31 @@ public enum EnumParameterTypeFactory implements ParameterType.Factory<CommandAct
         public @NotNull PrioritySpec parsePriority() {
             return PrioritySpec.highest();
         }
+
+        public Map<String, E> byKeys() {return byKeys;}
+
+        public List<String> suggestions() {return suggestions;}
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            EnumParameterType that = (EnumParameterType) obj;
+            return Objects.equals(this.byKeys, that.byKeys) &&
+                    Objects.equals(this.suggestions, that.suggestions);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(byKeys, suggestions);
+        }
+
+        @Override
+        public String toString() {
+            return "EnumParameterType[" +
+                    "byKeys=" + byKeys + ", " +
+                    "suggestions=" + suggestions + ']';
+        }
+
     }
 }

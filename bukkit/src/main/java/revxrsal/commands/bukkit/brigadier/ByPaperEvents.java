@@ -143,9 +143,10 @@ final class ByPaperEvents<A extends BukkitCommandActor> implements BukkitBrigadi
         @EventHandler
         @SuppressWarnings("deprecation")
         public void onCommandRegistered(CommandRegisteredEvent<?> event) {
-            if (!(event.getCommand() instanceof PluginCommand pCommand)) {
+            if (!(event.getCommand() instanceof PluginCommand)) {
                 return;
             }
+            PluginCommand pCommand = (PluginCommand) event.getCommand();
             if (!(pCommand.getExecutor() instanceof LampCommandExecutor<?>)) {
                 return;
             }

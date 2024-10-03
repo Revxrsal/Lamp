@@ -81,7 +81,7 @@ public interface PluginMeta {
      * plugin.
      *
      * @return the specific overwrite of the logger prefix as defined by the plugin. If the plugin did not define a
-     *     custom logger prefix, this method will return null
+     * custom logger prefix, this method will return null
      */
     @Nullable
     String getLoggerPrefix();

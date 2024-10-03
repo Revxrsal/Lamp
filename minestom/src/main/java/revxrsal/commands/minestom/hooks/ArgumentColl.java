@@ -27,6 +27,8 @@ import net.minestom.server.command.builder.arguments.Argument;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 final class ArgumentColl {
@@ -34,11 +36,11 @@ final class ArgumentColl {
     private final List<Argument<?>> arguments;
 
     public ArgumentColl(Argument<?> first, Argument<?> second) {
-        this.arguments = List.of(first, second);
+        this.arguments = Arrays.asList(first, second);
     }
 
     public ArgumentColl(Argument<?> argument) {
-        this.arguments = List.of(argument);
+        this.arguments = Collections.singletonList(argument);
     }
 
     public List<Argument<?>> arguments() {

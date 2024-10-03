@@ -198,9 +198,10 @@ public final class TreeParser<A extends CommandActor> {
     }
 
     private void validateFlagName(MutableCommandNode<A> node) {
-        if (!(node instanceof MutableParameterNode<?, ?> parameter)) {
+        if (!(node instanceof MutableParameterNode<?, ?>)) {
             return;
         }
+        MutableParameterNode<?, ?> parameter = (MutableParameterNode<?, ?>) node;
         Switch switchAnn = parameter.parameter().getAnnotation(Switch.class);
         Flag flag = parameter.parameter().getAnnotation(Flag.class);
         if (flag != null)
@@ -245,12 +246,12 @@ public final class TreeParser<A extends CommandActor> {
     }
 
     private boolean isOptional(MutableCommandNode<A> node) {
-        return node instanceof MutableParameterNode p && p.isOptional();
+        return node instanceof MutableParameterNode && ((MutableParameterNode) node).isOptional();
     }
 
     private boolean isFlagOrSwitch(MutableCommandNode<A> node) {
-        return node instanceof MutableParameterNode p && (
-                p.parameter().hasAnnotation(Switch.class) || p.parameter().hasAnnotation(Flag.class)
+        return node instanceof MutableParameterNode && (
+                ((MutableParameterNode) node).parameter().hasAnnotation(Switch.class) || ((MutableParameterNode) node).parameter().hasAnnotation(Flag.class)
         );
     }
 

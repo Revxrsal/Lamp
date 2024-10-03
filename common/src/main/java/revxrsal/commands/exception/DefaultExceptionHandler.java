@@ -42,9 +42,15 @@ public class DefaultExceptionHandler<A extends CommandActor> extends RuntimeExce
     @HandleException
     public void onInputParse(@NotNull InputParseException e, @NotNull A actor) {
         switch (e.cause()) {
-            case INVALID_ESCAPE_CHARACTER -> actor.error("Invalid input. Use \\\\ to include a backslash.");
-            case UNCLOSED_QUOTE -> actor.error("Unclosed quote. Make sure to close all quotes.");
-            case EXPECTED_WHITESPACE -> actor.error("Expected whitespace to end one argument, but found trailing data");
+            case INVALID_ESCAPE_CHARACTER:
+                actor.error("Invalid input. Use \\\\ to include a backslash.");
+                break;
+            case UNCLOSED_QUOTE:
+                actor.error("Unclosed quote. Make sure to close all quotes.");
+                break;
+            case EXPECTED_WHITESPACE:
+                actor.error("Expected whitespace to end one argument, but found trailing data.");
+                break;
         }
     }
 

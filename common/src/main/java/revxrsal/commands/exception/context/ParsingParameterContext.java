@@ -30,11 +30,23 @@ import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.stream.StringStream;
 
-record ParsingParameterContext<A extends CommandActor>(
-        @NotNull ExecutionContext<A> context,
-        @NotNull ParameterNode<A, ?> parameter,
-        @NotNull StringStream input
-) implements ErrorContext.ParsingParameter<A> {
+import java.util.Objects;
+
+final class ParsingParameterContext<A extends CommandActor> implements ErrorContext.ParsingParameter<A> {
+    private final @NotNull ExecutionContext<A> context;
+    private final @NotNull ParameterNode<A, ?> parameter;
+    private final @NotNull StringStream input;
+
+    ParsingParameterContext(
+            @NotNull ExecutionContext<A> context,
+            @NotNull ParameterNode<A, ?> parameter,
+            @NotNull StringStream input
+    ) {
+        this.context = context;
+        this.parameter = parameter;
+        this.input = input;
+    }
+
     @Override
     public @NotNull A actor() {
         return context.actor();
@@ -44,4 +56,34 @@ record ParsingParameterContext<A extends CommandActor>(
     public @NotNull Lamp<A> lamp() {
         return context.lamp();
     }
+
+    @Override public @NotNull ExecutionContext<A> context() {return context;}
+
+    @Override public @NotNull ParameterNode<A, ?> parameter() {return parameter;}
+
+    public @NotNull StringStream input() {return input;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        ParsingParameterContext that = (ParsingParameterContext) obj;
+        return Objects.equals(this.context, that.context) &&
+                Objects.equals(this.parameter, that.parameter) &&
+                Objects.equals(this.input, that.input);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(context, parameter, input);
+    }
+
+    @Override
+    public String toString() {
+        return "ParsingParameterContext[" +
+                "context=" + context + ", " +
+                "parameter=" + parameter + ", " +
+                "input=" + input + ']';
+    }
+
 }

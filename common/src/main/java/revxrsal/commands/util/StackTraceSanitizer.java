@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
+import static revxrsal.commands.util.Collections.copyList;
 
 /**
  * A utility for stripping stacktrace from local paths to classes. This helps
@@ -187,7 +188,7 @@ public final class StackTraceSanitizer {
          * @return The newly created sanitizer
          */
         public StackTraceSanitizer build() {
-            return new StackTraceSanitizer(List.copyOf(filters));
+            return new StackTraceSanitizer(copyList(filters));
         }
     }
 

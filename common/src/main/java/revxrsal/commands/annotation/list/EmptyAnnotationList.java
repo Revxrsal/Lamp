@@ -100,7 +100,7 @@ final class EmptyAnnotationList implements AnnotationList {
 
     @Override
     public @NotNull AnnotationList withAnnotations(boolean overrideExisting, @NotNull Annotation... annotations) {
-        var map = AnnotationListFromMap.toMap(annotations);
+        Map<Class<? extends Annotation>, Annotation> map = AnnotationListFromMap.toMap(annotations);
         return new AnnotationListFromMap(map);
     }
 

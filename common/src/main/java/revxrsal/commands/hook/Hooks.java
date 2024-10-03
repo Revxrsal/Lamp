@@ -35,6 +35,7 @@ import revxrsal.commands.node.ExecutionContext;
 import java.util.ArrayList;
 import java.util.List;
 
+import static revxrsal.commands.util.Collections.copyList;
 import static revxrsal.commands.util.Preconditions.notNull;
 
 /**
@@ -55,7 +56,7 @@ public final class Hooks<A extends CommandActor> {
     private final @Unmodifiable List<Hook> hooks;
 
     private Hooks(Builder<A> builder) {
-        this.hooks = List.copyOf(builder.hooks);
+        this.hooks = copyList(builder.hooks);
     }
 
     /**
@@ -89,8 +90,10 @@ public final class Hooks<A extends CommandActor> {
     public boolean onCommandRegistered(@NotNull ExecutableCommand<A> command) {
         CancelHandle cancelHandle = newCancelHandle();
         for (Hook hook : hooks) {
-            if (hook instanceof CommandRegisteredHook registeredHook)
+            if (hook instanceof CommandRegisteredHook) {
+                CommandRegisteredHook registeredHook = (CommandRegisteredHook) hook;
                 registeredHook.onRegistered(command, cancelHandle);
+            }
         }
         return !cancelHandle.wasCancelled();
     }
@@ -106,8 +109,10 @@ public final class Hooks<A extends CommandActor> {
     public boolean onCommandUnregistered(@NotNull ExecutableCommand<A> command) {
         CancelHandle cancelHandle = newCancelHandle();
         for (Hook hook : hooks) {
-            if (hook instanceof CommandUnregisteredHook unregisteredHook)
+            if (hook instanceof CommandUnregisteredHook) {
+                CommandUnregisteredHook unregisteredHook = (CommandUnregisteredHook) hook;
                 unregisteredHook.onUnregistered(command, cancelHandle);
+            }
         }
         return !cancelHandle.wasCancelled();
     }
@@ -124,8 +129,10 @@ public final class Hooks<A extends CommandActor> {
     public boolean onCommandExecuted(@NotNull ExecutableCommand<A> command, @NotNull ExecutionContext<A> context) {
         CancelHandle cancelHandle = newCancelHandle();
         for (Hook hook : hooks) {
-            if (hook instanceof CommandExecutedHook executedHook)
+            if (hook instanceof CommandExecutedHook) {
+                CommandExecutedHook executedHook = (CommandExecutedHook) hook;
                 executedHook.onExecuted(command, context, cancelHandle);
+            }
         }
         return !cancelHandle.wasCancelled();
     }

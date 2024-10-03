@@ -45,8 +45,8 @@ public final class InstanceCreator {
     public static <T> @NotNull T create(@NotNull Class<? extends T> type) {
         if (type.isAnnotation())
             throw new IllegalArgumentException("Cannot construct annotation types");
-        if (type.isRecord())
-            throw new IllegalArgumentException("Cannot construct record types");
+//        if (type.isRecord())
+//            throw new IllegalArgumentException("Cannot construct record types");
         if (type.isArray())
             return (T) Array.newInstance(type, 0);
         if (type.isEnum())
@@ -73,7 +73,7 @@ public final class InstanceCreator {
     private static <T> @Nullable T fromNoArgConstructor(Class<? extends T> type) {
         try {
             Constructor<? extends T> constructor = type.getDeclaredConstructor();
-            constructor.trySetAccessible();
+            constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (ReflectiveOperationException e) {
             return null;
@@ -89,7 +89,7 @@ public final class InstanceCreator {
                 continue;
             if (method.getParameterCount() != 0)
                 continue;
-            method.trySetAccessible();
+            method.setAccessible(true);
             try {
                 return (T) method.invoke(null);
             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -99,7 +99,8 @@ public final class InstanceCreator {
         return null;
     }
 
-    private static @NotNull <T extends Enum<? extends T>> T firstEnum(Class<? extends T> type) {
+    @SuppressWarnings("rawtypes")
+    private static @NotNull <T extends Enum> T firstEnum(Class<? extends T> type) {
         T[] values = type.getEnumConstants();
         if (values.length == 0)
             throw new IllegalArgumentException("Attempted to construct an enum that has no fields");
@@ -113,7 +114,7 @@ public final class InstanceCreator {
                 continue;
             if (!isStatic(field.getModifiers()))
                 continue;
-            field.trySetAccessible();
+            field.setAccessible(true);
             try {
                 return (T) field.get(null);
             } catch (IllegalAccessException e) {

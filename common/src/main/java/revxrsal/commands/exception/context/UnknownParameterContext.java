@@ -28,14 +28,22 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
 
+import java.util.Objects;
+
 /**
  * Right now this context stores no information. We can just use
  * a singleton for it
  */
-record UnknownParameterContext<A extends CommandActor>(
-        @NotNull ExecutionContext<A> context
+final class UnknownParameterContext<A extends CommandActor> implements ErrorContext.UnknownParameter<A> {
+    private final @NotNull ExecutionContext<A> context;
 
-) implements ErrorContext.UnknownParameter<A> {
+    /**
+     *
+     */
+    UnknownParameterContext(
+            @NotNull ExecutionContext<A> context
+
+    ) {this.context = context;}
 
     @Override
     public boolean hasExecutionContext() {
@@ -51,4 +59,26 @@ record UnknownParameterContext<A extends CommandActor>(
     public @NotNull Lamp<A> lamp() {
         return context.lamp();
     }
+
+    @Override public @NotNull ExecutionContext<A> context() {return context;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        UnknownParameterContext that = (UnknownParameterContext) obj;
+        return Objects.equals(this.context, that.context);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(context);
+    }
+
+    @Override
+    public String toString() {
+        return "UnknownParameterContext[" +
+                "context=" + context + ']';
+    }
+
 }

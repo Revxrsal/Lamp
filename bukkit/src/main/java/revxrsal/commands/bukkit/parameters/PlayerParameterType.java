@@ -63,8 +63,9 @@ public final class PlayerParameterType implements ParameterType<BukkitCommandAct
             if (entityList.size() != 1)
                 throw new MoreThanOneEntityException(selector);
             Entity entity = entityList.get(0);
-            if (!(entity instanceof Player player))
+            if (!(entity instanceof Player))
                 throw new NonPlayerEntitiesException(selector);
+            Player player = (Player) entity;
             return player;
         } catch (IllegalArgumentException e) {
             throw new MalformedEntitySelectorException(selector, e.getCause().getMessage());

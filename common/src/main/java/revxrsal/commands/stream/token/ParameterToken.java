@@ -23,5 +23,32 @@
  */
 package revxrsal.commands.stream.token;
 
-public record ParameterToken(String name) implements Token {
+import java.util.Objects;
+
+public final class ParameterToken implements Token {
+    private final String name;
+
+    public ParameterToken(String name) {this.name = name;}
+
+    public String name() {return name;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        ParameterToken that = (ParameterToken) obj;
+        return Objects.equals(this.name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return "ParameterToken[" +
+                "name=" + name + ']';
+    }
+
 }

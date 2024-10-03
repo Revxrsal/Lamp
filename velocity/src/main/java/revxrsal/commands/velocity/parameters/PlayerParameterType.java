@@ -34,6 +34,7 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
 import revxrsal.commands.velocity.exception.InvalidPlayerException;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static revxrsal.commands.util.Collections.map;
@@ -44,7 +45,13 @@ import static revxrsal.commands.util.Collections.map;
  * If the player inputs {@code me} or {@code self} or {@code @s}, the parser will
  * return the executing player (or give an error if the sender is not a player)
  */
-public record PlayerParameterType(@NotNull ProxyServer server) implements ParameterType<VelocityCommandActor, Player> {
+public final class PlayerParameterType implements ParameterType<VelocityCommandActor, Player> {
+    private final @NotNull ProxyServer server;
+
+    /**
+     *
+     */
+    public PlayerParameterType(@NotNull ProxyServer server) {this.server = server;}
 
     @Override
     public Player parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<VelocityCommandActor> context) {
@@ -60,4 +67,26 @@ public record PlayerParameterType(@NotNull ProxyServer server) implements Parame
     @Override public @NotNull SuggestionProvider<VelocityCommandActor> defaultSuggestions() {
         return (context) -> map(server.getAllPlayers(), Player::getUsername);
     }
+
+    public @NotNull ProxyServer server() {return server;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        PlayerParameterType that = (PlayerParameterType) obj;
+        return Objects.equals(this.server, that.server);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(server);
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerParameterType[" +
+                "server=" + server + ']';
+    }
+
 }

@@ -144,7 +144,7 @@ public interface ErrorContext<A extends CommandActor> {
      * @return whether the error occurred during parsing a literal
      */
     default boolean isParsingLiteral() {
-        return this instanceof ParsingLiteral<A>;
+        return this instanceof ParsingLiteral;
     }
 
     /**
@@ -153,7 +153,7 @@ public interface ErrorContext<A extends CommandActor> {
      * @return whether the error occurred during parsing a parameter
      */
     default boolean isParsingParameter() {
-        return this instanceof ParsingParameter<A>;
+        return this instanceof ParsingParameter;
     }
 
     /**
@@ -162,7 +162,7 @@ public interface ErrorContext<A extends CommandActor> {
      * @return whether the error occurred during executing a function
      */
     default boolean isExecutingFunction() {
-        return this instanceof ExecutingFunctionContext<A>;
+        return this instanceof ExecutingFunctionContext;
     }
 
     /**

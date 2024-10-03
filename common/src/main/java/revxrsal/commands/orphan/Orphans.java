@@ -27,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Command;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
@@ -54,7 +56,13 @@ import static revxrsal.commands.util.Preconditions.notNull;
  *
  * @see OrphanCommand
  */
-public record Orphans(List<String> paths) {
+public final class Orphans {
+    private final List<String> paths;
+
+    /**
+     *
+     */
+    public Orphans(List<String> paths) {this.paths = paths;}
 
     /**
      * Starts the registration of an orphan command. The input for
@@ -70,7 +78,7 @@ public record Orphans(List<String> paths) {
      */
     public static Orphans path(@NotNull String... paths) {
         notNull(paths, "paths");
-        return new Orphans(List.of(paths));
+        return new Orphans(Arrays.asList(paths));
     }
 
     /**
@@ -85,4 +93,26 @@ public record Orphans(List<String> paths) {
         notNull(handler, "orphan command");
         return new OrphanRegistry(paths, handler);
     }
+
+    public List<String> paths() {return paths;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        Orphans that = (Orphans) obj;
+        return Objects.equals(this.paths, that.paths);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(paths);
+    }
+
+    @Override
+    public String toString() {
+        return "Orphans[" +
+                "paths=" + paths + ']';
+    }
+
 }

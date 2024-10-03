@@ -39,17 +39,19 @@ enum BTypeFactory implements ArgumentTypeFactory<CommandActor> {
     INSTANCE;
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public @Nullable ArgumentType<?> getArgumentType(@NotNull ParameterNode<CommandActor, ?> parameter) {
         BType b = parameter.annotations().get(BType.class);
         if (b == null)
             return null;
         Object v = InstanceCreator.create(b.value());
-        if (v instanceof ArgumentTypeFactory<?> factory)
-            //noinspection rawtypes
+        if (v instanceof ArgumentTypeFactory<?>) {
+            ArgumentTypeFactory<?> factory = (ArgumentTypeFactory<?>) v;
             return factory.getArgumentType(((ParameterNode) parameter));
-        if (v instanceof ArgumentType<?> type)
-            return type;
+        }
+        if (v instanceof ArgumentType<?>) {
+            return (ArgumentType<?>) v;
+        }
         throw new IllegalArgumentException("Don't know how to create an ArgumentType from @BType(" + b.value().getName() + ".class)");
     }
 }

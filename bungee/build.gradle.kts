@@ -11,5 +11,3 @@ dependencies {
     implementation(project(":common"))
     compileOnly("net.md-5:bungeecord-api:1.16-R0.4")
 }
-
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))

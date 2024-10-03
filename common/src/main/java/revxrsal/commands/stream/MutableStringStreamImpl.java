@@ -186,13 +186,17 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
 
     public boolean readBoolean() {
         String value = readString();
-        return switch (value.toLowerCase(Locale.ENGLISH)) {
-            case "true", "yes" -> true;
-            case "false", "no", "nope" -> false;
-            default -> {
+        switch (value.toLowerCase(Locale.ENGLISH)) {
+            case "true":
+            case "yes":
+                return true;
+            case "false":
+            case "no":
+            case "nope":
+                return false;
+            default:
                 throw new InvalidBooleanException(value);
-            }
-        };
+        }
     }
 
     public void setPosition(int pos) {

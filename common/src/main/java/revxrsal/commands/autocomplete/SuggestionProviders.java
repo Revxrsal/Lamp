@@ -34,6 +34,7 @@ import revxrsal.commands.command.CommandParameter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -56,7 +57,7 @@ public final class SuggestionProviders<A extends CommandActor> {
      * <p>
      * These also will not be included in {@link #toBuilder()}.
      */
-    private static final List<Factory<?>> DEFAULT_FACTORIES = List.of(
+    private static final List<Factory<?>> DEFAULT_FACTORIES = Arrays.asList(
             SuggestAnnotationProviderFactory.INSTANCE,
             SuggestWithProviderFactory.INSTANCE
     );

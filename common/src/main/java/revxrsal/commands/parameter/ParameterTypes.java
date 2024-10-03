@@ -40,6 +40,7 @@ import revxrsal.commands.stream.StringStream;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,7 +61,7 @@ public final class ParameterTypes<A extends CommandActor> {
      * Highest priority factories. These come even before the user's
      * parameter types, but work in very specific conditions only.
      */
-    private static final List<ParameterFactory> HIGHEST_PRIORITY_FACTORIES = List.of(
+    private static final List<ParameterFactory> HIGHEST_PRIORITY_FACTORIES = Arrays.asList(
             ParseWithParameterTypeFactory.INSTANCE
     );
 
@@ -70,7 +71,7 @@ public final class ParameterTypes<A extends CommandActor> {
      * <p>
      * These also will not be included in {@link #toBuilder()}.
      */
-    private static final List<ParameterFactory> DEFAULT_FACTORIES = List.of(
+    private static final List<ParameterFactory> DEFAULT_FACTORIES = Arrays.asList(
             ArrayParameterTypeFactory.INSTANCE,
             ListParameterTypeFactory.INSTANCE,
             SetParameterTypeFactory.INSTANCE,

@@ -36,7 +36,7 @@ import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * A parameter type for {@link ServerPlayerEntity} types.
@@ -70,7 +70,7 @@ public class WorldParameterType implements ParameterType<FabricCommandActor, Wor
     @Override public @NotNull SuggestionProvider<FabricCommandActor> defaultSuggestions() {
         return (context) -> {
             MinecraftServer server = context.actor().source().getServer();
-            return List.of(server.getPlayerManager().getPlayerNames());
+            return Arrays.asList(server.getPlayerManager().getPlayerNames());
         };
     }
 }

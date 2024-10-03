@@ -30,6 +30,7 @@ import revxrsal.commands.annotation.list.AnnotationList;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,6 +109,39 @@ public final class Strings {
         return builder.toString();
     }
 
-    public record StringRange(int start, int end) {}
+    public static final class StringRange {
+        private final int start;
+        private final int end;
+
+        public StringRange(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public int start() {return start;}
+
+        public int end() {return end;}
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            StringRange that = (StringRange) obj;
+            return this.start == that.start &&
+                    this.end == that.end;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(start, end);
+        }
+
+        @Override
+        public String toString() {
+            return "StringRange[" +
+                    "start=" + start + ", " +
+                    "end=" + end + ']';
+        }
+    }
 
 }

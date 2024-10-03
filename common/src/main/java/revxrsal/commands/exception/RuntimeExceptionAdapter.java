@@ -108,7 +108,7 @@ public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandE
         for (Method method : Reflections.getAllMethods(getClass())) {
             if (!isHandler(method))
                 continue;
-            var handler = createHandler(method);
+            CommandExceptionHandler<A> handler = createHandler(method);
             handlers.add(handler);
         }
     }
@@ -164,15 +164,15 @@ public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandE
                 suppliers[i] = (throwable, errorContext) -> errorContext.context().command().function();
             } else if (CommandParameter.class.isAssignableFrom(type)) {
                 /* handle a CommandParameter parameter */
-                conditions.add((throwable, errorContext) -> errorContext instanceof ParsingParameter<A>);
+                conditions.add((throwable, errorContext) -> errorContext instanceof ParsingParameter);
                 suppliers[i] = (throwable, errorContext) -> ((ParsingParameter<A>) errorContext).parameter().parameter();
             } else if (ParameterNode.class.isAssignableFrom(type)) {
                 /* handle a ParameterNode parameter */
-                conditions.add((throwable, errorContext) -> errorContext instanceof ParsingParameter<A>);
+                conditions.add((throwable, errorContext) -> errorContext instanceof ParsingParameter);
                 suppliers[i] = (throwable, errorContext) -> ((ParsingParameter<A>) errorContext).parameter();
             } else if (LiteralNode.class.isAssignableFrom(type)) {
                 /* handle a LiteralNode parameter */
-                conditions.add((throwable, errorContext) -> errorContext instanceof ParsingLiteral<A>);
+                conditions.add((throwable, errorContext) -> errorContext instanceof ParsingLiteral);
                 suppliers[i] = (throwable, errorContext) -> ((ParsingLiteral<A>) errorContext).literal();
             } else {
                 throw new IllegalArgumentException("Don't know how to handle parameter of type " + type + " for a @HandleException function (" + method + ")");
@@ -200,7 +200,7 @@ public class RuntimeExceptionAdapter<A extends CommandActor> implements CommandE
 
     @Override
     public final void handleException(@NotNull Throwable throwable, @NotNull ErrorContext<A> errorContext) {
-        for (var handler : handlers) {
+        for (CommandExceptionHandler<A> handler : handlers) {
             handler.handleException(throwable, errorContext);
         }
     }

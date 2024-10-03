@@ -34,11 +34,15 @@ public class VelocityExceptionHandler extends DefaultExceptionHandler<VelocityCo
 
     @Override public void onInputParse(@NotNull InputParseException e, @NotNull VelocityCommandActor actor) {
         switch (e.cause()) {
-            case INVALID_ESCAPE_CHARACTER ->
-                    actor.error(legacyColorize("&cInvalid input. Use &e\\\\ &cto include a backslash."));
-            case UNCLOSED_QUOTE -> actor.error(legacyColorize("&cUnclosed quote. Make sure to close all quotes."));
-            case EXPECTED_WHITESPACE ->
-                    actor.error(legacyColorize("&cExpected whitespace to end one argument, but found trailing data."));
+            case INVALID_ESCAPE_CHARACTER:
+                actor.error(legacyColorize("&cInvalid input. Use &e\\\\ &cto include a backslash."));
+                break;
+            case UNCLOSED_QUOTE:
+                actor.error(legacyColorize("&cUnclosed quote. Make sure to close all quotes."));
+                break;
+            case EXPECTED_WHITESPACE:
+                actor.error(legacyColorize("&cExpected whitespace to end one argument, but found trailing data."));
+                break;
         }
     }
 

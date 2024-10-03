@@ -29,21 +29,59 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.process.MessageSender;
 
+import java.util.Objects;
+
 /**
  * Default implementation of {@link ActorFactory}
  */
-record BasicActorFactory(
-        MessageSender<FabricCommandActor, Text> messageSender,
-        MessageSender<FabricCommandActor, Text> errorSender
-) implements ActorFactory<FabricCommandActor> {
+final class BasicActorFactory implements ActorFactory<FabricCommandActor> {
 
     public static final ActorFactory<FabricCommandActor> INSTANCE = new BasicActorFactory(
             FabricCommandActor::sendRawMessage,
             FabricCommandActor::sendRawError
     );
+    private final MessageSender<FabricCommandActor, Text> messageSender;
+    private final MessageSender<FabricCommandActor, Text> errorSender;
+
+    /**
+     *
+     */
+    BasicActorFactory(
+            MessageSender<FabricCommandActor, Text> messageSender,
+            MessageSender<FabricCommandActor, Text> errorSender
+    ) {
+        this.messageSender = messageSender;
+        this.errorSender = errorSender;
+    }
 
     @Override
     public @NotNull FabricCommandActor create(@NotNull ServerCommandSource sender, @NotNull Lamp<FabricCommandActor> lamp) {
         return new BasicFabricActor(sender, lamp, messageSender, errorSender);
     }
+
+    public MessageSender<FabricCommandActor, Text> messageSender() {return messageSender;}
+
+    public MessageSender<FabricCommandActor, Text> errorSender() {return errorSender;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (BasicActorFactory) obj;
+        return Objects.equals(this.messageSender, that.messageSender) &&
+                Objects.equals(this.errorSender, that.errorSender);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(messageSender, errorSender);
+    }
+
+    @Override
+    public String toString() {
+        return "BasicActorFactory[" +
+                "messageSender=" + messageSender + ", " +
+                "errorSender=" + errorSender + ']';
+    }
+
 }

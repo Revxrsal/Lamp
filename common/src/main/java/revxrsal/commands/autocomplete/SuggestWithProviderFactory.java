@@ -47,11 +47,14 @@ enum SuggestWithProviderFactory implements SuggestionProvider.Factory<CommandAct
         if (suggestWith == null)
             return null;
         BaseSuggestionProvider type = InstanceCreator.create(suggestWith.value());
-        if (type instanceof SuggestionProvider<?> pType) {
+        if (type instanceof SuggestionProvider<?>) {
+            SuggestionProvider<?> pType = (SuggestionProvider<?>) type;
             return (SuggestionProvider<CommandActor>) pType;
-        } else if (type instanceof SuggestionProvider.Factory<?> factory) {
+        } else if (type instanceof SuggestionProvider.Factory<?>) {
+            SuggestionProvider.Factory<?> factory = (SuggestionProvider.Factory<?>) type;
             return factory.create(parameterType, annotations, (Lamp) lamp);
-        } else if (type instanceof AsyncSuggestionProvider<?> async) {
+        } else if (type instanceof AsyncSuggestionProvider<?>) {
+            AsyncSuggestionProvider<?> async = (AsyncSuggestionProvider<?>) type;
             return (SuggestionProvider<CommandActor>) SuggestionProvider.fromAsync(async);
         } else {
             throw new IllegalArgumentException("Don't know how to create a SuggestionProvider from " + type);

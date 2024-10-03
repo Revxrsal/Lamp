@@ -29,19 +29,19 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.parameter.ParameterType;
-import revxrsal.commands.util.Classes;
 
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 import static revxrsal.commands.util.Classes.getRawType;
 import static revxrsal.commands.util.Classes.wrap;
 
 @ApiStatus.Internal
-public record ClassParameterTypeFactory<A extends CommandActor, T>(
-        Class<?> type,
-        ParameterType<A, T> parameterType,
-        boolean allowSubclasses
-) implements ParameterType.Factory<A> {
+public final class ClassParameterTypeFactory<A extends CommandActor, T> implements ParameterType.Factory<A> {
+    private final Class<?> type;
+    private final ParameterType<A, T> parameterType;
+    private final boolean allowSubclasses;
+
 
     public ClassParameterTypeFactory(Class<?> type, ParameterType<A, T> parameterType, boolean allowSubclasses) {
         this.type = wrap(type);
@@ -52,7 +52,7 @@ public record ClassParameterTypeFactory<A extends CommandActor, T>(
     @Override
     @SuppressWarnings("unchecked")
     public <L> ParameterType<A, L> create(@NotNull Type parameterType, @NotNull AnnotationList annotations, @NotNull Lamp<A> lamp) {
-        Class<?> pType = Classes.wrap(getRawType(parameterType));
+        Class<?> pType = wrap(getRawType(parameterType));
         if (allowSubclasses && type.isAssignableFrom(pType)) {
             return (ParameterType<A, L>) this.parameterType;
         }
@@ -60,4 +60,34 @@ public record ClassParameterTypeFactory<A extends CommandActor, T>(
             return (ParameterType<A, L>) this.parameterType;
         return null;
     }
+
+    public Class<?> type() {return type;}
+
+    public ParameterType<A, T> parameterType() {return parameterType;}
+
+    public boolean allowSubclasses() {return allowSubclasses;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        ClassParameterTypeFactory that = (ClassParameterTypeFactory) obj;
+        return Objects.equals(this.type, that.type) &&
+                Objects.equals(this.parameterType, that.parameterType) &&
+                this.allowSubclasses == that.allowSubclasses;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, parameterType, allowSubclasses);
+    }
+
+    @Override
+    public String toString() {
+        return "ClassParameterTypeFactory[" +
+                "type=" + type + ", " +
+                "parameterType=" + parameterType + ", " +
+                "allowSubclasses=" + allowSubclasses + ']';
+    }
+
 }

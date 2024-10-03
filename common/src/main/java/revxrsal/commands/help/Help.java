@@ -58,7 +58,7 @@ public interface Help {
             @Range(from = 1, to = Integer.MAX_VALUE) int elementsPerPage
     ) throws InvalidHelpPageException {
         if (commands.isEmpty())
-            return List.of();
+            return Collections.emptyList();
         int size = numberOfPages(commands.size(), elementsPerPage);
         if (page <= 0)
             throw new InvalidHelpPageException(commands, page, elementsPerPage, size);
@@ -124,28 +124,6 @@ public interface Help {
          */
         @Range(from = 1, to = Integer.MAX_VALUE)
         int numberOfPages(@Range(from = 1, to = Integer.MAX_VALUE) int elementsPerPage);
-
-        /**
-         * Returns the list of commands that belong to a specific page after paginating
-         * this list.
-         * <p>
-         * Note that the list returned by this method is immutable.
-         *
-         * @param pageNumber      The page number
-         * @param elementsPerPage The elements to include in each page
-         * @return The pages list.
-         * @throws InvalidHelpPageException if {@code pageNumber} is greater than
-         *                                  {@link #numberOfPages(int)} or less than 1
-         * @deprecated Use {@link #paginate(int, int)} instead.
-         */
-        @Unmodifiable
-        @Deprecated(forRemoval = true)
-        default List<ExecutableCommand<A>> asPage(
-                @Range(from = 1, to = Integer.MAX_VALUE) int pageNumber,
-                @Range(from = 1, to = Integer.MAX_VALUE) int elementsPerPage
-        ) throws InvalidHelpPageException {
-            return paginate(pageNumber, elementsPerPage);
-        }
 
         /**
          * Returns the list of commands that belong to a specific page after paginating

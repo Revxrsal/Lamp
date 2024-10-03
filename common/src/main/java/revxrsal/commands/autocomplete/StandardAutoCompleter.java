@@ -33,11 +33,11 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static revxrsal.commands.node.DispatcherSettings.LONG_FORMAT_PREFIX;
 import static revxrsal.commands.node.DispatcherSettings.SHORT_FORMAT_PREFIX;
-import static revxrsal.commands.util.Collections.filter;
-import static revxrsal.commands.util.Collections.map;
+import static revxrsal.commands.util.Collections.*;
 
 /**
  * A basic implementation of {@link AutoCompleter} that respects secret
@@ -60,7 +60,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                 .stream()
                 .filter(suggestion -> startsWithIgnoreCase(suggestion, consumed))
                 .map(s -> getRemainingContent(s, consumed))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private static boolean startsWithIgnoreCase(String a, String b) {
@@ -106,7 +106,8 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
     private List<String> complete(ExecutableCommand<A> possible, MutableStringStream input, A actor) {
         MutableExecutionContext<A> context = ExecutionContext.createMutable(possible, actor, input.toImmutableCopy());
         for (CommandNode<A> child : possible.nodes()) {
-            if (child instanceof ParameterNode<A, ?> parameter) {
+            if (child instanceof ParameterNode) {
+                ParameterNode<A, ?> parameter = (ParameterNode<A, ?>) child;
                 if (parameter.isFlag() || parameter.isSwitch())
                     break;
             }
@@ -115,20 +116,21 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                 return promptWith(child, actor, context, input);
             }
 
-            if (child instanceof LiteralNode<A> l) {
+            if (child instanceof LiteralNode) {
+                LiteralNode<A> l = (LiteralNode<A>) child;
                 String nextWord = input.readUnquotedString();
                 if (input.hasFinished()) {
                     if (l.name().startsWith(nextWord)) {
                         // complete it for the user :)
-                        return List.of(l.name());
+                        return Arrays.asList(l.name());
                     } else {
                         // the user inputted a command that isn't ours. dismiss the operation
-                        return List.of();
+                        return Arrays.asList();
                     }
                 } else {
                     if (!l.name().equalsIgnoreCase(nextWord)) {
                         // the user inputted a command that isn't ours. dismiss the operation
-                        return List.of();
+                        return Arrays.asList();
                     }
                     if (input.canRead(1) && input.peek() == ' ') {
                         // our literal is just fine. move to the next node
@@ -136,10 +138,11 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                         continue;
                     }
                 }
-            } else if (child instanceof ParameterNode<A, ?> parameter) {
+            } else if (child instanceof ParameterNode) {
+                ParameterNode<A, ?> parameter = (ParameterNode<A, ?>) child;
                 int posBeforeParsing = input.position();
                 if (!parameter.permission().isExecutableBy(actor))
-                    return List.of();
+                    return Arrays.asList();
                 try {
                     Object value = parameter.parse(input, context);
                     context.addResolvedArgument(parameter.name(), value);
@@ -187,17 +190,17 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                 @Nullable ParameterNode<A, Object> parameter = removeParameterNamed(flags, flagName);
                 input.readUnquotedString();
                 if (input.hasFinished())
-                    return List.of();
+                    return Arrays.asList();
                 if (input.hasRemaining() && input.peek() == ' ') {
                     input.skipWhitespace();
                 }
                 if (input.hasFinished() && parameter != null) {
-                    return List.copyOf(parameter.suggestions().getSuggestions(context));
+                    return copyList(parameter.suggestions().getSuggestions(context));
                 } else {
                     if (parameter != null) {
                         tryParseFlag(parameter, input, context);
                         if (input.hasFinished() || input.peek() != ' ') {
-                            return List.of();
+                            return Arrays.asList();
                         }
                     }
                     continue;
@@ -213,7 +216,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                     tryParseFlag(parameter, input, context);
                     if (input.hasRemaining() && input.peek() == ' ') {
                         input.skipWhitespace();
-                        return List.copyOf(parameter.suggestions().getSuggestions(context));
+                        return copyList(parameter.suggestions().getSuggestions(context));
                     } else if (input.hasFinished()) {
                         return flags.stream().map(f -> {
                                     if (f.shorthand() != null) {
@@ -222,7 +225,7 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
                                     }
                                     return null;
                                 }).filter(Objects::nonNull)
-                                .toList();
+                                .collect(Collectors.toList());
                     }
                 }
             } else {
@@ -252,12 +255,14 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
 
     private @NotNull List<String> promptWith(CommandNode<A> child, A
             actor, ExecutionContext<A> context, StringStream input) {
-        if (child instanceof LiteralNode<A> l)
-            return List.of(l.name());
-        else if (child instanceof ParameterNode<A, ?> p)
-            return List.copyOf(p.complete(actor, input, context));
-        else
-            return List.of();
+        if (child instanceof LiteralNode) {
+            LiteralNode<A> l = (LiteralNode<A>) child;
+            return Arrays.asList(l.name());
+        } else if (child instanceof ParameterNode) {
+            ParameterNode<A, ?> p = (ParameterNode<A, ?>) child;
+            return copyList(p.complete(actor, input, context));
+        } else
+            return Arrays.asList();
     }
 
     private @Nullable ParameterNode<A, Object> removeParameterWithShorthand(List<ParameterNode<A, Object>> parametersLeft, char c) {

@@ -42,6 +42,7 @@ import revxrsal.commands.util.Classes;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static revxrsal.commands.autocomplete.SuggestionProvider.empty;
@@ -137,7 +138,7 @@ abstract class CollectionParameterTypeFactory implements ParameterType.Factory<C
             if (paramSuggestions.equals(empty()))
                 return empty();
             return (context) -> {
-                List<String> inputted = List.of(context.input().peekRemaining().split(Character.toString(delimiter)));
+                List<String> inputted = Arrays.asList(context.input().peekRemaining().split(Character.toString(delimiter)));
                 if (preventsDuplicates()) {
                     return filter(
                             paramSuggestions.getSuggestions(context),

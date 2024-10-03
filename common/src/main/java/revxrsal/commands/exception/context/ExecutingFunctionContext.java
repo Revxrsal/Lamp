@@ -28,13 +28,22 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
 
+import java.util.Objects;
+
 /**
  * Right now this context stores no information. We can just use
  * a singleton for it
  */
-record ExecutingFunctionContext<A extends CommandActor>(
-        ExecutionContext<A> context
-) implements ErrorContext.ExecutingFunction<A> {
+final class ExecutingFunctionContext<A extends CommandActor> implements ErrorContext.ExecutingFunction<A> {
+    private final ExecutionContext<A> context;
+
+    /**
+     *
+     */
+    ExecutingFunctionContext(
+            ExecutionContext<A> context
+    ) {this.context = context;}
+
     @Override
     public @NotNull A actor() {
         return context.actor();
@@ -44,4 +53,26 @@ record ExecutingFunctionContext<A extends CommandActor>(
     public @NotNull Lamp<A> lamp() {
         return context.lamp();
     }
+
+    @Override public ExecutionContext<A> context() {return context;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        ExecutingFunctionContext that = (ExecutingFunctionContext) obj;
+        return Objects.equals(this.context, that.context);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(context);
+    }
+
+    @Override
+    public String toString() {
+        return "ExecutingFunctionContext[" +
+                "context=" + context + ']';
+    }
+
 }

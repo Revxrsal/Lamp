@@ -46,7 +46,10 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static revxrsal.commands.autocomplete.SuggestionProvider.empty;
 import static revxrsal.commands.util.Strings.stripNamespace;
@@ -78,9 +81,10 @@ public final class BrigadierAdapter {
             ParameterNode<A, ?> parameter,
             BrigadierConverter<A, S> converter
     ) {
-        var suggestions = parameter.suggestions();
+        revxrsal.commands.autocomplete.SuggestionProvider<A> suggestions = parameter.suggestions();
         if (suggestions.equals(empty())) {
-            if (parameter.parameterType() instanceof BrigadierParameterType<?, ?> brigadierParameterType) {
+            if (parameter.parameterType() instanceof BrigadierParameterType<?, ?>) {
+                BrigadierParameterType<?, ?> brigadierParameterType = (BrigadierParameterType<?, ?>) parameter.parameterType();
                 return brigadierParameterType.argumentType::listSuggestions;
             }
             return null;
@@ -102,12 +106,12 @@ public final class BrigadierAdapter {
                 return provideAsyncCompletions((AsyncSuggestionProvider<A>) suggestions, builder, test.context(), tooltip);
             }
 
-            var values = suggestions.getSuggestions(test.context())
+            List<@NotNull Suggestion> values = suggestions.getSuggestions(test.context())
                     .stream()
                     .sorted(String.CASE_INSENSITIVE_ORDER)
                     .distinct()
                     .map(s -> toSuggestion(s, builder, tooltip))
-                    .toList();
+                    .collect(Collectors.toList());
             return CompletableFuture.completedFuture(Suggestions.create(builder.getInput(), values));
         };
     }
@@ -126,7 +130,7 @@ public final class BrigadierAdapter {
                             .sorted(String.CASE_INSENSITIVE_ORDER)
                             .distinct()
                             .map(v -> toSuggestion(v, builder, tooltip))
-                            .toList());
+                            .collect(Collectors.toList()));
         });
     }
 
@@ -163,17 +167,20 @@ public final class BrigadierAdapter {
 
     /**
      * A {@link ParameterType} that wraps a Brigadier {@link ArgumentType}
-     *
-     * @param argumentType The argument to wrap
-     * @param <A>          The actor type
-     * @param <T>          The parameter type
      */
-    private record BrigadierParameterType<A extends CommandActor, T>(
-            ArgumentType<T> argumentType
-    ) implements ParameterType<A, T> {
+    private static final class BrigadierParameterType<A extends CommandActor, T> implements ParameterType<A, T> {
+        private final ArgumentType<T> argumentType;
+
+        /**
+         * @param argumentType The argument to wrap
+         */
+        private BrigadierParameterType(
+                ArgumentType<T> argumentType
+        ) {this.argumentType = argumentType;}
 
         @Override public boolean isGreedy() {
-            if (argumentType instanceof StringArgumentType sat) {
+            if (argumentType instanceof StringArgumentType) {
+                StringArgumentType sat = (StringArgumentType) argumentType;
                 return sat.getType() == StringArgumentType.StringType.GREEDY_PHRASE;
             }
             return false;
@@ -187,5 +194,28 @@ public final class BrigadierAdapter {
             input.setPosition(reader.getCursor());
             return result;
         }
+
+        public ArgumentType<T> argumentType() {return argumentType;}
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            //noinspection unchecked
+            BrigadierParameterType<A, ?> that = (BrigadierParameterType<A, ?>) obj;
+            return Objects.equals(this.argumentType, that.argumentType);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(argumentType);
+        }
+
+        @Override
+        public String toString() {
+            return "BrigadierParameterType[" +
+                    "argumentType=" + argumentType + ']';
+        }
+
     }
 }

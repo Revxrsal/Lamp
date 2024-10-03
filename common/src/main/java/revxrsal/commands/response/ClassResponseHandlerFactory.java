@@ -30,16 +30,17 @@ import revxrsal.commands.annotation.list.AnnotationList;
 import revxrsal.commands.command.CommandActor;
 
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 import static revxrsal.commands.util.Classes.getRawType;
 import static revxrsal.commands.util.Classes.wrap;
 
 @ApiStatus.Internal
-public record ClassResponseHandlerFactory<A extends CommandActor, T>(
-        Class<?> type,
-        ResponseHandler<A, T> responseHandler,
-        boolean allowSubclasses
-) implements ResponseHandler.Factory<A> {
+public final class ClassResponseHandlerFactory<A extends CommandActor, T> implements ResponseHandler.Factory<A> {
+    private final Class<?> type;
+    private final ResponseHandler<A, T> responseHandler;
+    private final boolean allowSubclasses;
+
 
     public ClassResponseHandlerFactory(Class<?> type, ResponseHandler<A, T> responseHandler, boolean allowSubclasses) {
         this.type = wrap(type);
@@ -58,4 +59,34 @@ public record ClassResponseHandlerFactory<A extends CommandActor, T>(
             return (ResponseHandler<A, L>) this.responseHandler;
         return null;
     }
+
+    public Class<?> type() {return type;}
+
+    public ResponseHandler<A, T> responseHandler() {return responseHandler;}
+
+    public boolean allowSubclasses() {return allowSubclasses;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        ClassResponseHandlerFactory that = (ClassResponseHandlerFactory) obj;
+        return Objects.equals(this.type, that.type) &&
+                Objects.equals(this.responseHandler, that.responseHandler) &&
+                this.allowSubclasses == that.allowSubclasses;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, responseHandler, allowSubclasses);
+    }
+
+    @Override
+    public String toString() {
+        return "ClassResponseHandlerFactory[" +
+                "type=" + type + ", " +
+                "responseHandler=" + responseHandler + ", " +
+                "allowSubclasses=" + allowSubclasses + ']';
+    }
+
 }

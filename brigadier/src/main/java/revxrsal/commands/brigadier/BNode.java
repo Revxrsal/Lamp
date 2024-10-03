@@ -43,6 +43,15 @@ final class BNode<S> {
         this.node = node;
     }
 
+    public static <S> @NotNull BNode<S> of(@NotNull CommandNode<S> node) {
+        notNull(node, "node");
+        return new BNode<>(node);
+    }
+
+    public static <S> @NotNull BNode<S> literal(@NotNull String name) {
+        return of(LiteralArgumentBuilder.<S>literal(name).build());
+    }
+
     public @NotNull BNode<S> executes(Command<S> command) {
         Nodes.setCommand(node, command);
         return this;
@@ -54,8 +63,10 @@ final class BNode<S> {
     }
 
     public @NotNull BNode<S> suggests(SuggestionProvider<S> suggestionProvider) {
-        if (node instanceof ArgumentCommandNode<S, ?> argument)
+        if (node instanceof ArgumentCommandNode) {
+            ArgumentCommandNode<S, ?> argument = (ArgumentCommandNode<S, ?>) node;
             Nodes.setSuggestionProvider(argument, suggestionProvider);
+        }
         return this;
     }
 
@@ -72,15 +83,6 @@ final class BNode<S> {
     @Contract(pure = true)
     public @NotNull CommandNode<S> asBrigadierNode() {
         return node;
-    }
-
-    public static <S> @NotNull BNode<S> of(@NotNull CommandNode<S> node) {
-        notNull(node, "node");
-        return new BNode<>(node);
-    }
-
-    public static <S> @NotNull BNode<S> literal(@NotNull String name) {
-        return of(LiteralArgumentBuilder.<S>literal(name).build());
     }
 
     @NotNull BNode<S> nextChild() {

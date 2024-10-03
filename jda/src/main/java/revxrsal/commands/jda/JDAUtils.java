@@ -130,44 +130,39 @@ public final class JDAUtils {
             @NotNull ParameterNode<A, ?> parameter
     ) {
         switch (option.getType()) {
-            case STRING -> {
+            case STRING:
                 return option.getAsString();
-            }
-            case INTEGER -> {
+            case INTEGER:
                 return safeIntegerCast(option.getAsInt(), parameter.type());
-            }
-            case NUMBER -> {
+            case NUMBER:
                 return safeDoubleCast(option.getAsInt(), parameter.type());
-            }
-            case BOOLEAN -> {
+            case BOOLEAN:
                 return option.getAsBoolean();
-            }
-            case USER -> {
+            case USER:
                 if (parameter.type() == Member.class) {
                     Member asMember = option.getAsMember();
-                    if (asMember == null)
+                    if (asMember == null) {
                         throw new MemberNotInGuildException(option.getAsUser());
+                    }
                     return asMember;
                 }
                 return option.getAsUser();
-            }
-            case CHANNEL -> {
-                if (option.getChannelType().getInterface().isAssignableFrom(parameter.type()))
+            case CHANNEL:
+                if (option.getChannelType().getInterface().isAssignableFrom(parameter.type())) {
                     return option.getAsChannel();
+                }
                 throw new WrongChannelTypeException(option.getAsChannel(), parameter.type());
-            }
-            case ROLE -> {
+            case ROLE:
                 return option.getAsRole();
-            }
-            case MENTIONABLE -> {
+            case MENTIONABLE:
                 return option.getAsMentionable();
-            }
-            case ATTACHMENT -> {
+            case ATTACHMENT:
                 return option.getAsAttachment();
-            }
+            default:
+                throw new IllegalArgumentException("Don't know how to fetch a value from Option: " + option + " for parameter " + parameter.name() + " of type " + parameter.type());
         }
-        throw new IllegalArgumentException("Don't know how to fetch a value from Option: " + option + " for parameter " + parameter.name() + " of type " + parameter.type());
     }
+
 
     private static @NotNull Object safeIntegerCast(int value, Class<?> type) {
         if (type == int.class)

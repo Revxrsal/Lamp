@@ -19,7 +19,3 @@ tasks.withType<JavaCompile> {
     // Preserve parameter names in the bytecode
     options.compilerArgs.add("-parameters")
 }
-
-kotlin {
-    jvmToolchain(17)
-}

@@ -36,7 +36,7 @@ public final class BuiltInNamingStrategies {
         StringBuilder translation = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {
             char character = name.charAt(i);
-            if (Character.isUpperCase(character) && !translation.isEmpty()) {
+            if (Character.isUpperCase(character) && translation.length() != 0) {
                 translation.append(separator);
             }
             translation.append(character);

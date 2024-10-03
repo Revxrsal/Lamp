@@ -45,9 +45,11 @@ public enum ParseWithParameterTypeFactory implements ParameterType.Factory<Comma
         if (parseWith == null)
             return null;
         BaseParameterType type = InstanceCreator.create(parseWith.value());
-        if (type instanceof ParameterType<?, ?> pType) {
+        if (type instanceof ParameterType<?, ?>) {
+            ParameterType<?, ?> pType = (ParameterType<?, ?>) type;
             return (ParameterType<CommandActor, T>) pType;
-        } else if (type instanceof ParameterType.Factory<?> factory) {
+        } else if (type instanceof ParameterType.Factory<?>) {
+            ParameterType.Factory<?> factory = (ParameterType.Factory<?>) type;
             return factory.create(parameterType, annotations, (Lamp) lamp);
         } else {
             throw new IllegalArgumentException("Don't know how to create a ParameterType from " + type);

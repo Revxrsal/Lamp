@@ -28,11 +28,19 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.node.ExecutionContext;
 
+import java.util.Objects;
+
 /**
  * Right now this context stores no information. We can just use
  * a singleton for it
  */
-record UnknownCommandContext<A extends CommandActor>(@NotNull A actor) implements ErrorContext.UnknownCommand<A> {
+final class UnknownCommandContext<A extends CommandActor> implements ErrorContext.UnknownCommand<A> {
+    private final @NotNull A actor;
+
+    /**
+     *
+     */
+    UnknownCommandContext(@NotNull A actor) {this.actor = actor;}
 
     @Override
     public boolean hasExecutionContext() {
@@ -53,4 +61,24 @@ record UnknownCommandContext<A extends CommandActor>(@NotNull A actor) implement
     public @NotNull Lamp<A> lamp() {
         return (Lamp<A>) actor.lamp();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        UnknownCommandContext that = (UnknownCommandContext) obj;
+        return Objects.equals(this.actor, that.actor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actor);
+    }
+
+    @Override
+    public String toString() {
+        return "UnknownCommandContext[" +
+                "actor=" + actor + ']';
+    }
+
 }

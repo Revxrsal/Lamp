@@ -107,7 +107,8 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
 
                 if (node.isLiteral())
                     arguments.add(toArgument(node));
-                else if (node instanceof ParameterNode<A, ?> parameter) {
+                else if (node instanceof ParameterNode<A, ?>) {
+                    ParameterNode<A, ?> parameter = (ParameterNode<A, ?>) node;
                     if (parameter.isSwitch()) {
                         // add the required
                         minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
@@ -220,9 +221,11 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
             A actor = actorFactory.create(sender, node.lamp());
             StringStream input = StringStream.create(exception.getInput());
             ExecutionContext<A> context = ExecutionContext.create(node.command(), actor, input);
-            if (node instanceof LiteralNode<A> literal) {
+            if (node instanceof LiteralNode<A>) {
+                LiteralNode<A> literal = (LiteralNode<A>) node;
                 node.lamp().handleException(exception, ErrorContext.parsingLiteral(context, literal));
-            } else if (node instanceof ParameterNode<A, ?> parameter) {
+            } else if (node instanceof ParameterNode<A, ?>) {
+                ParameterNode<A, ?> parameter = (ParameterNode<A, ?>) node;
                 node.lamp().handleException(exception, ErrorContext.parsingParameter(context, parameter, input));
             }
         };

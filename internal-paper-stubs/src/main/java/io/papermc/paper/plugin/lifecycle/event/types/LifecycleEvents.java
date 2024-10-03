@@ -24,12 +24,12 @@ public final class LifecycleEvents {
      */
     public static final LifecycleEventType.Prioritizable<LifecycleEventOwner, ReloadableRegistrarEvent<Commands>> COMMANDS = prioritized("commands", LifecycleEventOwner.class);
 
-    @ApiStatus.Internal
-    private static <O, E extends LifecycleEvent> LifecycleEventType.Prioritizable<O, E> prioritized(final String name, final Class<? extends O> ownerType) {
-        throw new UnsupportedOperationException("Stub");
+    private LifecycleEvents() {
     }
     //</editor-fold>
 
-    private LifecycleEvents() {
+    @ApiStatus.Internal
+    private static <O, E extends LifecycleEvent> LifecycleEventType.Prioritizable<O, E> prioritized(final String name, final Class<? extends O> ownerType) {
+        throw new UnsupportedOperationException("Stub");
     }
 }

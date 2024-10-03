@@ -43,14 +43,6 @@ import java.util.function.Supplier;
 public final class Annotations {
 
     /**
-     * An annotation that implies that the annotated type cannot be dynamically
-     * created using {@link Annotations#create(Class)}
-     */
-    @Target(ElementType.ANNOTATION_TYPE)
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface CannotBeCreated {}
-
-    /**
      * Creates a new annotation with no values. Any default values will
      * automatically be used.
      *
@@ -177,10 +169,18 @@ public final class Annotations {
         return s.substring(1, s.length() - 1); // cut off the []
     }
 
-    private record DynamicAnnotationHandler(
-            Class<? extends Annotation> annotationType,
-            Map<String, Object> annotationMembers
-    ) implements InvocationHandler {
+    /**
+     * An annotation that implies that the annotated type cannot be dynamically
+     * created using {@link Annotations#create(Class)}
+     */
+    @Target(ElementType.ANNOTATION_TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface CannotBeCreated {}
+
+    private static final class DynamicAnnotationHandler implements InvocationHandler {
+        private final Class<? extends Annotation> annotationType;
+        private final Map<String, Object> annotationMembers;
+
 
         private DynamicAnnotationHandler(Class<? extends Annotation> annotationType, Map<String, Object> annotationMembers) {
             if (annotationType.isAnnotationPresent(CannotBeCreated.class))
@@ -225,6 +225,32 @@ public final class Annotations {
                 }
             }
         }
+
+        public Class<? extends Annotation> annotationType() {return annotationType;}
+
+        public Map<String, Object> annotationMembers() {return annotationMembers;}
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            DynamicAnnotationHandler that = (DynamicAnnotationHandler) obj;
+            return Objects.equals(this.annotationType, that.annotationType) &&
+                    Objects.equals(this.annotationMembers, that.annotationMembers);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(annotationType, annotationMembers);
+        }
+
+        @Override
+        public String toString() {
+            return "DynamicAnnotationHandler[" +
+                    "annotationType=" + annotationType + ", " +
+                    "annotationMembers=" + annotationMembers + ']';
+        }
+
     }
 }
 

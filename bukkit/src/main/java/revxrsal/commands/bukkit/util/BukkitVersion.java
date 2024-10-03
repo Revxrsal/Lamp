@@ -25,10 +25,12 @@ public final class BukkitVersion {
      * The current version string, for example 1_17_R1
      */
     private static final String VERSION = fetchVersion();
+
     /**
      * The version where NMS no longer uses versions in the package names
      */
     private static final int UNVERSION_NMS = 17;
+
     /**
      * The CraftBukkit package
      */
