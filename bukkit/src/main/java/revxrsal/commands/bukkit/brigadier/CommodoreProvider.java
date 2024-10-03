@@ -58,6 +58,13 @@ public final class CommodoreProvider {
             printDebugInfo(e);
         }
 
+        try {
+            PaperLifecycleEvents.ensureSetup();
+            return plugin -> new PaperLifecycleEvents(plugin);
+        } catch (Throwable e) {
+            printDebugInfo(e);
+        }
+
         // try the paper impl
         try {
             PaperCommodore.ensureSetup();
