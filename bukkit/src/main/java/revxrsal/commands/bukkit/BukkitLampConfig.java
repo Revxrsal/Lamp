@@ -219,7 +219,7 @@ public final class BukkitLampConfig<A extends BukkitCommandActor> implements Lam
          *
          * @return This builder
          */
-        public @NotNull Builder<A> fallbackPrefix(@NotNull BukkitAudiences audiences) {
+        public @NotNull Builder<A> audiences(@NotNull BukkitAudiences audiences) {
             this.audiences = Optional.of(audiences);
             return this;
         }
