@@ -31,12 +31,15 @@ import net.minestom.server.command.builder.CommandExecutor;
 import net.minestom.server.command.builder.arguments.Argument;
 import net.minestom.server.command.builder.arguments.ArgumentLiteral;
 import net.minestom.server.command.builder.arguments.ArgumentType;
+import net.minestom.server.command.builder.exception.ArgumentSyntaxException;
 import net.minestom.server.command.builder.suggestion.SuggestionCallback;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.exception.ThrowableFromCommand;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.hook.CancelHandle;
 import revxrsal.commands.hook.CommandRegisteredHook;
@@ -280,16 +283,26 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
                     .map((sender, strings) -> {
                         A actor = actorFactory.create(sender, command.lamp());
                         MutableStringStream input = StringStream.createMutable(String.join(" ", strings));
-                        ExecutionContext<A> context = ExecutionContext.create(command, actor, input);
-                        return parameter.parse(input, context);
+                        return parseOrThrow(command, parameter, actor, input);
                     });
         return ArgumentType.String(parameter.name())
                 .map((sender, s) -> {
                     A actor = actorFactory.create(sender, command.lamp());
                     MutableStringStream input = StringStream.createMutable(s);
-                    ExecutionContext<A> context = ExecutionContext.create(command, actor, input);
-                    return parameter.parse(input, context);
+                    return parseOrThrow(command, parameter, actor, input);
                 });
+    }
+
+    @Nullable
+    private <T> T parseOrThrow(@NotNull ExecutableCommand<A> command, @NotNull ParameterNode<A, T> parameter, A actor, MutableStringStream input) {
+        ExecutionContext<A> context = ExecutionContext.create(command, actor, input);
+        try {
+            return parameter.parse(input, context);
+        } catch (Throwable t) {
+            if (t.getClass().isAnnotationPresent(ThrowableFromCommand.class))
+                throw new ArgumentSyntaxException(t.getMessage(), context.input().source(), 0);
+            throw t;
+        }
     }
 
     /**
