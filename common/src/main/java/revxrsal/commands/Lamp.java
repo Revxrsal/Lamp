@@ -302,7 +302,7 @@ public final class Lamp<A extends CommandActor> {
                 OrphanRegistry registry = (OrphanRegistry) instance;
                 commandClass = registry.handler().getClass();
                 instance = registry.handler();
-                return tree.register(commandClass, instance, registry.paths());
+                registered.addAll(tree.register(commandClass, instance, registry.paths()));
             }
 
             registered.addAll(tree.register(commandClass, instance));
