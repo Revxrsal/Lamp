@@ -24,9 +24,13 @@
 package revxrsal.commands.velocity.hooks;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.brigadier.BrigadierConverter;
@@ -38,9 +42,6 @@ import revxrsal.commands.node.ParameterNode;
 import revxrsal.commands.velocity.VelocityLampConfig;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * A hook that registers Lamp commands into Velocity
  *
@@ -51,22 +52,26 @@ public final class VelocityCommandHooks<A extends VelocityCommandActor> implemen
     /**
      * Tracks the commands we registered
      */
-    private final Set<String> registeredRootNames = new HashSet<>();
+    private final RootCommandNode<CommandSource> root = new RootCommandNode<>();
 
     private final VelocityLampConfig<A> config;
     private final BrigadierParser<CommandSource, A> parser = new BrigadierParser<>(this);
 
     public VelocityCommandHooks(VelocityLampConfig<A> config) {
         this.config = config;
+        config.server().getEventManager().register(config.plugin(), this);
     }
 
     @Override
     public void onRegistered(@NotNull ExecutableCommand<A> command, @NotNull CancelHandle cancelHandle) {
-        String name = command.firstNode().name();
-        if (registeredRootNames.add(name)) {
-            // command wasn't registered before. register it.
-            LiteralCommandNode<CommandSource> node = parser.createNode(command);
-            BrigadierCommand brigadierCommand = new BrigadierCommand(node);
+        LiteralCommandNode<CommandSource> node = parser.createNode(command);
+        root.addChild(node);
+    }
+
+    @Subscribe
+    public void onProxyInitialize(ProxyInitializeEvent event) {
+        for (CommandNode<CommandSource> node : root.getChildren()) {
+            BrigadierCommand brigadierCommand = new BrigadierCommand((LiteralCommandNode<CommandSource>) node);
             config.server().getCommandManager().register(brigadierCommand);
         }
     }
