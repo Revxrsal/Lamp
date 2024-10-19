@@ -133,7 +133,9 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
     public float readFloat() {
         String value = readUnquotedString();
         try {
-            return Float.parseFloat(value);
+            float v = Float.parseFloat(value);
+            if (Float.isFinite(v)) return v;
+            throw new InvalidDecimalException(value);
         } catch (NumberFormatException e) {
             throw new InvalidDecimalException(value);
         }
@@ -142,7 +144,9 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
     public double readDouble() {
         String value = readUnquotedString();
         try {
-            return Double.parseDouble(value);
+            double v = Double.parseDouble(value);
+            if (Double.isFinite(v)) return v;
+            throw new InvalidDecimalException(value);
         } catch (NumberFormatException e) {
             throw new InvalidDecimalException(value);
         }
