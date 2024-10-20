@@ -23,19 +23,21 @@
  */
 package revxrsal.commands.velocity;
 
+import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.LampBuilderVisitor;
+import revxrsal.commands.LampVisitor;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.exception.CommandExceptionHandler;
 import revxrsal.commands.parameter.ContextParameter;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
 import revxrsal.commands.velocity.annotation.CommandPermission;
 import revxrsal.commands.velocity.exception.VelocityExceptionHandler;
-import revxrsal.commands.velocity.hooks.VelocityCommandHooks;
+import revxrsal.commands.velocity.hooks.VelocityBrigadier;
 import revxrsal.commands.velocity.parameters.PlayerParameterType;
 import revxrsal.commands.velocity.sender.VelocityPermissionFactory;
 import revxrsal.commands.velocity.sender.VelocitySenderResolver;
@@ -101,21 +103,6 @@ public final class VelocityVisitors {
     }
 
     /**
-     * Adds a registration hook that injects Lamp commands into Velocity.
-     *
-     * @param config The {@link VelocityLampConfig} instance
-     * @param <A>    The actor type
-     * @return The visitor
-     */
-    public static <A extends VelocityCommandActor> @NotNull LampBuilderVisitor<A> registrationHooks(
-            @NotNull VelocityLampConfig<A> config
-    ) {
-        VelocityCommandHooks<A> hooks = new VelocityCommandHooks<>(config);
-        return builder -> builder.hooks()
-                .onCommandRegistered(hooks);
-    }
-
-    /**
      * Adds dependencies and type resolvers for the given plugin object
      *
      * @param plugin Plugin to supply
@@ -138,5 +125,16 @@ public final class VelocityVisitors {
      */
     public static <A extends VelocityCommandActor> @NotNull LampBuilderVisitor<A> velocityPermissions() {
         return builder -> builder.permissionFactory(VelocityPermissionFactory.INSTANCE);
+    }
+
+    /**
+     * Registers the commands into Velocity as {@link BrigadierCommand brigadier commands}.
+     *
+     * @param config The {@link VelocityLampConfig} object
+     * @param <A>    The actor type
+     * @return The visitor
+     */
+    public static <A extends VelocityCommandActor> @NotNull LampVisitor<A> brigadier(@NotNull VelocityLampConfig<A> config) {
+        return new VelocityBrigadier<>(config);
     }
 }

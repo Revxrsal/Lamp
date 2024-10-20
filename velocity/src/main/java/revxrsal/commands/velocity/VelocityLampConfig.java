@@ -98,7 +98,6 @@ public final class VelocityLampConfig<A extends VelocityCommandActor> implements
                 .accept(velocityParameterTypes(server))
                 .accept(velocityExceptionHandler())
                 .accept(velocityPermissions())
-                .accept(registrationHooks(this))
                 .accept(pluginContextParameters(plugin));
     }
 
