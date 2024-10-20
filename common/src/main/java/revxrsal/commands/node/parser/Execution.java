@@ -242,7 +242,8 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     }
 
     @Override public boolean isSiblingOf(@NotNull ExecutableCommand<A> command) {
-        return siblingPath.equalsIgnoreCase(((Execution<A>) command).siblingPath);
+        String otherPath = ((Execution<A>) command).siblingPath;
+        return command != this && otherPath.startsWith(siblingPath) || siblingPath.startsWith(otherPath);
     }
 
     @Override public boolean isChildOf(@NotNull ExecutableCommand<A> command) {
