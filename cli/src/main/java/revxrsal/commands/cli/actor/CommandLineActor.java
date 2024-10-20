@@ -51,13 +51,13 @@ final class CommandLineActor implements ConsoleActor {
 
     @Override public Lamp<ConsoleActor> lamp() {return lamp;}
 
-    @Override public InputStream inputStream() {return inputStream;}
+    @Override public @NotNull InputStream inputStream() {return inputStream;}
 
-    @Override public PrintStream outputStream() {return outputStream;}
+    @Override public @NotNull PrintStream outputStream() {return outputStream;}
 
-    @Override public PrintStream errorStream() {return errorStream;}
+    @Override public @NotNull PrintStream errorStream() {return errorStream;}
 
-    @Override public Scanner scanner() {return scanner;}
+    @Override public @NotNull Scanner scanner() {return scanner;}
 
     @Override
     public boolean equals(Object obj) {
