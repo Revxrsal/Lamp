@@ -61,11 +61,9 @@ final class ReflectionCommodore extends Commodore {
                 throw new UnsupportedOperationException("ReflectionCommodore is not supported on MC 1.19 or above. Switch to Paper :)");
             }
 
-            final Class<?> minecraftServer;
-            final Class<?> commandDispatcher;
+            Class<?> minecraftServer = BukkitVersion.findNmsClass("server.MinecraftServer", "MinecraftServer");
+            Class<?> commandDispatcher = BukkitVersion.findNmsClass("commands.CommandDispatcher", "command.CommandDispatcher", "CommandDispatcher");
 
-            minecraftServer = BukkitVersion.findNmsClass("server.MinecraftServer");
-            commandDispatcher = BukkitVersion.findNmsClass("commands.CommandDispatcher");
             Class<?> craftServer = BukkitVersion.findOcbClass("CraftServer");
             CONSOLE_FIELD = craftServer.getDeclaredField("console");
             CONSOLE_FIELD.setAccessible(true);

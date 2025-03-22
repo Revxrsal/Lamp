@@ -127,15 +127,19 @@ final class BukkitVersion {
      * Returns the NMS class with the given name. The name must not contain
      * the net.minecraft.server prefix.
      */
-    @SneakyThrows
-    public static @NotNull Class<?> findNmsClass(@NotNull String name) {
-        if (supports(1, UNVERSION_NMS)) {
-            return Class.forName("net.minecraft." + name);
+    public static @NotNull Class<?> findNmsClass(@NotNull String... names) {
+        for (String name : names) {
+            Class<?> c = classOrNull("net.minecraft.server." + name);
+            if (c != null)
+                return c;
+            c = classOrNull("net.minecraft.server." + VERSION + "." + name);
+            if (c != null)
+                return c;
+            c = classOrNull("net.minecraft." + name);
+            if (c != null)
+                return c;
         }
-        int dotIndex = name.lastIndexOf('.');
-        if (dotIndex == -1)
-            return Class.forName("net.minecraft.server." + VERSION + "." + name);
-        return Class.forName("net.minecraft.server." + VERSION + "." + name.substring(dotIndex + 1));
+        throw new IllegalStateException("Class not found. Names searched: " + Arrays.toString(names) + ".");
     }
 
     /**

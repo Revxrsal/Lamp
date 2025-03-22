@@ -52,15 +52,11 @@ final class BrigadierUtil {
 
     static {
         try {
-            Class<?> commandListenerWrapper;
-            try {
-                if (BukkitVersion.supports(1, 16))
-                    commandListenerWrapper = BukkitVersion.findNmsClass("commands.CommandListenerWrapper");
-                else
-                    commandListenerWrapper = BukkitVersion.findNmsClass("CommandListenerWrapper");
-            } catch (Exception e) {
-                commandListenerWrapper = Class.forName("net.minecraft.commands.CommandListenerWrapper");
-            }
+            Class<?> commandListenerWrapper = BukkitVersion.findNmsClass(
+                    "commands.CommandListenerWrapper",
+                    "command.CommandListenerWrapper",
+                    "CommandListenerWrapper"
+            );
 
             CHILDREN_FIELD = CommandNode.class.getDeclaredField("children");
             LITERALS_FIELD = CommandNode.class.getDeclaredField("literals");
