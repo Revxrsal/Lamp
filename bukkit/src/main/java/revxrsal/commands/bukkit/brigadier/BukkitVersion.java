@@ -4,7 +4,9 @@ import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
@@ -181,6 +183,14 @@ final class BukkitVersion {
             return true;
         } catch (ClassNotFoundException e) {
             return false;
+        }
+    }
+
+    private static @Nullable Class<?> classOrNull(@NotNull String name) {
+        try {
+            return Class.forName(name);
+        } catch (Throwable t) {
+            return null;
         }
     }
 }
