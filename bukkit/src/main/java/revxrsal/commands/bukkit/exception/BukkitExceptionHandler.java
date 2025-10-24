@@ -20,7 +20,7 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
     }
 
     @HandleException
-    public void onInvalidWorld(MissingLocationParameterException e, BukkitCommandActor actor) {
+    public void onMissingLocationParameter(MissingLocationParameterException e, BukkitCommandActor actor) {
         actor.error(legacyColorize("&cExpected &e" + e.axis().name().toLowerCase() + "&c."));
     }
 
