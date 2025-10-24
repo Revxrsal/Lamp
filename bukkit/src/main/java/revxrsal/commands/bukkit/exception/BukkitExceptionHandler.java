@@ -105,7 +105,7 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
     }
 
     @Override public void onInvalidUUID(@NotNull InvalidUUIDException e, @NotNull BukkitCommandActor actor) {
-        actor.error(legacyColorize("&cInvalid UUID: " + e.input() + "&c."));
+        actor.error(legacyColorize("&cInvalid UUID: &e" + e.input() + "&c."));
     }
 
     @Override
@@ -127,9 +127,9 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
 
     @Override public void onInvalidHelpPage(@NotNull InvalidHelpPageException e, @NotNull BukkitCommandActor actor) {
         if (e.numberOfPages() == 1)
-            actor.error(legacyColorize("Invalid help page: &e" + e.page() + "&c. Must be 1."));
+            actor.error(legacyColorize("&cInvalid help page: &e" + e.page() + "&c. Must be 1."));
         else
-            actor.error(legacyColorize("Invalid help page: &e" + e.page() + "&c. Must be between &e1 &cand &e" + e.numberOfPages()));
+            actor.error(legacyColorize("&cInvalid help page: &e" + e.page() + "&c. Must be between &e1 &cand &e" + e.numberOfPages() + "&c."));
     }
 
     @Override public void onUnknownCommand(@NotNull UnknownCommandException e, @NotNull BukkitCommandActor actor) {
@@ -138,6 +138,6 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
 
     @Override public void onValueNotAllowed(@NotNull ValueNotAllowedException e, @NotNull BukkitCommandActor actor) {
         String allowedValues = String.join("&c, &e", e.allowedValues());
-        actor.error(legacyColorize("Received an invalid value: &e" + e.input() + "&c. Allowed values: &e" + allowedValues + "&c."));
+        actor.error(legacyColorize("&cReceived an invalid value: &e" + e.input() + "&c. Allowed values: &e" + allowedValues + "&c."));
     }
 }
