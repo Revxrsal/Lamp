@@ -140,4 +140,15 @@ public class BukkitExceptionHandler extends DefaultExceptionHandler<BukkitComman
         String allowedValues = String.join("&c, &e", e.allowedValues());
         actor.error(legacyColorize("&cReceived an invalid value: &e" + e.input() + "&c. Allowed values: &e" + allowedValues + "&c."));
     }
+
+    @Override public void onUnknownParameter(@NotNull UnknownParameterException e, @NotNull BukkitCommandActor actor) {
+        if (e.shorthand())
+            actor.error(legacyColorize("&cUnknown shorthand flag: &e" + e.name() + "&c."));
+        else
+            actor.error(legacyColorize("&cUnknown flag: &e" + e.name() + "&c."));
+    }
+
+    @Override public void onCooldown(@NotNull CooldownException e, @NotNull BukkitCommandActor actor) {
+        actor.error(legacyColorize("&cYou must wait &e" + formatTimeFancy(e.getTimeLeftMillis()) + " &cbefore using this command again."));
+    }
 }
