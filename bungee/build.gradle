@@ -1,8 +1,11 @@
 repositories {
+    maven {
+        url = uri("https://repo.glaremasters.me/repository/public/")
+    }
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencies {
     implementation(project(":common"))
-    compileOnly("net.md-5:bungeecord-api:1.16-R0.4")
+    compileOnly("net.md-5:bungeecord-api:1.21-R0.4")
 }
