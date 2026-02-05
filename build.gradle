@@ -8,7 +8,7 @@ subprojects {
     apply plugin: "maven-publish"
 
     group = "io.github.revxrsal"
-    version = "3.3.5"
+    version = "3.3.7"
 
     if (name != "velocity") {
         sourceCompatibility = 1.8
