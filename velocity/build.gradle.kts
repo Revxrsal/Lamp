@@ -3,7 +3,7 @@ plugins {
 }
 
 repositories {
-    maven(url = "https://nexus.velocitypowered.com/repository/maven-public/")
+    maven(url = "https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
