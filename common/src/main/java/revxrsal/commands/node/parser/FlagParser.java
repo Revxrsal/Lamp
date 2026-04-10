@@ -80,14 +80,19 @@ final class FlagParser<A extends CommandActor> {
                     int end = input.position();
                     rangesToRemove.add(new StringRange(start, end));
                 } else if (next.startsWith(SHORT_FORMAT_PREFIX)) {
-                    input.readUnquotedString();
-                    char[] flags = next.substring(SHORT_FORMAT_PREFIX.length()).toCharArray();
-                    for (char flag : flags) {
-                        ParameterNode<A, Object> parameter = removeParameterWithShorthand(flag);
-                        parseNext(context, parameter);
+                    String afterDash = next.substring(SHORT_FORMAT_PREFIX.length());
+                    if (!afterDash.isEmpty() && (Character.isDigit(afterDash.charAt(0)) || afterDash.charAt(0) == '.')) {
+                        input.moveForward(next.length());
+                    } else {
+                        input.readUnquotedString();
+                        char[] flags = afterDash.toCharArray();
+                        for (char flag : flags) {
+                            ParameterNode<A, Object> parameter = removeParameterWithShorthand(flag);
+                            parseNext(context, parameter);
+                        }
+                        int end = input.position();
+                        rangesToRemove.add(new StringRange(start, end));
                     }
-                    int end = input.position();
-                    rangesToRemove.add(new StringRange(start, end));
                 } else {
                     input.moveForward(next.length());
                 }
