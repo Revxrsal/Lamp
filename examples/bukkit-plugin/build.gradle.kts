@@ -4,7 +4,7 @@ plugins {
     id("java")
     kotlin("jvm")
 //    id("io.papermc.paperweight.userdev") version "1.7.2"
-    id("com.gradleup.shadow") version "8.3.0"
+    id("com.gradleup.shadow") version "9.4.2"
 
     // Adds runServer and runMojangMappedServer tasks for testing
     id("xyz.jpenilla.run-paper") version "2.2.4"
