@@ -54,7 +54,13 @@ public final class BukkitVersion {
         String minorSlice = version[2];
         if (minorSlice.indexOf('-') != -1)
             minorSlice = minorSlice.substring(0, minorSlice.indexOf('-'));
-        PATCH_NUMBER = Integer.parseInt(minorSlice);
+
+        int patch = 0;
+        if (minorSlice.matches("\\d+")) {
+            patch = Integer.parseInt(minorSlice);
+        }
+
+        PATCH_NUMBER = patch;
 
         IS_PAPER = isClassPresent("com.destroystokyo.paper.PaperConfig");
         SUPPORTS_ASYNC_COMPLETION = isClassPresent("com.destroystokyo.paper.event.server.AsyncTabCompleteEvent");
