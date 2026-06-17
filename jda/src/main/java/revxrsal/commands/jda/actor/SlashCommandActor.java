@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.components.tree.ComponentTree;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -242,6 +243,23 @@ public interface SlashCommandActor extends CommandActor {
     @Contract(pure = true)
     default ReplyCallbackAction replyToInteraction(@NotNull ComponentTree<? extends MessageTopLevelComponent> tree) {
         return commandEvent().replyComponents(tree);
+    }
+
+    /**
+     * Reply to this interaction with one or more message embeds.
+     * <p>
+     * This is a varargs overload for convenience when sending multiple embeds.
+     * The reply will also acknowledge the interaction.
+     *
+     * @param embed  The first embed to include in the reply
+     * @param other Additional embeds to include
+     * @return {@link ReplyCallbackAction}
+     * @see IReplyCallback#replyEmbeds(MessageEmbed, MessageEmbed...)
+     */
+    @CheckReturnValue
+    @Contract(pure = true)
+    default ReplyCallbackAction replyToInteraction(MessageEmbed embed, MessageEmbed... other) {
+        return commandEvent().replyEmbeds(embed, other);
     }
 
     /**
