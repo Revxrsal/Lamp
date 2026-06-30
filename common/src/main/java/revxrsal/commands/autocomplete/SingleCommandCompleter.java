@@ -107,8 +107,12 @@ final class SingleCommandCompleter<A extends CommandActor> {
         while (input.hasRemaining()) {
             if (input.peek() == ' ')
                 input.skipWhitespace();
+            if (input.hasFinished())
+                break;
             String next = input.peekUnquotedString();
-            if (next.startsWith("--")) {
+            if (next.isEmpty()) {
+                input.moveForward();
+            } else if (next.startsWith("--")) {
                 lastWasShort = false;
                 String flagName = next.substring(LONG_FORMAT_PREFIX.length());
                 ParameterNode<A, Object> targetFlag = remainingFlags.remove(flagName);
@@ -120,6 +124,12 @@ final class SingleCommandCompleter<A extends CommandActor> {
                     return;
                 }
                 input.readUnquotedString(); // consumes the flag name
+                if (targetFlag.isSwitch()) {
+                    context.addResolvedArgument(targetFlag.name(), true);
+                    if (input.hasRemaining() && input.peek() == ' ')
+                        input.skipWhitespace();
+                    continue;
+                }
                 if (input.hasFinished())
                     return;
                 if (input.remaining() == 1 && input.peek() == ' ') {
@@ -173,6 +183,8 @@ final class SingleCommandCompleter<A extends CommandActor> {
                     }
 
                 }
+            } else {
+                input.moveForward(next.length());
             }
         }
         for (ParameterNode<A, Object> c : remainingFlags.values()) {
