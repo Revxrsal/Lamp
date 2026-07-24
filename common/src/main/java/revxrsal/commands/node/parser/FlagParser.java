@@ -71,8 +71,12 @@ final class FlagParser<A extends CommandActor> {
                 int start = input.position();
                 if (input.peek() == ' ')
                     input.skipWhitespace();
+                if (input.hasFinished())
+                    break;
                 String next = input.peekUnquotedString();
-                if (next.startsWith(LONG_FORMAT_PREFIX)) {
+                if (next.isEmpty()) {
+                    input.moveForward();
+                } else if (next.startsWith(LONG_FORMAT_PREFIX)) {
                     String flagName = next.substring(LONG_FORMAT_PREFIX.length());
                     ParameterNode<A, Object> parameter = removeParameterNamed(flagName);
                     input.readUnquotedString();

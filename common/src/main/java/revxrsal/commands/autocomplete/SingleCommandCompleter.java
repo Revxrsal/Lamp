@@ -42,11 +42,12 @@ final class SingleCommandCompleter<A extends CommandActor> {
 
     private String restorePosition() {
         if (positionBeforeParsing == -1)
-            throw new IllegalArgumentException("You forgot to call rememberPosition() when trying to restore position.");
-        int positionAfterParsing = input.position();
-        input.setPosition(positionBeforeParsing);
+            throw new IllegalStateException("You forgot to call rememberPosition() when trying to restore position.");
+        int start = positionBeforeParsing;
         positionBeforeParsing = -1;
-        return input.peek(positionAfterParsing - positionBeforeParsing);
+        int positionAfterParsing = input.position();
+        input.setPosition(start);
+        return input.peek(positionAfterParsing - start);
     }
 
     public void complete() {
@@ -74,11 +75,12 @@ final class SingleCommandCompleter<A extends CommandActor> {
     }
 
     private CompletionResult completeParameter(@NotNull ParameterNode<A, Object> parameter) {
-        rememberPosition();
         if (parameter.isSwitch()) {
+            // a switch consumes no value, so there is nothing to remember/restore
             context.addResolvedArgument(parameter.name(), true);
             return CompletionResult.CONTINUE;
         }
+        rememberPosition();
         try {
             Object value = parameter.parse(input, context);
             context.addResolvedArgument(parameter.name(), value);
@@ -107,8 +109,12 @@ final class SingleCommandCompleter<A extends CommandActor> {
         while (input.hasRemaining()) {
             if (input.peek() == ' ')
                 input.skipWhitespace();
+            if (input.hasFinished())
+                break;
             String next = input.peekUnquotedString();
-            if (next.startsWith("--")) {
+            if (next.isEmpty()) {
+                input.moveForward();
+            } else if (next.startsWith("--")) {
                 lastWasShort = false;
                 String flagName = next.substring(LONG_FORMAT_PREFIX.length());
                 ParameterNode<A, Object> targetFlag = remainingFlags.remove(flagName);
@@ -120,6 +126,12 @@ final class SingleCommandCompleter<A extends CommandActor> {
                     return;
                 }
                 input.readUnquotedString(); // consumes the flag name
+                if (targetFlag.isSwitch()) {
+                    context.addResolvedArgument(targetFlag.name(), true);
+                    if (input.hasRemaining() && input.peek() == ' ')
+                        input.skipWhitespace();
+                    continue;
+                }
                 if (input.hasFinished())
                     return;
                 if (input.remaining() == 1 && input.peek() == ' ') {
@@ -173,12 +185,15 @@ final class SingleCommandCompleter<A extends CommandActor> {
                     }
 
                 }
+            } else {
+                input.moveForward(next.length());
             }
         }
         for (ParameterNode<A, Object> c : remainingFlags.values()) {
-            if (lastWasShort)
-                suggestions.add(SHORT_FORMAT_PREFIX + c.shorthand());
-            else
+            if (lastWasShort) {
+                if (c.shorthand() != null)
+                    suggestions.add(SHORT_FORMAT_PREFIX + c.shorthand());
+            } else
                 suggestions.add(LONG_FORMAT_PREFIX + (c.isSwitch() ? c.switchName() : c.flagName()));
         }
     }
