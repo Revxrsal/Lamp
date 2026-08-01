@@ -37,7 +37,7 @@ public final class Permutations {
         List<List<ParameterNode<A, Object>>> falsePermutations = new ArrayList<>();
 
         permute(required, 0, truePermutations);
-        permute(optional, 0, falsePermutations);
+        permuteAllSubsets(optional, falsePermutations);
 
         List<List<ParameterNode<A, Object>>> result = new ArrayList<>();
 
@@ -62,5 +62,38 @@ public final class Permutations {
             permute(list, start + 1, result);
             Collections.swap(list, start, i);
         }
+    }
+
+    /**
+     * Generates every ordering of every subset of {@code list}, including the
+     * empty subset. Every element of {@code list} is optional (a flag or a
+     * switch), so it may either be omitted entirely or supplied alongside the
+     * others in any order.
+     */
+    private static <A extends CommandActor> void permuteAllSubsets(
+            List<ParameterNode<A, Object>> list,
+            List<List<ParameterNode<A, Object>>> result
+    ) {
+        List<List<ParameterNode<A, Object>>> subsets = new ArrayList<>();
+        generateSubsets(list, 0, new ArrayList<>(), subsets);
+        for (List<ParameterNode<A, Object>> subset : subsets) {
+            permute(subset, 0, result);
+        }
+    }
+
+    private static <A extends CommandActor> void generateSubsets(
+            List<ParameterNode<A, Object>> list,
+            int index,
+            List<ParameterNode<A, Object>> current,
+            List<List<ParameterNode<A, Object>>> result
+    ) {
+        if (index == list.size()) {
+            result.add(new ArrayList<>(current));
+            return;
+        }
+        generateSubsets(list, index + 1, current, result);
+        current.add(list.get(index));
+        generateSubsets(list, index + 1, current, result);
+        current.remove(current.size() - 1);
     }
 }
