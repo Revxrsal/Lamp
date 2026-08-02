@@ -171,19 +171,24 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
 
                 List<ParameterNode<A, Object>> flags = filter(command.parameters().values(), v -> v.isFlag() || v.isSwitch());
                 for (List<ParameterNode<A, Object>> permutation : Permutations.generatePermutations(flags)) {
-                    List<Argument<?>> path = new ArrayList<>(arguments.size() + permutation.size());
-                    path.addAll(arguments);
+                    List<List<ArgumentColl>> formsPerParameter = new ArrayList<>(permutation.size());
                     for (ParameterNode<A, Object> parameter : permutation) {
                         if (parameter.isSwitch()) {
-                            ArgumentColl sw = ofSwitch(parameter);
-                            path.addAll(sw.arguments());
+                            formsPerParameter.add(ofSwitchForms(parameter));
                         } else if (parameter.isFlag()) {
-                            ArgumentColl argumentColl = ofFlag(parameter);
-                            path.addAll(argumentColl.arguments());
+                            formsPerParameter.add(ofFlagForms(parameter));
                         }
                     }
 
-                    minestomCommand.addSyntax(generateAction(command), path.toArray(Argument[]::new));
+                    // a switch/flag with a shorthand has two equivalent forms (e.g. --silent
+                    // and -s), each of which must be registered as its own Minestom syntax
+                    for (List<ArgumentColl> combination : cartesianProduct(formsPerParameter)) {
+                        List<Argument<?>> path = new ArrayList<>(arguments);
+                        for (ArgumentColl coll : combination) {
+                            path.addAll(coll.arguments());
+                        }
+                        minestomCommand.addSyntax(generateAction(command), path.toArray(Argument[]::new));
+                    }
                 }
                 // we have <= 4 flags, so we create all possible permutations
             }
@@ -218,12 +223,68 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
     }
 
     private ArgumentColl ofFlag(ParameterNode<A, ?> parameter) {
-        ArgumentLiteral first = new ArgumentLiteral(DispatcherSettings.LONG_FORMAT_PREFIX + parameter.flagName());
+        return ofFlag(parameter, DispatcherSettings.LONG_FORMAT_PREFIX + parameter.flagName());
+    }
+
+    private ArgumentColl ofFlag(ParameterNode<A, ?> parameter, String literal) {
+        ArgumentLiteral first = new ArgumentLiteral(literal);
         first.setCallback(createCallback(parameter));
         return new ArgumentColl(
                 first,
                 toArgument(parameter)
         );
+    }
+
+    /**
+     * Returns every equivalent form a switch may be written as: its long form
+     * (e.g. {@code --silent}), plus its shorthand form (e.g. {@code -s}) if
+     * one is defined. Each form must be registered as its own Minestom syntax,
+     * since {@link ArgumentLiteral} only matches a single fixed string.
+     */
+    private List<ArgumentColl> ofSwitchForms(ParameterNode<A, ?> parameter) {
+        List<ArgumentColl> forms = new ArrayList<>(2);
+        forms.add(ofSwitch(parameter));
+        Character shorthand = parameter.shorthand();
+        if (shorthand != null) {
+            forms.add(new ArgumentColl(
+                    new ArgumentLiteral(DispatcherSettings.SHORT_FORMAT_PREFIX + shorthand)
+            ));
+        }
+        return forms;
+    }
+
+    /**
+     * Returns every equivalent form a flag may be written as. See {@link #ofSwitchForms}.
+     */
+    private List<ArgumentColl> ofFlagForms(ParameterNode<A, ?> parameter) {
+        List<ArgumentColl> forms = new ArrayList<>(2);
+        forms.add(ofFlag(parameter));
+        Character shorthand = parameter.shorthand();
+        if (shorthand != null) {
+            forms.add(ofFlag(parameter, DispatcherSettings.SHORT_FORMAT_PREFIX + shorthand));
+        }
+        return forms;
+    }
+
+    /**
+     * Computes the cartesian product of the given dimensions, i.e. every
+     * combination obtained by picking exactly one element from each dimension.
+     */
+    private static List<List<ArgumentColl>> cartesianProduct(List<List<ArgumentColl>> dimensions) {
+        List<List<ArgumentColl>> result = new ArrayList<>();
+        result.add(new ArrayList<>());
+        for (List<ArgumentColl> dimension : dimensions) {
+            List<List<ArgumentColl>> next = new ArrayList<>();
+            for (List<ArgumentColl> partial : result) {
+                for (ArgumentColl choice : dimension) {
+                    List<ArgumentColl> combined = new ArrayList<>(partial);
+                    combined.add(choice);
+                    next.add(combined);
+                }
+            }
+            result = next;
+        }
+        return result;
     }
 
     /**

@@ -69,14 +69,14 @@ public final class MinestomUtils {
         for (ParameterNode<A, ?> parameter : executionContext.command().parameters().values()) {
             Object o;
             if (parameter.isSwitch()) {
-                o = containsFlag(context, parameter.switchName());
+                o = containsFlag(context, parameter, parameter.switchName());
             } else {
                 o = context.get(parameter.name());
             }
             if (o != null)
                 executionContext.addResolvedArgument(parameter.name(), o);
             else {
-                if (parameter.isFlag() && containsFlag(context, parameter.flagName()))
+                if (parameter.isFlag() && containsFlag(context, parameter, parameter.flagName()))
                     throw new MissingArgumentException(parameter, parameter.command());
                 Object def = parameter.parse(StringStream.createMutable(""), executionContext);
                 executionContext.addResolvedArgument(parameter.name(), def);
@@ -84,9 +84,18 @@ public final class MinestomUtils {
         }
     }
 
-    private static boolean containsFlag(CommandContext context, String name) {
-        return context.has(DispatcherSettings.LONG_FORMAT_PREFIX + name)
-                || context.has(DispatcherSettings.SHORT_FORMAT_PREFIX + name);
+    /**
+     * Checks whether the given flag/switch was supplied, in either its long
+     * form (e.g. {@code --silent}) or its shorthand form (e.g. {@code -s}).
+     * The shorthand is a single character, not the full name, so it must be
+     * looked up separately via {@link ParameterNode#shorthand()} rather than
+     * by prefixing the full name with the short format prefix.
+     */
+    private static boolean containsFlag(CommandContext context, ParameterNode<?, ?> parameter, String name) {
+        if (context.has(DispatcherSettings.LONG_FORMAT_PREFIX + name))
+            return true;
+        Character shorthand = parameter.shorthand();
+        return shorthand != null && context.has(DispatcherSettings.SHORT_FORMAT_PREFIX + shorthand);
     }
 
 }
