@@ -218,7 +218,12 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
 
     /**
      * Returns all related commands of this command. This includes
-     * all sibling commands as well as children commands.
+     * all sibling commands, children commands, and all commands nested
+     * below this command's level (subcommands of siblings, at any depth).
+     * <p>
+     * This is the most suitable list for help menus. For example, for
+     * {@code foo help}, this would include {@code foo bar} as well as
+     * {@code foo bar baz}.
      *
      * @param filterFor Actor to filter entries for, by checking permissions
      * @return The related commands
@@ -227,7 +232,12 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
 
     /**
      * Returns all related commands of this command. This includes
-     * all sibling commands as well as children commands.
+     * all sibling commands, children commands, and all commands nested
+     * below this command's level (subcommands of siblings, at any depth).
+     * <p>
+     * This is the most suitable list for help menus. For example, for
+     * {@code foo help}, this would include {@code foo bar} as well as
+     * {@code foo bar baz}.
      *
      * @return The related commands
      */
@@ -336,7 +346,8 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
 
     /**
      * Tests whether is the provided command related to this command
-     * or not. This tests if it is a sibling or a child.
+     * or not. This tests if it is a sibling, a child, or nested below
+     * this command's level (a subcommand of a sibling, at any depth).
      *
      * @param command Command to test
      * @return true if related, false if otherwise.

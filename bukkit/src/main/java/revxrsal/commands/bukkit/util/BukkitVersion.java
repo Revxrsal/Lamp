@@ -192,10 +192,7 @@ public final class BukkitVersion {
      * @return if brigadier is supported or not
      */
     public static boolean isBrigadierSupported() {
-        if (supports(1, 19, 1))
-            return isPaper();
-        else
-            return supports(1, 13);
+        return supports(1, 13);
     }
 
     private static @Nullable Class<?> classOrNull(@NotNull String name) {

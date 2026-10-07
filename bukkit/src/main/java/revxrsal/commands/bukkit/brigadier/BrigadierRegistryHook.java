@@ -57,6 +57,8 @@ public final class BrigadierRegistryHook<A extends BukkitCommandActor> implement
             if (supports(1, 19)) {
                 return new ByPaperEvents<>(plugin, argumentTypes, actorFactory);
             }
+        } else if (supports(1, 19)) {
+            return new BySpigotVanillaWrapper<>(plugin, argumentTypes, actorFactory, plugin.getName());
         }
         return new ByReflection<>(plugin, argumentTypes, actorFactory);
     }

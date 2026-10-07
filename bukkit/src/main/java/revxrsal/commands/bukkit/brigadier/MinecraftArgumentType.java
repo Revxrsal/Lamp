@@ -38,7 +38,11 @@ import java.util.stream.Collectors;
 /**
  * An enumeration for containing Minecraft's built-in {@link ArgumentType}s.
  * <p>
- * This is for older versions from 1.13 to 1.19.2.
+ * Each constant lists the class names it has had across versions (Spigot names
+ * and Mojang names), so it resolves on every version from 1.13 up to 26.3. Types
+ * that are missing on the running version, or that require a {@code CommandBuildContext}
+ * (such as {@link #BLOCK_STATE} and {@link #ITEM_STACK} on 1.19+), report
+ * {@link #isSupported()} as {@code false}.
  */
 @SuppressWarnings("rawtypes")
 public enum MinecraftArgumentType {
@@ -62,7 +66,7 @@ public enum MinecraftArgumentType {
      * A chat color. One of the names from <a href="https://wiki.vg/Chat#Colors">colors</a>, or {@code reset}.
      * Case-insensitive.
      */
-    COLOR("ArgumentChatFormat", "ColorArgument"),
+    COLOR("ArgumentChatFormat", "ColorArgument", "TeamColorArgument"),
 
     /**
      * A JSON Chat component.
@@ -102,12 +106,12 @@ public enum MinecraftArgumentType {
     /**
      * A scoreboard operator.
      */
-    SCOREBOARD_SLOT("ArgumentScoreboardSlot", "SlotArgument"),
+    SCOREBOARD_SLOT("ArgumentScoreboardSlot", "ScoreboardSlotArgument"),
 
     /**
      * Something that can join a team. Allows selectors and *.
      */
-    SCORE_HOLDER("ArgumentScoreholder", "ScoreHolderArgument"),
+    SCORE_HOLDER(new String[]{"ArgumentScoreholder", "ScoreHolderArgument"}, fallback(new Class[]{boolean.class}, false)),
 
     /**
      * The name of a team. Parsed as an unquoted string.
@@ -138,7 +142,7 @@ public enum MinecraftArgumentType {
     /**
      * An Identifier.
      */
-    RESOURCE_LOCATION("ArgumentMinecraftKeyRegistered", "ResourceLocationArgument"),
+    RESOURCE_LOCATION("ArgumentMinecraftKeyRegistered", "ResourceLocationArgument", "IdentifierArgument"),
 
     /**
      * A potion effect.
@@ -163,7 +167,7 @@ public enum MinecraftArgumentType {
     /**
      * Represents a time duration.
      */
-    TIME("ArgumentTime", "TimeArgument"),
+    TIME(new String[]{"ArgumentTime", "TimeArgument"}, fallback(new Class[]{int.class}, 0)),
 
     /**
      * Represents a UUID value.
@@ -188,13 +192,13 @@ public enum MinecraftArgumentType {
      * A location, represented as 3 numbers (which may have a decimal point, but will be moved to the
      * center of a block if none is specified). May use relative locations with ~.
      */
-    VECTOR_3("coordinates.ArgumentVec3", "coordinates.Vec3Argument"),
+    VECTOR_3(new String[]{"coordinates.ArgumentVec3", "coordinates.Vec3Argument"}, fallback(new Class[]{boolean.class}, true)),
 
     /**
      * A location, represented as 2 numbers (which may have a decimal point, but will be moved to the center
      * of a block if none is specified). May use relative locations with ~.
      */
-    VECTOR_2("coordinates.ArgumentVec2", "coordinates.Vec2Argument"),
+    VECTOR_2(new String[]{"coordinates.ArgumentVec2", "coordinates.Vec2Argument"}, fallback(new Class[]{boolean.class}, true)),
 
     /**
      * An angle, represented as 2 numbers (which may have a decimal point, but will be moved to the
@@ -260,17 +264,65 @@ public enum MinecraftArgumentType {
      *
      * @since Minecraft 1.19
      */
-    TEMPLATE_ROTATION("TemplateRotationArgument");
+    TEMPLATE_ROTATION("TemplateRotationArgument"),
+
+    /**
+     * A game mode
+     *
+     * @since Minecraft 1.19.4
+     */
+    GAME_MODE("GameModeArgument"),
+
+    /**
+     * A heightmap type
+     *
+     * @since Minecraft 1.19.4
+     */
+    HEIGHTMAP("HeightmapTypeArgument"),
+
+    /**
+     * A range of inventory slots, such as {@code container.*}
+     *
+     * @since Minecraft 1.20.5
+     */
+    ITEM_SLOTS("SlotsArgument"),
+
+    /**
+     * A hexadecimal RGB color, such as {@code FF0000}
+     *
+     * @since Minecraft 1.21.6
+     */
+    HEX_COLOR("HexColorArgument"),
+
+    /**
+     * An item swing animation type
+     *
+     * @since Minecraft 26.3
+     */
+    SWING_ANIMATION("SwingAnimationArgument");
 
     private final Class<?>[] parameters;
     private @Nullable ArgumentType<?> argumentType;
     private @Nullable Constructor<? extends ArgumentType> argumentConstructor;
 
     MinecraftArgumentType(String... names) {
-        this(names, new Class[0]);
+        this(names, null, new Class[0]);
     }
 
     MinecraftArgumentType(String[] names, Class<?>... parameters) {
+        this(names, null, parameters);
+    }
+
+    /**
+     * Creates an argument type that is parameterless on some versions, and requires
+     * parameters on others. If the parameterless constructor does not exist, the
+     * default instance is created using the fallback constructor and arguments.
+     */
+    MinecraftArgumentType(String[] names, @NotNull Fallback fallback) {
+        this(names, fallback, new Class[0]);
+    }
+
+    MinecraftArgumentType(String[] names, @Nullable Fallback fallback, Class<?>... parameters) {
         Class<?> argumentClass = null;
         for (String name : names) {
             argumentClass = resolveArgumentClass(name);
@@ -284,17 +336,46 @@ public enum MinecraftArgumentType {
             return;
         }
         try {
-            argumentConstructor = argumentClass.asSubclass(ArgumentType.class).getDeclaredConstructor(parameters);
-            if (!argumentConstructor.isAccessible())
-                argumentConstructor.setAccessible(true);
-            if (parameters.length == 0) {
-                argumentType = argumentConstructor.newInstance();
-            } else {
-                argumentType = null;
+            Class<? extends ArgumentType> type = argumentClass.asSubclass(ArgumentType.class);
+            argumentConstructor = findConstructor(type, parameters);
+            if (argumentConstructor != null) {
+                argumentType = parameters.length == 0 ? argumentConstructor.newInstance() : null;
+            } else if (fallback != null) {
+                argumentConstructor = findConstructor(type, fallback.parameters);
+                if (argumentConstructor != null)
+                    argumentType = argumentConstructor.newInstance(fallback.arguments);
             }
         } catch (Throwable e) {
             argumentType = null;
             argumentConstructor = null;
+        }
+    }
+
+    private static @Nullable Constructor<? extends ArgumentType> findConstructor(
+            Class<? extends ArgumentType> type,
+            Class<?>[] parameters
+    ) {
+        try {
+            Constructor<? extends ArgumentType> constructor = type.getDeclaredConstructor(parameters);
+            if (!constructor.isAccessible())
+                constructor.setAccessible(true);
+            return constructor;
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    private static @NotNull Fallback fallback(Class<?>[] parameters, Object... arguments) {
+        return new Fallback(parameters, arguments);
+    }
+
+    private static final class Fallback {
+        private final Class<?>[] parameters;
+        private final Object[] arguments;
+
+        private Fallback(Class<?>[] parameters, Object[] arguments) {
+            this.parameters = parameters;
+            this.arguments = arguments;
         }
     }
 
@@ -319,8 +400,11 @@ public enum MinecraftArgumentType {
                     .replace("{name}", name)
                     .replace("{stripped_name}", strippedName);
             try {
-                return Class.forName(className);
-            } catch (ClassNotFoundException ignored) {
+                // don't initialize the class here: a failing static initializer
+                // must not break the whole enum. it is initialized later inside
+                // the constructor's try-catch.
+                return Class.forName(className, false, MinecraftArgumentType.class.getClassLoader());
+            } catch (Throwable ignored) {
             }
         }
         return null;

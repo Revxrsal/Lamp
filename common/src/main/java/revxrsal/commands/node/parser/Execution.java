@@ -259,6 +259,29 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         return Arrays.equals(siblingPath, otherPath);
     }
 
+    @Override public boolean isRelatedTo(@NotNull ExecutableCommand<A> command) {
+        if (command == this)
+            return false;
+        return isParentOf(command) || isSiblingOf(command) || isNestedUnderSiblingPath(command);
+    }
+
+    /**
+     * Tests whether the provided command lives below this command's level, i.e. it is
+     * a subcommand of one of this command's siblings (at any depth).
+     * <p>
+     * For example, {@code foo bar baz <x>} is nested under the sibling path of {@code foo help}.
+     */
+    private boolean isNestedUnderSiblingPath(@NotNull ExecutableCommand<A> command) {
+        String[] otherPath = ((Execution<A>) command).siblingPath;
+        if (otherPath.length <= siblingPath.length)
+            return false;
+        for (int i = 0; i < siblingPath.length; i++) {
+            if (!siblingPath[i].equals(otherPath[i]))
+                return false;
+        }
+        return true;
+    }
+
     @Override public boolean isChildOf(@NotNull ExecutableCommand<A> command) {
         if (size() <= command.size())
             return false;

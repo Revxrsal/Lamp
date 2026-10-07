@@ -29,3 +29,5 @@ hs_err_pid*
 /copier.bat
 run
 /examples/fabric-mod/run/
+*/.gradle
+*/build

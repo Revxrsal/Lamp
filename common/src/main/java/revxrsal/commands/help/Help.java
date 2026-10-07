@@ -162,7 +162,9 @@ public interface Help {
     interface SiblingCommands<A extends CommandActor> extends CommandList<A> {}
 
     /**
-     * Contains all children <em>and</em> sibling commands of a certain {@link ExecutableCommand}.
+     * Contains all children <em>and</em> sibling commands of a certain {@link ExecutableCommand},
+     * as well as all commands nested below its level (subcommands of its siblings, at any depth).
+     * This is the most suitable list for help menus.
      *
      * @param <A> The actor type
      * @see ExecutableCommand#relatedCommands()
