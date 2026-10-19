@@ -55,9 +55,9 @@ public @interface Switch {
 
     /**
      * Returns the short form of the switch name. If not explicitly specified,
-     * it will be the parameter's first character.
+     * it will be the first character of the long form.
      *
-     * @return The switch's long form
+     * @return The switch's short form
      */
     char shorthand() default '\0';
 
