@@ -1,3 +1,5 @@
+
+
 ### Java template
 # Compiled class file
 *.class
@@ -31,3 +33,4 @@ run
 /examples/fabric-mod/run/
 */.gradle
 */build
+build
