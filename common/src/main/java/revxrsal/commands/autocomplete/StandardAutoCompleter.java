@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.ExecutableCommand;
+import revxrsal.commands.node.parser.BaseCommandRegistry;
+import revxrsal.commands.node.parser.LiteralTree;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 
@@ -55,22 +57,23 @@ final class StandardAutoCompleter<A extends CommandActor> implements AutoComplet
 
     @Override
     public @NotNull List<String> complete(@NotNull A actor, @NotNull StringStream input) {
-        Set<String> suggestions = new LinkedHashSet<>();
         if (input.isEmpty())
             return Collections.emptyList();
-        String firstWord = input.peekUnquotedString();
-
-        for (ExecutableCommand<A> possible : lamp.registry().commands()) {
-            if (possible.isSecret())
-                continue;
-            if (!possible.firstNode().name().startsWith(firstWord))
-                continue;
-            if (!possible.permission().isExecutableBy(actor))
-                continue;
-            suggestions.addAll(complete(possible, input.toMutableCopy(), actor));
+        LiteralTree.Match<A> match = literalTree().match(input, false);
+        Set<String> suggestions = new LinkedHashSet<>(match.literalCompletions(command -> isVisibleTo(command, actor)));
+        for (ExecutableCommand<A> possible : match.candidates()) {
+            if (isVisibleTo(possible, actor))
+                suggestions.addAll(complete(possible, input.toMutableCopy(), actor));
         }
-
         return new ArrayList<>(suggestions);
+    }
+
+    private LiteralTree<A> literalTree() {
+        return ((BaseCommandRegistry<A>) lamp.registry()).literalTree();
+    }
+
+    private static <A extends CommandActor> boolean isVisibleTo(ExecutableCommand<A> command, A actor) {
+        return !command.isSecret() && command.permission().isExecutableBy(actor);
     }
 
     private List<String> complete(ExecutableCommand<A> possible, MutableStringStream input, A actor) {

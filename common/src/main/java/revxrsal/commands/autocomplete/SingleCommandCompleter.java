@@ -97,8 +97,11 @@ final class SingleCommandCompleter<A extends CommandActor> {
                 input.skipWhitespace();
             return CompletionResult.CONTINUE;
         } catch (Throwable t) {
+            boolean reachedEnd = input.hasFinished();
             String consumed = restorePosition();
-            filterSuggestions(consumed, parameter.complete(context));
+            // Only suggest if the user is still typing this argument, and has not moved past it
+            if (reachedEnd || input.peekRemaining().indexOf(' ') == -1)
+                filterSuggestions(consumed, parameter.complete(context));
             return CompletionResult.HALT;
         }
     }
@@ -216,7 +219,7 @@ final class SingleCommandCompleter<A extends CommandActor> {
     private CompletionResult completeLiteral(@NotNull LiteralNode<A> node) {
         String nextWord = input.readUnquotedString();
         if (input.hasFinished()) {
-            if (node.name().startsWith(nextWord)) {
+            if (node.name().regionMatches(true, 0, nextWord, 0, nextWord.length())) {
                 // complete it for the user :)
                 suggestions.add(node.name());
             }
@@ -236,7 +239,7 @@ final class SingleCommandCompleter<A extends CommandActor> {
 
     private void filterSuggestions(String consumed, @NotNull Collection<String> parameterSuggestions) {
         for (String parameterSuggestion : parameterSuggestions) {
-            if (parameterSuggestion.toLowerCase().startsWith(consumed.toLowerCase())) {
+            if (parameterSuggestion.regionMatches(true, 0, consumed, 0, consumed.length())) {
                 suggestions.add(getRemainingContent(parameterSuggestion, consumed));
             }
         }

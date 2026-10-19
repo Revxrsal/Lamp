@@ -163,15 +163,15 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
 
     @Override
     public void execute(@NotNull A actor, @NotNull StringStream input) {
-        LiteralTree.Match<A> match = tree.match(input);
-        if (match.depth == 0) {
-            UnknownCommandException exception = new UnknownCommandException(match.mismatch, suggestCommands(actor, match.mismatch));
+        LiteralTree.Match<A> match = tree.match(input, true);
+        if (match.depth() == 0) {
+            UnknownCommandException exception = new UnknownCommandException(match.mismatch(), suggestCommands(actor, match.mismatch()));
             lamp.handleException(exception, ErrorContext.unknownCommand(actor));
             return;
         }
         Potential<A> best = null;
         List<Potential<A>> failed = new ArrayList<>();
-        for (ExecutableCommand<A> command : match.candidates) {
+        for (ExecutableCommand<A> command : match.candidates()) {
             Potential<A> potential = command.test(actor, input.toMutableCopy());
             if (potential.failed()) {
                 failed.add(potential);
@@ -193,11 +193,11 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
 
     /**
      * Returns what testing the command would give, without testing it. The command
-     * fails on its literal at {@link LiteralTree.Match#depth}.
+     * fails on its literal at {@link LiteralTree.Match#depth()}.
      */
     private Potential<A> mismatch(A actor, StringStream input, ExecutableCommand<A> command, LiteralTree.Match<A> match) {
         if (command instanceof Execution)
-            return new Execution.ParseResult<>((Execution<A>) command, actor, input, match.depth, match.mismatch, match.mismatchPosition);
+            return new Execution.ParseResult<>((Execution<A>) command, actor, input, match.depth(), match.mismatch(), match.mismatchPosition());
         return command.test(actor, input.toMutableCopy());
     }
 
@@ -208,6 +208,16 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
                 names.add(command.firstNode().name());
         }
         return Strings.closestMatches(input, names, 3);
+    }
+
+    /**
+     * Returns the tree that indexes the commands by their leading literals
+     *
+     * @return The literal tree
+     */
+    @ApiStatus.Internal
+    public @NotNull LiteralTree<A> literalTree() {
+        return tree;
     }
 
     @Override public @NotNull @UnmodifiableView List<ExecutableCommand<A>> commands() {
