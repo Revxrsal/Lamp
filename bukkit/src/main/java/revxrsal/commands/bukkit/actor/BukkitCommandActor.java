@@ -149,7 +149,7 @@ public interface BukkitCommandActor extends CommandActor {
      *
      * @return The {@link Lamp} instance
      */
-    @Override Lamp<BukkitCommandActor> lamp();
+    @Override @NotNull Lamp<BukkitCommandActor> lamp();
 
     /**
      * Returns the name of this actor. Varies depending on the

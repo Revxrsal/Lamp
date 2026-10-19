@@ -197,7 +197,7 @@ public interface SpongeCommandActor extends CommandActor {
      *
      * @return The {@link Lamp} instance
      */
-    @Override Lamp<SpongeCommandActor> lamp();
+    @Override @NotNull Lamp<SpongeCommandActor> lamp();
 
     /**
      * Returns the name of this actor. This tries to find the most suitable

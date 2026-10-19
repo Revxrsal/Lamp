@@ -51,7 +51,7 @@ final class BasicFabricActor implements FabricCommandActor {
             return UUID.nameUUIDFromBytes(name().getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override public Lamp<FabricCommandActor> lamp() {
+    @Override public @NotNull Lamp<FabricCommandActor> lamp() {
         return lamp;
     }
 

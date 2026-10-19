@@ -48,7 +48,7 @@ final class BasicMinestomActor implements MinestomCommandActor {
             return UUID.nameUUIDFromBytes(name().getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override public Lamp<MinestomCommandActor> lamp() {
+    @Override public @NotNull Lamp<MinestomCommandActor> lamp() {
         return lamp;
     }
 

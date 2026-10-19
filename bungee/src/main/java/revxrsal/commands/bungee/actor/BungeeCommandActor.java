@@ -94,7 +94,7 @@ public interface BungeeCommandActor extends CommandActor {
      *
      * @return The {@link Lamp} instance
      */
-    @Override Lamp<BungeeCommandActor> lamp();
+    @Override @NotNull Lamp<BungeeCommandActor> lamp();
 
     /**
      * Returns the name of this actor. Varies depending on the

@@ -115,6 +115,6 @@ public interface CommandActor {
      * the generics of this method to provide better information about
      * the actual actor type.
      */
-    Lamp<?> lamp();
+    @NotNull Lamp<?> lamp();
 
 }

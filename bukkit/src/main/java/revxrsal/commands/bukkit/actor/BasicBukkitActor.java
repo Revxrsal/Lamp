@@ -68,7 +68,7 @@ final class BasicBukkitActor implements BukkitCommandActor {
             return UUID.nameUUIDFromBytes(name().getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override public Lamp<BukkitCommandActor> lamp() {
+    @Override public @NotNull Lamp<BukkitCommandActor> lamp() {
         return lamp;
     }
 

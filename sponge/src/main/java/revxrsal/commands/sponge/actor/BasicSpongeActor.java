@@ -52,7 +52,7 @@ final class BasicSpongeActor implements SpongeCommandActor {
             return UUID.nameUUIDFromBytes(name().getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override public Lamp<SpongeCommandActor> lamp() {
+    @Override public @NotNull Lamp<SpongeCommandActor> lamp() {
         return lamp;
     }
 

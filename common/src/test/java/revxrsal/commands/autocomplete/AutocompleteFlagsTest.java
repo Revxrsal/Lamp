@@ -1,5 +1,6 @@
 package revxrsal.commands.autocomplete;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -78,21 +79,21 @@ class AutocompleteFlagsTest {
             this.lamp = lamp;
         }
 
-        @Override public String name() {
+        @NotNull @Override public String name() {
             return "test";
         }
 
-        @Override public UUID uniqueId() {
+        @NotNull @Override public UUID uniqueId() {
             return new UUID(0, 0);
         }
 
-        @Override public void sendRawMessage(String message) {
+        @Override public void sendRawMessage(@NotNull String message) {
         }
 
-        @Override public void sendRawError(String message) {
+        @Override public void sendRawError(@NotNull String message) {
         }
 
-        @Override public Lamp<?> lamp() {
+        @NotNull @Override public Lamp<?> lamp() {
             return lamp;
         }
     }

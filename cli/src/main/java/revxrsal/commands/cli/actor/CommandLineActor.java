@@ -49,7 +49,7 @@ final class CommandLineActor implements ConsoleActor {
         errorStream.println(message);
     }
 
-    @Override public Lamp<ConsoleActor> lamp() {return lamp;}
+    @Override public @NotNull Lamp<ConsoleActor> lamp() {return lamp;}
 
     @Override public @NotNull InputStream inputStream() {return inputStream;}
 

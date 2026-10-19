@@ -180,7 +180,7 @@ public interface FabricCommandActor extends CommandActor {
      *
      * @return The {@link Lamp} instance
      */
-    @Override Lamp<FabricCommandActor> lamp();
+    @Override @NotNull Lamp<FabricCommandActor> lamp();
 
     /**
      * Returns the name of this actor. Varies depending on the

@@ -29,7 +29,7 @@ final class BasicBungeeActor implements BungeeCommandActor {
             return UUID.nameUUIDFromBytes(name().getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override public Lamp<BungeeCommandActor> lamp() {
+    @Override public @NotNull Lamp<BungeeCommandActor> lamp() {
         return lamp;
     }
 

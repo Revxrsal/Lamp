@@ -182,7 +182,7 @@ public interface VelocityCommandActor extends CommandActor {
      *
      * @return The {@link Lamp} instance
      */
-    @Override Lamp<VelocityCommandActor> lamp();
+    @Override @NotNull Lamp<VelocityCommandActor> lamp();
 
     /**
      * Returns the name of this actor. Varies depending on the

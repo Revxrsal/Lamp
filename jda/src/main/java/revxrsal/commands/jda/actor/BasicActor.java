@@ -67,7 +67,7 @@ final class BasicActor implements SlashCommandActor {
         event.getMessageChannel().sendMessage("🛑 " + message).queue();
     }
 
-    @Override public Lamp<SlashCommandActor> lamp() {
+    @Override public @NotNull Lamp<SlashCommandActor> lamp() {
         return lamp;
     }
 }

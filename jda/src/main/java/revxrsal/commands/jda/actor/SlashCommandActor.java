@@ -305,6 +305,6 @@ public interface SlashCommandActor extends CommandActor {
      *
      * @return The lamp instance
      */
-    @Override Lamp<SlashCommandActor> lamp();
+    @Override @NotNull Lamp<SlashCommandActor> lamp();
 
 }

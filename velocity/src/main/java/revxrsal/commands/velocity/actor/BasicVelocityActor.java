@@ -52,7 +52,7 @@ final class BasicVelocityActor implements VelocityCommandActor {
             return UUID.nameUUIDFromBytes(name().getBytes(StandardCharsets.UTF_8));
     }
 
-    @Override public Lamp<VelocityCommandActor> lamp() {
+    @Override public @NotNull Lamp<VelocityCommandActor> lamp() {
         return lamp;
     }
 

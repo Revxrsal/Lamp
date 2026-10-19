@@ -182,7 +182,7 @@ public interface MinestomCommandActor extends CommandActor {
      *
      * @return The {@link Lamp} instance
      */
-    @Override Lamp<MinestomCommandActor> lamp();
+    @Override @NotNull Lamp<MinestomCommandActor> lamp();
 
     /**
      * Returns the name of this actor. Varies depending on the
