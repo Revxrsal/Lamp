@@ -50,4 +50,13 @@ public class ExpectedLiteralException extends InvalidValueException {
         //noinspection unchecked
         return (LiteralNode<A>) node;
     }
+
+    /**
+     * This is created for every mismatched literal while matching commands,
+     * so we skip the (expensive) stack trace.
+     */
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
+    }
 }

@@ -25,7 +25,6 @@ package revxrsal.commands.node;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
 import revxrsal.commands.command.CommandActor;
 import revxrsal.commands.command.Potential;
 import revxrsal.commands.util.StackTraceSanitizer;
@@ -54,18 +53,6 @@ public final class DispatcherSettings<A extends CommandActor> {
     public static final String SHORT_FORMAT_PREFIX = "-";
 
     /**
-     * The default number of failed attempts after which Lamp will stop
-     * testing out commands (for efficiency) and invoke the {@link FailureHandler}.
-     */
-    public static final int DEFAULT_MAXIMUM_FAILED_ATTEMPTS = 5;
-
-    /**
-     * The number of failed attempts after which Lamp will stop testing out commands
-     * (for efficiency) and invoke the {@link #failureHandler()}.
-     */
-    private final int maximumFailedAttempts;
-
-    /**
      * The failure handler that will consume the failed potentials.
      */
     private final @NotNull FailureHandler<A> failureHandler;
@@ -75,10 +62,15 @@ public final class DispatcherSettings<A extends CommandActor> {
      */
     private final @NotNull StackTraceSanitizer stackTraceSanitizer;
 
+    /**
+     * Whether input left after a command's last argument is an error
+     */
+    private final boolean rejectTrailingInput;
+
     private DispatcherSettings(Builder<A> builder) {
-        this.maximumFailedAttempts = builder.maximumFailedAttempts;
         this.failureHandler = builder.failureHandler;
         this.stackTraceSanitizer = builder.stackTraceSanitizer;
+        this.rejectTrailingInput = builder.rejectTrailingInput;
     }
 
     /**
@@ -89,16 +81,6 @@ public final class DispatcherSettings<A extends CommandActor> {
      */
     public static @NotNull <A extends CommandActor> Builder<A> builder() {
         return new Builder<>();
-    }
-
-    /**
-     * The number of failed attempts after which Lamp will stop testing out commands
-     * (for efficiency) and invoke the {@link #failureHandler()}.
-     *
-     * @return the maximum number of failed attempts
-     */
-    public int maximumFailedAttempts() {
-        return maximumFailedAttempts;
     }
 
     /**
@@ -121,6 +103,18 @@ public final class DispatcherSettings<A extends CommandActor> {
     }
 
     /**
+     * Whether input left after a command's last argument is an error. If
+     * {@code false} (the default), {@code /foo bar} runs {@code /foo} when no
+     * other command accepts {@code bar}. If {@code true}, it fails with a
+     * {@link revxrsal.commands.exception.TrailingInputException}.
+     *
+     * @return if trailing input is rejected
+     */
+    public boolean rejectTrailingInput() {
+        return rejectTrailingInput;
+    }
+
+    /**
      * Creates a new {@link Builder} based on this {@link DispatcherSettings}
      * instance
      *
@@ -130,8 +124,9 @@ public final class DispatcherSettings<A extends CommandActor> {
     @Contract(value = "-> new", pure = true)
     public @NotNull Builder<A> toBuilder() {
         return new Builder<>()
-                .maximumFailedAttempts(maximumFailedAttempts)
-                .failureHandler((FailureHandler) failureHandler);
+                .failureHandler((FailureHandler) failureHandler)
+                .stackTraceSanitizer(stackTraceSanitizer)
+                .rejectTrailingInput(rejectTrailingInput);
     }
 
     /**
@@ -140,12 +135,6 @@ public final class DispatcherSettings<A extends CommandActor> {
      * @param <A> The actor type
      */
     public static final class Builder<A extends CommandActor> {
-
-        /**
-         * The number of failed attempts after which Lamp will stop testing out commands
-         * (for efficiency) and invoke the {@link #failureHandler()}.
-         */
-        private int maximumFailedAttempts = DEFAULT_MAXIMUM_FAILED_ATTEMPTS;
 
         /**
          * The failure handler that will consume the failed potentials.
@@ -158,20 +147,9 @@ public final class DispatcherSettings<A extends CommandActor> {
         private @NotNull StackTraceSanitizer stackTraceSanitizer = StackTraceSanitizer.defaultSanitizer();
 
         /**
-         * Sets the number of failed attempts after which Lamp will stop testing
-         * out commands (for efficiency) and invoke the {@link #failureHandler()}.
-         *
-         * @param maximumFailedAttempts the maximum number of failed attempts
-         * @return This builder
+         * Whether input left after a command's last argument is an error
          */
-        public @NotNull Builder<A> maximumFailedAttempts(
-                @Range(from = 1, to = Integer.MAX_VALUE) int maximumFailedAttempts
-        ) {
-            if (maximumFailedAttempts < 0)
-                throw new IllegalArgumentException("Maximum failed attempts cannot be a negative number!");
-            this.maximumFailedAttempts = maximumFailedAttempts;
-            return this;
-        }
+        private boolean rejectTrailingInput = false;
 
         /**
          * Sets the failure handler that will consume the failed potentials.
@@ -195,6 +173,18 @@ public final class DispatcherSettings<A extends CommandActor> {
          */
         public Builder<A> stackTraceSanitizer(@NotNull StackTraceSanitizer stackTraceSanitizer) {
             this.stackTraceSanitizer = notNull(stackTraceSanitizer, "stack trace sanitizer");
+            return this;
+        }
+
+        /**
+         * Sets whether input left after a command's last argument is an error.
+         * See {@link DispatcherSettings#rejectTrailingInput()}.
+         *
+         * @param rejectTrailingInput if trailing input should be rejected
+         * @return This builder
+         */
+        public @NotNull Builder<A> rejectTrailingInput(boolean rejectTrailingInput) {
+            this.rejectTrailingInput = rejectTrailingInput;
             return this;
         }
 

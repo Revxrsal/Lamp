@@ -43,6 +43,7 @@ import revxrsal.commands.reflect.MethodCallerFactory;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.stream.StringStream;
 import revxrsal.commands.util.CommandPaths;
+import revxrsal.commands.util.Strings;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -59,12 +60,14 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
 
     private final List<ExecutableCommand<A>> children;
     private final List<ExecutableCommand<A>> unmodifiableChildren;
+    private final LiteralTree<A> tree = new LiteralTree<>();
     private final Lamp<A> lamp;
 
     public BaseCommandRegistry(Lamp<A> lamp, List<ExecutableCommand<A>> children) {
         this.children = children;
         this.lamp = lamp;
         unmodifiableChildren = Collections.unmodifiableList(children);
+        rebuildTree();
     }
 
     public BaseCommandRegistry(Lamp<A> lamp) {
@@ -80,7 +83,7 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
     public @Unmodifiable List<ExecutableCommand<A>> register(@NotNull Class<?> containerClass, Object instance, @Nullable List<String> orphanPaths) {
         injectDependencies(containerClass, instance);
         List<ExecutableCommand<A>> registered = new ArrayList<>();
-        for (Method method : getAllMethods(containerClass, true)) {
+        for (Method method : getAllMethods(containerClass)) {
             AnnotationList annotations = AnnotationList.create(method)
                     .replaceAnnotations(method, lamp.annotationReplacers());
             if (annotations.isEmpty())
@@ -135,8 +138,14 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
     }
 
     private void add(@NotNull ExecutableCommand<A> command) {
-        children.add(command);
-        Collections.sort(children);
+        LiteralTree.insertSorted(children, command);
+        tree.add(command);
+    }
+
+    private void rebuildTree() {
+        tree.clear();
+        for (ExecutableCommand<A> command : children)
+            tree.add(command);
     }
 
     @Override
@@ -154,36 +163,51 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
 
     @Override
     public void execute(@NotNull A actor, @NotNull StringStream input) {
-        LinkedList<Potential<A>> conflicts = new LinkedList<>();
-        LinkedList<Potential<A>> failed = new LinkedList<>();
-        String firstWord = input.peekUnquotedString();
-        for (ExecutableCommand<A> execution : children) {
-            // an easy way to exclude irrelevant nodes
-            if (!execution.firstNode().name().equalsIgnoreCase(firstWord))
-                continue;
-
-            MutableStringStream in = input.toMutableCopy();
-            Potential<A> potential = execution.test(actor, in);
-
-            if (conflicts.size() >= lamp.dispatcherSettings().maximumFailedAttempts())
-                break;
-
-            if (potential.successful()) {
-                conflicts.add(potential);
-            } else {
-                failed.add(potential);
-            }
-        }
-        if (conflicts.isEmpty()) {
-            if (failed.isEmpty()) {
-                lamp.handleException(new UnknownCommandException(firstWord), ErrorContext.unknownCommand(actor));
-                return;
-            }
-            lamp.dispatcherSettings().failureHandler().handleFailedAttempts(actor, Collections.unmodifiableList(failed), input);
+        LiteralTree.Match<A> match = tree.match(input);
+        if (match.depth == 0) {
+            UnknownCommandException exception = new UnknownCommandException(match.mismatch, suggestCommands(actor, match.mismatch));
+            lamp.handleException(exception, ErrorContext.unknownCommand(actor));
             return;
         }
-        Collections.sort(conflicts);
-        conflicts.getFirst().execute();
+        Potential<A> best = null;
+        List<Potential<A>> failed = new ArrayList<>();
+        for (ExecutableCommand<A> command : match.candidates) {
+            Potential<A> potential = command.test(actor, input.toMutableCopy());
+            if (potential.failed()) {
+                failed.add(potential);
+            } else if (best == null || potential.compareTo(best) < 0) {
+                best = potential;
+                // Candidates come in rank order, so nothing after this can rank higher
+                if (potential.consumedAllInput())
+                    break;
+            }
+        }
+        if (best != null) {
+            best.execute();
+            return;
+        }
+        for (ExecutableCommand<A> command : match.mismatched())
+            failed.add(mismatch(actor, input, command, match));
+        lamp.dispatcherSettings().failureHandler().handleFailedAttempts(actor, Collections.unmodifiableList(failed), input);
+    }
+
+    /**
+     * Returns what testing the command would give, without testing it. The command
+     * fails on its literal at {@link LiteralTree.Match#depth}.
+     */
+    private Potential<A> mismatch(A actor, StringStream input, ExecutableCommand<A> command, LiteralTree.Match<A> match) {
+        if (command instanceof Execution)
+            return new Execution.ParseResult<>((Execution<A>) command, actor, input, match.depth, match.mismatch, match.mismatchPosition);
+        return command.test(actor, input.toMutableCopy());
+    }
+
+    private List<String> suggestCommands(A actor, String input) {
+        Set<String> names = new LinkedHashSet<>();
+        for (ExecutableCommand<A> command : children) {
+            if (!command.isSecret() && command.permission().isExecutableBy(actor))
+                names.add(command.firstNode().name());
+        }
+        return Strings.closestMatches(input, names, 3);
     }
 
     @Override public @NotNull @UnmodifiableView List<ExecutableCommand<A>> commands() {
@@ -191,7 +215,8 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
     }
 
     @Override public void unregister(@NotNull ExecutableCommand<A> execution) {
-        children.remove(execution);
+        if (children.remove(execution))
+            rebuildTree();
     }
 
     @Override public boolean any(@NotNull Predicate<@NotNull ExecutableCommand<A>> matches) {
@@ -204,7 +229,8 @@ public final class BaseCommandRegistry<A extends CommandActor> implements Comman
     }
 
     @Override public void unregisterIf(@NotNull Predicate<ExecutableCommand<A>> matches) {
-        children.removeIf(matches);
+        if (children.removeIf(matches))
+            rebuildTree();
     }
 
     @Override public @NotNull Iterator<ExecutableCommand<A>> iterator() {

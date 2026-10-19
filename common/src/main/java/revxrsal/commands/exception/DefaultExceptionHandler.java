@@ -115,7 +115,15 @@ public class DefaultExceptionHandler<A extends CommandActor> extends RuntimeExce
 
     @HandleException
     public void onUnknownCommand(@NotNull UnknownCommandException e, @NotNull A actor) {
-        actor.error("Unknown command: " + e.input());
+        if (e.suggestions().isEmpty())
+            actor.error("Unknown command: " + e.input());
+        else
+            actor.error("Unknown command: " + e.input() + ". Did you mean: " + String.join(", ", e.suggestions()) + "?");
+    }
+
+    @HandleException
+    public void onTrailingInput(@NotNull TrailingInputException e, @NotNull A actor) {
+        actor.error("Too many arguments. Unexpected input: " + e.input());
     }
 
     @HandleException

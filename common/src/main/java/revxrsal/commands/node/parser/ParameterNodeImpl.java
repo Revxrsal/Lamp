@@ -137,13 +137,11 @@ final class ParameterNodeImpl<A extends CommandActor, T> extends BaseCommandNode
                 return 1;
             else if (n.isOptional && !isOptional)
                 return -1;
-            int compare = type.parsePriority().comparator().compare(parameterType(), n.parameterType());
-            if (compare != 0) {
-                return compare;
-            } else {
-                compare = n.parameterType().parsePriority().comparator().compare(n.parameterType(), parameterType());
-                return compare == 0 ? 0 : -compare;
-            }
+            // Ask both types, so that a.compareTo(b) == -b.compareTo(a). When they
+            // disagree (e.g. both are PrioritySpec.lowest()), they are considered equal.
+            int ours = Integer.signum(type.parsePriority().comparator().compare(parameterType(), n.parameterType()));
+            int theirs = Integer.signum(n.parameterType().parsePriority().comparator().compare(n.parameterType(), parameterType()));
+            return Integer.signum(ours - theirs);
         }
     }
 

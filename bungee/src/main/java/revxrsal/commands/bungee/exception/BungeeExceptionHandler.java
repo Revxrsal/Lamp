@@ -98,7 +98,8 @@ public class BungeeExceptionHandler extends DefaultExceptionHandler<BungeeComman
     }
 
     @Override public void onUnknownCommand(@NotNull UnknownCommandException e, @NotNull BungeeCommandActor actor) {
-        actor.error(legacyColorize("&cUnknown command: &e" + e.input() + "&c."));
+        String didYouMean = e.suggestions().isEmpty() ? "" : " Did you mean &e" + String.join("&c, &e", e.suggestions()) + "&c?";
+        actor.error(legacyColorize("&cUnknown command: &e" + e.input() + "&c." + didYouMean));
     }
 
     @Override public void onValueNotAllowed(@NotNull ValueNotAllowedException e, @NotNull BungeeCommandActor actor) {

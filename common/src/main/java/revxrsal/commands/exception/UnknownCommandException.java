@@ -1,5 +1,5 @@
 /*
- * This file is part of sweeper, licensed under the MIT License.
+ * This file is part of lamp, licensed under the MIT License.
  *
  *  Copyright (c) Revxrsal <reflxction.github@gmail.com>
  *
@@ -24,13 +24,34 @@
 package revxrsal.commands.exception;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Thrown when an invalid root command is inputted.
  */
 public class UnknownCommandException extends InvalidValueException {
 
+    private final @Unmodifiable List<String> suggestions;
+
     public UnknownCommandException(@NotNull String input) {
+        this(input, Collections.emptyList());
+    }
+
+    public UnknownCommandException(@NotNull String input, @NotNull List<String> suggestions) {
         super(input);
+        this.suggestions = Collections.unmodifiableList(suggestions);
+    }
+
+    /**
+     * Returns the commands that are close to the input, which the actor
+     * may have meant. This may be empty.
+     *
+     * @return The suggestions
+     */
+    public @NotNull @Unmodifiable List<String> suggestions() {
+        return suggestions;
     }
 }

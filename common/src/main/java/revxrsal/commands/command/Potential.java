@@ -89,6 +89,22 @@ public interface Potential<A extends CommandActor> extends Comparable<Potential<
     @Nullable ErrorContext<A> errorContext();
 
     /**
+     * Returns the position in the input at which the attempt failed. Attempts
+     * that got further into the input usually carry the more relevant error.
+     *
+     * @return The failure position, or {@code -1} if this was
+     * successful
+     */
+    int failurePosition();
+
+    /**
+     * Tests whether the attempt was successful and used all the input
+     *
+     * @return if all input was consumed
+     */
+    boolean consumedAllInput();
+
+    /**
      * Handles the exception that caused the attempt to fail.
      * <p>
      * If the attempt was successful, this method will do nothing

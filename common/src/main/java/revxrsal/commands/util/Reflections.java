@@ -23,8 +23,6 @@
  */
 package revxrsal.commands.util;
 
-import revxrsal.commands.annotation.CommandPriority;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,48 +38,17 @@ public final class Reflections {
 
     /**
      * Finds all {@link Method}s defined by a class, including private ones
-     * and ones that are inherited from classes. This will
-     * not respect {@link CommandPriority @CommandPriority}
+     * and ones that are inherited from classes.
      *
      * @param c Class to get for
      * @return A list of all methods
      */
     public static List<Method> getAllMethods(Class<?> c) {
-        return getAllMethods(c, false);
-    }
-
-    /**
-     * Finds all {@link Method}s defined by a class, including private ones
-     * and ones that are inherited from classes.
-     *
-     * @param c    Class to get for
-     * @param sort If it should sort them according to the {@link CommandPriority @CommandPriority}
-     *             annotation
-     * @return A list of all methods
-     */
-    public static List<Method> getAllMethods(Class<?> c, boolean sort) {
         List<Method> methods = new ArrayList<>();
         Class<?> current = c;
         while (current != null && current != Object.class) {
             addAll(methods, current.getDeclaredMethods());
             current = current.getSuperclass();
-        }
-        if (sort) {
-            methods.sort((o1, o2) -> {
-                CommandPriority a1 = o1.getAnnotation(CommandPriority.class);
-                CommandPriority a2 = o2.getAnnotation(CommandPriority.class);
-                if (a1 != null && a2 != null)
-                    return Integer.compare(a1.value(), a2.value());
-
-                CommandPriority.Low l1 = o1.getAnnotation(CommandPriority.Low.class);
-                CommandPriority.Low l2 = o2.getAnnotation(CommandPriority.Low.class);
-                if (l1 != null)
-                    return 1;
-                else if (l2 != null)
-                    return -1;
-                else
-                    return 0;
-            });
         }
         return methods;
     }

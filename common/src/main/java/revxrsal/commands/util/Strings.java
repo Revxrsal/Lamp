@@ -28,8 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.annotation.Named;
 import revxrsal.commands.annotation.list.AnnotationList;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -53,6 +52,56 @@ public final class Strings {
 
     private Strings() {
         cannotInstantiate(Strings.class);
+    }
+
+    /**
+     * Returns the candidates that the input may be a typo of, closest first. A
+     * candidate matches if it starts with the input, or is within a few edits of it
+     * (inserting, deleting or replacing a letter, or swapping two adjacent letters).
+     * Case is ignored.
+     *
+     * @param input      The mistyped input
+     * @param candidates The valid values
+     * @param limit      The maximum number of matches to return
+     * @return The closest matches
+     */
+    public static @NotNull List<String> closestMatches(@NotNull String input, @NotNull Collection<String> candidates, int limit) {
+        if (input.isEmpty())
+            return java.util.Collections.emptyList();
+        String typed = input.toLowerCase(Locale.ROOT);
+        // The same threshold Clang uses for its typo suggestions
+        int maxDistance = (typed.length() + 2) / 3;
+        Map<String, Integer> distances = new LinkedHashMap<>();
+        for (String candidate : candidates) {
+            String lower = candidate.toLowerCase(Locale.ROOT);
+            int distance = lower.startsWith(typed) ? 0 : editDistance(typed, lower);
+            if (distance <= maxDistance)
+                distances.put(candidate, distance);
+        }
+        List<String> matches = new ArrayList<>(distances.keySet());
+        matches.sort(Comparator.comparingInt(distances::get));
+        return matches.subList(0, Math.min(limit, matches.size()));
+    }
+
+    /**
+     * The optimal string alignment distance (Damerau–Levenshtein, where
+     * no substring is edited twice)
+     */
+    private static int editDistance(String a, String b) {
+        int[][] d = new int[a.length() + 1][b.length() + 1];
+        for (int i = 0; i <= a.length(); i++)
+            d[i][0] = i;
+        for (int j = 0; j <= b.length(); j++)
+            d[0][j] = j;
+        for (int i = 1; i <= a.length(); i++) {
+            for (int j = 1; j <= b.length(); j++) {
+                int cost = a.charAt(i - 1) == b.charAt(j - 1) ? 0 : 1;
+                d[i][j] = Math.min(Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1), d[i - 1][j - 1] + cost);
+                if (i > 1 && j > 1 && a.charAt(i - 1) == b.charAt(j - 2) && a.charAt(i - 2) == b.charAt(j - 1))
+                    d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+            }
+        }
+        return d[a.length()][b.length()];
     }
 
     public static @Nullable String getSnowflake(String mention) {

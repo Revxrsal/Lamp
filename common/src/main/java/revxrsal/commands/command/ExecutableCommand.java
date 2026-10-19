@@ -37,7 +37,6 @@ import revxrsal.commands.stream.MutableStringStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.OptionalInt;
 
 import static revxrsal.commands.util.Preconditions.notNull;
 
@@ -154,14 +153,6 @@ public interface ExecutableCommand<A extends CommandActor> extends Comparable<Ex
     @NotNull
     @Unmodifiable
     List<CommandNode<A>> nodes();
-
-    /**
-     * Returns the explicit priority defined by {@link CommandPriority}.
-     *
-     * @return The command priority
-     */
-    @NotNull
-    OptionalInt commandPriority();
 
     /**
      * Tests whether this command is secret or not. Secret

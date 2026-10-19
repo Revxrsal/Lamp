@@ -28,18 +28,19 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.jetbrains.annotations.Unmodifiable;
 import revxrsal.commands.Lamp;
-import revxrsal.commands.annotation.CommandPriority;
 import revxrsal.commands.annotation.Description;
 import revxrsal.commands.annotation.SecretCommand;
 import revxrsal.commands.annotation.Usage;
 import revxrsal.commands.command.*;
 import revxrsal.commands.exception.ExpectedLiteralException;
 import revxrsal.commands.exception.InputParseException;
+import revxrsal.commands.exception.TrailingInputException;
 import revxrsal.commands.exception.context.ErrorContext;
 import revxrsal.commands.help.Help;
 import revxrsal.commands.node.*;
 import revxrsal.commands.process.CommandCondition;
 import revxrsal.commands.stream.MutableStringStream;
+import revxrsal.commands.stream.StringStream;
 
 import java.util.*;
 
@@ -56,11 +57,10 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
     private final int size;
     private final boolean isSecret;
     private final String description, usage;
-    private final OptionalInt priority;
     private final String[] siblingPath;
     private final String path;
     private final int flagCount;
-    private final boolean lowPriority;
+    private final List<CommandNode<A>> positionalNodes;
     private int optionalParameters, requiredInput;
 
     public Execution(CommandFunction function, List<CommandNode<A>> nodes) {
@@ -80,18 +80,17 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         this.description = function.annotations().map(Description.class, Description::value);
         this.path = computePath();
         this.usage = function.annotations().mapOrGet(Usage.class, Usage::value, this::path);
-        this.priority = function.annotations()
-                .mapOr(CommandPriority.class, c -> OptionalInt.of(c.value()), OptionalInt.empty());
         this.siblingPath = computeSiblingPath();
-        this.flagCount = count(nodes, n -> n instanceof ParameterNode<?, ?> && (((ParameterNode<?, ?>) n).isFlag() || ((ParameterNode<?, ?>) n).isSwitch()));
-        this.lowPriority = function.annotations().contains(CommandPriority.Low.class);
-        if (lowPriority && priority.isPresent()) {
-            throw new IllegalArgumentException("You cannot have @CommandPriority and @CommandPriority.Low on the same function!");
-        }
+        this.flagCount = count(nodes, Execution::isFlagOrSwitch);
+        this.positionalNodes = filter(nodes, n -> !isFlagOrSwitch(n));
     }
 
     private static boolean isOptional(@NotNull CommandNode<? extends CommandActor> node) {
         return node instanceof ParameterNodeImpl && ((ParameterNode<? extends CommandActor, ?>) node).isOptional();
+    }
+
+    private static boolean isFlagOrSwitch(@NotNull CommandNode<? extends CommandActor> node) {
+        return node instanceof ParameterNode<?, ?> && (((ParameterNode<?, ?>) node).isFlag() || ((ParameterNode<?, ?>) node).isSwitch());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -322,37 +321,24 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         return Collections.unmodifiableList(nodes);
     }
 
-    @Override public @NotNull OptionalInt commandPriority() {
-        return priority;
-    }
-
     @Override
     public int compareTo(@NotNull ExecutableCommand<A> o) {
         if (!(o instanceof Execution)) {
             return 0; // Handle the case where o is not an instance of Execution
         }
         Execution<A> exec = (Execution<A>) o;
-        if (lowPriority != exec.lowPriority) {
-            return lowPriority ? 1 : -1;
-        }
-        // Compare by priority if both have priorities
-        if (commandPriority().isPresent() && o.commandPriority().isPresent()) {
-            return Integer.compare(commandPriority().getAsInt(), o.commandPriority().getAsInt());
-        }
-
-        // Compare by size if priorities are not present
-        int sizeComparison = Integer.compare(size, exec.size);
-        if (sizeComparison != 0) {
-            return sizeComparison; // Higher size = higher priority
+        // Compare the positional nodes from left to right. The first position at which
+        // the commands differ decides: literals before parameters, required parameters
+        // before optional ones, then the parameter types' PrioritySpec.
+        int shared = Math.min(positionalNodes.size(), exec.positionalNodes.size());
+        for (int i = 0; i < shared; i++) {
+            int nodeComparison = positionalNodes.get(i).compareTo(exec.positionalNodes.get(i));
+            if (nodeComparison != 0)
+                return nodeComparison;
         }
 
-        // Compare optional status of the last node if sizes are equal
-        if (isOptional(lastNode()) != isOptional(o.lastNode())) {
-            return isOptional(lastNode()) ? 1 : -1;
-        }
-
-        // Compare the last node if everything else is equal
-        return lastNode().compareTo(o.lastNode());
+        // One command is a prefix of the other: the shorter one comes first
+        return Integer.compare(positionalNodes.size(), exec.positionalNodes.size());
     }
 
     @Override
@@ -368,12 +354,31 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         private boolean consumedAllInput = false;
         private @Nullable Throwable error;
         private @Nullable ErrorContext<A> errorContext;
+        private int failurePosition = -1;
 
         public ParseResult(Execution<A> execution, A actor, MutableStringStream input) {
             this.execution = execution;
             this.context = ExecutionContext.createMutable(execution, actor, input.toImmutableCopy());
             this.input = input;
             this.testResult = test();
+        }
+
+        /**
+         * Creates a failed result for a command whose literal at {@code literalIndex}
+         * does not match {@code found}, without parsing anything. This is what
+         * testing the command would produce, as everything before that literal
+         * is literals as well.
+         */
+        @SuppressWarnings("unchecked")
+        ParseResult(Execution<A> execution, A actor, StringStream input, int literalIndex, String found, int position) {
+            LiteralNodeImpl<A> expected = (LiteralNodeImpl<A>) execution.nodes.get(literalIndex);
+            this.execution = execution;
+            this.context = ExecutionContext.createMutable(execution, actor, input.toImmutableCopy());
+            this.input = input.toMutableCopy();
+            this.testResult = false;
+            this.error = new ExpectedLiteralException(found, (LiteralNode<CommandActor>) (LiteralNode<?>) expected);
+            this.errorContext = ErrorContext.parsingLiteral(context, expected);
+            this.failurePosition = position;
         }
 
         private boolean test() {
@@ -384,33 +389,55 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                     return false;
                 }
             }
-            for (CommandNode<A> node : execution.nodes) {
-                if (node instanceof ParameterNode<?, ?> && (((ParameterNode<?, ?>) node).isFlag() || ((ParameterNode<?, ?>) node).isSwitch())) {
-                    ParameterNode<?, ?> p = (ParameterNode<?, ?>) node;
-                    continue;
-                }
+            for (CommandNode<A> node : execution.positionalNodes) {
                 if (!tryParse(node, input, context)) {
                     context.clearResolvedArguments();
                     return false;
                 }
             }
-            if (!testConditions()) {
+            if (input.hasRemaining() && input.peek() == ' ')
+                input.skipWhitespace();
+            consumedAllInput = input.hasFinished();
+            if (!consumedAllInput && execution.lamp().dispatcherSettings().rejectTrailingInput()) {
+                fail(new TrailingInputException(input.peekRemaining()), executingFunction(context), input.position());
                 return false;
             }
-            consumedAllInput = input.hasFinished();
-            return true;
+            return testPermission();
         }
 
         private boolean tryParseFlags() {
             FlagParser<A> flagParser = new FlagParser<>(context, input);
             if (!flagParser.tryParse()) {
-                error = flagParser.error();
-                errorContext = flagParser.errorContext();
+                fail(flagParser.error(), flagParser.errorContext(), input.position());
                 context.clearResolvedArguments();
                 return false;
             }
             input = flagParser.strippedInput();
             return true;
+        }
+
+        private void fail(Throwable error, ErrorContext<A> errorContext, int position) {
+            this.error = error;
+            this.errorContext = errorContext;
+            this.failurePosition = position;
+        }
+
+        /**
+         * Permissions take part in choosing a command, so an actor that lacks the
+         * permission for one overload can still run another. Other conditions only
+         * run on the chosen command (see {@link #execute()}).
+         */
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private boolean testPermission() {
+            if (!context.lamp().commandConditions().contains(PermissionConditionChecker.INSTANCE))
+                return true;
+            try {
+                PermissionConditionChecker.INSTANCE.test((ExecutionContext) context);
+                return true;
+            } catch (Throwable t) {
+                fail(t, executingFunction(context), input.position());
+                return false;
+            }
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
@@ -421,8 +448,7 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                 }
                 return true;
             } catch (Throwable t) {
-                error = t;
-                errorContext = executingFunction(context);
+                fail(t, executingFunction(context), input.position());
                 return false;
             }
         }
@@ -459,11 +485,25 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
         }
 
         @Override
+        public int failurePosition() {
+            return testResult ? -1 : failurePosition;
+        }
+
+        @Override
+        public boolean consumedAllInput() {
+            return testResult && consumedAllInput;
+        }
+
+        @Override
         public void execute() {
-            if (error == null) {
-                if (execution.lamp().hooks().onCommandExecuted(execution, context))
-                    execution.lastNode().execute(context, input);
+            if (!testResult || error != null)
+                return;
+            if (!testConditions()) {
+                handleException();
+                return;
             }
+            if (execution.lamp().hooks().onCommandExecuted(execution, context))
+                execution.lastNode().execute(context, input);
         }
 
         @Override
@@ -488,26 +528,27 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
             if (node instanceof LiteralNodeImpl) {
                 LiteralNodeImpl<A> l = (LiteralNodeImpl<A>) node;
                 String value = input.readUnquotedString();
-                if (node.name().equalsIgnoreCase(value)) {
-                    checkForSpace(input);
-                    return true;
+                if (!node.name().equalsIgnoreCase(value)) {
+                    input.setPosition(pos);
+                    fail(new ExpectedLiteralException(value, (LiteralNode<CommandActor>) l), ErrorContext.parsingLiteral(context, l), pos);
+                    return false;
                 }
-                input.setPosition(pos);
-                error = new ExpectedLiteralException(value, (LiteralNode<CommandActor>) l);
-                errorContext = ErrorContext.parsingLiteral(context, l);
-                return false;
+                if (input.hasRemaining() && input.peek() != ' ') {
+                    input.setPosition(pos);
+                    fail(new InputParseException(InputParseException.Cause.EXPECTED_WHITESPACE), ErrorContext.parsingLiteral(context, l), pos);
+                    return false;
+                }
+                return true;
             }
             ParameterNodeImpl<A, Object> parameter = (ParameterNodeImpl<A, Object>) node;
             try {
                 Object value = parameter.parse(input, context);
-                Lamp<A> lamp = execution.function().lamp();
                 context.addResolvedArgument(parameter.name(), value);
                 checkForSpace(input);
                 return true;
             } catch (Throwable t) {
                 input.setPosition(pos);
-                error = t;
-                errorContext = ErrorContext.parsingParameter(context, parameter, input);
+                fail(t, ErrorContext.parsingParameter(context, parameter, input), pos);
                 return false;
             }
         }

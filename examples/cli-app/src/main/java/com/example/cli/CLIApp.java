@@ -25,7 +25,6 @@ package com.example.cli;
 
 import revxrsal.commands.Lamp;
 import revxrsal.commands.annotation.Command;
-import revxrsal.commands.annotation.CommandPriority;
 import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.cli.CLILamp;
 import revxrsal.commands.cli.ConsoleActor;
@@ -51,7 +50,6 @@ public final class CLIApp {
     static class PingCommand {
 
         @Command("ping")
-        @CommandPriority.Low
         public void ping(ConsoleActor actor) {
             actor.reply("Pong");
         }
