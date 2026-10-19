@@ -38,6 +38,7 @@ import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.parameter.PrioritySpec;
 import revxrsal.commands.stream.MutableStringStream;
+import revxrsal.commands.stream.StringStream;
 import revxrsal.commands.util.Classes;
 
 import java.lang.reflect.Type;
@@ -111,19 +112,38 @@ abstract class CollectionParameterTypeFactory implements ParameterType.Factory<C
         private List<Object> parseList(@NotNull MutableStringStream input, @NotNull ExecutionContext<CommandActor> context) {
             List<Object> elements = new ArrayList<>();
             while (input.hasRemaining()) {
-                Object el = componentType.parse(input, context);
-                elements.add(el);
-                if (input.hasRemaining()) {
-                    if (input.peek() == delimiter)
+                elements.add(delimiter == ' ' ? componentType.parse(input, context) : parseElement(input, context));
+                if (!input.hasRemaining())
+                    break;
+                if (input.peek() == delimiter) {
+                    if (delimiter == ' ')
                         input.skipWhitespace();
                     else
-                        throw new InputParseException(InputParseException.Cause.EXPECTED_WHITESPACE);
+                        input.moveForward();
+                } else if (delimiter != ' ' && input.peek() == ' ') {
+                    // a delimited collection is a single word. The rest belongs to other parameters
+                    break;
+                } else {
+                    throw new InputParseException(InputParseException.Cause.EXPECTED_WHITESPACE);
                 }
             }
             if (elements.size() > maxSize || elements.size() < minSize)
                 throw new InvalidListSizeException(minSize, maxSize, elements.size(), elements);
 
             return elements;
+        }
+
+        /**
+         * Parses the element up to the next delimiter. Element types read up to the
+         * next whitespace, so they are given only the element's text.
+         */
+        private Object parseElement(@NotNull MutableStringStream input, @NotNull ExecutionContext<CommandActor> context) {
+            String text = input.readWhile(c -> c != delimiter && c != ' ');
+            MutableStringStream element = StringStream.createMutable(text);
+            Object value = componentType.parse(element, context);
+            if (element.hasRemaining())
+                throw new InputParseException(InputParseException.Cause.EXPECTED_WHITESPACE);
+            return value;
         }
 
         @Override
@@ -155,7 +175,8 @@ abstract class CollectionParameterTypeFactory implements ParameterType.Factory<C
         }
 
         @Override public boolean isGreedy() {
-            return maxSize == Integer.MAX_VALUE;
+            // a delimited collection is a single word
+            return delimiter == ' ' && maxSize == Integer.MAX_VALUE;
         }
     }
 

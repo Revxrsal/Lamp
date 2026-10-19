@@ -12,6 +12,7 @@ import java.util.*;
 
 import static revxrsal.commands.node.DispatcherSettings.LONG_FORMAT_PREFIX;
 import static revxrsal.commands.node.DispatcherSettings.SHORT_FORMAT_PREFIX;
+import static revxrsal.commands.util.Numbers.isNegativeNumber;
 
 /**
  * Auto-completer for individual {@link ExecutableCommand ExecutableCommands}
@@ -80,6 +81,13 @@ final class SingleCommandCompleter<A extends CommandActor> {
             context.addResolvedArgument(parameter.name(), true);
             return CompletionResult.CONTINUE;
         }
+        // The user is still typing this argument. Suggest without parsing it, as parsing
+        // incomplete input may be expensive (e.g. looking up a player by name).
+        String remaining = input.peekRemaining();
+        if (isLastWord(remaining)) {
+            filterSuggestions(remaining, parameter.complete(context));
+            return CompletionResult.HALT;
+        }
         rememberPosition();
         try {
             Object value = parameter.parse(input, context);
@@ -100,7 +108,7 @@ final class SingleCommandCompleter<A extends CommandActor> {
             boolean reachedEnd = input.hasFinished();
             String consumed = restorePosition();
             // Only suggest if the user is still typing this argument, and has not moved past it
-            if (reachedEnd || input.peekRemaining().indexOf(' ') == -1)
+            if (reachedEnd || isLastWord(input.peekRemaining()))
                 filterSuggestions(consumed, parameter.complete(context));
             return CompletionResult.HALT;
         }
@@ -149,7 +157,7 @@ final class SingleCommandCompleter<A extends CommandActor> {
                 } else if (input.hasRemaining() && input.peek() == ' ') {
                     input.skipWhitespace();
                 }
-            } else if (next.startsWith("-")) {
+            } else if (next.startsWith("-") && !isNegativeNumber(next)) {
                 lastWasShort = true;
                 String shortenedString = next.substring(SHORT_FORMAT_PREFIX.length());
                 char[] spec = shortenedString.toCharArray();
@@ -243,6 +251,17 @@ final class SingleCommandCompleter<A extends CommandActor> {
                 suggestions.add(getRemainingContent(parameterSuggestion, consumed));
             }
         }
+    }
+
+    /**
+     * Tests whether the remaining input is a single word, i.e. the one the user is typing
+     */
+    private static boolean isLastWord(@NotNull String remaining) {
+        for (int i = 0; i < remaining.length(); i++) {
+            if (Character.isWhitespace(remaining.charAt(i)))
+                return false;
+        }
+        return true;
     }
 
     private String universalFlagName(@NotNull ParameterNode<A, Object> parameter) {

@@ -74,6 +74,18 @@ public final class Numbers {
         throw new IllegalArgumentException("Unsupported type: " + type.getName());
     }
 
+    /**
+     * Tests whether the input looks like a negative number, such as {@code -1}
+     * or {@code -.5}. These are values rather than shorthand flags.
+     *
+     * @param input The input to test
+     * @return if it looks like a negative number
+     */
+    public static boolean isNegativeNumber(@NotNull String input) {
+        return input.length() > 1 && input.charAt(0) == '-'
+                && (Character.isDigit(input.charAt(1)) || input.charAt(1) == '.');
+    }
+
     public static boolean isDecimal(@NotNull Class<?> type) {
         type = wrap(type);
         return type == Float.class || type == Double.class;

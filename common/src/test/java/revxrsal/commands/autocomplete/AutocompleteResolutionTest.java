@@ -43,8 +43,11 @@ class AutocompleteResolutionTest {
 
     @BeforeEach
     void setUp() {
+        LookupType.parses = 0;
         lamp = Lamp.builder()
-                .parameterTypes(types -> types.addParameterType(Position.class, new PositionType()))
+                .parameterTypes(types -> types
+                        .addParameterType(Position.class, new PositionType())
+                        .addParameterType(Lookup.class, new LookupType()))
                 .build();
         actor = new AutocompleteFlagsTest.TestActor(lamp);
         lamp.register(new Commands());
@@ -92,7 +95,43 @@ class AutocompleteResolutionTest {
         assertSuggestions("pos 10 1", "10");
     }
 
+    @Test
+    void doesNotParseTheArgumentBeingTyped() {
+        assertSuggestions("lookup ab", "abc");
+        assertEquals(0, LookupType.parses);
+        assertSuggestions("lookup abc ", "x");
+        assertEquals(1, LookupType.parses);
+    }
+
+    @Test
+    void completesFlagsAfterNegativeNumbers() {
+        assertSuggestions("move -1 --f", "--fast");
+    }
+
+    static final class Lookup {}
+
+    /**
+     * Stands in for a type whose parsing is expensive, like looking up a player by name
+     */
+    static final class LookupType implements ParameterType<CommandActor, Lookup> {
+        static int parses = 0;
+
+        @Override public Lookup parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<CommandActor> context) {
+            parses++;
+            input.readString();
+            return new Lookup();
+        }
+
+        @Override public @NotNull SuggestionProvider<CommandActor> defaultSuggestions() {
+            return context -> Arrays.asList("abc", "xyz");
+        }
+    }
+
     static class Commands {
+        @Command("lookup") void lookup(Lookup lookup, @Suggest("x") String then) {}
+
+        @Command("move") void move(int amount, @Switch("fast") boolean fast) {}
+
         @Command("island home") void home() {}
 
         @Command("island help") void help() {}

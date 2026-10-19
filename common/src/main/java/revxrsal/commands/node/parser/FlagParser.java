@@ -43,6 +43,7 @@ import static revxrsal.commands.node.DispatcherSettings.LONG_FORMAT_PREFIX;
 import static revxrsal.commands.node.DispatcherSettings.SHORT_FORMAT_PREFIX;
 import static revxrsal.commands.reflect.ktx.KotlinConstants.isKotlinClass;
 import static revxrsal.commands.util.Collections.filter;
+import static revxrsal.commands.util.Numbers.isNegativeNumber;
 import static revxrsal.commands.util.Strings.removeRanges;
 
 final class FlagParser<A extends CommandActor> {
@@ -83,7 +84,7 @@ final class FlagParser<A extends CommandActor> {
                     parseNext(context, parameter);
                     int end = input.position();
                     rangesToRemove.add(new StringRange(start, end));
-                } else if (next.startsWith(SHORT_FORMAT_PREFIX)) {
+                } else if (next.startsWith(SHORT_FORMAT_PREFIX) && !isNegativeNumber(next)) {
                     input.readUnquotedString();
                     char[] flags = next.substring(SHORT_FORMAT_PREFIX.length()).toCharArray();
                     for (char flag : flags) {

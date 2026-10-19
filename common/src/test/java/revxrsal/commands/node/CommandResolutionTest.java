@@ -230,6 +230,52 @@ class CommandResolutionTest {
     }
 
     @Test
+    void negativeNumbersAreNotFlags() {
+        lamp.register(new Object() {
+            @Command("move") void move(int amount, @Switch("fast") boolean fast) {ran.add(amount + " fast=" + fast);}
+        });
+        dispatch("move -1");
+        assertRan("-1 fast=false");
+        dispatch("move -1 --fast");
+        assertRan("-1 fast=true");
+        dispatch("move 1 -x");
+        assertRan();
+        assertTrue(errors.get(0).contains("Unknown shorthand flag"), errors.get(0));
+    }
+
+    @Test
+    void delimiterSplitsCollections() {
+        lamp.register(new Object() {
+            @Command("commas") void commas(@Delimiter(',') List<Integer> numbers, String rest) {ran.add(numbers + " " + rest);}
+
+            @Command("spaces") void spaces(List<Integer> numbers) {ran.add(numbers.toString());}
+        });
+        dispatch("commas 1,2,3 hello");
+        assertRan("[1, 2, 3] hello");
+        dispatch("spaces 1 2 3");
+        assertRan("[1, 2, 3]");
+    }
+
+    @Test
+    void nestedClassesInheritTheirEnclosingPath() {
+        lamp.register(new Game(), new Game.Arena());
+        dispatch("game arena create");
+        assertRan("create");
+        dispatch("game match create");
+        assertRan("create");
+    }
+
+    @Command("game")
+    static class Game {
+        @Subcommand("test") void test() {current.ran.add("test");}
+
+        @Subcommand({"arena", "match"})
+        static class Arena {
+            @Subcommand("create") void create() {current.ran.add("create");}
+        }
+    }
+
+    @Test
     void unregisteredCommandsAreNotDispatched() {
         lamp.register(new Islands());
         lamp.unregisterIf(command -> command.path().equals("island home"));
