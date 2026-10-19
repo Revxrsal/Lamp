@@ -120,6 +120,197 @@ class QuestCommands {
 }
 ```
 
+### Flags and switches
+
+```java
+@Command("ban")
+public void ban(
+        CommandActor actor,
+        Player target,
+        @Switch("silent") boolean silent,
+        @Flag("reason") @Optional String reason
+) {
+    // /ban Notch --silent --reason "Griefing spawn"
+    // /ban Notch -s
+}
+```
+
+### Suggestions
+
+```java
+@Command("difficulty")
+public void difficulty(CommandActor actor, @Suggest({"easy", "normal", "hard"}) String level) {
+}
+
+@Command("warp")
+public void warp(Player sender, @SuggestWith(WarpSuggestions.class) String warp) {
+}
+```
+
+### Built-in validation
+
+```java
+@Command("nick")
+public void nick(Player sender, @Length(min = 3, max = 16) String nickname) {
+}
+
+@Command("give coins")
+public void giveCoins(CommandActor actor, Player target, @Range(min = 1, max = 10_000) int amount) {
+}
+
+@Command("mode")
+public void mode(CommandActor actor, @Values({"survival", "creative"}) String mode) {
+}
+```
+
+### Cooldowns
+
+```java
+@Command("heal")
+@Cooldown(value = 30, unit = TimeUnit.SECONDS)
+public void heal(Player sender) {
+    sender.setHealth(sender.getMaxHealth());
+}
+```
+
+### Writing your own parameter type
+
+```java
+public final class QuestParameterType implements ParameterType<BukkitCommandActor, Quest> {
+
+    private final QuestManager questManager;
+
+    public QuestParameterType(QuestManager questManager) {
+        this.questManager = questManager;
+    }
+
+    @Override
+    public Quest parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<BukkitCommandActor> context) {
+        String name = input.readString();
+        Quest quest = questManager.getQuest(name);
+        if (quest == null)
+            throw new CommandErrorException("No such quest: " + name);
+        return quest;
+    }
+
+    @Override
+    public @NotNull SuggestionProvider<BukkitCommandActor> defaultSuggestions() {
+        return context -> questManager.getQuestNames();
+    }
+}
+```
+
+```java
+Lamp<BukkitCommandActor> lamp = BukkitLamp.builder(this)
+        .parameterTypes(types -> types.addParameterType(Quest.class, new QuestParameterType(questManager)))
+        .build();
+```
+
+### Return values as responses
+
+```java
+@Command("balance")
+public String balance(Player sender) {
+    return "Your balance is $" + economy.getBalance(sender);
+}
+```
+
+```java
+BukkitLamp.builder(this)
+        .responseHandler(String.class, (response, context) -> context.actor().reply(response))
+        .build();
+```
+
+### Custom error messages
+
+Handle any exception with a plain method — the parameters decide when it runs:
+
+```java
+public class MyExceptionHandler extends BukkitExceptionHandler {
+
+    @HandleException
+    public void onCooldown(CooldownException e, BukkitCommandActor actor) {
+        actor.error("Slow down! Try again in " + e.getTimeLeft(TimeUnit.SECONDS) + "s.");
+    }
+
+    @HandleException
+    public void onNoPermission(NoPermissionException e, BukkitCommandActor actor) {
+        actor.error("You can't do that.");
+    }
+}
+```
+
+```java
+BukkitLamp.builder(this)
+        .exceptionHandler(new MyExceptionHandler())
+        .build();
+```
+
+### Generated help commands
+
+```java
+@Command("arena help")
+public void help(BukkitCommandActor actor, Help.RelatedCommands<BukkitCommandActor> commands, @Default("1") int page) {
+    for (ExecutableCommand<BukkitCommandActor> command : commands.paginate(page, 7))
+        actor.reply("/" + command.usage() + " - " + command.description());
+}
+```
+
+### Command conditions
+
+```java
+BukkitLamp.builder(this)
+        .commandCondition(context -> {
+            if (maintenanceMode && !context.actor().sender().isOp())
+                throw new CommandErrorException("The server is in maintenance mode.");
+        })
+        .build();
+```
+
+### Orphan commands
+
+Let server owners choose the command name (e.g. from a config file):
+
+```java
+public class ShopCommand implements OrphanCommand {
+
+    @CommandPlaceholder
+    public void open(Player sender) {
+        shop.open(sender);
+    }
+
+    @Subcommand("reload")
+    public void reload(CommandActor actor) {
+    }
+}
+```
+
+```java
+lamp.register(Orphans.path(config.getString("shop-command")).handler(new ShopCommand()));
+```
+
+### Kotlin coroutines
+
+`suspend` functions work out of the box:
+
+```kotlin
+@Command("profile")
+suspend fun profile(actor: BukkitCommandActor, target: OfflinePlayer) {
+    val profile = database.fetchProfile(target.uniqueId)
+    actor.reply("${target.name} has ${profile.coins} coins")
+}
+```
+
+### Command-line applications
+
+```java
+public static void main(String[] args) {
+    Lamp<ConsoleActor> lamp = CLILamp.builder().build();
+    lamp.register(new PingCommand());
+    lamp.accept(CLIVisitors.pollStdin());
+}
+```
+
 ### Custom permission annotations
 ```java
 @RequiresGroup("admin")
