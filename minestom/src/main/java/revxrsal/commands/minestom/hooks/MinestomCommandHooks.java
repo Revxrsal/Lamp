@@ -79,14 +79,13 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
         Command minestomCommand = registeredRootNames.computeIfAbsent(name, k -> {
             Command c = new Command(k);
             c.setCondition((sender, cmd) -> {
-                A actor = actorFactory.create(sender, command.lamp());
-                if (cmd == null) {
-                    // Minestom is checking whether to declare this command to the client
-                    return command.permission().isExecutableBy(actor);
-                } else {
-                    // For actual execution, command conditions should be left to run for user feedback
+                // For actual execution, command conditions should be left to run for user feedback
+                if (cmd != null)
                     return true;
-                }
+                // Minestom is checking whether to declare this command to the client. Declare it
+                // if the actor can see any of the commands under it.
+                A actor = actorFactory.create(sender, command.lamp());
+                return command.lamp().registry().any(other -> other.firstNode().name().equals(k) && isVisibleTo(other, actor));
             });
             MinecraftServer.getCommandManager().register(c);
             return c;
@@ -127,7 +126,7 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
                     else if (node instanceof ParameterNode<A, ?> parameter) {
                         if (parameter.isSwitch()) {
                             // add the required
-                            minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
+                            addSyntax(minestomCommand, command, arguments);
 
                             // add it to the required and then add that.
                             ArgumentColl sw = ofSwitch(parameter);
@@ -137,7 +136,7 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
                             if (parameter.isRequired()) {
                                 arguments.addAll(argumentColl.arguments());
                             } else {
-                                minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
+                                addSyntax(minestomCommand, command, arguments);
 
                                 ArgumentColl flag = ofFlag(parameter);
                                 addedOptionals.add(flag);
@@ -147,7 +146,7 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
                         }
                     }
                 }
-                minestomCommand.addSyntax(generateAction(command), arguments.toArray(Argument[]::new));
+                addSyntax(minestomCommand, command, arguments);
                 addOptionalFlagsRecursively(command, minestomCommand, addedOptionals, arguments);
             } else {
                 for (int i = 1; i < command.nodes().size(); i++) {
@@ -187,12 +186,29 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
                         for (ArgumentColl coll : combination) {
                             path.addAll(coll.arguments());
                         }
-                        minestomCommand.addSyntax(generateAction(command), path.toArray(Argument[]::new));
+                        addSyntax(minestomCommand, command, path);
                     }
                 }
                 // we have <= 4 flags, so we create all possible permutations
             }
         }
+    }
+
+    /**
+     * Adds a syntax that runs the given command. Clients are only told about the
+     * syntax if the command is visible to them, but anyone may run it, so that
+     * Lamp gives feedback.
+     */
+    private void addSyntax(@NotNull Command minestomCommand, @NotNull ExecutableCommand<A> command, @NotNull List<Argument<?>> arguments) {
+        minestomCommand.addConditionalSyntax(
+                (sender, cmd) -> cmd != null || isVisibleTo(command, actorFactory.create(sender, command.lamp())),
+                generateAction(command),
+                arguments.toArray(Argument[]::new)
+        );
+    }
+
+    private boolean isVisibleTo(@NotNull ExecutableCommand<A> command, @NotNull A actor) {
+        return !command.isSecret() && command.permission().isExecutableBy(actor);
     }
 
     private void addOptionalFlagsRecursively(
@@ -204,7 +220,7 @@ public final class MinestomCommandHooks<A extends MinestomCommandActor> implemen
         for (int i = 0; i < addedOptionals.size(); i++) {
             ArgumentColl o = addedOptionals.get(i);
             List<Argument<?>> after = o.after(arguments);
-            minestomCommand.addSyntax(generateAction(command), after.toArray(Argument[]::new));
+            addSyntax(minestomCommand, command, after);
             for (int j = i + 1; j < addedOptionals.size(); j++) {
                 addOptionalFlagsRecursively(
                         command,

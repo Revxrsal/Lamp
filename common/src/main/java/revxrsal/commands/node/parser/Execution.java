@@ -389,11 +389,11 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
                     return false;
                 }
             }
+            // On failure, the context keeps the arguments parsed so far. Suggestion
+            // providers and error handlers may need them.
             for (CommandNode<A> node : execution.positionalNodes) {
-                if (!tryParse(node, input, context)) {
-                    context.clearResolvedArguments();
+                if (!tryParse(node, input, context))
                     return false;
-                }
             }
             if (input.hasRemaining() && input.peek() == ' ')
                 input.skipWhitespace();
@@ -409,7 +409,6 @@ final class Execution<A extends CommandActor> implements ExecutableCommand<A> {
             FlagParser<A> flagParser = new FlagParser<>(context, input);
             if (!flagParser.tryParse()) {
                 fail(flagParser.error(), flagParser.errorContext(), input.position());
-                context.clearResolvedArguments();
                 return false;
             }
             input = flagParser.strippedInput();

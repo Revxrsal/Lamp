@@ -24,6 +24,7 @@
 package revxrsal.commands.brigadier;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
@@ -74,6 +75,7 @@ public final class BrigadierParser<S, A extends CommandActor> {
         final CommandNode<S> child = Nodes.getChildren(p).get(node.getName());
         if (child != null) {
             // We've found something to merge onto
+            checkSameType(p, child, node);
             if (node.getCommand() != null) {
                 Nodes.setCommand(child, node.getCommand());
             }
@@ -101,6 +103,23 @@ public final class BrigadierParser<S, A extends CommandActor> {
      * @param command Command to wrap
      * @return The equivalent node
      */
+    /**
+     * Brigadier merges sibling nodes with the same name, so two arguments named
+     * the same must also be of the same type. Otherwise, one of them would silently
+     * use the other's type.
+     */
+    private static <S> void checkSameType(CommandNode<S> parent, CommandNode<S> existing, CommandNode<S> node) {
+        if (!(existing instanceof ArgumentCommandNode) || !(node instanceof ArgumentCommandNode))
+            return;
+        ArgumentType<?> existingType = ((ArgumentCommandNode<S, ?>) existing).getType();
+        ArgumentType<?> type = ((ArgumentCommandNode<S, ?>) node).getType();
+        if (existingType.getClass() != type.getClass())
+            throw new IllegalArgumentException("Two commands under '" + parent.getName() + "' have an argument named '"
+                    + node.getName() + "' with different types (" + existingType.getClass().getSimpleName() + " and "
+                    + type.getClass().getSimpleName() + "). Brigadier would merge them into one argument. "
+                    + "Give them different names, for example with @Named.");
+    }
+
     public @NotNull LiteralCommandNode<S> createNode(@NotNull ExecutableCommand<A> command) {
         final BNode<S> firstNode = BNode.literal(command.firstNode().name());
         firstNode.requires(createRequirement(command.permission(), command.lamp()));
@@ -273,14 +292,9 @@ public final class BrigadierParser<S, A extends CommandActor> {
      * @return The wrapped {@link Command}
      */
     public @NotNull Command<S> createAction(@NotNull ExecutableCommand<A> command) {
-        return a -> {
-            MutableStringStream input = StringStream.createMutable(a.getInput());
-            if (input.peekUnquotedString().contains(":"))
-                input = StringStream.createMutable(stripNamespace(a.getInput()));
-            A actor = converter.createActor(a.getSource(), command.lamp());
-            command.execute(actor, input);
-            return Command.SINGLE_SUCCESS;
-        };
+        // Brigadier merges nodes with the same name, so a node may belong to several
+        // commands. Let Lamp decide which one runs.
+        return createAction(command.lamp());
     }
 
     /**
