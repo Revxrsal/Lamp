@@ -20,6 +20,7 @@ include("cli")
 include("sponge")
 include("jda")
 include("fabric")
+include("geyser")
 include("minestom")
 include("internal-paper-stubs")
 

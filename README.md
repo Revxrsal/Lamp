@@ -15,7 +15,7 @@ robust solution with a clean, idiomatic API.
 ## Core Features
 
 - **Multi-Platform Support**: Easily integrate with various platforms including Bukkit, BungeeCord, Sponge, Velocity,
-  JDA, Minestom, and more.
+  Geyser, JDA, Minestom, and more.
 - **Command Management**:
     - Define commands using simple annotations and manage them effortlessly.
     - Use spaces to define subcommands easily
@@ -146,6 +146,28 @@ public void ban(
 
 ![JDA slash commands](https://github.com/Revxrsal/lamp-docs/blob/main/.gitbook/assets/image%20(3).png?raw=true)
 
+### Supports Geyser extensions
+
+```java
+@Command("ping")
+@CommandPermission("myextension.ping")
+public void ping(GeyserConnection sender, GeyserConnection target) {
+    sender.sendMessage(target.name() + "'s ping is " + target.ping() + "ms");
+}
+```
+
+Commands whose sender is a `GeyserConnection` or `GeyserPlayerEntity` are automatically marked as Bedrock-only.
+Geyser only accepts commands while it is defining them, so create Lamp and register your commands
+in `GeyserPreInitializeEvent`:
+
+```java
+@Subscribe
+public void onPreInitialize(GeyserPreInitializeEvent event) {
+    Lamp<GeyserCommandActor> lamp = GeyserLamp.builder(this).build();
+    lamp.register(new MyCommands());
+}
+```
+
 ### Multi-platform support
 
 Lamp supports the following platforms out of the box:
@@ -157,6 +179,7 @@ Lamp supports the following platforms out of the box:
 - Sponge
 - Minestom
 - Fabric
+- Geyser extensions (requires Java 21)
 - JDA slash commands
 - Command-line applications
 
