@@ -50,4 +50,14 @@ public abstract class InvalidValueException extends RuntimeException {
     public @NotNull String input() {
         return input;
     }
+
+    /**
+     * These are thrown for invalid user input, often many times per command while
+     * trying out overloads, and are reported as messages. We skip the (expensive)
+     * stack trace.
+     */
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
+    }
 }

@@ -135,6 +135,8 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
 
     public float readFloat() {
         String value = readUnquotedString();
+        if (!containsDigit(value))
+            throw new InvalidDecimalException(value);
         try {
             float v = Float.parseFloat(value);
             if (Float.isFinite(v)) return v;
@@ -146,6 +148,8 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
 
     public double readDouble() {
         String value = readUnquotedString();
+        if (!containsDigit(value))
+            throw new InvalidDecimalException(value);
         try {
             double v = Double.parseDouble(value);
             if (Double.isFinite(v)) return v;
@@ -157,6 +161,8 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
 
     public int readInt() {
         String value = readUnquotedString();
+        if (!containsDigit(value))
+            throw new InvalidIntegerException(value);
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
@@ -166,6 +172,8 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
 
     public long readLong() {
         String value = readUnquotedString();
+        if (!containsDigit(value))
+            throw new InvalidIntegerException(value);
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
@@ -175,6 +183,8 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
 
     public short readShort() {
         String value = readUnquotedString();
+        if (!containsDigit(value))
+            throw new InvalidIntegerException(value);
         try {
             return Short.parseShort(value);
         } catch (NumberFormatException e) {
@@ -184,11 +194,26 @@ public final class MutableStringStreamImpl extends BaseStringStream implements M
 
     public byte readByte() {
         String value = readUnquotedString();
+        if (!containsDigit(value))
+            throw new InvalidIntegerException(value);
         try {
             return Byte.parseByte(value);
         } catch (NumberFormatException e) {
             throw new InvalidIntegerException(value);
         }
+    }
+
+    /**
+     * Every valid number contains a digit. Checking this first avoids an
+     * expensive NumberFormatException for words, which is common when
+     * overloads are tried out.
+     */
+    private static boolean containsDigit(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            if (Character.isDigit(value.charAt(i)))
+                return true;
+        }
+        return false;
     }
 
     public boolean readBoolean() {
